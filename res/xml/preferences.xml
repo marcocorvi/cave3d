@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <android.preference.EditTextPreference
+       android:key="CAVE3D_BASE_PATH"
+       android:title="@string/pref_base_path_title"
+       android:summary="@string/pref_base_path_summary"
+       android:dialogTitle="@string/pref_base_path_title"
+       android:dialogMessage="@string/pref_base_path_message"
+       />
+
+  <android.preference.EditTextPreference
+       android:key="CAVE3D_TEXT_SIZE"
+       android:title="@string/pref_text_size_title"
+       android:summary="@string/pref_text_size_summary"
+       android:dialogTitle="@string/pref_text_size_title"
+       android:dialogMessage="@string/pref_text_size_message"
+       />
+
+  <android.preference.EditTextPreference
+       android:key="CAVE3D_SELECTION_RADIUS"
+       android:title="@string/pref_selection_radius_title"
+       android:summary="@string/pref_selection_radius_summary"
+       android:dialogTitle="@string/pref_selection_radius_title"
+       android:dialogMessage="@string/pref_selection_radius_message"
+       />
+
+</PreferenceScreen>

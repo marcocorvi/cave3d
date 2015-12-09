@@ -1,3 +1,4 @@
 # cave3d
 
-readme
+Cave3D is a java 3D viewer for therion projects.
+

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cave3D</string>
+
+    <string name="btn_move">Move</string>
+    <string name="btn_rotate">Turn</string>
+    <string name="btn_station">Station</string>
+    <string name="btn_splay">Splay</string>
+    <string name="btn_zoom_in">Zoom +</string>
+    <string name="btn_zoom_out">Zoom -</string>
+
+    <string name="menu_open">Open file</string>
+    <string name="menu_options">Options</string>
+    <string name="menu_reset">Reset</string>
+    <string name="menu_zoom_one">Zoom 1</string>
+    <string name="menu_files">Surveys</string>
+    <string name="menu_frame">Frame</string>
+    <string name="menu_color">Color</string>
+    <string name="menu_info">Info</string>
+    <string name="menu_ico">Ico diagram</string>
+    <string name="menu_rose">Rose diagram</string>
+    <string name="menu_wall">Wall mode</string>
+
+    <string name="info_title">INFO</string>
+    <string name="info_axes">Axes: blue North, green East</string>
+    <string name="info_grid">Frame grid [m]</string>
+    <string name="info_view">Viewpoint</string>
+    <string name="info_surveys">Surveys</string>
+    <string name="info_shots">Shots</string>
+    <string name="info_stations">Stations</string>
+    <string name="info_length">Length</string>
+    <string name="info_depth">Depth</string>
+    <string name="info_volume">Volume</string>
+
+    <string name="query" formatted="false">Surveys: %d Shots: %d Stations: %d\nLength: %d Depth: %d</string>
+
+    <string name="title">%1$s  Clino: %2$.0f  Azimuth: %3$.0f</string>
+    <string name="title_clino"> Clino: </string>
+    <string name="title_azimuth"> Azimuth: </string>
+
+    <string name="survey_legs"> Legs: </string>
+    <string name="survey_legs_length"> Legs length: </string>
+    <string name="survey_splays"> Splays: </string>
+    <string name="survey_splays_length"> Splays length: </string>
+
+    <string name="SURVEYS">S U R V E Y S</string>
+    <string name="INFO">I N F O</string>
+    <string name="STATION">S T A T I O N</string>
+    <string name="STATIONS_DISTANCE">STATIONS DISTANCE</string>
+    <string name="DISTANCE">DISTANCE</string>
+    <string name="select_file">Cave3D - Select a file:</string>
+    <string name="Wall">Walls</string>
+    <string name="Surface">Surface</string>
+
+    <string name="pref_base_path_title">Base path</string>
+    <string name="pref_base_path_summary">App base path</string>
+    <string name="pref_base_path_message">Directory containing the Therion files</string>
+    <string name="pref_text_size_title">Text size</string>
+    <string name="pref_text_size_summary">Station label size</string>
+    <string name="pref_text_size_message">Station label text size</string>
+    <string name="pref_selection_radius_title">Selection radius</string>
+    <string name="pref_selection_radius_summary">Radius of selection</string>
+    <string name="pref_selection_radius_message">Radius of selection</string>
+</resources>

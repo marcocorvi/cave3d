@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+>
+    <com.topodroid.Cave3D.Cave3DView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/caveView"
+    />
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+    >
+        <Button
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/btn_move"
+                android:onClick="onClick"
+                android:id="@+id/modeBtn"
+        />
+        <Button
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/btn_station"
+                android:onClick="onClick"
+                android:id="@+id/stnsBtn"
+        />
+        <Button
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/btn_splay"
+                android:onClick="onClick"
+                android:id="@+id/splayBtn"
+        />
+        <Button
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/Wall"
+                android:onClick="onClick"
+                android:id="@+id/wallBtn"
+        />
+        <Button
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/Surface"
+                android:onClick="onClick"
+                android:id="@+id/surfaceBtn"
+        />
+        <!-- Button
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/btn_zoom_in"
+                android:onClick="onClick"
+                android:id="@+id/zoomInBtn"
+        / -->
+        <!-- Button
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/btn_zoom_out"
+                android:onClick="onClick"
+                android:id="@+id/zoomOutBtn"
+        / -->
+
+    </LinearLayout>
+    <View
+         android:id="@+id/zoomView"
+         android:layout_height="wrap_content"
+         android:layout_width="wrap_content"
+         android:layout_gravity="center"
+    />
+
+</RelativeLayout>
+
