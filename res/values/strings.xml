@@ -14,6 +14,7 @@
     <string name="menu_reset">Reset</string>
     <string name="menu_zoom_one">Zoom 1</string>
     <string name="menu_files">Surveys</string>
+    <string name="menu_export">Export</string>
     <string name="menu_frame">Frame</string>
     <string name="menu_color">Color</string>
     <string name="menu_info">Info</string>
@@ -45,6 +46,7 @@
 
     <string name="SURVEYS">S U R V E Y S</string>
     <string name="INFO">I N F O</string>
+    <string name="EXPORT">E X P O R T</string>
     <string name="STATION">S T A T I O N</string>
     <string name="STATIONS_DISTANCE">STATIONS DISTANCE</string>
     <string name="DISTANCE">DISTANCE</string>
@@ -61,4 +63,24 @@
     <string name="pref_selection_radius_title">Selection radius</string>
     <string name="pref_selection_radius_summary">Radius of selection</string>
     <string name="pref_selection_radius_message">Radius of selection</string>
+    <string name="pref_grid_above_title">Top grid</string>
+    <string name="pref_grid_above_summary">Grid on the top</string>
+    <string name="pref_grid_above_message">Show the grid on the top</string>
+    <string name="pref_all_splay_title">All splays</string>
+    <string name="pref_all_splay_summary">All the splays for walls</string>
+    <string name="pref_all_splay_message">Whether to use all the splays for the walls</string>
+    <string name="pref_preprojection_title">Preprojections</string>
+    <string name="pref_preprojection_summary">Precompute projections</string>
+    <string name="pref_preprojection_message">Whether to use precompute projections</string>
+
+    <string name="pref_split_triangles_title">Split triangles</string>
+    <string name="pref_split_triangles_summary">Split wall triangles</string>
+    <string name="pref_split_triangles_message">Whether to split intersecting wall triangles</string>
+    <string name="pref_split_random_title">Randomize points</string>
+    <string name="pref_split_random_summary">Randomize wall points</string>
+    <string name="pref_split_random_message">Add a small random vector to splays</string>
+    <string name="pref_split_stretch_title">Stretch walls</string>
+    <string name="pref_split_stretch_summary">Stretch wall points along the leg</string>
+    <string name="pref_split_stretch_message">Shift wall points by a small quantity along the leg</string>
+
 </resources>

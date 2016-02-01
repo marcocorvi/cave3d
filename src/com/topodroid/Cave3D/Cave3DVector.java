@@ -144,5 +144,12 @@ class Cave3DVector
     Log.v("Cave3DX", x + " " + y + " " + z );
   } 
 
+  void randomize( float delta )
+  {
+    x += delta * (float)( Math.random() - 0.5 );
+    y += delta * (float)( Math.random() - 0.5 );
+    z += delta * (float)( Math.random() - 0.5 );
+  }
+
 }
 

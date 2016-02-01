@@ -26,4 +26,55 @@
        android:dialogMessage="@string/pref_selection_radius_message"
        />
 
+  <android.preference.CheckBoxPreference
+       android:key="CAVE3D_GRID_ABOVE"
+       android:title="@string/pref_grid_above_title"
+       android:summary="@string/pref_grid_above_summary"
+       android:dialogTitle="@string/pref_grid_above_title"
+       />
+
+  <android.preference.CheckBoxPreference
+       android:key="CAVE3D_PREPROJECTION"
+       android:title="@string/pref_preprojection_title"
+       android:summary="@string/pref_preprojection_summary"
+       android:dialogTitle="@string/pref_preprojection_title"
+       />
+
+  <android.preference.PreferenceCategory
+       android:title="WALLS"
+       >
+
+    <android.preference.CheckBoxPreference
+       android:key="CAVE3D_ALL_SPLAY"
+       android:title="@string/pref_all_splay_title"
+       android:summary="@string/pref_all_splay_summary"
+       android:dialogTitle="@string/pref_all_splay_title"
+       />
+
+    <android.preference.CheckBoxPreference
+       android:key="CAVE3D_SPLIT_TRIANGLES"
+       android:title="@string/pref_split_triangles_title"
+       android:summary="@string/pref_split_triangles_summary"
+       android:dialogTitle="@string/pref_split_triangles_title"
+       />
+
+    <android.preference.EditTextPreference
+       android:key="CAVE3D_SPLIT_RANDOM"
+       android:title="@string/pref_split_random_title"
+       android:summary="@string/pref_split_random_summary"
+       android:dialogTitle="@string/pref_split_random_title"
+       android:dialogMessage="@string/pref_split_random_message"
+       android:inputType="numberDecimal"
+       />
+
+    <android.preference.EditTextPreference
+       android:key="CAVE3D_SPLIT_STRETCH"
+       android:title="@string/pref_split_stretch_title"
+       android:summary="@string/pref_split_stretch_summary"
+       android:dialogTitle="@string/pref_split_stretch_title"
+       android:dialogMessage="@string/pref_split_stretch_message"
+       android:inputType="numberDecimal"
+       />
+   </android.preference.PreferenceCategory>
+
 </PreferenceScreen>

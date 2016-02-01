@@ -13,7 +13,8 @@ package com.topodroid.Cave3D;
 
 import java.util.ArrayList;
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
+// import java.io.PrintStream;
 import java.io.IOException;
 
 import android.util.Log;
@@ -21,6 +22,8 @@ import android.util.Log;
 public class CWPoint extends Cave3DVector
 {
   private static int cnt = 0;
+  static void resetCounter() { cnt = 0; }
+
   int mCnt;
   ArrayList<CWTriangle> mTriangle;
 
@@ -30,7 +33,6 @@ public class CWPoint extends Cave3DVector
     mCnt = cnt++;
     mTriangle = new ArrayList<CWTriangle>();
   }
-  
 
   CWPoint( int tag, float x, float y, float z )
   {
@@ -109,10 +111,11 @@ public class CWPoint extends Cave3DVector
     Log.v("Cave3D", "CWPoint " + mCnt + " T" + sb.toString() + " " + x + " " + y + " " + z );
   }
   
-  // void serialize( PrintStream out )
-  // {
-  //   out.println(mCnt + " " + mTriangle.size() + " " + x + " " + y + " " + z );
-  // }
+  void serialize( PrintWriter out )
+  {
+    int size = ( mTriangle != null )? mTriangle.size() : -1;
+    out.format( "V %d %d %.3f %.3f %.3f\n", mCnt, size, x, y, z );
+  }
 
 }
 

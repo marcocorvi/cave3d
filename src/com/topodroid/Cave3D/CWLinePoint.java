@@ -11,6 +11,7 @@
  */
 package com.topodroid.Cave3D;
 
+import java.io.PrintWriter;
 // import java.io.PrintStream;
 
 public class CWLinePoint extends Cave3DVector 
@@ -56,4 +57,9 @@ public class CWLinePoint extends Cave3DVector
   //   CWTriangle t = mSide.otherTriangle( mTri );
   //   Log.v("Cave3D", "LP " + mTri.mCnt + "/" + mSide.mCnt + "/" + t.mCnt );
   // }
+
+  void serialize( PrintWriter out )
+  {
+     out.format("L %d %d %.3f %.3f %.3f %.3f\n", mTri.mCnt, mSide.mCnt, mAlpha, x, y, z );
+  }
 }

@@ -16,6 +16,7 @@ import java.util.Iterator;
 // import java.util.Collection;
 // import static java.util.stream.Collectors.toList;
 
+import java.io.PrintWriter;
 // import java.io.PrintStream;
 // import java.io.FileNotFoundException;
 
@@ -23,31 +24,38 @@ import android.util.Log;
 
 public class CWConvexHull 
 {
+  private static int cnt = 0;
+  static void resetCounter() { cnt = 0; }
+  static void resetCounters() 
+  {
+    CWBorder.resetCounter();
+    CWIntersection.resetCounter();
+    CWPoint.resetCounter();
+    CWSide.resetCounter();
+    CWTriangle.resetCounter();
+    resetCounter();
+  }
+
+  int mCnt;
   Cave3DStation mFrom;
   Cave3DStation mTo;
   private ArrayList< CWPoint > mVertex;
   private ArrayList< CWSide > mSide;
   ArrayList< CWTriangle > mFace;
+  ArrayList< CWTriangle > mSplits;
   float mVolume;
   boolean hasVolume;
   
   public CWConvexHull( )
   {
+    mCnt  = cnt++;
     mVertex = new ArrayList< CWPoint >();
     mFace   = new ArrayList< CWTriangle >();
+    mSplits = new ArrayList< CWTriangle >();
     mSide   = new ArrayList< CWSide >();
     hasVolume = false;
   }
 
-  float getVolume()
-  {
-    if ( ! hasVolume ) {
-      mVolume = computeVolume();
-      hasVolume = true;
-    }
-    return mVolume;
-  }
-  
   // public void create( ArrayList<Cave3DVector> pts,
   //   float distance_concavity, float angle_concavity, float eps )
   // {
@@ -56,49 +64,126 @@ public class CWConvexHull
   //   makeConcave( pts, distance_concavity, angle_concavity, eps );
   // }
 
-  public void create( ArrayList< Cave3DShot > splays1, // splays at FROM station
+  public void create( ArrayList< Cave3DShot > legs1,   // legs at FROM station
+                      ArrayList< Cave3DShot > legs2,   // legs at TO station
+                      ArrayList< Cave3DShot > splays1, // splays at FROM station
                       ArrayList< Cave3DShot > splays2, // splays at TO station
                       Cave3DStation sf,                // shot FROM station
-                      Cave3DStation st )               // shot TO station
+                      Cave3DStation st,                // shot TO station
+                      boolean all_splay )
     throws RuntimeException
   {
     mFrom = sf;
     mTo   = st;
-    // Log.v("Cave3D", "CW " + sf.name + " " + st.name + " splays " + splays1.size() + " " + splays2.size() );
+    // Log.v("Cave3D", "CW " + sf.short_name + "-" + st.short_name 
+    //               + " FROM " + legs1.size() + "/" + splays1.size() 
+    //               + " TO "   + legs2.size() + "/" + splays2.size() );
     ArrayList< Cave3DVector > pts = new ArrayList<Cave3DVector>();
     Cave3DVector vf = new Cave3DVector( sf );
     Cave3DVector vt = new Cave3DVector( st );
-    try {
-      // Log.v("Cave3D", "insert point T " + vt.x + " " + vt.y + " " + vt.z );
-      insertPoint( vt );
-      pts.add( vt );
-      for ( Cave3DShot s1 : splays1 ) {
-        Cave3DVector v1 = vf.plus( s1.toCave3DVector() );
-        // Log.v("Cave3D", "insert point 1 " + v1.x + " " + v1.y + " " + v1.z );
-        insertPoint( v1 );
-        pts.add( v1 );
+    Cave3DVector vt0 = null; 
+    Cave3DVector vf0 = null; 
+
+    if ( Cave3D.mSplitStretch ) {
+      Cave3DVector vm = vt.minus( vf ); 
+      float lm = vm.length();
+      if ( lm < 0.0001f ) {
+        Log.e("Cave3D", "ERROR leg too short");
+        return;
       }
-      // Log.v("Cave3D", "insert point F " + vf.x + " " + vf.y + " " + vf.z );
-      insertPoint( vf );
-      pts.add( vf );
-      for ( Cave3DShot s2 : splays2 ) {
-        Cave3DVector v2 = vt.plus( s2.toCave3DVector() );
-        // Log.v("Cave3D", "insert point 2 " + v2.x + " " + v2.y + " " + v2.z );
-        insertPoint( v2 );
-        pts.add( v2 );
-      }
-    } catch ( RuntimeException e ) {
-      vf.dump();
-      vt.dump();
-      for ( Cave3DShot s1 : splays1 ) {
-        vf.plus( s1.toCave3DVector() ).dump();
-      }
-      for ( Cave3DShot s2 : splays2 ) {
-        vt.plus( s2.toCave3DVector() ).dump();
-      }
-      Log.e("Cave3D", "ERROR " + e.getMessage() );
-      throw e;
+      vm.mul( Cave3D.mSplitStretchDelta / lm );
+      vt0 = vt.plus( vm );
+      vf0 = vf.minus( vm );
+    } else {
+      vt0 = new Cave3DVector( vt );
+      vf0 = new Cave3DVector( vf );
     }
+    // int at_from = 1;
+    // int at_to   = 1;
+      
+    try {
+      // Log.v("Cave3D", "inserted point T " + vt.x + " " + vt.y + " " + vt.z );
+      if ( legs1.size() <= 1 ) {
+        for ( Cave3DShot s1 : splays1 ) {
+          Cave3DVector v1 = vf0.plus( s1.toCave3DVector() );
+          if ( Cave3D.mSplitRandomize ) v1.randomize( Cave3D.mSplitRandomizeDelta );
+          insertPoint( v1 );
+          pts.add( v1 );
+          // at_from ++;
+          // Log.v("Cave3D", "inserted point (1) " + v1.x + " " + v1.y + " " + v1.z );
+        }
+      } else {
+        for ( Cave3DShot s1 : splays1 ) {
+          boolean inserted = all_splay;
+          Cave3DVector v1 = vf0.plus( s1.toCave3DVector() );
+          if ( Cave3D.mSplitRandomize ) v1.randomize( Cave3D.mSplitRandomizeDelta );
+          if ( ! inserted ) {
+            for ( Cave3DShot l1 : legs1 ) if ( s1.dot( l1 ) >= 0 ) { inserted = true; break; }
+          }
+          if ( inserted ) {
+            insertPoint( v1 );
+            pts.add( v1 );
+            // at_from ++;
+            // Log.v("Cave3D", "point (1) " + v1.x + " " + v1.y + " " + v1.z + " inserted " );
+          } else {
+            // Log.v("Cave3D", "point (1) " + v1.x + " " + v1.y + " " + v1.z + " NOT inserted " );
+          }
+        }
+      }
+      // Log.v("Cave3D", "inserted point F " + vf.x + " " + vf.y + " " + vf.z );
+      if ( legs2.size() <= 1 ) {
+        for ( Cave3DShot s2 : splays2 ) {
+          Cave3DVector v2 = vt0.plus( s2.toCave3DVector() );
+          if ( Cave3D.mSplitRandomize ) v2.randomize( Cave3D.mSplitRandomizeDelta );
+          insertPoint( v2 );
+          pts.add( v2 );
+          // at_to ++;
+          // Log.v("Cave3D", "inserted point (2) " + v2.x + " " + v2.y + " " + v2.z );
+        }
+      } else {
+        for ( Cave3DShot s2 : splays2 ) {
+          boolean inserted = all_splay;
+          Cave3DVector v2 = vt0.plus( s2.toCave3DVector() );
+          if ( Cave3D.mSplitRandomize ) v2.randomize( Cave3D.mSplitRandomizeDelta );
+          if ( ! inserted ) {
+            for ( Cave3DShot l2 : legs2 ) if ( s2.dot( l2 ) >= 0 ) { inserted = true; break; }
+          }
+          if ( inserted ) {
+            insertPoint( v2 );
+            pts.add( v2 );
+            // at_to ++;
+            // Log.v("Cave3D", "point (2) " + v2.x + " " + v2.y + " " + v2.z + " inserted " );
+          } else {
+            // Log.v("Cave3D", "point (2) " + v2.x + " " + v2.y + " " + v2.z + " NOT inserted " );
+          }
+        }
+      }
+      if ( Cave3D.mSplitRandomize ) {
+        vt0.randomize( Cave3D.mSplitRandomizeDelta );
+        vf0.randomize( Cave3D.mSplitRandomizeDelta );
+      }
+      insertPoint( vt0 );
+      pts.add( vt0 );
+      insertPoint( vf0 );
+      pts.add( vf0 );
+    } catch ( RuntimeException e ) {
+      // vf.dump();
+      // vt.dump();
+      // for ( Cave3DShot s1 : splays1 ) {
+      //   vf.plus( s1.toCave3DVector() ).dump();
+      // }
+      // for ( Cave3DShot s2 : splays2 ) {
+      //   vt.plus( s2.toCave3DVector() ).dump();
+      // }
+      Log.e("Cave3D", "ERROR " + e.getMessage() );
+    throw e;
+    }
+    // Log.v("Cave3D", "CW " + sf.short_name + "-" + st.short_name 
+    //               + " FROM " + legs1.size() + "/" + splays1.size() 
+    //               + " TO "   + legs2.size() + "/" + splays2.size() 
+    //               + " pts " + pts.size() + " at from " + at_from + " at to " + at_to );
+
+    // Log.v("Cave3D", "points " + pts.size() );
     makeConcave( pts, 0.5f, 0.1f, 0.000001f );
   }
 
@@ -111,6 +196,30 @@ public class CWConvexHull
   // int getNrSide()   { return mSide.size(); }
   // int getNrFace()   { return mFace.size(); }
 
+  float computeDiameter() 
+  {
+    float diam = 0;
+    for ( int k1 = 0; k1 < mVertex.size(); ++k1 ) {
+      CWPoint p1 = mVertex.get(k1);
+      for ( int k2 = k1+1; k2 < mVertex.size(); ++k2 ) {
+        float d = p1.distance( mVertex.get( k2 ) );
+        if ( d > diam ) diam = d;
+      }
+    }
+    return diam;
+  }
+
+  float getVolume()
+  {
+    if ( ! hasVolume ) {
+      mVolume = computeVolume();
+      hasVolume = true;
+    }
+    return mVolume;
+  }
+  
+  // -------------------------------------------------------------------
+
   private Cave3DVector getCenter()
   {
     Cave3DVector ret = new Cave3DVector();
@@ -118,8 +227,6 @@ public class CWConvexHull
     ret.times( 1.0f / mVertex.size() );
     return ret;
   }
-  
-  // -------------------------------------------------------------------
 
   private static float volume( Cave3DVector p0, Cave3DVector p1, Cave3DVector p2, Cave3DVector p3 )
   {
@@ -211,6 +318,23 @@ public class CWConvexHull
       if ( ! no.contains(s) ) no.add( s );
     }
   }
+      
+  private void processTempSides( CWPoint vv, ArrayList< CWSide > temp, boolean reverse )
+  {
+    CWSide s0 = temp.get(0);
+    CWPoint p0 = s0.p1;
+    CWPoint p2 = s0.p2;
+    if ( reverse ) {
+      p0 = s0.p2;
+      p2 = s0.p1;
+    }
+    addTriangle( p0, p2, vv );
+    for ( int todo = 1; todo < temp.size(); ++todo ) {
+      p0 = p2;
+      p2 = temp.get(todo).otherPoint( p0 );
+      addTriangle( p0, p2, vv );
+    }
+  }
   
   private void insertPoint( Cave3DVector p )
   {
@@ -248,6 +372,12 @@ public class CWConvexHull
       }
       return;
     }
+
+    // boolean cs = checkSideConsistency();
+    // boolean cv = checkVertexConsistency();
+    // if ( ! cs || ! cv )
+    //   Log.v("Cave3D", "consistency before: V " + mVertex.size() + " S " + mSide.size() + " T " + mFace.size()
+    //     + " S-check " + cs + " V-check " + cv );
    
     // int nv = mVertex.nv();
     ArrayList<CWTriangle> faceToRemove = new ArrayList<CWTriangle>();
@@ -279,85 +409,104 @@ public class CWConvexHull
       addTo( sideToRemove, sideToKeep, t.s2 );
       addTo( sideToRemove, sideToKeep, t.s3 );
     }
-    // Log.v("Cave3D", "to remove T: " + faceToRemove.size() 
-    //   + " V: " + vertexToRemove.size() + " / " + vertexToKeep.size() 
-    //   + " S: " + sideToRemove.size()   + " / " + sideToKeep.size() );
-   
-    if ( sideToKeep.size() > 2 ) {
+    int rt = faceToRemove.size();
+    int rv = vertexToRemove.size();
+    int kv = vertexToKeep.size();
+    int rs = sideToRemove.size();
+    int ks = sideToKeep.size();
 
-      addVertex( vv );
-      
-      CWSide s0 = sideToKeep.get(0);
-      CWPoint p0 = s0.p1;
-      CWPoint p2 = s0.p2;
-      // check if need to reverse the border
-      boolean reverse = false;
-      CWPoint p1 = sideToKeep.get(1).p1;
-      if ( p1 == p0 || p1 == p2 ) p1 = sideToKeep.get(1).p2;
-      if ( volume( p0, p2, p1, vv ) > 0 ) { 
-        // if VV is on the positive side of the border, reverse the border
-        p1 = p2; p2 = p0; p0 = p1;
-        reverse = true;
-      }
-      
-      // Log.v("Cave3D", "Border " + p0.mCnt + " " + p1.mCnt + " p2 " + p2.mCnt );
-      // s0.dump();
-      int size = sideToKeep.size();
-      for ( int todo = 1; todo < size; ++todo ) {
-        int k = todo;
-        for ( ; k<size; ++k ) {
-          CWSide s = sideToKeep.get(k);
-          if ( s.contains(p2) ) {
-            if ( k != todo ) {
-              sideToKeep.set( k, sideToKeep.get(todo) );
-              sideToKeep.set( todo, s );
-            }
-            // s.dump();
-            p2 = s.otherPoint( p2 );
-            break;
-          }
-        }
-        if ( k == size ) {
-          Log.e("Cave3D", "WARNING next side not found");
-          // dump();
-          // Log.v("Cave3D", "sides to keep " + sideToKeep.size() );
-          // for ( int j=0; j<sideToKeep.size(); ++j ) sideToKeep.get(j).dump();
-          // Log.v("Cave3D", "sides to remove " + sideToRemove.size() );
-          // for ( int j=0; j<sideToRemove.size(); ++j ) sideToRemove.get(j).dump();
-          // Log.v("Cave3D", "vertexs to keep " + vertexToKeep.size() );
-          // for ( int j=0; j<vertexToKeep.size(); ++j ) vertexToKeep.get(j).dump();
-          // Log.v("Cave3D", "vertexs to remove " + vertexToRemove.size() );
-          // for ( int j=0; j<vertexToRemove.size(); ++j ) vertexToRemove.get(j).dump();
-          // Log.v("Cave3D", "faces to remove " + faceToRemove.size() );
-          // for ( int j=0; j<faceToRemove.size(); ++j ) faceToRemove.get(j).dump();
+    // Log.v("Cave3D", "Point " + p.x + " " + p.y + " " + p.z + " To remove T: " + rt
+    //   + " V: " + rv + " / " + kv + " S: " + rs + " / " + ks );
 
-          throw new RuntimeException("side not found");
-        }
-      }
-      
-      // s0 = sideToKeep.get(0);
-      p0 = s0.p1;
-      p2 = s0.p2;
-      if ( reverse ) {
-        p0 = s0.p2;
-        p2 = s0.p1;
-      }
-      addTriangle( p0, p2, vv );
-      for ( int todo = 1; todo < sideToKeep.size(); ++todo ) {
-        p0 = p2;
-        p2 = sideToKeep.get(todo).otherPoint( p0 );
-        addTriangle( p0, p2, vv );
-      }
-      
-      // now remove sides and triangles
-      // Log.v("Cave3D", "removing V " + vertexToRemove.size() + " S " + sideToRemove.size() + " T " + faceToRemove.size() );
-      for ( CWSide s2 : sideToRemove )     { removeSide( s2 ); }
-      for ( CWTriangle f1 : faceToRemove ) { 
-        for ( CWPoint v1 :vertexToKeep ) v1.removeTriangle( f1 );
-        removeFace( f1 );
-      }
-      for ( CWPoint v1 : vertexToRemove )  { removeVertex( v1 ); }
+    if ( rt + rv != rs + 1 ) return;
+    if ( sideToKeep.size() <= 2 ) return;
+    if ( (2*rs + ks) % 3 != 0 ) return;
+
+    addVertex( vv );
+    
+    CWSide  s0 = sideToKeep.get(0);
+    CWPoint p0 = s0.p1;
+    CWPoint p2 = s0.p2;
+    boolean reverse = false; // check if need to reverse the border
+    CWPoint p1 = sideToKeep.get(1).p1;
+    if ( p1 == p0 || p1 == p2 ) p1 = sideToKeep.get(1).p2;
+    if ( volume( p0, p2, p1, vv ) > 0 ) { // if VV is on the positive side of the border, reverse the border
+      p1 = p2; p2 = p0; p0 = p1;
+      reverse = true;
     }
+    
+    // Log.v("Cave3D", "Border " + p0.mCnt + " " + p1.mCnt + " p2 " + p2.mCnt );
+    // s0.dump();
+    ArrayList<CWSide> temp = new ArrayList<CWSide>();
+    sideToKeep.remove( s0 );
+    temp.add( s0 );
+    while ( sideToKeep.size() > 0 ) {
+      int k = 0;
+      int size = sideToKeep.size();
+      for ( ; k<size; ++k ) {
+        CWSide s = sideToKeep.get(k);
+        if ( s.contains(p2) ) {
+          sideToKeep.remove( s );
+          temp.add( s );
+          // s.dump();
+          p2 = s.otherPoint( p2 );
+          break;
+        }
+      }
+      if ( p2 == p0 ) {
+        processTempSides( vv, temp, reverse );
+        temp.clear();
+        if ( sideToKeep.size() > 1 ) {
+          s0 = sideToKeep.get(0);
+          sideToKeep.remove( s0 );
+          temp.add( s0 );
+          p0 = s0.p1;
+          p2 = s0.p2;
+          reverse = false; // check if need to reverse the border
+          p1 = sideToKeep.get(1).p1;
+          if ( p1 == p0 || p1 == p2 ) p1 = sideToKeep.get(1).p2;
+          if ( volume( p0, p2, p1, vv ) > 0 ) { // if VV is on the positive side of the border, reverse the border
+            p1 = p2; p2 = p0; p0 = p1;
+            reverse = true;
+          }
+        }          
+      }
+      if ( k == size ) {
+        Log.e("Cave3D", "WARNING next side not found");
+        // for ( int j=0; j<size; ++j  ) {
+        //   CWSide side = sideToKeep.get(j);
+        //   Log.v("Cave3D", j + ": " + side.p1.mCnt + " " + side.p2.mCnt );
+        // }
+        // dump();
+        // Log.v("Cave3D", "sides to keep " + sideToKeep.size() );
+        // for ( int j=0; j<sideToKeep.size(); ++j ) sideToKeep.get(j).dump();
+        // Log.v("Cave3D", "sides to remove " + sideToRemove.size() );
+        // for ( int j=0; j<sideToRemove.size(); ++j ) sideToRemove.get(j).dump();
+        // Log.v("Cave3D", "vertexs to keep " + vertexToKeep.size() );
+        // for ( int j=0; j<vertexToKeep.size(); ++j ) vertexToKeep.get(j).dump();
+        // Log.v("Cave3D", "vertexs to remove " + vertexToRemove.size() );
+        // for ( int j=0; j<vertexToRemove.size(); ++j ) vertexToRemove.get(j).dump();
+        // Log.v("Cave3D", "faces to remove " + faceToRemove.size() );
+        // for ( int j=0; j<faceToRemove.size(); ++j ) faceToRemove.get(j).dump();
+
+        throw new RuntimeException("side not found");
+      }
+    }
+
+    // now remove sides and triangles
+    // Log.v("Cave3D", "removing V " + vertexToRemove.size() + " S " + sideToRemove.size() + " T " + faceToRemove.size() );
+    for ( CWSide s2 : sideToRemove )     { removeSide( s2 ); }
+    for ( CWTriangle f1 : faceToRemove ) { 
+      for ( CWPoint v1 :vertexToKeep ) v1.removeTriangle( f1 );
+      removeFace( f1 );
+    }
+    for ( CWPoint v1 : vertexToRemove )  { removeVertex( v1 ); }
+    
+    // cs = checkSideConsistency();
+    // cv = checkVertexConsistency();
+    // if ( ! cs || ! cv )
+    //   Log.v("Cave3D", "consistency after: V " + mVertex.size() + " S " + mSide.size() + " T " + mFace.size() 
+    //     + " S-check " + cs + " V-check " + cv );
 
     // remove small area triangles
     // Log.v("Cave3D", "small area V " + mVertex.size() + " S " + mSide.size() + " T " + mFace.size() );
@@ -393,9 +542,20 @@ public class CWConvexHull
     
     // Log.v("Cave3D", "insert point done");
     // dump();
-    // checkConsistency();
+    // checkVertexConsistency();
   }
 
+  /*
+           s4
+  p4--------------p1
+    \             /\
+      \     t2  /s3  \
+     s5\      /   t s2 \
+  t3     \  /   s1       \
+          p2--------------p3
+        .'       tn         `.
+
+   */
   private void reduce( CWTriangle t, CWPoint p2, CWPoint p1, CWPoint p3, CWSide s3, CWSide s1, CWSide s2  )
   {
     // Log.v("Cave3D", "reduce triangle " + t.mCnt + " " + p2.mCnt + " " + p1.mCnt + " " + p3.mCnt );
@@ -438,9 +598,9 @@ public class CWConvexHull
       if ( tt.v1 == p2 )      { tt.v1 = p1; }
       else if ( tt.v2 == p2 ) { tt.v2 = p1; }
       else if ( tt.v3 == p2 ) { tt.v3 = p1; }
-      tt.s1.replace( p2, p1 );
-      tt.s2.replace( p2, p1 );
-      tt.s3.replace( p2, p1 );
+      tt.s1.replacePoint( p2, p1 );
+      tt.s2.replacePoint( p2, p1 );
+      tt.s3.replacePoint( p2, p1 );
       tt.rebuildTriangle();
     }
 
@@ -458,18 +618,34 @@ public class CWConvexHull
     // orderPointTriangles();
   }
   
-  // private void checkConsistency()
-  // {
-  //   for ( CWPoint p : mVertex ) {
-  //     for ( CWTriangle t : mFace ) {
-  //       if ( t.contains( p ) ) continue;
-  //       float vol = t.volume( p );
-  //       if ( vol < 0 ) {
-  //         Log.v("Cave3D", "Inconsistent T " + t.mCnt + " with V " + p.mCnt + " vol " + vol );
-  //       }
-  //     }
-  //   }
-  // }
+  private boolean checkVertexConsistency()
+  {
+    boolean ret = true;
+    for ( CWPoint p : mVertex ) {
+      for ( CWTriangle t : mFace ) {
+        if ( t.contains( p ) ) continue;
+        float vol = t.volume( p );
+        if ( vol < -0.01 ) {
+          ret = false;
+          // Log.v("Cave3D", "Inconsistent T " + t.mCnt + " with V " + p.mCnt + " vol " + vol );
+        }
+      }
+    }
+    return ret;
+  }
+  
+  private boolean checkSideConsistency()
+  {
+    boolean ret = true;
+    for ( CWSide s : mSide ) {
+      CWTriangle t1 = s.t1;
+      CWTriangle t2 = s.t2;
+      if ( t1.contains( s ) && t2.contains(s) ) continue;
+      // Log.v("Cave3D", "Inconsistent S " + s.mCnt + " with T " + t1.mCnt + "  " + t2.mCnt );
+      ret = false;
+    }
+    return ret;
+  }
 
   // boolean checkPoint( Cave3DVector v )
   // {
@@ -495,33 +671,19 @@ public class CWConvexHull
 
   void dump( )
   {
-    Log.v("Cave3D", "Convex hull vertices " + mVertex.size() 
-        + " sides " + mSide.size() 
-        + " faces " + mFace.size() );
-    for ( CWPoint v :  mVertex ) v.dump( );
-    for ( CWSide s : mSide )     s.dump( );
+    Log.v("Cave3D", "CV v " + mVertex.size() + " s " + mSide.size() + " t " + mFace.size() );
+    // for ( CWPoint v :  mVertex ) v.dump( );
+    // for ( CWSide s : mSide )     s.dump( );
     for ( CWTriangle f : mFace ) f.dump( );
   }
   
-  // void serialize( PrintStream out )
-  // {
-  //   out.println(mVertex.size() + " " + mSide.size() + " " + mFace.size() );
-  //   for ( CWPoint v :  mVertex ) v.serialize( out );
-  //   for ( CWSide s : mSide ) s.serialize( out );
-  //   for ( CWTriangle f : mFace ) f.serialize( out );
-  // }
-  
-  float computeDiameter() 
+  void serialize( PrintWriter out )
   {
-    float diam = 0;
-    for ( int k1 = 0; k1 < mVertex.size(); ++k1 ) {
-      CWPoint p1 = mVertex.get(k1);
-      for ( int k2 = k1+1; k2 < mVertex.size(); ++k2 ) {
-        float d = p1.distance( mVertex.get( k2 ) );
-        if ( d > diam ) diam = d;
-      }
-    }
-    return diam;
+    out.format( "C %d %d %d %d\n", mCnt, mVertex.size(), mSide.size(), mFace.size() );
+    for ( CWPoint v :  mVertex ) v.serialize( out );
+    for ( CWSide s : mSide )     s.serialize( out );
+    for ( CWTriangle f : mFace ) f.serialize( out );
+    out.flush();
   }
 
   // thr concavity threshold
@@ -663,7 +825,7 @@ public class CWConvexHull
     for ( CWPoint p : cv.mVertex ) if ( isPointInside( p, eps ) ) ret.add( p );
     return ret;
   }
-  
+
   // **********************************************************************
   
   /**
@@ -675,50 +837,50 @@ public class CWConvexHull
     
     for ( CWTriangle tb : cv2.mFace ) {
       for ( CWTriangle ta : mFace ) {
-      Cave3DVector v = ta.intersectionBasepoint( tb );
-      Cave3DVector n = ta.intersectionDirection( tb );
-      CWLinePoint lpa1 = new CWLinePoint();
-      CWLinePoint lpa2 = new CWLinePoint();
-      CWLinePoint lpb1 = new CWLinePoint();
-      CWLinePoint lpb2 = new CWLinePoint();
-      if ( ta.intersectionPoints(v, n, lpa1, lpa2) && tb.intersectionPoints(v, n, lpb1, lpb2) ) {
-        if ( lpa1.mAlpha > lpa2.mAlpha ) {
-          CWLinePoint lpa = lpa1; lpa1= lpa2; lpa2 = lpa;
-        }
-        if ( lpb1.mAlpha > lpb2.mAlpha ) {
-            CWLinePoint lpb = lpb1; lpb1= lpb2; lpb2 = lpb;
+        Cave3DVector v = ta.intersectionBasepoint( tb );
+        Cave3DVector n = ta.intersectionDirection( tb );
+        CWLinePoint lpa1 = new CWLinePoint();
+        CWLinePoint lpa2 = new CWLinePoint();
+        CWLinePoint lpb1 = new CWLinePoint();
+        CWLinePoint lpb2 = new CWLinePoint();
+        if ( ta.intersectionPoints(v, n, lpa1, lpa2) && tb.intersectionPoints(v, n, lpb1, lpb2) ) {
+          if ( lpa1.mAlpha > lpa2.mAlpha ) {
+            CWLinePoint lpa = lpa1; lpa1= lpa2; lpa2 = lpa;
           }
-        // now a1 < a2 and b1 < b2
-        if ( lpa1.mAlpha < lpb1.mAlpha ) {
-          if ( lpa2.mAlpha < lpb1.mAlpha ) { // a1 < a2 < b1 < b2
-            // no intersection
-          } else if ( lpa2.mAlpha < lpb2.mAlpha ) { // a1 < b1 < a2 < b2
-            CWIntersection ii = new CWIntersection( 1, ta, tb, v, n );
-            ii.mV1 = lpb1;
-            ii.mV2 = lpa2;
-            ret.add( ii );
-          } else { // lpa2.mAlpha > lpb2.mAlpha
-              CWIntersection ii = new CWIntersection( 2, ta, tb, v, n );
-              ii.mV1 = lpb1;
-              ii.mV2 = lpb2;
-              ret.add( ii );
-          }
-        } else {
-          if ( lpb2.mAlpha < lpa1.mAlpha ) { // b1 < b2 < a1 < a2
+          if ( lpb1.mAlpha > lpb2.mAlpha ) {
+              CWLinePoint lpb = lpb1; lpb1= lpb2; lpb2 = lpb;
+            }
+          // now a1 < a2 and b1 < b2
+          if ( lpa1.mAlpha < lpb1.mAlpha ) {
+            if ( lpa2.mAlpha < lpb1.mAlpha ) { // a1 < a2 < b1 < b2
               // no intersection
-            } else if ( lpb2.mAlpha < lpa2.mAlpha ) { // b1 < a1 < b2 < a2
-              CWIntersection ii = new CWIntersection( 1, tb, ta, v, n );
-              ii.mV1 = lpa1;
-              ii.mV2 = lpb2;
-              ret.add( ii );
-            } else { // lpa2.mAlpha > lpb2.mAlpha
-                CWIntersection ii = new CWIntersection( 2, tb, ta, v, n );
-              ii.mV1 = lpa1;
+            } else if ( lpa2.mAlpha < lpb2.mAlpha ) { // a1 < b1 < a2 < b2
+              CWIntersection ii = new CWIntersection( 1, ta, tb, v, n );
+              ii.mV1 = lpb1;
               ii.mV2 = lpa2;
               ret.add( ii );
+            } else { // lpa2.mAlpha > lpb2.mAlpha
+                CWIntersection ii = new CWIntersection( 2, ta, tb, v, n );
+                ii.mV1 = lpb1;
+                ii.mV2 = lpb2;
+                ret.add( ii );
             }
+          } else {
+            if ( lpb2.mAlpha < lpa1.mAlpha ) { // b1 < b2 < a1 < a2
+                // no intersection
+              } else if ( lpb2.mAlpha < lpa2.mAlpha ) { // b1 < a1 < b2 < a2
+                CWIntersection ii = new CWIntersection( 1, tb, ta, v, n );
+                ii.mV1 = lpa1;
+                ii.mV2 = lpb2;
+                ret.add( ii );
+              } else { // lpa2.mAlpha > lpb2.mAlpha
+                  CWIntersection ii = new CWIntersection( 2, tb, ta, v, n );
+                ii.mV1 = lpa1;
+                ii.mV2 = lpa2;
+                ret.add( ii );
+              }
+          }
         }
-      }
       }  
     }
     return ret;
@@ -804,7 +966,15 @@ public class CWConvexHull
   }
   
 */  
-  
+
+  void randomizePoints( float delta )
+  {
+    for ( CWPoint v : mVertex ) {
+      v.randomize( delta );
+    } 
+    for ( CWTriangle t : mFace ) t.computeVectors();
+    for ( CWSide s : mSide ) s.computeU12();
+  }
 
   private float computeVolume()
   {
@@ -815,6 +985,282 @@ public class CWConvexHull
       vol += t.volume( cc );
     }
     return vol;
+  }
+
+
+  // there is a problem with this method
+  // the two end-point for the piece of border inside a triangle are not shared
+  // with adjacent triangles
+  // @param index index of the cw
+  synchronized void splitTriangles( int index, List< CWIntersection > ints, List< CWPoint > pts )
+  {
+    int ns = ints.size();
+    if ( ns == 0 ) return;
+    // for ( CWPoint p : pts ) Log.v("Cave3D", "pts in " + p.mCnt + " ints " + ns );
+    // mSplits.clear();
+
+    CWPoint[] vts = new CWPoint[3];
+    CWPoint w1 = null, w2 = null, w3 = null;
+    CWSide  z1 = null, z2 = null, z3 = null;
+    for ( CWTriangle t : mFace ) {
+      int tcnt = t.mCnt;
+      int nv = t.countVertexIn( pts, vts );
+      if ( nv == 0 ) continue;
+      t.mType = CWTriangle.TRIANGLE_HIDDEN;
+      // Log.v("Cave3D", "Tri " + t.mCnt + " " + t.v1.mCnt + " " + t.v2.mCnt + " " + t.v3.mCnt + " nv " + nv );
+      if ( nv == 3 ) continue;
+
+      if ( nv == 1 ) {
+        if (      vts[0] == t.v1 ) { w1 = t.v1; w2 = t.v2; w3 = t.v3; z1 = t.s1; z2 = t.s2; z3 = t.s3; }
+        else if ( vts[0] == t.v2 ) { w1 = t.v2; w2 = t.v3; w3 = t.v1; z1 = t.s2; z2 = t.s3; z3 = t.s1; }
+        else if ( vts[0] == t.v3 ) { w1 = t.v3; w2 = t.v1; w3 = t.v2; z1 = t.s3; z2 = t.s1; z3 = t.s2; }
+        else {
+          Log.e( "Cave3D", "ERROR cannot find one vertex");
+          return;
+        }
+      } else if ( nv == 2 ) {
+        if (        ( vts[0] == t.v2 && vts[1] == t.v3 ) || ( vts[0] == t.v3 && vts[1] == t.v2 ) ) {
+          w1 = t.v1; w2 = t.v2; w3 = t.v3; z1 = t.s1; z2 = t.s2; z3 = t.s3; 
+        } else if ( ( vts[0] == t.v3 && vts[1] == t.v1 ) || ( vts[0] == t.v1 && vts[1] == t.v3 ) ) {
+          w1 = t.v2; w2 = t.v3; w3 = t.v1; z1 = t.s2; z2 = t.s3; z3 = t.s1; 
+        } else if ( ( vts[0] == t.v1 && vts[1] == t.v2 ) || ( vts[0] == t.v2 && vts[1] == t.v1 ) ) {
+          w1 = t.v3; w2 = t.v1; w3 = t.v2; z1 = t.s3; z2 = t.s1; z3 = t.s2; 
+        } else {
+          Log.e( "Cave3D", "ERROR cannot find two vertex");
+          return;
+        }
+      }
+ 
+      ArrayList< CWPoint > pts2 = new ArrayList< CWPoint > ();
+      for ( int k = 0; k < ns; ++k ) {
+        CWIntersection ii = ints.get( k % ns );
+        if ( tcnt == ii.mSign[2] ) { 
+          int start = k;
+          int end = k;
+          boolean inside = true;
+          do {
+            ii = ints.get( k % ns );
+            if ( tcnt == ii.mSign[0] ) {
+              end = k;
+              inside = false;
+            } else {
+              ++ k;
+            }
+          } while ( inside && k < 3*ns );
+          if ( k >= 3*ns ) {
+            Log.e("Cave3D", "ERROR Triangle with " + nv + " pts inside. cannot get end intersection");
+            break;
+          }
+          // Log.v("Cave3D", "now process " + start + "--" + end );
+          if ( nv == 1 ) {
+            split1( index, w1, w2, w3, z1, z2, z3, start, end, ints, ns );
+          } else {
+            CWPoint p = split2( index, w1, w2, w3, z1, z2, z3, start, end, ints, ns );
+            if ( p != null ) pts2.add( p );
+          }
+        }
+      }
+      // if ( pts2.size() > 0 ) {
+      //   Log.v("Cave3D", " split with 2 vertex inside. apposite-side points " + pts2.size() );
+      // }
+    }
+    for ( CWTriangle t : mSplits ) mFace.add( t );
+    mSplits.clear();
+  }
+
+
+  private void addSplitTriangle( CWPoint p1, CWPoint p2, CWPoint p3, CWSide z1, CWSide z2, CWSide z3 )
+  {
+    // Log.v("Cave3D", "Split Triangle " + p1.mCnt + " " + p2.mCnt + " " + p3.mCnt );
+    CWTriangle t = new CWTriangle( p1, p2, p3, z1, z2, z3 );
+    t.mType = CWTriangle.TRIANGLE_SPLIT;
+    z1.setTriangle( t );
+    z2.setTriangle( t );
+    z3.setTriangle( t );
+    mSplits.add( t );
+  }
+
+  // add triangles at a vertex counterclockwise
+  // param t index of the CW
+  private CWPoint addTrianglesAtVertexCCW( int t, CWPoint ww, CWPoint p1, int ks, int ke, List<CWIntersection> ints, int ns )
+  {
+    // Log.v("Cave3D", "cw " + t + " add CCW " + p1.mCnt + " K " + ks + " " + ke );
+    addVertex( p1 );
+    CWSide r0 = getSide( ww, p1 );
+    for ( int k = ks; k < ke; ++k ) {
+      CWIntersection ii = ints.get( k % ns );
+      CWPoint p2 = ii.point2( t );
+      // Log.v("Cave3D", "vertices " + k + " ii " + ii.mCnt + " pts " + p1.mCnt + " " + p2.mCnt );
+      addVertex( p2 );
+      CWSide r1 = getSide( p2, p1 );
+      CWSide r2 = getSide( ww, p2 );
+      addSplitTriangle( ww, p1, p2, r1, r2, r0 );
+      p1 = p2;
+      r0 = r2;
+    }
+    return p1;
+  }
+
+  // add triangles at a vertex clockwise
+  private CWPoint addTrianglesAtVertexCW( int t, CWPoint ww, CWPoint p1, int ks, int ke, List<CWIntersection> ints, int ns )
+  {
+    addVertex( p1 );
+    CWSide r0 = getSide( ww, p1 );
+    for ( int k = ks; k < ke; ++k ) {
+      CWIntersection ii = ints.get( k % ns );
+      CWPoint p2 = ii.point2( t );
+      addVertex( p2 );
+      CWSide r1 = getSide( p2, p1 );
+      CWSide r2 = getSide( ww, p2 );
+      addSplitTriangle( ww, p2, p1, r1, r0, r2 );
+      p1 = p2;
+      r0 = r2;
+    }
+    return p1;
+  }
+
+  // w1 is inside the other CW
+  // @param t  index of the CW
+  private void split1( int t, CWPoint w1, CWPoint w2, CWPoint w3, CWSide z1, CWSide z2, CWSide z3, 
+                          int ks, int ke, List<CWIntersection> ints, int ns )
+  {
+    CWIntersection is = ints.get( ks );
+    CWIntersection ie = ints.get( ke % ns );
+    CWLinePoint vs = is.mV1;
+    CWLinePoint ve = ie.mV1;
+    CWSide ss = vs.mSide;
+    CWSide se = ve.mSide;
+    // Log.v("Cave3D", "CW " + t + " split-1 " + w1.mCnt + " " + w2.mCnt + " " + w3.mCnt + " sides "
+    //                 + z1.mCnt + " " + z2.mCnt + " " + z3.mCnt  + " int sides " + ss.mCnt + " " + se.mCnt );
+    CWPoint ps = is.point1( t );
+    if ( ss == z2 && se == z3 ) {
+      //            w1
+      //          /    \ z2
+      //     se /---<----\ ss
+      //   w2 /____________\ w3
+      int k = ks;
+      CWIntersection ii = ints.get( k % ns );
+      int kmin = k;
+      float dmin = w2.distance( ii.mV2 ) + w3.distance( ii.mV2 );
+      for ( ; k < ke; ++k ) {
+        ii = ints.get( k % ns );
+        float d = w2.distance( ii.mV2 ) + w3.distance( ii.mV2 );
+        if ( d < dmin ) { dmin = d; kmin = k; }
+      }
+      // Log.v("Cave3D", "[1] ks " + ks + " ke " + ke + " kmin " + kmin );
+      CWPoint p1 = (ks < kmin ) ? addTrianglesAtVertexCCW( t, w3, ps, ks, kmin, ints, ns ) : ps;
+      CWSide r0 = getSide( p1, w2 );
+      CWSide r2 = getSide( p1, w3 );
+      addSplitTriangle( w2, w3, p1, r2, r0, z1 );
+      if ( kmin < ke ) addTrianglesAtVertexCCW( t, w2, p1, kmin, ke, ints, ns );
+    } else if ( ss == z3 && se == z2 ) {
+      //            w1
+      //          /    \ z2
+      //     ss /--->----\ se
+      //   w2 /____________\ w3
+      int k = ks;
+      CWIntersection ii = ints.get( k % ns );
+      int kmin = k;
+      float dmin = w2.distance( ii.mV2 ) + w3.distance( ii.mV2 );
+      for ( ; k < ke; ++k ) {
+        ii = ints.get( k % ns );
+        float d = w2.distance( ii.mV2 ) + w3.distance( ii.mV2 );
+        if ( d < dmin ) { dmin = d; kmin = k; }
+      }
+      // Log.v("Cave3D", "[2] ks " + ks + " ke " + ke + " kmin " + kmin );
+      CWPoint p1 = (ks < kmin )? addTrianglesAtVertexCW( t, w2, ps, ks, kmin, ints, ns ) : ps;
+      CWSide r0 = getSide( p1, w2 );
+      CWSide r2 = getSide( p1, w3 );
+      addSplitTriangle( w2, w3, p1, r2, r0, z1 );
+      if ( kmin < ke ) addTrianglesAtVertexCW( t, w3, p1, kmin, ke, ints, ns );
+    } else if ( ss == z2 && se == z1 ) {
+      //            w1
+      //          /    \ ss
+      //     z3 /      / \ z2
+      //   w2 /______/_____\ w3
+      //           se
+      addTrianglesAtVertexCCW( t, w3, ps, ks, ke, ints, ns );
+    } else if ( ss == z3 && se == z1 ) {
+      //            w1
+      //       ss /    \   
+      //     z3 / \      \ z2
+      //   w2 /_____\______\ w3
+      //             se
+      addTrianglesAtVertexCW( t, w2, ps, ks, ke, ints, ns );
+    } else if ( ss == z1 && se == z2 ) {
+      //            w1
+      //          /    \ se
+      //     z3 /      / \ z2
+      //   w2 /______/_____\ w3
+      //           ss
+      addTrianglesAtVertexCW( t, w3, ps, ks, ke, ints, ns );
+    } else if ( ss == z1 && se == z3 ) {
+      //            w1
+      //       se /    \   
+      //     z3 / \      \ z2
+      //   w2 /_____\______\ w3
+      //             ss
+      addTrianglesAtVertexCCW( t, w2, ps, ks, ke, ints, ns );
+    }
+  }
+
+  // w2 and w3 are inside the other CW
+  private CWPoint split2( int t, CWPoint w1, CWPoint w2, CWPoint w3, CWSide z1, CWSide z2, CWSide z3, 
+                          int ks, int ke, List<CWIntersection> ints, int ns )
+  {
+    CWIntersection is = ints.get( ks );
+    CWIntersection ie = ints.get( ke % ns );
+    CWLinePoint vs = is.mV1;
+    CWLinePoint ve = ie.mV1;
+    CWSide ss = vs.mSide;
+    CWSide se = ve.mSide;
+    // Log.v("Cave3D", "CW " + t + " split-2 " + w1.mCnt + " " + w2.mCnt + " " + w3.mCnt + " sides "
+    //                 + z1.mCnt + " " + z2.mCnt + " " + z3.mCnt  + " int sides " + ss.mCnt + " " + se.mCnt );
+    CWPoint ps = is.point1( t );
+    if ( ss == z2 && se == z3 ) {
+      //            w1
+      //          /    \ z2
+      //     se /---<----\ ss
+      //   w2 /____________\ w3
+      addTrianglesAtVertexCW( t, w1, ps, ks, ke, ints, ns );
+    } else if ( ss == z3 && se == z2 ) {
+      //            w1
+      //          /    \ z2
+      //     ss /--->----\ se
+      //   w2 /____________\ w3
+      addTrianglesAtVertexCCW( t, w1, ps, ks, ke, ints, ns );
+    } else if ( ss == z2 && se == z1 ) {
+      //            w1
+      //          /    \ ss
+      //     z3 /      / \ z2
+      //   w2 /______/_____\ w3
+      //           se
+      return addTrianglesAtVertexCW( t, w1, ps, ks, ke, ints, ns );
+    } else if ( ss == z3 && se == z1 ) {
+      //            w1
+      //       ss /    \   
+      //     z3 / \      \ z2
+      //   w2 /_____\______\ w3
+      //             se
+      return addTrianglesAtVertexCCW( t, w1, ps, ks, ke, ints, ns );
+    } else if ( ss == z1 && se == z2 ) {
+      //            w1
+      //          /    \ se
+      //     z3 /      / \ z2
+      //   w2 /______/_____\ w3
+      //           ss
+      addTrianglesAtVertexCCW( t, w1, ps, ks, ke, ints, ns );
+      return ps;
+    } else if ( ss == z1 && se == z3 ) {
+      //            w1
+      //       se /    \   
+      //     z3 / \      \ z2
+      //   w2 /_____\______\ w3
+      //             ss
+      addTrianglesAtVertexCW( t, w1, ps, ks, ke, ints, ns );
+      return ps;
+    }
+    return null;
   }
 
 }

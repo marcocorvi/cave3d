@@ -11,7 +11,8 @@
  */
 package com.topodroid.Cave3D;
 
-import java.io.PrintStream;
+import java.io.PrintWriter;
+// import java.io.PrintStream;
 import java.io.IOException;
 
 import android.util.Log;
@@ -29,6 +30,8 @@ import android.util.Log;
 public class CWSide
 {
   static int cnt = 0;
+  static void resetCounter() { cnt = 0; }
+
   int mCnt;
   CWPoint p1, p2;
   Cave3DVector u12;
@@ -40,8 +43,7 @@ public class CWSide
     mCnt = cnt++;
     this.p1 = p1;
     this.p2 = p2;
-    u12 = p2.minus(p1);
-    u12.normalized();
+    computeU12();
     t1 = null;
     t2 = null;
   }
@@ -52,10 +54,15 @@ public class CWSide
     if ( cnt <= tag ) cnt = tag+1;
     this.p1 = p1;
     this.p2 = p2;
-    u12 = p2.minus(p1);
-    u12.normalized();
+    computeU12();
     t1 = null;
     t2 = null;
+  }
+
+  void computeU12()
+  {
+    u12 = p2.minus(p1);
+    u12.normalized();
   }
 
   boolean areTrianglesOutside()
@@ -94,19 +101,25 @@ public class CWSide
     if ( t == t2 ) t2 = null;
   }
 
-  void replace( CWPoint pold, CWPoint pnew )
+  boolean replacePoint( CWPoint pold, CWPoint pnew )
   {
     if ( p1 == pold ) { 
       p1 = pnew; 
     } else if ( p2 == pold ) {
       p2 = pnew;
+    } else {
+      return false;
     }
+    // FIXME recompute direction ?
+    // u12 = p2.minus( p1 );
+    return true;
   }
   
   boolean contains( CWPoint p ) { return p == p1 || p == p2; }
   
   CWPoint otherPoint( CWPoint p ) { return ( p == p1 )? p2 : ( p == p2)? p1 : null; }
 
+  // sine of the angle (p2-p1)^(v-p1) [with sign]
   float cross( Cave3DVector v )
   {
     Cave3DVector vp1 = v.minus( p1 );
@@ -120,15 +133,12 @@ public class CWSide
                      + " T " + ((t1 == null)? "-" : t1.mCnt) + " " + ((t2 == null)? "-" : t2.mCnt)
     );
   }
-  
 
-  // void serialize( PrintStream out )
-  // {
-  //   Cave3DVector dp = p2.minus(p1);
-  //   out.println(mCnt + " " + p1.mCnt + " " + p2.mCnt 
-  //     + " " + ((t1 == null)? "-1" : t1.mCnt) + " " + ((t2 == null)? "-1" : t2.mCnt)
-  //     + " DP " + dp.x + " " + dp.y + " " + dp.z
-  //   );
-  // }
+  void serialize( PrintWriter out )
+  {
+    Cave3DVector dp = p2.minus(p1);
+    out.format( "S %d %d %d %d %d %.3f %.3f %.3f\n", mCnt, p1.mCnt, p2.mCnt,
+                ((t1 == null)? "-1" : t1.mCnt), ((t2 == null)? "-1" : t2.mCnt), dp.x, dp.y, dp.z );
+  }
 }
 

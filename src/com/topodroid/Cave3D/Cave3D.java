@@ -64,25 +64,109 @@ public class Cave3D extends Activity
   private SharedPreferences prefs;
 
   static int mSelectionRadius = 20;
-  static int mTextSize = 20;
+  static int mTextSize        = 20;
+  static boolean mAllSplay    = true;
+  static boolean mGridAbove   = false;
+  static boolean mPreprojection = true;
+  static boolean mSplitTriangles = true;
+  static boolean mSplitRandomize = true;
+  static boolean mSplitStretch   = false;
+  static float mSplitRandomizeDelta = 0.1f; // meters
+  static float mSplitStretchDelta   = 0.1f;
+
+  static final String CAVE3D_BASE_PATH = "CAVE3D_BASE_PATH";
+  static final String CAVE3D_TEXT_SIZE = "CAVE3D_TEXT_SIZE";
+  static final String CAVE3D_SELECTION_RADIUS = "CAVE3D_SELECTION_RADIUS";
+  static final String CAVE3D_GRID_ABOVE = "CAVE3D_GRID_ABOVE";
+  static final String CAVE3D_ALL_SPLAY = "CAVE3D_ALL_SPLAY";
+  static final String CAVE3D_PREPROJECTION = "CAVE3D_PREPROJECTION";
+  static final String CAVE3D_SPLIT_TRIANGLES = "CAVE3D_SPLIT_TRIANGLES";
+  static final String CAVE3D_SPLIT_RANDOM    = "CAVE3D_SPLIT_RANDOM";
+  static final String CAVE3D_SPLIT_STRETCH   = "CAVE3D_SPLIT_STRETCH";
 
   public void onSharedPreferenceChanged( SharedPreferences sp, String k ) 
   {
-    if ( k.equals( "CAVE3D_BASE_PATH" ) ) { 
+    if ( k.equals( CAVE3D_BASE_PATH ) ) { 
       mAppBasePath = sp.getString( k, APP_BASE_PATH );
       Log.v("Cave3D", "SharedPref change: path " + mAppBasePath );
-    } else if ( k.equals( "CAVE3D_TEXT_SIZE" ) ) {
+    } else if ( k.equals( CAVE3D_TEXT_SIZE ) ) {
       try {
         mTextSize = Integer.parseInt( sp.getString( k, "20" ) );
         Cave3DRenderer.setStationPaintTextSize( mTextSize );
       } catch ( NumberFormatException e ) {
       }
-    } else if ( k.equals( "CAVE3D_SELECTION_RADIUS" ) ) { 
+    } else if ( k.equals( CAVE3D_SELECTION_RADIUS ) ) { 
       try {
         mSelectionRadius = Integer.parseInt( sp.getString( k, "20" ) );
       } catch ( NumberFormatException e ) {
       }
+    } else if ( k.equals( CAVE3D_GRID_ABOVE ) ) { 
+      boolean b = sp.getBoolean( k, false );
+      if ( b != mGridAbove ) {
+        mGridAbove = b;
+        mRenderer.precomputeProjectionsGrid();
+      }
+    } else if ( k.equals( CAVE3D_ALL_SPLAY ) ) { 
+      mAllSplay = sp.getBoolean( k, true );
+    } else if ( k.equals( CAVE3D_PREPROJECTION ) ) { 
+      mPreprojection = sp.getBoolean( k, true );
+    } else if ( k.equals( CAVE3D_SPLIT_TRIANGLES ) ) { 
+      mSplitTriangles = sp.getBoolean( k, true );
+    } else if ( k.equals( CAVE3D_SPLIT_RANDOM ) ) { 
+      try {
+        float r = Float.parseFloat( sp.getString( k, "0.1" ) );
+        if ( r > 0.0001f ) {
+          mSplitRandomizeDelta = r;
+          mSplitRandomize = true;
+        } else {
+          mSplitRandomize = false;
+        }
+      } catch ( NumberFormatException e ) { }
+    } else if ( k.equals( CAVE3D_SPLIT_STRETCH ) ) { 
+      try {
+        float r = Float.parseFloat( sp.getString( k, "0.1" ) );
+        if ( r > 0.0001f ) {
+          mSplitStretchDelta = r;
+          mSplitStretch = true;
+        } else {
+          mSplitStretch = false;
+        }
+      } catch ( NumberFormatException e ) { }
     }
+  }
+
+  private void loadPreferences( SharedPreferences sp )
+  {
+    float r;
+    mAppBasePath = sp.getString( CAVE3D_BASE_PATH, APP_BASE_PATH );
+    try {
+      mTextSize = Integer.parseInt( sp.getString( CAVE3D_TEXT_SIZE, "20" ) );
+    } catch ( NumberFormatException e ) {
+    }
+    try {
+      mSelectionRadius = Integer.parseInt( sp.getString( CAVE3D_SELECTION_RADIUS, "20" ) );
+    } catch ( NumberFormatException e ) {
+    }
+    mGridAbove      = sp.getBoolean( CAVE3D_GRID_ABOVE, false );
+    mAllSplay       = sp.getBoolean( CAVE3D_ALL_SPLAY, true );
+    mPreprojection  = sp.getBoolean( CAVE3D_PREPROJECTION, true );
+    mSplitTriangles = sp.getBoolean( CAVE3D_SPLIT_TRIANGLES, true );
+    mSplitRandomize = false;
+    try {
+      r = Float.parseFloat( sp.getString( CAVE3D_SPLIT_RANDOM, "0.1" ) );
+      if ( r > 0.0001f ) {
+        mSplitRandomizeDelta = r;
+        mSplitRandomize = true;
+      }
+    } catch ( NumberFormatException e ) { }
+    mSplitStretch = false;
+    try {
+      r = Float.parseFloat( sp.getString( CAVE3D_SPLIT_STRETCH, "0.1" ) );
+      if ( r > 0.0001f ) {
+        mSplitStretchDelta = r;
+        mSplitStretch = true;
+      }
+    } catch ( NumberFormatException e ) { }
   }
 
   // -----------------------------------------------------------
@@ -98,6 +182,7 @@ public class Cave3D extends Activity
 
   private Cave3DRenderer mRenderer;
   private MenuItem mOpenFile;
+  private MenuItem mExport;
   private MenuItem mColorMode;
   private MenuItem mFrameMode;
   // private MenuItem mZoomIn;
@@ -145,16 +230,17 @@ public class Cave3D extends Activity
     super.onCreateOptionsMenu( menu );
     Resources resources = getResources();
     mColorMode = menu.add( resources.getString( R.string.menu_color ) );
-    mInfo      = menu.add( resources.getString( R.string.menu_info ) );
-    mFiles     = menu.add( resources.getString( R.string.menu_files ) );
+    mFrameMode = menu.add( resources.getString( R.string.menu_frame ) );
+    mOptions   = menu.add( resources.getString( R.string.menu_options ) );
     mIco       = menu.add( resources.getString( R.string.menu_ico ) );
     mRose      = menu.add( resources.getString( R.string.menu_rose ) );
-    mFrameMode = menu.add( resources.getString( R.string.menu_frame ) );
     // mWallMode  = menu.add( resources.getString( R.string.menu_wall ) );
+    mInfo      = menu.add( resources.getString( R.string.menu_info ) );
+    mFiles     = menu.add( resources.getString( R.string.menu_files ) );
     mOpenFile  = menu.add( resources.getString( R.string.menu_open ) );
+    mExport    = menu.add( resources.getString( R.string.menu_export ) );
     mZoomOne   = menu.add( resources.getString( R.string.menu_zoom_one ) );
     mReset     = menu.add( resources.getString( R.string.menu_reset ) );
-    mOptions   = menu.add( resources.getString( R.string.menu_options ) );
     return true;
   }
 
@@ -164,6 +250,8 @@ public class Cave3D extends Activity
   {
     if ( item == mOpenFile ) {
       openFile();
+    } else if ( item == mExport ) {
+      new Cave3DExportDialog( this, this, mRenderer ).show();
     } else if ( item == mOptions ) {
       Intent intent = new Intent( this, Cave3DPreferences.class );
       startActivity( intent );
@@ -382,11 +470,10 @@ public class Cave3D extends Activity
     mIsNotMultitouch = ! getPackageManager().hasSystemFeature( PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH );
 
     prefs = PreferenceManager.getDefaultSharedPreferences( this );
+    loadPreferences( prefs );
     prefs.registerOnSharedPreferenceChangeListener( this );
-    mAppBasePath = prefs.getString( "CAVE3D_BASE_PATH", APP_BASE_PATH );
 
     setContentView(R.layout.main);
-
 
     DisplayMetrics dm = getResources().getDisplayMetrics();
     float density  = dm.density;

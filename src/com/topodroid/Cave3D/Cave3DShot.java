@@ -40,6 +40,16 @@ public class Cave3DShot
     surveyNr = 0;
   }
 
+  /* dot product 
+   * ( cc1 * cb1, cc1 * sb1, sc1 ) * ( cc2 * cb2, cc2 * sb2, sc2 )
+   *   = cc1 * cc2 * cos(b1-b2) + sc1 * sc2
+   */
+  double dot( Cave3DShot sh )
+  {
+    return Math.cos( ber - sh.ber ) * Math.cos( cln ) * Math.cos( sh.cln ) + Math.sin( cln ) * Math.sin( sh.cln );
+  }
+    
+
   public Cave3DStation getStationFromStation( Cave3DStation st ) 
   {
     if ( st.name.equals( from ) ) {

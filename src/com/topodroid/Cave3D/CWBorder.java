@@ -14,25 +14,35 @@ package com.topodroid.Cave3D;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.io.PrintWriter;
 // import java.io.PrintStream;
+
+import android.util.Log;
 
 public class CWBorder 
 {
-  CWConvexHull mCV1;
-  CWConvexHull mCV2;
+  static int cnt = 0;
+  static void resetCounter() { cnt = 0; }
+
+  int mCnt;
+  CWConvexHull mCV1;  // first CW
+  CWConvexHull mCV2;  // second CW
   ArrayList< CWIntersection > mInts;
-  List<CWPoint> pts2in1;
-  List<CWPoint> pts1in2;
+  List<CWPoint> pts2in1;  // points of the second CW inside the first CW
+  List<CWPoint> pts1in2;  // points of the first CW inside the second CW
   float mVolume;
   boolean hasVolume;
   
   CWBorder( CWConvexHull cv1, CWConvexHull cv2, float eps )
   {
+    mCnt = cnt ++;
     mCV1 = cv1;
     mCV2 = cv2;
     mInts = new ArrayList< CWIntersection >();
     pts2in1 = cv1.computeInsidePoints( cv2, eps ); // points of cv2 inside cv1
     pts1in2 = cv2.computeInsidePoints( cv1, eps );
+    // Log.v( "Cave3D", "Border " + mCnt + ": " + pts2in1.size() + " points of " + cv2.mCnt + " in " + cv1.mCnt 
+    //      + " " + pts1in2.size() + " points of " + cv1.mCnt + " in " + cv2.mCnt );
     hasVolume = false;
   }
 
@@ -50,69 +60,79 @@ public class CWBorder
   
   boolean makeBorder()
   {
+    // mCV1.dump();
+    // mCV2.dump();
     ArrayList<CWIntersection> ints = mCV1.computeIntersection( mCV2 );
-    return sortIntersections( ints );
+    // int sz0 = ints.size();
+    for ( CWIntersection ii : ints ) {
+      ii.makeSignature();
+      // ii.dump();
+    }
+    // Log.v("Cave3D", "make border. nr ints " + ints.size() );
+
+    boolean ret = orderIntersections( ints );
+    // int sz = ints.size();
+    // Log.v("Cave3D", "make border. order ints " + ret + " nr " +  mInts.size() );
+
+    int ns = mInts.size();
+    for ( int k = 0; k < ns; ++ k ) {
+      CWIntersection i1 = mInts.get( k );
+      CWIntersection i2 = mInts.get( (k+1)%ns );
+      i1.setNext( i2 );
+    }
+    // Log.v("Cave3D", "Border " + mCnt + " size " + mInts.size() );
+    // for ( CWIntersection ii : mInts ) {
+    //   ii.dump();
+    // }
+      
+    return ret;
   }
+
+  void splitCWTriangles( )
+  {
+    // Log.v("Cave3D", "split CW ints: " + mInts.size() + " pts2in1 " + pts2in1.size() + " pts1in2 " + pts1in2.size() );
+    mCV1.splitTriangles( 1, mInts, pts1in2 );
+    mCV2.splitTriangles( 2, mInts, pts2in1 );
+    // Log.v("Cave3D", "split CW done");
+  }
+
+  // ---------------------------------------------------------------------------
   
   /** sort a list of intersection into this border
    */
-  private boolean sortIntersections( ArrayList<CWIntersection> ints )
+  private boolean orderIntersections( ArrayList<CWIntersection> ints )
   {
     if ( ints.size() == 0 ) return false;
     mInts.clear();
     CWIntersection i1 = ints.get(0);
-    ints.remove( 0 );
-    CWLinePoint lp1 = i1.mV1;
-    CWLinePoint lp2 = i1.mV2;
-    CWTriangle ta = i1.mTriA; // triangle of mCV1
-    CWTriangle tb = i1.mTriB; // triangle of mCV2
-    
+    ints.remove( i1 );
     mInts.add( i1 );
-    // i1.dump( System.out, 1 );
-    // lp1.dump( System.out );
+
     while ( ints.size() > 0 ) {
-      CWSide s1 = lp2.mSide;
-      CWTriangle t1 = s1.otherTriangle( lp2.mTri );
-      CWTriangle t2 = ( lp2.mTri == ta )? tb : ta;
-      // search intersection of t1-t2 with side s1/t1
-      boolean found = false;
+      int f = 0;
       for ( CWIntersection i2 : ints ) {
-        if ( ( i2.mTriA == t1 && i2.mTriB == t2 ) || ( i2.mTriA == t2 && i2.mTriB == t1 ) ) {
-          ta = i2.mTriA;
-          tb = i2.mTriB;
-          if ( i2.mV1.mSide == s1 && i2.mV1.mTri == t1 ) {
-            found = true; 
-          } else if ( i2.mV2.mSide == s1 && i2.mV2.mTri == t1 ) {
-            found = true;
-            i2.reverse();
-          }
-          if ( found ) {
-            lp2 = i2.mV2;
-            mInts.add( i2 );
-            ints.remove( i2 );
+        if ( i2.followSignatureDirect( i1 ) ) {
+          f = 1;
+          i1 = i2;
+          break;
+        }
+      }
+      if ( f != 1 ) {
+        for ( CWIntersection i2 : ints ) {
+          if ( i2.followSignatureInverse( i1 ) ) {
+            f = -1;
+            i1 = i2;
             break;
           }
         }
       }
-      if ( ! found ) break;
+      if ( f == 0 ) break;
+      ints.remove( i1 );
+      if ( f == -1 ) i1.reverse();
+      mInts.add( i1 );
     }
-    return ( mInts.size() > 0 );
+    return ( ints.size() == 0 );
   }
-  
-  // void dump( PrintStream out )
-  // {
-  //   for ( CWIntersection ii : mInts ) {
-  //     ii.dump(out, 1);
-  //   }
-  // }
-  
-  // void serialize( PrintStream out )
-  // {
-  //   out.println( mInts.size() );
-  //   for ( CWIntersection ii : mInts ) {
-  //     ii.serialize(out);
-  //   }
-  // }
 
   private Cave3DVector getCenter()
   {
@@ -212,6 +232,24 @@ public class CWBorder
     vol += computeVolumeOf( t2in1, pts2in1, cc );
 	  
     return vol;
+  }
+
+  // ---------------------------------------------------------------------------
+  
+  // void dump( PrintStream out )
+  // {
+  //   for ( CWIntersection ii : mInts ) {
+  //     ii.dump(out, 1);
+  //   }
+  // }
+  
+  void serialize( PrintWriter out )
+  {
+    out.format( "B %d %d %d %d %d %d\n", mCnt, mCV1.mCnt, mCV2.mCnt, mInts.size(), pts2in1.size(), pts1in2.size() );
+    for ( CWIntersection ii : mInts ) ii.serialize( out );
+    for ( CWPoint p2 : pts2in1 )      p2.serialize( out );
+    for ( CWPoint p1 : pts1in2 )      p1.serialize( out );
+    out.flush();
   }
 
 }

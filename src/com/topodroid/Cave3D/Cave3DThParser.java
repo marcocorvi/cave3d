@@ -201,6 +201,42 @@ public class Cave3DThParser
     return ret;
   }
 
+  /** get the legs at "station"
+   *  the legs that do not connect "other" are reversed
+   *  Therefore the return has legs
+   *      station - other
+   *      xxx - station
+   */
+  ArrayList< Cave3DShot > getLegsAt( Cave3DStation station, Cave3DStation other )
+  {
+    // Log.v("Cave3D", "get legs at " + station.name + " other " + other.name );
+    ArrayList< Cave3DShot > ret = new ArrayList< Cave3DShot >();
+    for ( Cave3DShot shot : shots ) { // add survey legs too1
+      if ( shot.from_station == station ) {
+        if ( shot.to_station == other ) {
+          // Log.v("Cave3D", "add direct shot " + shot.from + "-" + shot.to );
+          ret.add( shot );
+        } else {
+          // Log.v("Cave3D", "add other shot " + shot.to + "-" + shot.from );
+          double b = shot.ber + Math.PI;
+          if ( b > 2*Math.PI ) b -= 2*Math.PI;
+          ret.add( new Cave3DShot( null, null, shot.len, (float)b, -shot.cln) ); // stations not important
+        }
+      } else if ( shot.to_station == station ) {
+        if ( shot.from_station == other ) {
+          // Log.v("Cave3D", "add reversed shot " + shot.to + "-" + shot.from );
+          double b = shot.ber + Math.PI;
+          if ( b > 2*Math.PI ) b -= 2*Math.PI;
+          ret.add( new Cave3DShot( null, null, shot.len, (float)b, -shot.cln) ); // stations not important
+        } else {
+          // Log.v("Cave3D", "add other shot " + shot.from + "-" + shot.to );
+          ret.add( shot );
+        }
+      }
+    }
+    return ret;
+  }
+
   ArrayList< Cave3DShot > getSplayAt( Cave3DStation station, boolean also_legs )
   {
     ArrayList< Cave3DShot > ret = new ArrayList< Cave3DShot >();
