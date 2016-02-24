@@ -18,6 +18,15 @@
        android:dialogMessage="@string/pref_text_size_message"
        />
 
+  <com.topodroid.Cave3D.MyListPreference
+       android:key="CAVE3D_BUTTON_SIZE"
+       android:title="@string/pref_size_buttons_title"
+       android:summary="@string/pref_size_buttons_summary"
+       android:defaultValue="1"
+       android:entries="@array/sizeButtons"
+       android:entryValues="@array/sizeButtonsValue"
+       />
+
   <android.preference.EditTextPreference
        android:key="CAVE3D_SELECTION_RADIUS"
        android:title="@string/pref_selection_radius_title"

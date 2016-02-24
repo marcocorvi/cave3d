@@ -26,6 +26,7 @@ import android.widget.ZoomButton;
 import android.widget.ZoomButtonsController;
 import android.widget.ZoomButtonsController.OnZoomListener;
 
+import android.util.DisplayMetrics;
 import android.util.AttributeSet;
 import android.util.FloatMath;
 import android.util.Log;
@@ -100,7 +101,11 @@ public class Cave3DView extends SurfaceView
     mHolder = getHolder();
     mHolder.addCallback(this);
 
-    mRenderer = new Cave3DRenderer();
+    DisplayMetrics dm = mContext.getResources().getDisplayMetrics();
+    // float density  = dm.density;
+    float width  = dm.widthPixels;
+    float height = dm.heightPixels;
+    mRenderer = new Cave3DRenderer( width, height );
     x_save = 0.0f;
     y_save = 0.0f;
     x_start = 0.0f;

@@ -528,7 +528,7 @@ public class Cave3DRenderer // implements Renderer
   //   mCave3D = cave3d;
   // }
 
-  public Cave3DRenderer( )
+  public Cave3DRenderer( float width, float height )
   {
     mCave3D = null;
 
@@ -552,8 +552,10 @@ public class Cave3DRenderer // implements Renderer
     borders   = null;
     mSurface  = null;
 
-    xview0 = Cave3D.mDisplayWidth  / 2; // these are set and never changed again
-    yview0 = Cave3D.mDisplayHeight / 2;
+    xview0 = width  / 2; // these are set and never changed again
+    yview0 = height / 2;
+
+    ZOOM = width / 2;
 
     mParser = null;
     // do_repaint = false;
@@ -1153,7 +1155,7 @@ public class Cave3DRenderer // implements Renderer
     paths_walls.add( p );
   }
 
-  // called under synchronized path_border
+  // called under synchronized paths_borders
   private void addBorderLine( CWIntersection ii )
   {
     float x,y,z;

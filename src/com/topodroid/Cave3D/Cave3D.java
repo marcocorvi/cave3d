@@ -7,11 +7,14 @@
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
+ * --------------------------------------------------------
  */
 package com.topodroid.Cave3D;
 
 import java.io.StringWriter;
 import java.io.PrintWriter;
+
+import java.util.ArrayList;
 
 import android.os.Environment;
 import android.app.Activity;
@@ -23,18 +26,25 @@ import android.content.res.Resources;
 import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
 
+import android.graphics.drawable.BitmapDrawable;
 
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.View.OnClickListener;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.ViewGroup.LayoutParams;
+
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.ZoomControls;
 import android.widget.ZoomButton;
 import android.widget.ZoomButtonsController;
 import android.widget.ZoomButtonsController.OnZoomListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 
 import android.preference.PreferenceManager;
 import android.content.SharedPreferences;
@@ -47,6 +57,8 @@ import android.util.Log;
 
 public class Cave3D extends Activity
                     implements OnZoomListener
+                    , OnClickListener
+                    , OnItemClickListener
                     // , View.OnTouchListener
                     , OnSharedPreferenceChangeListener
 {
@@ -65,6 +77,7 @@ public class Cave3D extends Activity
 
   static int mSelectionRadius = 20;
   static int mTextSize        = 20;
+  static int mButtonSize      = 1;
   static boolean mAllSplay    = true;
   static boolean mGridAbove   = false;
   static boolean mPreprojection = true;
@@ -76,6 +89,7 @@ public class Cave3D extends Activity
 
   static final String CAVE3D_BASE_PATH = "CAVE3D_BASE_PATH";
   static final String CAVE3D_TEXT_SIZE = "CAVE3D_TEXT_SIZE";
+  static final String CAVE3D_BUTTON_SIZE = "CAVE3D_BUTTON_SIZE";
   static final String CAVE3D_SELECTION_RADIUS = "CAVE3D_SELECTION_RADIUS";
   static final String CAVE3D_GRID_ABOVE = "CAVE3D_GRID_ABOVE";
   static final String CAVE3D_ALL_SPLAY = "CAVE3D_ALL_SPLAY";
@@ -88,11 +102,17 @@ public class Cave3D extends Activity
   {
     if ( k.equals( CAVE3D_BASE_PATH ) ) { 
       mAppBasePath = sp.getString( k, APP_BASE_PATH );
-      Log.v("Cave3D", "SharedPref change: path " + mAppBasePath );
+      // Log.v("Cave3D", "SharedPref change: path " + mAppBasePath );
     } else if ( k.equals( CAVE3D_TEXT_SIZE ) ) {
       try {
         mTextSize = Integer.parseInt( sp.getString( k, "20" ) );
         Cave3DRenderer.setStationPaintTextSize( mTextSize );
+      } catch ( NumberFormatException e ) {
+      }
+    } else if ( k.equals( CAVE3D_BUTTON_SIZE ) ) {
+      try {
+        mButtonSize = Integer.parseInt( sp.getString( k, "1" ) );
+        resetButtonBar();
       } catch ( NumberFormatException e ) {
       }
     } else if ( k.equals( CAVE3D_SELECTION_RADIUS ) ) { 
@@ -144,6 +164,10 @@ public class Cave3D extends Activity
     } catch ( NumberFormatException e ) {
     }
     try {
+      mButtonSize = Integer.parseInt( sp.getString( CAVE3D_BUTTON_SIZE, "1" ) );
+    } catch ( NumberFormatException e ) {
+    }
+    try {
       mSelectionRadius = Integer.parseInt( sp.getString( CAVE3D_SELECTION_RADIUS, "20" ) );
     } catch ( NumberFormatException e ) {
     }
@@ -172,7 +196,7 @@ public class Cave3D extends Activity
   // -----------------------------------------------------------
 
   String mFilename; // opened filename
-  public float mScaleFactor   = 1.0f;
+  public static float mScaleFactor   = 1.0f;
   public static float mDisplayWidth  = 200f;
   public static float mDisplayHeight = 320f;
 
@@ -181,30 +205,6 @@ public class Cave3D extends Activity
   private boolean mIsNotMultitouch;
 
   private Cave3DRenderer mRenderer;
-  private MenuItem mOpenFile;
-  private MenuItem mExport;
-  private MenuItem mColorMode;
-  private MenuItem mFrameMode;
-  // private MenuItem mZoomIn;
-  private MenuItem mZoomOne;
-  // private MenuItem mZoomOut;
-  private MenuItem mReset;
-  private MenuItem mOptions;
-  // private MenuItem mWallMode;
-  private MenuItem mInfo;
-  private MenuItem mFiles;
-  private MenuItem mIco;
-  private MenuItem mRose;
-
-  // private Button openBtn;
-  private Button modeBtn;
-  // private Button viewBtn;
-  private Button stnsBtn;
-  private Button wallBtn;
-  private Button surfaceBtn;
-  // private Button zoomInBtn;
-  // private Button zoomOutBtn;
-  private Button splayBtn;
 
   ZoomButtonsController mZoomBtnsCtrl;
   View mZoomView;
@@ -224,68 +224,182 @@ public class Cave3D extends Activity
   // public void zoomOut() { mRenderer.zoomOut(); }
   public void zoomOne() { mRenderer.zoomOne(); }
 
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu)
+  // ---------------------------------------------------------
+  // DIMENSIONS
+
+  static int setListViewHeight( Context context, HorizontalListView listView )
   {
-    super.onCreateOptionsMenu( menu );
-    Resources resources = getResources();
-    mColorMode = menu.add( resources.getString( R.string.menu_color ) );
-    mFrameMode = menu.add( resources.getString( R.string.menu_frame ) );
-    mOptions   = menu.add( resources.getString( R.string.menu_options ) );
-    mIco       = menu.add( resources.getString( R.string.menu_ico ) );
-    mRose      = menu.add( resources.getString( R.string.menu_rose ) );
-    // mWallMode  = menu.add( resources.getString( R.string.menu_wall ) );
-    mInfo      = menu.add( resources.getString( R.string.menu_info ) );
-    mFiles     = menu.add( resources.getString( R.string.menu_files ) );
-    mOpenFile  = menu.add( resources.getString( R.string.menu_open ) );
-    mExport    = menu.add( resources.getString( R.string.menu_export ) );
-    mZoomOne   = menu.add( resources.getString( R.string.menu_zoom_one ) );
-    mReset     = menu.add( resources.getString( R.string.menu_reset ) );
-    return true;
+    int size = getScaledSize( context );
+    LayoutParams params = listView.getLayoutParams();
+    params.height = size + 10;
+    listView.setLayoutParams( params );
+    return size;
   }
 
-  
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item)
+  // default button size
+  static int getScaledSize( Context context )
   {
-    if ( item == mOpenFile ) {
-      openFile();
-    } else if ( item == mExport ) {
-      new Cave3DExportDialog( this, this, mRenderer ).show();
-    } else if ( item == mOptions ) {
-      Intent intent = new Intent( this, Cave3DPreferences.class );
-      startActivity( intent );
-    } else if ( item == mColorMode ) {
-      if ( mFilename != null )
-        mRenderer.toggleColorMode();
-    } else if ( item == mFrameMode ) {
-      if ( mFilename != null )
-        mRenderer.toggleFrameMode();
-    } else if ( item == mZoomOne ) {
-      if ( mFilename != null )
-        zoomOne();
-    } else if ( item == mReset ) {
-      if ( mFilename != null )
-        mRenderer.resetGeometry();
-    // } else if ( item == mWallMode ) {
-    //   setWallButton( mRenderer.toggleWallMode() );
-    } else if ( item == mInfo ) {
-      if ( mFilename != null )
-        (new Cave3DInfoDialog(this, mRenderer)).show();
-    } else if ( item == mFiles ) {
-      if ( mFilename != null )
-        (new Cave3DSurveysDialog(this, mRenderer)).show();
-    } else if ( item == mIco  ) {
-      if ( mFilename != null )
-        (new Cave3DIcoDialog(this, mRenderer)).show();
-    } else if ( item == mRose ) {
-      if ( mFilename != null )
-        (new Cave3DRoseDialog(this, mRenderer)).show();
-    } else {
-      return super.onOptionsItemSelected(item);
-    }
-    return true;
+    return (int)( 42 * mButtonSize * context.getResources().getSystem().getDisplayMetrics().density );
   }
+
+  static int getDefaultSize( Context context )
+  {
+    return (int)( 42 * context.getResources().getSystem().getDisplayMetrics().density );
+  }
+
+  boolean isMultitouch()
+  {
+    return getPackageManager().hasSystemFeature( PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH );
+  }
+
+  // ---------------------------------------------------------------
+  // MENU
+
+  Button     mMenuImage;
+  ListView   mMenu;
+  MyMenuAdapter mMenuAdapter = null;
+  boolean    onMenu = false;
+
+  int menus[] = {
+    R.string.menu_open,
+    R.string.menu_export,
+    R.string.menu_info,
+    R.string.menu_ico,
+    R.string.menu_rose,
+    R.string.menu_zoom_one,
+    R.string.menu_reset,
+    R.string.menu_options,
+  };
+
+  void setMenuAdapter( Resources res )
+  {
+    int size = getScaledSize( this );
+    MyButton.setButtonBackground( this, mMenuImage, size, R.drawable.iz_menu );
+
+    // mMenuAdapter = new ArrayAdapter<String>(this, R.layout.menu );
+    mMenuAdapter = new MyMenuAdapter( this, this, mMenu, R.layout.menu, new ArrayList< MyMenuItem >() );
+    for ( int k=0; k<menus.length; ++k ) mMenuAdapter.add( res.getString( menus[k] ) );
+    mMenu.setAdapter( mMenuAdapter );
+    mMenu.invalidate();
+  }
+
+  private void closeMenu()
+  {
+    mMenu.setVisibility( View.GONE );
+    mMenuAdapter.resetBgColor();
+    onMenu = false;
+  }
+
+  private void handleMenu( int pos ) 
+  {
+    closeMenu();
+    // Toast.makeText(this, item.toString(), Toast.LENGTH_SHORT).show();
+    int p = 0;
+    if ( p++ == pos ) { // OPEN
+      openFile();
+    } else if ( p++ == pos ) { // EXPORT
+      new Cave3DExportDialog( this, this, mRenderer ).show();
+    } else if ( p++ == pos ) { // INFO
+      if ( mFilename != null ) (new Cave3DInfoDialog(this, mRenderer)).show();
+    } else if ( p++ == pos ) { // ICO
+      if ( mFilename != null ) (new Cave3DIcoDialog(this, mRenderer)).show();
+    } else if ( p++ == pos ) { // ROSE
+      if ( mFilename != null ) (new Cave3DRoseDialog(this, mRenderer)).show();
+    } else if ( p++ == pos ) { // ZOOM_ONE
+      if ( mFilename != null ) zoomOne();
+    } else if ( p++ == pos ) { // RESET
+      if ( mFilename != null ) mRenderer.resetGeometry();
+    } else if ( p++ == pos ) { // OPTIONS
+      startActivity( new Intent( this, Cave3DPreferences.class ) );
+    }
+  }
+
+  @Override 
+  public void onItemClick(AdapterView<?> parent, View view, int pos, long id)
+  {
+    if ( mMenu == (ListView)parent ) { // MENU
+      handleMenu( pos );
+    }
+  }
+
+  // ---------------------------------------------------------
+  // BUTTONS
+
+  HorizontalListView mListView;
+  HorizontalButtonView mButtonView1;
+  MyButton mButton1[];
+  static int mNrButton1 = 7;
+  static int izons[] = {
+    R.drawable.iz_move,
+    R.drawable.iz_station,
+    R.drawable.iz_splays,
+    R.drawable.iz_wall,
+    R.drawable.iz_surface,
+    R.drawable.iz_color,
+    R.drawable.iz_frame
+  };
+  int BTN_MOVE = 0;
+  int BTN_WALL = 3;
+  BitmapDrawable mBMmove;
+  BitmapDrawable mBMturn;
+  BitmapDrawable mBMhull;
+  BitmapDrawable mBMdelaunay;
+  BitmapDrawable mBMconvex;
+
+  void resetButtonBar()
+  {
+    int size = setListViewHeight( this, mListView );
+    mButton1 = new MyButton[ mNrButton1 ];
+    for (int k=0; k<mNrButton1; ++k ) {
+      mButton1[k] = new MyButton( this, this, size, izons[k], 0 );
+    }
+    mBMmove = mButton1[BTN_MOVE].mBitmap;
+    mBMturn = MyButton.getButtonBackground( this, size, R.drawable.iz_turn );
+    mBMconvex = mButton1[BTN_WALL].mBitmap;
+
+    // mButtonView1 = new HorizontalImageButtonView( mButton1 );
+    mButtonView1 = new HorizontalButtonView( mButton1 );
+    mListView.setAdapter( mButtonView1.mAdapter );
+  }
+
+  @Override
+  public void onClick(View view)
+  { 
+    if ( onMenu ) {
+      closeMenu();
+      return;
+    }
+    Button b0 = (Button)view;
+    if ( b0 == mMenuImage ) {
+      if ( mMenu.getVisibility() == View.VISIBLE ) {
+        mMenu.setVisibility( View.GONE );
+        onMenu = false;
+      } else {
+        mMenu.setVisibility( View.VISIBLE );
+        onMenu = true;
+      }
+      return;
+    }
+
+    int k1 = 0;
+    if ( b0 == mButton1[k1++] ) { // MOVE - TURN
+      setModeText( mode+1 );
+    } else if ( b0 == mButton1[k1++] ) { // STATIONS
+      if ( mRenderer != null ) mRenderer.toggleDoStations();
+    } else if ( b0 == mButton1[k1++] ) { // SPLAYS
+      if ( mRenderer != null ) mRenderer.toggleDoSplays();
+    } else if ( b0 == mButton1[k1++] ) { // WALLS
+      if ( mRenderer != null ) setWallButton( mRenderer.toggleWallMode() );
+    } else if ( b0 == mButton1[k1++] ) { // SURFACE
+      if ( mRenderer != null ) mRenderer.toggleDoSurface();
+    } else if ( b0 == mButton1[k1++] ) { // COLOR
+      if ( mFilename != null ) mRenderer.toggleColorMode();
+    } else if ( b0 == mButton1[k1++] ) { // FRAME
+      if ( mFilename != null ) mRenderer.toggleFrameMode();
+    }
+  }
+
+  // -------------------------------------------------------------------
 
   public void onActivityResult( int request, int result, Intent data ) 
   {
@@ -332,10 +446,12 @@ public class Cave3D extends Activity
     if ( TRY == 1 ) {
       switch ( mode ) {
         case MODE_TRANSLATE:
-          modeBtn.setText( getResources().getString( R.string.btn_move ) );
+          // modeBtn.setText( getResources().getString( R.string.btn_move ) );
+          mButton1[BTN_MOVE].setBackgroundDrawable( mBMmove );
           break;
         case MODE_ROTATE:
-          modeBtn.setText( getResources().getString( R.string.btn_rotate ) );
+          // modeBtn.setText( getResources().getString( R.string.btn_rotate ) );
+          mButton1[BTN_MOVE].setBackgroundDrawable( mBMturn );
           break;
       }
     }
@@ -371,52 +487,6 @@ public class Cave3D extends Activity
     return true;
  }
       
-
-  public void onClick(View view)
-  {
-    switch (view.getId()){
-      // case R.id.openBtn:
-      //   openFile();
-      //   break;
-      // case R.id.viewBtn:
-      //   // TODO
-      //   Toast.makeText( this, "TODO onClick viewBtn", Toast.LENGTH_LONG ).show();
-      //   break;
-      case R.id.modeBtn:
-        setModeText( mode+1 );
-        break;
-      // case R.id.zoomInBtn:
-      //   zoomIn();
-      //   break;
-      // case R.id.zoomOutBtn:
-      //   zoomOut();
-      //   // Cave3DZoomDialog zoom_dialog = new Cave3DZoomDialog( this );
-      //   // zoom_dialog.show();
-      //   break;
-      case R.id.splayBtn:
-        if ( mRenderer != null ) {
-          mRenderer.toggleDoSplays();
-        }
-        break;
-      case R.id.stnsBtn:
-        if ( mRenderer != null ) {
-          mRenderer.toggleDoStations();
-        }
-        break;
-      case R.id.wallBtn:
-        if ( mRenderer != null ) {
-          setWallButton( mRenderer.toggleWallMode() );
-        }
-        break;
-      case R.id.surfaceBtn:
-        if ( mRenderer != null ) {
-          mRenderer.toggleDoSurface();
-        }
-        break;
-    }
-  }
-
-
   // @Override
   // public boolean onTouch( View view, MotionEvent motionEvent )
   // {
@@ -428,7 +498,6 @@ public class Cave3D extends Activity
   //   //   // mZoomCtrl.show( );
   //   //   return true;
   //   // }
-
   //   if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
   //   } else if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
   //   } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
@@ -453,11 +522,11 @@ public class Cave3D extends Activity
   private void setWallButton( int wall_mode )
   {
     if ( wall_mode == Cave3DRenderer.WALL_HULL ) {
-      wallBtn.setTextColor( 0xff00ff00 );
+      // mButton1[BTN_WALL].setBackgroundDrawable( mBMhull );
     } else if ( wall_mode == Cave3DRenderer.WALL_DELAUNAY ) {
-      wallBtn.setTextColor( 0xff0000ff );
+      // mButton1[BTN_WALL].setBackgroundDrawable( mBMdelaunay );
     } else {
-      wallBtn.setTextColor( 0xffcccccc );
+      // mButton1[BTN_WALL].setBackgroundDrawable( mBMconvex );
     }
   }
 
@@ -481,54 +550,23 @@ public class Cave3D extends Activity
     mDisplayHeight = dm.heightPixels;
     mScaleFactor   = (mDisplayHeight / 320.0f) * density;
     ZOOM_Y = (int)mDisplayHeight - 100;
-    // Log.v( TAG, "display " + mDisplayWidth + " " + mDisplayHeight + " scale " + mScaleFactor + " ZOOM_Y " + ZOOM_Y );
+    // Log.v( TAG, "display " + mDisplayWidth + " " + mDisplayHeight + " scale " + mScaleFactor + " density " + density );
     
-    // openBtn = (Button) findViewById(R.id.openBtn);
-    modeBtn = (Button) findViewById(R.id.modeBtn);
-    // viewBtn = (Button) findViewById(R.id.viewBtn);
-    stnsBtn = (Button) findViewById(R.id.stnsBtn);
-    wallBtn = (Button) findViewById(R.id.wallBtn);
-    surfaceBtn = (Button) findViewById(R.id.surfaceBtn);
-    // zoomInBtn = (Button) findViewById(R.id.zoomInBtn);
-    // zoomOutBtn = (Button) findViewById(R.id.zoomOutBtn);
-    splayBtn = (Button) findViewById(R.id.splayBtn);
-
-    // modeBtn.setEnabled(true);
-    // viewBtn.setEnabled(true);
-    // stnsBtn.setEnabled(true);
-    // wallBtn.setEnabled(true);
-    // zoomInBtn.setEnabled(true);
-    // zoomOutBtn.setEnabled(true);
-
-    // openBtn.getBackground().setAlpha(192);
-    modeBtn.getBackground().setAlpha(192);
-    // viewBtn.getBackground().setAlpha(192);
-    stnsBtn.getBackground().setAlpha(192);
-    wallBtn.getBackground().setAlpha(192);
-    surfaceBtn.getBackground().setAlpha(192);
-    // FIXME surfaceBtn.setVisibility( View.GONE );
-
-    // zoomInBtn.getBackground().setAlpha(192);
-    // zoomOutBtn.getBackground().setAlpha(192);
-    splayBtn.getBackground().setAlpha(192);
-
+    mListView = (HorizontalListView) findViewById(R.id.listview);
+    resetButtonBar();
 
     mView = (Cave3DView) findViewById( R.id.caveView );
     // mZoom    = app.mScaleFactor;    // canvas zoom
 
-
     if ( mIsNotMultitouch ) {
-        mZoomView = (View) findViewById(R.id.zoomView );
-        mZoomBtnsCtrl = new ZoomButtonsController( mZoomView );
-        mZoomBtnsCtrl.setOnZoomListener( this );
-        mZoomBtnsCtrl.setVisible( true );
-        mZoomBtnsCtrl.setZoomInEnabled( true );
-        mZoomBtnsCtrl.setZoomOutEnabled( true );
-        mZoomCtrl = (ZoomControls) mZoomBtnsCtrl.getZoomControls();
-        // ViewGroup vg = mZoomBtnsCtrl.getContainer();
-    }
-
-    if ( mIsNotMultitouch ) {
+      mZoomView = (View) findViewById(R.id.zoomView );
+      mZoomBtnsCtrl = new ZoomButtonsController( mZoomView );
+      mZoomBtnsCtrl.setOnZoomListener( this );
+      mZoomBtnsCtrl.setVisible( true );
+      mZoomBtnsCtrl.setZoomInEnabled( true );
+      mZoomBtnsCtrl.setZoomOutEnabled( true );
+      mZoomCtrl = (ZoomControls) mZoomBtnsCtrl.getZoomControls();
+      // ViewGroup vg = mZoomBtnsCtrl.getContainer();
       mView.setZoomControl( mZoomBtnsCtrl, ZOOM_Y, mIsNotMultitouch );
     }
 
@@ -542,7 +580,12 @@ public class Cave3D extends Activity
     setModeText( MODE_ROTATE );
     setWallButton( mRenderer.wall_mode );
 
-    // onOptionsItemSelected( mOpenFile );
+    mMenuImage = (Button) findViewById( R.id.handle );
+    mMenuImage.setOnClickListener( this );
+    mMenu = (ListView) findViewById( R.id.menu );
+    mMenuAdapter = null;
+    setMenuAdapter( getResources() );
+    closeMenu();
 
     Bundle extras = getIntent().getExtras();
     if ( extras != null ) {

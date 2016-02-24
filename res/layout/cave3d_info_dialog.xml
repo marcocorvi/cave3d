@@ -164,5 +164,24 @@
 
     </TableLayout>
 
+    <TextView android:id="@+id/info_volume"
+       android:layout_width="100dip" 
+       android:layout_height="wrap_content" 
+       android:layout_marginTop="15dp" 
+       android:layout_marginBottom="8dp" 
+       android:gravity="right"
+       android:text="SURVEYS"
+       android:textSize="20dp"
+     />
+    
+    
+    <ListView android:id="@+id/surveys_list"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:stackFromBottom="true"
+          android:transcriptMode="alwaysScroll"
+          android:layout_weight="1"
+          android:textSize="14sp"
+     />  
 
 </LinearLayout>

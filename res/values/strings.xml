@@ -60,6 +60,8 @@
     <string name="pref_text_size_title">Text size</string>
     <string name="pref_text_size_summary">Station label size</string>
     <string name="pref_text_size_message">Station label text size</string>
+    <string name="pref_size_buttons_title">Buttons size</string>
+    <string name="pref_size_buttons_summary">Buttons size</string>
     <string name="pref_selection_radius_title">Selection radius</string>
     <string name="pref_selection_radius_summary">Radius of selection</string>
     <string name="pref_selection_radius_message">Radius of selection</string>
