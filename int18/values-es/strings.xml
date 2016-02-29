@@ -22,9 +22,9 @@
     <string name="menu_rose">Diagrama de rosas</string>
     <string name="menu_wall">Modo con paredes</string>
 
-    <string name="info_title">Info</string>
+    <string name="info_title">Información</string>
     <string name="info_axes">Ejes: Norte azul, Este verde</string>
-    <string name="info_grid">cuadros de la cuadrícula (m)</string>
+    <string name="info_grid">Cuadros de la cuadrícula (m)</string>
     <string name="info_view">Punto de vista</string>
     <string name="info_surveys">Proyecto</string>
     <string name="info_shots">Tomas</string>
@@ -41,7 +41,7 @@
 
     <string name="survey_legs"> Visual: </string>
     <string name="survey_legs_length"> Longitud toma: </string>
-    <string name="survey_splays"> Tomas Laterales: </string>
+    <string name="survey_splays"> Tomas laterales: </string>
     <string name="survey_splays_length"> Longitud tomas laterales: </string>
 
     <string name="SURVEYS">P r o y e c t o</string>
@@ -54,8 +54,8 @@
     <string name="Wall">Paredes</string>
     <string name="Surface">Superficie</string>
 
-    <string name="pref_base_path_title">Ruta de datos</string>
-    <string name="pref_base_path_summary">App ruta de datos</string>
+    <string name="pref_base_path_title">Directorio de la base de datos</string>
+    <string name="pref_base_path_summary">Directorio de la base de datos de la app </string>
     <string name="pref_base_path_message">Directorio que contiene los archivos de Therion</string>
     <string name="pref_text_size_title">Tamaño Texto</string>
     <string name="pref_text_size_summary">Tamaño de la etiqueta estación</string>
