@@ -62,8 +62,8 @@
     <string name="pref_text_size_message">Tamaño de texto de la etiqueta estación</string>
     <string name="pref_size_buttons_title">Tamaño Botones</string>
     <string name="pref_size_buttons_summary">Tamaño Botones</string>
-    <string name="pref_selection_radius_title">Radio de selección</string>
-    <string name="pref_selection_radius_summary">Selección de radio</string>
+    <string name="pref_selection_radius_title">Selección radio</string>
+    <string name="pref_selection_radius_summary">Selección radio</string>
     <string name="pref_selection_radius_message">Selección de radio</string>
     <string name="pref_grid_above_title">Inicio rejilla</string>
     <string name="pref_grid_above_summary">La rejilla en la parte superior</string>
