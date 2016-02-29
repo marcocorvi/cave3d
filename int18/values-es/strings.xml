@@ -3,7 +3,7 @@
     <string name="app_name">Cave3D</string>
 
     <string name="btn_move">Mover</string>
-    <string name="btn_rotate">Turn</string>
+    <string name="btn_rotate">Giro</string>
     <string name="btn_station">Estación</string>
     <string name="btn_splay">Tomas laterales</string>
     <string name="btn_zoom_in">Zoom +</string>
@@ -17,14 +17,14 @@
     <string name="menu_export">Exportar</string>
     <string name="menu_frame">Encuadre</string>
     <string name="menu_color">Color</string>
-    <string name="menu_info">Info</string>
+    <string name="menu_info">Información</string>
     <string name="menu_ico">Diagrama ico</string>
     <string name="menu_rose">Diagrama de rosas</string>
     <string name="menu_wall">Modo con paredes</string>
 
     <string name="info_title">Info</string>
     <string name="info_axes">Ejes: Norte azul, Este verde</string>
-    <string name="info_grid">cuadros de rejilla (m)</string>
+    <string name="info_grid">cuadros de la cuadrícula (m)</string>
     <string name="info_view">Punto de vista</string>
     <string name="info_surveys">Proyecto</string>
     <string name="info_shots">Tomas</string>
@@ -45,7 +45,7 @@
     <string name="survey_splays_length"> Longitud tomas laterales: </string>
 
     <string name="SURVEYS">P r o y e c t o</string>
-    <string name="INFO">I n f o</string>
+    <string name="INFO">I n f o r m a c i ó n</string>
     <string name="EXPORT">E x p o r t a r</string>
     <string name="STATION">E s t a c i ó n</string>
     <string name="STATIONS_DISTANCE">Distancia estación</string>
@@ -65,9 +65,9 @@
     <string name="pref_selection_radius_title">Selección radio</string>
     <string name="pref_selection_radius_summary">Selección radio</string>
     <string name="pref_selection_radius_message">Selección de radio</string>
-    <string name="pref_grid_above_title">Situación de la rejilla</string>
-    <string name="pref_grid_above_summary">Situar la rejilla en la parte superior</string>
-    <string name="pref_grid_above_message">Mostrar la rejilla en la parte superior</string>
+    <string name="pref_grid_above_title">Situación de la cuadrícula</string>
+    <string name="pref_grid_above_summary">Situar la cuadrícula en la parte superior</string>
+    <string name="pref_grid_above_message">Mostrar la cuadrícula en la parte superior</string>
     <string name="pref_all_splay_title">Todas las tomas laterales</string>
     <string name="pref_all_splay_summary">Todas las tomas laterales para paredes</string>
     <string name="pref_all_splay_message">Usar todas las tomas laterales para las paredes</string>
