@@ -23,7 +23,7 @@
     <string name="menu_wall">Modo con paredes</string>
 
     <string name="info_title">Info</string>
-    <string name="info_axes">Ejes: azul Norte, Este verde</string>
+    <string name="info_axes">Ejes: Norte azul, Este verde</string>
     <string name="info_grid">cuadros de rejilla (m)</string>
     <string name="info_view">Punto de vista</string>
     <string name="info_surveys">Proyecto</string>
