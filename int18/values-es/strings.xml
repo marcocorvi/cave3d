@@ -65,8 +65,8 @@
     <string name="pref_selection_radius_title">Selección radio</string>
     <string name="pref_selection_radius_summary">Selección radio</string>
     <string name="pref_selection_radius_message">Selección de radio</string>
-    <string name="pref_grid_above_title">Inicio rejilla</string>
-    <string name="pref_grid_above_summary">La rejilla en la parte superior</string>
+    <string name="pref_grid_above_title">Situación de la rejilla</string>
+    <string name="pref_grid_above_summary">Situar la rejilla en la parte superior</string>
     <string name="pref_grid_above_message">Mostrar la rejilla en la parte superior</string>
     <string name="pref_all_splay_title">Todas las tomas laterales</string>
     <string name="pref_all_splay_summary">Todas las tomas laterales para paredes</string>
