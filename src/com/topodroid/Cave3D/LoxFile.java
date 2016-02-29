@@ -10,6 +10,7 @@
  */
 package com.topodroid.Cave3D;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -63,10 +64,17 @@ class LoxFile
   private LoxSurface              mSurface;
   private LoxBitmap               mBitmap;
 
-  LoxFile()
+  LoxFile( String filename ) throws Cave3DParserException
   {
     mSurface = null;
     mBitmap  = null;
+    
+    File file = new File( filename );
+    if ( file.exists() ) {
+      readChunks( filename );
+    } else {
+      throw new Cave3DParserException();
+    }
   }
 
   int NrSurveys()  { return mSurveyChunk.size(); }
@@ -157,7 +165,7 @@ class LoxFile
   //        tmp = val[off+3]; val[off+3] = val[off+4]; val[off+4] = tmp;
   // }
 
-  void ReadChunks( String filename )
+  private void readChunks( String filename ) throws Cave3DParserException
   {
     int type;
     byte int32[] = new byte[ SIZE32 ];
@@ -213,11 +221,14 @@ class LoxFile
         }
       }
     } catch( FileNotFoundException e ) {
+      throw new Cave3DParserException();
     } catch( IOException e ) {
+      throw new Cave3DParserException();
+    } finally {
+      try {
+        if ( fis != null ) fis.close();
+      } catch( IOException e ) { }
     }
-    try {
-      if ( fis != null ) fis.close();
-    } catch( IOException e ) { }
   }
 
 
