@@ -3,8 +3,8 @@
 <resources>
 
   <string-array name="sizeButtons">
-     <item name="small1">Small</item>
-     <item name="large">Large</item>
+     <item name="small1">Pequeño</item>
+     <item name="large">Grande</item>
   </string-array>
   <string-array name="sizeButtonsValue">
      <item name="small">1</item>
