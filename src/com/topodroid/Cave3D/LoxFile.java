@@ -28,6 +28,8 @@ import android.util.Log;
 
 class LoxFile
 {
+  final static String TAG = "Cave3D";
+
   private class Chunk_t
   {
     int type;
@@ -68,6 +70,11 @@ class LoxFile
   {
     mSurface = null;
     mBitmap  = null;
+
+    mSurveys  = new ArrayList< LoxSurvey >();
+    mStations = new ArrayList< LoxStation >();
+    mShots    = new ArrayList< LoxShot >();
+    mScraps   = new ArrayList< LoxScrap >();
     
     File file = new File( filename );
     if ( file.exists() ) {
@@ -95,7 +102,7 @@ class LoxFile
   static private final int SIZEDBL = 8; // ( sizeof( double ) )
   static private final int SIZE32  = 4; // ( sizeof( uint32_t ) )
   static private final int SIZE_SURVEY  = ( ( 6 * SIZE32 + 0 * SIZEDBL ) );
-  static private final int SIZE_STATION = ( ( 7 * SIZE32 + 3 * SIZEDBL ) );
+  static private final int SIZE_STATION = ( ( 7 * SIZE32 + 3 * SIZEDBL ) ); // 52 bytes
   static private final int SIZE_SHOT    = ( ( 5 * SIZE32 + 9 * SIZEDBL ) );
   static private final int SIZE_SCRAP   = ( ( 8 * SIZE32 + 0 * SIZEDBL ) );
   static private final int SIZE_SURFACE = ( ( 5 * SIZE32 + 6 * SIZEDBL ) );
@@ -121,7 +128,12 @@ class LoxFile
 // #else
   int toIntLEndian( byte val[] ) 
   {
-    return val[0] | ( ((int)val[1]) << 8 ) | ( ((int)(val[2])) << 16 ) | ( ((int)(val[3])) << 24 );
+    // Log.v(TAG, "toInt " + val[0] + " " + val[1] + " " + val[2] + " " + val[3] );
+    int r0 = ( val[0] < 0 )? 256+val[0] : val[0];
+    int r1 = ( val[1] < 0 )? 256+val[1] : val[1];
+    int r2 = ( val[2] < 0 )? 256+val[2] : val[2];
+    int r3 = ( val[3] < 0 )? 256+val[3] : val[3];
+    return r0 | ( r1 << 8 ) | ( r2 << 16 ) | ( r3 << 24 );
   }
 
   float toFloatLEndian( byte val[] ) 
@@ -131,9 +143,19 @@ class LoxFile
 
   double toDoubleLEndian( byte val[] )
   {
-    return (double)(
-      (long)(val[0]) | ( ((long)val[1]) << 8 ) | ( ((long)(val[2])) << 16 ) | ( ((long)(val[3])) << 24 ) |
-      ( ((long)(val[4])<<32) ) | ( ((long)val[5]) << 40 ) | ( ((long)(val[6])) << 48 ) | ( ((long)(val[7])) << 56 ) );
+    int r0 = ( val[0] < 0 )? 256+val[0] : val[0];
+    int r1 = ( val[1] < 0 )? 256+val[1] : val[1];
+    int r2 = ( val[2] < 0 )? 256+val[2] : val[2];
+    int r3 = ( val[3] < 0 )? 256+val[3] : val[3];
+    int r4 = ( val[4] < 0 )? 256+val[4] : val[4];
+    int r5 = ( val[5] < 0 )? 256+val[5] : val[5];
+    int r6 = ( val[6] < 0 )? 256+val[6] : val[6];
+    int r7 = ( val[7] < 0 )? 256+val[7] : val[7];
+    // reinterpret as double
+    return Double.longBitsToDouble(
+      (long)(r0) | ( ((long)r1) << 8 ) | ( ((long)r2) << 16 ) | ( ((long)r3) << 24 ) |
+      ( ((long)r4) << 32 ) | ( ((long)r5) << 40 ) | ( ((long)r6) << 48 ) | ( ((long)r7) << 56 ) 
+    );
   }
 // #endif
 
@@ -147,7 +169,7 @@ class LoxFile
   double toDoubleLEndian( byte[] val, int off ) 
   {
     byte tmp[] = new byte[8];
-    for (int k=0; k<4; ++k ) tmp[k] = val[off+k];
+    for (int k=0; k<8; ++k ) tmp[k] = val[off+k];
     return toDoubleLEndian( tmp );
   }
 
@@ -167,13 +189,15 @@ class LoxFile
 
   private void readChunks( String filename ) throws Cave3DParserException
   {
+    // Log.v(TAG, "read chunks " + filename );
     int type;
     byte int32[] = new byte[ SIZE32 ];
     FileInputStream fis = null;
     try {
       fis = new FileInputStream( filename );
       while ( true ) {
-        fis.read( int32, 0, SIZE32 ); type = toIntLEndian( int32 );
+        fis.read( int32, 0, SIZE32 );
+        type = toIntLEndian( int32 );
         if ( type < 1 || type > 6 ) {
           Log.e("Cave3D", "Unexpected chunk type " + type );
           return;
@@ -182,47 +206,45 @@ class LoxFile
         fis.read( int32, 0, SIZE32 ); c.rec_size  = toIntLEndian( int32 );
         fis.read( int32, 0, SIZE32 ); c.rec_cnt   = toIntLEndian( int32 );
         fis.read( int32, 0, SIZE32 ); c.data_size = toIntLEndian( int32 );
-        // Log.v("Cave3D", "Type " + c.type + " RecSize " + c.rec_size + " RecCnt " + c.rec_cnt + " DataSize " + c.data_size );
+        // Log.v(TAG, "Type " + c.type + " RecSize " + c.rec_size + " RecCnt " + c.rec_cnt + " DataSize " + c.data_size );
         if ( c.rec_size > 0 ) {
           c.records = new byte[ c.rec_size ];
-          fis.read( c.records );
+          fis.read( c.records, 0, c.rec_size );
+          // Log.v(TAG, c.records[0] + " " + c.records[1] + " " + c.records[2] + " " + c.records[3] + " " + 
+          //            c.records[4] + " " + c.records[5] + " " + c.records[6] + " " + c.records[7] );
         }
         if ( c.data_size > 0 ) {
           c.data = new byte[ c.data_size ];
-          fis.read( c.data );
+          fis.read( c.data, 0, c.data_size );
         }
-        // Log.v("Cave3D", "Read: bytes " + (4 * SIZE32 + c.rec_size + c.data_size) );
+        // Log.v(TAG, "Read: bytes " + (4 * SIZE32 + c.rec_size + c.data_size) );
         switch ( type ) {
           case 1: // SURVEY
-            mSurveyChunk = c;
-            HandleSurvey( );
+            HandleSurvey( c );
             break;
           case 2: // STATIONS
-            mStationChunk = c;
-            HandleStations( );
+            HandleStations( c );
             break;
           case 3: // SHOTS
-            mShotChunk = c;
-            HandleShots( );
+            HandleShots( c );
             break;
           case 4: // SCRAPS
-            mScrapChunk = c;
-            HandleScraps( );
+            HandleScraps( c );
             break;
           case 5: // SURFACE
-            mSurfaceChunk = c;
-            HandleSurface( );
+            HandleSurface( c );
             break;
           case 6: // SURFACE_BITMAP
-            mBitmapChunk = c;
-            HandleBitmap( );
+            HandleBitmap( c );
             break;
           default:
         }
       }
     } catch( FileNotFoundException e ) {
+      Log.e("Cave3D", "FILE NOT FOUND ERROR " + e.getMessage() );
       throw new Cave3DParserException();
     } catch( IOException e ) {
+      Log.e("Cave3D", "I/O ERROR " + e.getMessage() );
       throw new Cave3DParserException();
     } finally {
       try {
@@ -232,12 +254,13 @@ class LoxFile
   }
 
 
-  private void HandleSurvey( )
+  private void HandleSurvey( Chunk_t chunk )
   {
-    int n0 = mSurveyChunk.rec_cnt;
+    mSurveyChunk = chunk;
+    int n0 = chunk.rec_cnt;
     // Log.v("Cave3D", "Handle Survey: Nr. " + n0 );
-    byte[] recs = mSurveyChunk.records; // as int32
-    byte[] data = mSurveyChunk.data;    // as char
+    byte[] recs = chunk.records; // as int32
+    byte[] data = chunk.data;    // as char
     String name  = null;
     String title = null;
     for ( int i=0; i<n0; ++i ) {
@@ -247,20 +270,28 @@ class LoxFile
       int pnt= toIntLEndian( recs, 4*(6*i + 3) );
       int tp = toIntLEndian( recs, 4*(6*i + 4) );
       int ts = toIntLEndian( recs, 4*(6*i + 5) );
-      if ( ns > 0 ) name = new String( data, np, ns );
-      if ( ts > 0 ) title = new String( data, tp, ts );
+      name  = getString( data, np, ns );
+      title = getString( data, tp, ts );
+      // Log.v(TAG, i + "/" + n0 + ": Survey " + id + " (parent "+ pnt + ") Name " + name + " Title " + title );
       mSurveys.add( new LoxSurvey( id, pnt, name, title ) );
-      // LOGI("%d / %d: Survey %d (parent %d) Name %d \"%s\" Title %d \"%s\"", i, n0, id, pnt, ns, name, ts, title );
     }
-    // LOGI("Handle Survey done");
+    // Log.v(TAG, "Handle Survey done");
+  }
+
+  private String getString( byte[] data, int np, int ns )
+  {
+    if ( ns == 0 ) return "";
+    String ret = new String( data, np, ns );
+    return ret.substring(0, ret.length()-1);
   }
   
   
-  private void HandleStations( )
+  private void HandleStations( Chunk_t chunk )
   {
-    int n0 = mStationChunk.rec_cnt;
-    byte[] recs = mSurveyChunk.records; // as int32
-    byte[] data = mSurveyChunk.data;    // as char
+    mStationChunk = chunk;
+    int n0 = chunk.rec_cnt;
+    byte[] recs = chunk.records; // as int32
+    byte[] data = chunk.data;    // as char
     String name    = null;
     String comment = null;
     for ( int i=0; i<n0; ++i ) {
@@ -275,20 +306,22 @@ class LoxFile
       double c0 = toDoubleLEndian( recs, off ); off += SIZEDBL;
       double c1 = toDoubleLEndian( recs, off ); off += SIZEDBL;
       double c2 = toDoubleLEndian( recs, off ); off += SIZEDBL;
-      name    = new String( data, np, ns );
-      comment = new String( data, tp, ts );
-      // LOGI("Station %d (survey %d) Name \"%s\" Title \"%s\" Flags %d %.2f %.2f %.2f",
-      //   id, sid, name, comment, fl, c0, c1, c2 );
+      name    = getString( data, np, ns );
+      comment = getString( data, tp, ts );
       mStations.add( new LoxStation( id, sid, name, comment, fl, c0, c1, c2 ) );
+      // if ( i < 3 ) {
+      //   Log.v(TAG, "station " + id + " / " + sid + " <" + name + "> " + np + "-" + ns + " flag " + fl + " " + c0 + " " + c1 + " " + c2 );
+      // }
     }
   }
   
   
-  private void HandleShots( )
+  private void HandleShots( Chunk_t chunk )
   {
-    int n0 = mShotChunk.rec_cnt;
-    byte[] recs = mSurveyChunk.records; // as int32
-    // byte[] data = mSurveyChunk.data;    // as char
+    mShotChunk = chunk;
+    int n0 = chunk.rec_cnt;
+    byte[] recs = chunk.records; // as int32
+    // byte[] data = chunk.data;    // as char
     for ( int i=0; i<n0; ++i ) {
       int off = i * SIZE_SHOT;
       int fr = toIntLEndian( recs, off ); off += SIZE32;
@@ -315,15 +348,19 @@ class LoxFile
       // LOGI("  To-LRUD %.2f %.2f %.2f %.2f", t0, t1, t2, t3 );
   
       mShots.add( new LoxShot( fr, to, sid, fl, ty, tr, f0, f1, f2, f3, t0, t1, t2, t3 ) );
+      // if ( i < 3 ) {
+      //   Log.v(TAG, "Shot " + fr + " " + to + " (" + sid + ") flag " + fl + " type " + ty );
+      // }
     }
   }
   
   
-  private void HandleScraps( )
+  private void HandleScraps( Chunk_t chunk )
   {
-    int n0 = mScrapChunk.rec_cnt;
-    byte[] recs = mSurveyChunk.records; // as int32
-    byte[] data = mSurveyChunk.data;    // as char
+    mScrapChunk = chunk;
+    int n0 = chunk.rec_cnt;
+    byte[] recs = chunk.records; // as int32
+    byte[] data = chunk.data;    // as char
     for ( int i=0; i<n0; ++i ) {
       int off = i * SIZE_SCRAP;
       int id = toIntLEndian( recs, off ); off += SIZE32;
@@ -356,11 +393,12 @@ class LoxFile
   }
   
   
-  private void HandleSurface( )
+  private void HandleSurface( Chunk_t chunk )
   {
-    int n0 = mSurfaceChunk.rec_cnt;
-    byte[] recs = mSurveyChunk.records; // as int32
-    byte[] data = mSurveyChunk.data;    // as char
+    mSurfaceChunk = chunk;
+    int n0 = chunk.rec_cnt;
+    byte[] recs = chunk.records; // as int32
+    byte[] data = chunk.data;    // as char
     int off = 0;
     int id = toIntLEndian( recs, off ); off += SIZE32;
     int ww = toIntLEndian( recs, off ); off += SIZE32;
@@ -386,11 +424,12 @@ class LoxFile
     mSurface = new LoxSurface( id, ww, hh, c, ptr );
   }
   
-  private void HandleBitmap( )
+  private void HandleBitmap( Chunk_t chunk )
   {
-    int n0 = mBitmapChunk.rec_cnt;
-    byte[] recs = mSurveyChunk.records; // as int32
-    byte[] data = mSurveyChunk.data;    // as char
+    mBitmapChunk = chunk;
+    int n0 = chunk.rec_cnt;
+    byte[] recs = chunk.records; // as int32
+    byte[] data = chunk.data;    // as char
     int off = 0;
     int id = toIntLEndian( recs, off ); off += SIZE32; // surface id
     int tp = toIntLEndian( recs, off ); off += SIZE32; // type: JPEG PNG

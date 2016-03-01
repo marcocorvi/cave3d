@@ -163,5 +163,8 @@ public class Cave3DSurface
     // Log.v( "Cave3D", "surface data: rows " + y );
   }
 
+  // used to set the grid data to the LoxSurface grid
+  void setGridData( double[] grid ) { mZ = grid; }
+
 }
 

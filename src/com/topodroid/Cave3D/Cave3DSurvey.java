@@ -18,6 +18,8 @@ public class Cave3DSurvey
   private static int count = 0;
   int number;
 
+  int mId;
+  int mPid;
   String name;
   int mNrShots;
   int mNrSplays;
@@ -26,9 +28,22 @@ public class Cave3DSurvey
 
   Cave3DSurvey( String n )
   {
+    number = count; ++ count;
+    mId  = -1;
+    mPid = -1;
     name = n;
-    number = count;
-    ++ count;
+    mNrShots = 0;
+    mNrSplays = 0;
+    mLenShots = 0.0;
+    mLenSplays = 0.0;
+  }
+
+  Cave3DSurvey( String n, int id, int pid )
+  {
+    number = count; ++ count;
+    mId  = id;
+    mPid = pid;
+    name = n;
     mNrShots = 0;
     mNrSplays = 0;
     mLenShots = 0.0;

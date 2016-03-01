@@ -87,10 +87,10 @@ public class STLExporter
       }
       pw.format("endsolid %s\n", name );
     } catch ( FileNotFoundException e ) { 
-      Log.v("Cave3D", "ERROR " + e.getMessage() );
+      Log.e("Cave3D", "ERROR " + e.getMessage() );
       ret = false;
     } catch( IOException e ) {
-      Log.v("Cave3D", "I/O ERROR " + e.getMessage() );
+      Log.e("Cave3D", "I/O ERROR " + e.getMessage() );
       ret = false;
     } finally {
       try {
@@ -160,10 +160,10 @@ public class STLExporter
         bw.write( b2, 0, 2 );
       }
     } catch ( FileNotFoundException e ) { 
-      Log.v("Cave3D", "ERROR " + e.getMessage() );
+      Log.e("Cave3D", "ERROR " + e.getMessage() );
       ret = false;
     } catch( IOException e ) {
-      Log.v("Cave3D", "I/O ERROR " + e.getMessage() );
+      Log.e("Cave3D", "I/O ERROR " + e.getMessage() );
       ret = false;
     } finally {
       try {

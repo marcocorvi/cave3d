@@ -38,6 +38,7 @@ public class  Cave3DOpenFileDialog extends Activity
     public boolean accept( File dir, String name ) {
       if ( name.endsWith( ".th" ) ) return true;
       if ( name.endsWith( "thconfig" ) ) return true;
+      if ( name.endsWith( "lox" ) ) return true;
       return false;
     }
   }

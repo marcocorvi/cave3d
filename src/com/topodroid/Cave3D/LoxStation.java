@@ -13,6 +13,12 @@ package com.topodroid.Cave3D;
 
 class LoxStation
 {
+  static final int FLAG_SURFACE  = 1;
+  static final int FLAG_ENTRANCE = 2;
+  static final int FLAG_FIXED    = 4;
+  static final int FLAG_CONTINUATION =  8;
+  static final int FLAG_HAS_WALLS    = 16;
+
   int id;
   int sid; // survey
   String name;

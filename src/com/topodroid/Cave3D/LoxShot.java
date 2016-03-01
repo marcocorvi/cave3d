@@ -12,6 +12,20 @@ package com.topodroid.Cave3D;
 
 class LoxShot
 {
+  // flag: see lxFile.h
+  static final int FLAG_SURFACE = 1;
+  static final int FLAG_DUPLICATE = 2;
+  static final int FLAG_NOT_VISIBLE = 4;
+  static final int FLAG_NOT_LRUD = 8;
+  static final int FLAG_SPLAY = 8;
+
+  // type: this is an enum in lxFile.h
+  static final int TYPE_NONE = 0;
+  static final int TYPE_OVAL = 1;
+  static final int TYPE_SQUARE = 2;
+  static final int TYPE_DIAMOND = 3;
+  static final int TYPE_TUNNEL = 4;
+
   int from;
   int to;
   int sid;

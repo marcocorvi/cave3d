@@ -206,7 +206,7 @@ public class Cave3DRenderer // implements Renderer
   float phi;    // camera longitude angle
 
 
-  private Cave3DThParser mParser;         // model parser
+  private Cave3DParser mParser = null;         // model parser
 
   boolean hasParser( ) 
   {
@@ -576,7 +576,13 @@ public class Cave3DRenderer // implements Renderer
   {
     mParser = null;
     try {
-      mParser = new Cave3DThParser( cave3d, filename );
+      if ( filename.endsWith( ".th" ) ) {
+        mParser = new Cave3DThParser( cave3d, filename );
+      } else if ( filename.endsWith( ".lox" ) ) {
+        mParser = new Cave3DLoxParser( cave3d, filename );
+      } else {
+        return false;
+      }
       mCave3D = cave3d;
       CWConvexHull.resetCounters();
       prepareModel();
