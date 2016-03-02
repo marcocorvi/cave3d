@@ -47,7 +47,7 @@ class MyMenuItem extends TextView
     super( context );
     setTextColor( 0xff33ccff );
     setBackgroundColor( 0xff333333 );
-    setTextSize( 14 );
+    setTextSize( 16 );
     setText( text );
     setPadding( 10, 10, 5, 10 );
     mListener = listener;

@@ -13,6 +13,8 @@ package com.topodroid.Cave3D;
 import java.io.File;
 import java.io.FilenameFilter;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.content.Intent;
@@ -30,7 +32,9 @@ import android.widget.Toast;
 public class  Cave3DOpenFileDialog extends Activity
                             implements OnItemClickListener
 {
-  private ArrayAdapter<String> mArrayAdapter;
+  // private ArrayAdapter<String> mArrayAdapter;
+  private ArrayList< MyFileItem > mItems;
+  private MyFileAdapter mArrayAdapter;
   private ListView mList;
 
   class MyFilenameFilter implements FilenameFilter
@@ -60,14 +64,16 @@ public class  Cave3DOpenFileDialog extends Activity
     setContentView(R.layout.openfile);
 
     setTitle( R.string.select_file );
-
-    mArrayAdapter = new ArrayAdapter<String>( this, R.layout.message );
     mList = (ListView) findViewById( R.id.list );
-    mList.setAdapter( mArrayAdapter );
+
+    // mArrayAdapter = new ArrayAdapter<String>( this, R.layout.message );
     mList.setOnItemClickListener( this );
     mList.setDividerHeight( 2 );
  
+    mItems = new ArrayList< MyFileItem >();
+    mArrayAdapter = new MyFileAdapter( this, this, mList, R.layout.message, mItems );
     updateList( Cave3D.mAppBasePath );
+    mList.setAdapter( mArrayAdapter );
   }
 
   private void updateList( String basedir )
@@ -77,15 +83,15 @@ public class  Cave3DOpenFileDialog extends Activity
       String[] dirs  = dir.list( new MyDirnameFilter() );
       String[] files = dir.list( new MyFilenameFilter() );
       mArrayAdapter.clear();
-      mArrayAdapter.add("..");
+      mArrayAdapter.add( "..", true );
       if ( dirs != null ) {
         for ( String item : dirs ) {
-          mArrayAdapter.add( item );
+          mArrayAdapter.add( item, true );
         }
       }
       if ( files != null ) {
         for ( String item : files ) {
-          mArrayAdapter.add( item );
+          mArrayAdapter.add( item, false );
         }
       }
     } else {
@@ -99,6 +105,9 @@ public class  Cave3DOpenFileDialog extends Activity
   {
     CharSequence item = ((TextView) view).getText();
     String name = item.toString();
+    if ( name.startsWith("+ ") ) {
+      name = name.substring( 2 );
+    }
     if ( name.equals("..") ) {
       File dir = new File( Cave3D.mAppBasePath );
       Cave3D.mAppBasePath = dir.getParent();
