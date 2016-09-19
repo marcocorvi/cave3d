@@ -42,8 +42,10 @@ public class Cave3DRenderer // implements Renderer
   private static final String TAG = "Cave3D";
 
   private static float RAD2DEG = (float)(180/Math.PI);
-  private static float TWOPI = (float)(2*Math.PI);
-  private static float PIOVERTWO = (float)(Math.PI/2);
+  static float PI             = (float)(Math.PI);
+  static float TWOPI          = (float)(2*Math.PI);
+  static float PIOVERTWO      = (float)(Math.PI/2);
+  static float THREEPIOVERTWO = (float)(3*Math.PI/2);
 
   private Cave3D mCave3D;
 
@@ -520,6 +522,13 @@ public class Cave3DRenderer // implements Renderer
     }
   }
 
+  public void setAngles( float a, float c )
+  {
+    phi   = a;
+    clino = c;
+    setDoPaths();
+  }
+
 // ------------------------------------------------------------
 // cstr
 // ------------------------------------------------------------
@@ -576,7 +585,7 @@ public class Cave3DRenderer // implements Renderer
   {
     mParser = null;
     try {
-      if ( filename.endsWith( ".th" ) ) {
+      if ( filename.endsWith( ".th" ) || filename.endsWith( ".thconfig" ) ) {
         mParser = new Cave3DThParser( cave3d, filename );
       } else if ( filename.endsWith( ".lox" ) ) {
         mParser = new Cave3DLoxParser( cave3d, filename );
@@ -1845,7 +1854,7 @@ public class Cave3DRenderer // implements Renderer
     }
   }
 
-  void exportModel( int type, String pathname )
+  void exportModel( int type, String pathname, boolean b_splays, boolean b_walls, boolean b_surface )
   { 
     if ( type == 2 ) {
       serializeWalls( pathname );
@@ -1861,9 +1870,9 @@ public class Cave3DRenderer // implements Renderer
 
     boolean ret = false;
     if ( type == 0 ) {
-      ret = stl.exportBinary( pathname );
+      ret = stl.exportBinary( pathname, b_splays, b_walls, b_surface );
     } else {
-      ret = stl.exportASCII( pathname );
+      ret = stl.exportASCII( pathname, b_splays, b_walls, b_surface );
     }
     if ( ret ) {
       Toast.makeText( mCave3D, "OK. Exported " + pathname, Toast.LENGTH_SHORT).show();

@@ -66,7 +66,7 @@ public class STLExporter
   
     
 
-  boolean exportASCII( String filename ) 
+  boolean exportASCII( String filename, boolean splays, boolean walls, boolean surface )
   {
     makePositiveCoords();
     String name = "Cave3D";
@@ -127,7 +127,7 @@ public class STLExporter
   //   return (float)( val[0] | ( ((int)val[1]) << 8 ) | ( ((int)(val[2])) << 16 ) | ( ((int)(val[3])) << 24 ) );
   // }
 
-  boolean exportBinary( String filename ) 
+  boolean exportBinary( String filename, boolean splays, boolean walls, boolean surface ) 
   {
     makePositiveCoords();
     String name = "Cave3D";

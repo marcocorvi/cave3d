@@ -21,6 +21,27 @@
       android:hint="filename"
       />
 
+    <CheckBox android:id="@+id/splay"
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:text="splays"
+        />
+
+    <CheckBox android:id="@+id/walls"
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:text="walls"
+        />
+
+    <CheckBox android:id="@+id/surface"
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:text="surface"
+        />
+
     <LinearLayout
       android:layout_width="fill_parent" 
       android:layout_height="wrap_content"

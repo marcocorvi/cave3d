@@ -12,7 +12,7 @@
     <string name="menu_open">Open file</string>
     <string name="menu_options">Options</string>
     <string name="menu_reset">Reset</string>
-    <string name="menu_zoom_one">Zoom 1</string>
+    <string name="menu_viewpoint">Viewpoint</string>
     <string name="menu_files">Surveys</string>
     <string name="menu_export">Export</string>
     <string name="menu_frame">Frame</string>
@@ -34,6 +34,7 @@
     <string name="info_volume">Volume</string>
 
     <string name="query" formatted="false">Surveys: %d Shots: %d Stations: %d\nLength: %d Depth: %d</string>
+    <string name="no_files">No files</string>
 
     <string name="title">%1$s  Clino: %2$.0f  Azimuth: %3$.0f</string>
     <string name="title_clino"> Clino: </string>
@@ -53,6 +54,15 @@
     <string name="select_file">Cave3D - Select a file:</string>
     <string name="Wall">Walls</string>
     <string name="Surface">Surface</string>
+
+    <string name="view_title">VIEWPOINTS</string>
+    <string name="view_top">Top</string>
+    <string name="view_east">East</string>
+    <string name="view_north">North</string>
+    <string name="view_west">West</string>
+    <string name="view_south">South</string>
+    <string name="view_point">Viewpoint</string>
+    <string name="view_zoom">Zoom 1</string>
 
     <string name="pref_base_path_title">Base path</string>
     <string name="pref_base_path_summary">App base path</string>

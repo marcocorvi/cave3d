@@ -38,6 +38,7 @@ import android.widget.TextView;
 import android.widget.CheckBox;
 // import android.widget.ToggleButton;
 // import android.widget.RadioButton;
+import android.widget.Toast;
 
 import android.util.Log;
 
@@ -55,6 +56,11 @@ public class Cave3DExportDialog extends Dialog
     private Button   mButtonOK;
     private CheckBox mBinary;
     private CheckBox mAscii;
+
+    private CheckBox mSplay;
+    private CheckBox mWalls;
+    private CheckBox mSurface;
+
     // private RadioButton mDebug;
     private String   mDirname;
     private TextView mTVdir;
@@ -98,6 +104,14 @@ public class Cave3DExportDialog extends Dialog
       mAscii.setOnClickListener( this );
       // mDebug.setOnClickListener( this );
 
+      mSplay   = (CheckBox) findViewById( R.id.splay );
+      mWalls   = (CheckBox) findViewById( R.id.walls );
+      mSurface = (CheckBox) findViewById( R.id.surface );
+
+      mSplay.setVisibility( View.GONE );
+      mWalls.setVisibility( View.GONE );
+      mSurface.setVisibility( View.GONE );
+
       updateList( mDirname );
       setTitle( R.string.EXPORT );
     }
@@ -118,6 +132,7 @@ public class Cave3DExportDialog extends Dialog
       }
       mTVdir.setText( dirname );
 
+      mArrayAdapter.clear();
       File dir = new File( mDirname );
       File[] files = dir.listFiles( new FileFilter() { 
         public boolean accept( File pathname ) {
@@ -125,7 +140,10 @@ public class Cave3DExportDialog extends Dialog
           return true;
         } } );
 
-      mArrayAdapter.clear();
+      if ( files == null || files.length == 0 ) {
+        Toast.makeText( mContext, R.string.no_files, Toast.LENGTH_SHORT ).show();
+        return;
+      }
       ArrayList<String> dirs  = new ArrayList<String>();
       ArrayList<String> names = new ArrayList<String>();
       for ( File f : files ) {
@@ -180,12 +198,15 @@ public class Cave3DExportDialog extends Dialog
           return;
         }
         String pathname = mDirname + "/" + filename;
+        boolean splays  = mSplay.isChecked();
+        boolean walls   = mWalls.isChecked();
+        boolean surface = mSurface.isChecked();
         if ( mBinary.isChecked() ) {
-          mRenderer.exportModel( 0, pathname );
+          mRenderer.exportModel( 0, pathname, splays, walls, surface );
         } else if ( mAscii.isChecked() ) {
-          mRenderer.exportModel( 1, pathname );
+          mRenderer.exportModel( 1, pathname, splays, walls, surface );
         } else {
-          mRenderer.exportModel( 2, pathname );
+          mRenderer.exportModel( 2, pathname, splays, walls, surface );
         }
       } else if ( v.getId() == R.id.dirname ) {
         int pos = mDirname.lastIndexOf('/');

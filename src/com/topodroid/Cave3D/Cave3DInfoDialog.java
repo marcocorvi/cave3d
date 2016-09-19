@@ -114,7 +114,7 @@ public class Cave3DInfoDialog extends Dialog
     if ( survey != null ) {
       ( new Cave3DSurveyDialog( mCave3D, survey ) ).show();
     } else {
-      // TODO Toast.makeToast( );
+      // TODO Toast.makeText( );
     }
   }
 

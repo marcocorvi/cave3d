@@ -266,7 +266,7 @@ public class Cave3D extends Activity
     R.string.menu_info,
     R.string.menu_ico,
     R.string.menu_rose,
-    R.string.menu_zoom_one,
+    R.string.menu_viewpoint,
     R.string.menu_reset,
     R.string.menu_options,
   };
@@ -305,8 +305,10 @@ public class Cave3D extends Activity
       if ( mFilename != null ) (new Cave3DIcoDialog(this, mRenderer)).show();
     } else if ( p++ == pos ) { // ROSE
       if ( mFilename != null ) (new Cave3DRoseDialog(this, mRenderer)).show();
-    } else if ( p++ == pos ) { // ZOOM_ONE
-      if ( mFilename != null ) zoomOne();
+    } else if ( p++ == pos ) { // VIEWPOINT
+      if ( mFilename != null ) {
+        new Cave3DViewDialog( this, this, mRenderer ).show();
+      }
     } else if ( p++ == pos ) { // RESET
       if ( mFilename != null ) mRenderer.resetGeometry();
     } else if ( p++ == pos ) { // OPTIONS
@@ -336,7 +338,8 @@ public class Cave3D extends Activity
     R.drawable.iz_wall,
     R.drawable.iz_surface,
     R.drawable.iz_color,
-    R.drawable.iz_frame
+    R.drawable.iz_frame,
+    // R.drawable.iz_view
   };
   int BTN_MOVE = 0;
   int BTN_WALL = 3;
@@ -396,6 +399,10 @@ public class Cave3D extends Activity
       if ( mFilename != null ) mRenderer.toggleColorMode();
     } else if ( b0 == mButton1[k1++] ) { // FRAME
       if ( mFilename != null ) mRenderer.toggleFrameMode();
+    // } else if ( b0 == mButton1[k1++] ) { // VIEWS
+    //   if ( mFilename != null ) {
+    //     new Cave3DViewDialog( this, this, mRenderer ).show();
+    //   }
     }
   }
 
@@ -408,6 +415,7 @@ public class Cave3D extends Activity
         if ( result == Activity.RESULT_OK ) {
           String filename = data.getExtras().getString( "com.topodroid.Cave3D.filename" );
           if ( filename != null && filename.length() > 0 ) {
+            // Log.v("Cave3D", "path " + mAppBasePath + " file " + filename );
             doOpenFile( mAppBasePath + "/" + filename );
           }
         }
@@ -602,6 +610,8 @@ public class Cave3D extends Activity
       openFile();
     }
   }
+
+  void refresh() { mView.refresh(); }
 
   @Override
   protected synchronized void onPause() 
