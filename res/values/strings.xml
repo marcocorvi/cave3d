@@ -44,6 +44,8 @@
     <string name="survey_legs_length"> Legs length: </string>
     <string name="survey_splays"> Splays: </string>
     <string name="survey_splays_length"> Splays length: </string>
+    <string name="cave_distance"> 3D distance: %1$.2f</string>
+    <string name="cave_length"> Cave length: %1$.2f</string>
 
     <string name="SURVEYS">S U R V E Y S</string>
     <string name="INFO">I N F O</string>

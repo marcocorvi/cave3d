@@ -27,6 +27,7 @@ public class Cave3DStation
                   // 1.0 deepest
   int flag;       // station flag (not used)
   String comment; // not used
+  float pathlength; // path length
 
   private void setName( String nm )
   {
@@ -42,6 +43,9 @@ public class Cave3DStation
       short_name = "";
     }
   }
+
+  void setPathlength( float len ) { pathlength = len; }
+  float getPathlength() { return pathlength; }
 
   public Cave3DStation( String nm, float e0, float n0, float z0 )
   {

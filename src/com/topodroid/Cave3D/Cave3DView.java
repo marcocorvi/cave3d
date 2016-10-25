@@ -172,7 +172,9 @@ public class Cave3DView extends SurfaceView
             // Log.v( TAG, "got station " + st.name + " start station " + mStartStation );
             if ( mStartStation != null ) {
               if ( mStartStation != st ) {
-                (new Cave3DStationDistanceDialog( mContext, st, mStartStation )).show();
+                // TODO find shortest cave-path between stations
+                float cave_pathlength = mRenderer.computeCavePathlength( mStartStation, st );
+                (new Cave3DStationDistanceDialog( mContext, st, mStartStation, cave_pathlength )).show();
                 mStartStation = null;
               }
             } else {

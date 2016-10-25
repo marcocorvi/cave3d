@@ -56,6 +56,11 @@ public class Cave3DParser
 
   public Cave3DSurface getSurface() { return mSurface; }
 
+  void setStationsPathlength( float len ) 
+  {
+    for ( Cave3DStation st : stations ) st.setPathlength( len );
+  }
+
   Cave3DSurvey getSurvey( String name )
   {
     if ( name == null ) return null;
@@ -154,6 +159,22 @@ public class Cave3DParser
         double b = shot.ber + Math.PI;
         if ( b > 2*Math.PI ) b -= 2*Math.PI;
         ret.add( new Cave3DShot( null, null, shot.len, (float)b, -shot.cln) );
+      }
+    }
+    return ret;
+  }
+
+  /** get the legs at "station"
+   */
+  ArrayList< Cave3DShot > getLegsAt( Cave3DStation station )
+  {
+    // Log.v("Cave3D", "get legs at " + station.name );
+    ArrayList< Cave3DShot > ret = new ArrayList< Cave3DShot >();
+    for ( Cave3DShot shot : shots ) { // add survey legs too1
+      if ( shot.from_station == station ) {
+        ret.add( shot );
+      } else if ( shot.to_station == station ) {
+        ret.add( shot );
       }
     }
     return ret;

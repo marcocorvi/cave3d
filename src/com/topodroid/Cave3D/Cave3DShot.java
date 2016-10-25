@@ -83,5 +83,12 @@ public class Cave3DShot
     return new Cave3DVector( h * (float)Math.sin(ber), h * (float)Math.cos(ber), len * (float)Math.sin(cln) );
   }
 
+  Cave3DStation getOtherStation( Cave3DStation st )
+  {
+    if ( st == from_station ) return to_station;
+    if ( st == to_station )   return from_station;
+    return null;
+  }
+
 }
 

@@ -32,6 +32,7 @@ import android.os.Handler;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Stack;
 
 import android.widget.Toast;
 
@@ -603,6 +604,32 @@ public class Cave3DRenderer // implements Renderer
     }
     return hasParser(); 
   }
+
+  float computeCavePathlength( Cave3DStation s1, Cave3DStation s2 )
+  {
+    float d;
+    mParser.setStationsPathlength( 1000000 );
+    s1.setPathlength( 0 );
+    Stack<Cave3DStation> stack = new Stack<Cave3DStation>();
+    stack.push( s1 );
+    while ( ! stack.empty() ) {
+      Cave3DStation s0 = stack.pop();
+      ArrayList< Cave3DShot > legs = mParser.getLegsAt( s0 );
+      for ( Cave3DShot leg : legs ) {
+        Cave3DStation s3 = leg.getOtherStation( s0 );
+        if ( s3 != null ) {
+          d = s0.getPathlength() + leg.len;
+          if ( s3.getPathlength() > d ) {
+            s3.setPathlength( d );
+            stack.push( s3 );
+          }
+        }
+      }
+    }
+    d = s2.getPathlength();
+    return ( d < 999999 )? d : -1;
+  }
+    
 
   // called only by initRendering
   private void prepareModel()
