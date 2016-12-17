@@ -43,8 +43,8 @@
     <string name="survey_legs_length"> Longitud toma: </string>
     <string name="survey_splays"> Tomas laterales: </string>
     <string name="survey_splays_length"> Longitud tomas laterales: </string>
-    <!-- TODO string name="cave_distance"> 3D distance: %1$.2f</string -->
-    <!-- TODO string name="cave_length"> Cave length: %1$.2f</string -->
+    <string name="cave_distance"> 3D distancia: %1$.2f</string>
+    <string name="cave_length"> Longitud de la cueva: %1$.2f</string>
 
     <string name="SURVEYS">P r o y e c t o</string>
     <string name="INFO">I n f o r m a c i ó n</string>
