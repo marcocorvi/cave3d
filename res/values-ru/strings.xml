@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cave3D</string>
+
+    <string name="btn_move">Перемещение</string>
+    <string name="btn_rotate">Поворот</string>
+    <string name="btn_station">Пикет</string>
+    <string name="btn_splay">Сплей</string>
+    <string name="btn_zoom_in">Зум +</string>
+    <string name="btn_zoom_out">Зум -</string>
+
+    <string name="menu_open">Открыть файл</string>
+    <string name="menu_options">Опции</string>
+    <string name="menu_reset">Сброс</string>
+	<!-- UNUSED string name="menu_zoom_one">Зум 1</string -->
+    <string name="menu_viewpoint">Точка просмотра</string>
+    <string name="menu_files">Съёмки</string>
+    <string name="menu_export">Экспорт</string>
+    <string name="menu_frame">Рамка</string>
+    <string name="menu_color">Цвет</string>
+    <string name="menu_info">Инфо.</string>
+    <string name="menu_ico">Ico диаграмма</string>
+    <string name="menu_rose">Rose диаграмма</string>
+    <string name="menu_wall">Режим стен</string>
+
+    <string name="info_title">ИНФО</string>
+    <string name="info_axes">Оси: синий Север, зеленый Восток</string>
+    <string name="info_grid">Сетка рамки [м]</string>
+    <string name="info_view">Точка просмотра</string>
+    <string name="info_surveys">Съёмки</string>
+    <string name="info_shots">Замеры</string>
+    <string name="info_stations">Пикеты</string>
+    <string name="info_length">Длинна</string>
+    <string name="info_depth">Глубина</string>
+    <string name="info_volume">Объём</string>
+
+    <string name="query" formatted="false">Съёмки: %d Замеры: %d Пикеты: %d\nДлина: %d Глубина: %d</string>
+    <string name="no_files">Нет файлов</string>
+
+    <string name="title">%1$s  Наклон: %2$.0f  Азимут: %3$.0f</string>
+    <string name="title_clino"> Наклон: </string>
+    <string name="title_azimuth"> Азимут: </string>
+
+    <string name="survey_legs"> Замеры: </string>
+    <string name="survey_legs_length"> Длинна замеров: </string>
+    <string name="survey_splays"> Сплеи: </string>
+    <string name="survey_splays_length"> Длинна сплеев: </string>
+    <string name="cave_distance"> 3D расстояние: %1$.2f</string>
+    <string name="cave_length"> Длинна пещеры: %1$.2f</string>
+
+    <string name="SURVEYS">С Ъ Ё М К И</string>
+    <string name="INFO">И Н Ф О</string>
+    <string name="EXPORT">Э К С П О Р Т</string>
+    <string name="STATION">П И К Е Т</string>
+    <string name="STATIONS_DISTANCE">УДАЛЁННОСТЬ ПИКЕТОВ</string>
+    <string name="DISTANCE">РАССТОЯНИЕ</string>
+    <string name="select_file">Cave3D - Выберите файл:</string>
+    <string name="Wall">Стены</string>
+    <string name="Surface">Поверхность</string>
+
+    <string name="view_title">ТОЧКИ ПРОСМОТРА</string>
+    <string name="view_top">Сверху</string>
+    <string name="view_east">Восток</string>
+    <string name="view_north">Север</string>
+    <string name="view_west">Запад</string>
+    <string name="view_south">Юг</string>
+    <string name="view_point">Точка просмотра</string>
+    <string name="view_zoom">Зум 1</string>
+
+    <string name="pref_base_path_title">Рабочий каталог</string>
+    <string name="pref_base_path_summary">Путь к файлам съёмок</string>
+    <string name="pref_base_path_message">Директория содержащая файлы Therion</string>
+    <string name="pref_text_size_title">Размер текста</string>
+    <string name="pref_text_size_summary">Размер номеров пикетов</string>
+    <string name="pref_text_size_message">Размер шрифта подписей пикетов</string>
+    <string name="pref_size_buttons_title">Размер кнопок</string>
+    <string name="pref_size_buttons_summary">Размер кнопок</string>
+    <string name="pref_selection_radius_title">Радиус выбора</string>
+    <string name="pref_selection_radius_summary">Радиус выбора</string>
+    <string name="pref_selection_radius_message">Радиус выбора объектов</string>
+    <string name="pref_grid_above_title">Сетка сверху</string>
+    <string name="pref_grid_above_summary">Сетка сверху</string>
+    <string name="pref_grid_above_message">Показать сетку над пещерой</string>
+    <string name="pref_all_splay_title">Все сплеи</string>
+    <string name="pref_all_splay_summary">Все сплеи для стен</string>
+    <string name="pref_all_splay_message">Использовать все сплеи для построения стен</string>
+    <string name="pref_preprojection_title">Проекции</string>
+    <string name="pref_preprojection_summary">Расчитывать проекции</string>
+    <string name="pref_preprojection_message">Предварительный расчет проекций</string>
+
+    <string name="pref_split_triangles_title">Разделить треугольники</string>
+    <string name="pref_split_triangles_summary">Разделить треугольники стен</string>
+    <string name="pref_split_triangles_message">Разделять пересекающиеся треугольники стен</string>
+    <string name="pref_split_random_title">Случайные точки</string>
+    <string name="pref_split_random_summary">Случайные точки для стен</string>
+    <string name="pref_split_random_message">Добавить меленькие случайные вектора к сплеям</string>
+    <string name="pref_split_stretch_title">Растянуть стены</string>
+    <string name="pref_split_stretch_summary">Растянуть точки стен вдоль замеров</string>
+    <string name="pref_split_stretch_message">Слегка сдвинуть точки стен вдоль замеров</string>
+
+</resources>
