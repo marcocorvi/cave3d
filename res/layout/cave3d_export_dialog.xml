@@ -21,26 +21,51 @@
       android:hint="filename"
       />
 
-    <CheckBox android:id="@+id/splay"
-          android:layout_width="fill_parent"
+    <LinearLayout
+      android:layout_width="fill_parent" 
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:layout_marginTop="10dp"
+      >
+      <CheckBox android:id="@+id/splay"
+          android:layout_width="0dp"
           android:layout_height="wrap_content"
+          android:layout_weight="50"
           android:layout_marginLeft="10dp"
           android:text="splays"
         />
 
-    <CheckBox android:id="@+id/walls"
-          android:layout_width="fill_parent"
+      <CheckBox android:id="@+id/walls"
+          android:layout_width="0dp"
           android:layout_height="wrap_content"
+          android:layout_weight="50"
           android:layout_marginLeft="10dp"
           android:text="walls"
         />
-
-    <CheckBox android:id="@+id/surface"
-          android:layout_width="fill_parent"
+    </LinearLayout>
+    <LinearLayout
+      android:layout_width="fill_parent" 
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:layout_marginTop="10dp"
+      android:layout_marginBottom="20dp"
+      >
+      <CheckBox android:id="@+id/surface"
+          android:layout_width="0dp"
           android:layout_height="wrap_content"
+          android:layout_weight="50"
           android:layout_marginLeft="10dp"
           android:text="surface"
         />
+
+      <CheckBox android:id="@+id/station"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_weight="50"
+          android:layout_marginLeft="10dp"
+          android:text="stations"
+        />
+    </LinearLayout>
 
     <LinearLayout
       android:layout_width="fill_parent" 
@@ -49,19 +74,26 @@
       android:layout_marginTop="10dp"
       android:layout_marginBottom="20dp"
       >
-        <CheckBox android:id="@+id/binary"
+        <CheckBox android:id="@+id/stl_binary"
           android:layout_width="0dp"
           android:layout_height="wrap_content"
           android:layout_weight="50"
           android:layout_marginRight="10dp"
-          android:text="binary"
+          android:text="STL-bin"
         />
-        <CheckBox android:id="@+id/ascii"
+        <CheckBox android:id="@+id/stl_ascii"
           android:layout_width="0dp"
           android:layout_height="wrap_content"
           android:layout_weight="50"
           android:layout_marginRight="10dp"
-          android:text="ascii"
+          android:text="STL"
+        />
+        <CheckBox android:id="@+id/kml_ascii"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_weight="50"
+          android:layout_marginRight="10dp"
+          android:text="KML"
         />
         <!-- RadioButton android:id="@+id/debug"
           android:layout_width="0dp"

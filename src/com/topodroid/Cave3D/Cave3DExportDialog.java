@@ -54,12 +54,14 @@ public class Cave3DExportDialog extends Dialog
 
     private EditText mETfilename;
     private Button   mButtonOK;
-    private CheckBox mBinary;
-    private CheckBox mAscii;
+    private CheckBox mStlBinary;
+    private CheckBox mStlAscii;
+    private CheckBox mKmlAscii;
 
     private CheckBox mSplay;
     private CheckBox mWalls;
     private CheckBox mSurface;
+    private CheckBox mStation;
 
     // private RadioButton mDebug;
     private String   mDirname;
@@ -95,22 +97,25 @@ public class Cave3DExportDialog extends Dialog
       mTVdir.setOnClickListener( this );
       mButtonOK.setOnClickListener( this );
 
-      mBinary = (CheckBox) findViewById( R.id.binary );
-      mAscii  = (CheckBox) findViewById( R.id.ascii );
+      mStlBinary = (CheckBox) findViewById( R.id.stl_binary );
+      mStlAscii  = (CheckBox) findViewById( R.id.stl_ascii );
+      mKmlAscii  = (CheckBox) findViewById( R.id.kml_ascii );
       // mDebug  = (RadioButton) findViewById( R.id.debug );
-      mBinary.setChecked( true );
+      mStlBinary.setChecked( true );
 
-      mBinary.setOnClickListener( this );
-      mAscii.setOnClickListener( this );
+      mStlBinary.setOnClickListener( this );
+      mStlAscii.setOnClickListener( this );
+      mKmlAscii.setOnClickListener( this );
       // mDebug.setOnClickListener( this );
 
       mSplay   = (CheckBox) findViewById( R.id.splay );
       mWalls   = (CheckBox) findViewById( R.id.walls );
       mSurface = (CheckBox) findViewById( R.id.surface );
+      mStation = (CheckBox) findViewById( R.id.station );
 
-      mSplay.setVisibility( View.GONE );
-      mWalls.setVisibility( View.GONE );
-      mSurface.setVisibility( View.GONE );
+      // mSplay.setVisibility( View.GONE );
+      // mWalls.setVisibility( View.GONE );
+      // mSurface.setVisibility( View.GONE );
 
       updateList( mDirname );
       setTitle( R.string.EXPORT );
@@ -201,12 +206,15 @@ public class Cave3DExportDialog extends Dialog
         boolean splays  = mSplay.isChecked();
         boolean walls   = mWalls.isChecked();
         boolean surface = mSurface.isChecked();
-        if ( mBinary.isChecked() ) {
-          mRenderer.exportModel( 0, pathname, splays, walls, surface );
-        } else if ( mAscii.isChecked() ) {
-          mRenderer.exportModel( 1, pathname, splays, walls, surface );
+        boolean station = mStation.isChecked();
+        if ( mStlBinary.isChecked() ) {
+          mRenderer.exportModel( ModelType.STL_BINARY, pathname, splays, walls, surface );
+        } else if ( mStlAscii.isChecked() ) {
+          mRenderer.exportModel( ModelType.STL_ASCII, pathname, splays, walls, surface );
+        } else if ( mKmlAscii.isChecked() ) {
+          mRenderer.exportModel( ModelType.KML_ASCII, pathname, splays, walls, station );
         } else {
-          mRenderer.exportModel( 2, pathname, splays, walls, surface );
+          mRenderer.exportModel( ModelType.SERIAL, pathname, splays, walls, surface );
         }
       } else if ( v.getId() == R.id.dirname ) {
         int pos = mDirname.lastIndexOf('/');
@@ -214,11 +222,23 @@ public class Cave3DExportDialog extends Dialog
           updateList( mDirname.substring(0, pos ) );
         }
         return;
-      } else if ( v.getId() == R.id.binary ) {
-        if ( mBinary.isChecked() ) mAscii.setChecked( false );
+      } else if ( v.getId() == R.id.stl_binary ) {
+        if ( mStlBinary.isChecked() ) {
+          mStlAscii.setChecked( false );
+          mKmlAscii.setChecked( false );
+        }
         return;
-      } else if ( v.getId() == R.id.ascii ) {
-        if ( mAscii.isChecked() ) mBinary.setChecked( false );
+      } else if ( v.getId() == R.id.stl_ascii ) {
+        if ( mStlAscii.isChecked() ) {
+          mStlBinary.setChecked( false );
+          mKmlAscii.setChecked( false );
+        }
+        return;
+      } else if ( v.getId() == R.id.kml_ascii ) {
+        if ( mKmlAscii.isChecked() ) {
+          mStlBinary.setChecked( false );
+          mStlAscii.setChecked( false );
+        }
         return;
       }
       dismiss();

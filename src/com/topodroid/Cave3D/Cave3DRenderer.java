@@ -1883,28 +1883,37 @@ public class Cave3DRenderer // implements Renderer
 
   void exportModel( int type, String pathname, boolean b_splays, boolean b_walls, boolean b_surface )
   { 
-    if ( type == 2 ) {
+    if ( type == ModelType.SERIAL ) { // serialization
       serializeWalls( pathname );
-      return;
-    }
+    } else {
+      boolean ret = false;
+      if ( type == ModelType.KML_ASCII ) { // KML export
+        KMLExporter kml = new KMLExporter();
+        for( CWConvexHull cw : walls ) {
+          synchronized( cw ) {
+            for ( CWTriangle f : cw.mFace ) kml.add( f );
+          }
+        }
+        ret = kml.exportASCII( pathname, mParser, b_splays, b_walls, b_surface );
+      } else { // STL export
+        STLExporter stl = new STLExporter();
+        for ( CWConvexHull cw : walls ) {
+          synchronized( cw ) {
+            for ( CWTriangle f : cw.mFace ) stl.add( f );
+          }
+        }
 
-    STLExporter stl = new STLExporter();
-    for ( CWConvexHull cw : walls ) {
-      synchronized( cw ) {
-        for ( CWTriangle f : cw.mFace ) stl.add( f );
+        if ( type == ModelType.STL_BINARY ) {
+          ret = stl.exportBinary( pathname, b_splays, b_walls, b_surface );
+        } else { // type == ModelType.STL_ASCII
+          ret = stl.exportASCII( pathname, b_splays, b_walls, b_surface );
+        }
       }
-    }
-
-    boolean ret = false;
-    if ( type == 0 ) {
-      ret = stl.exportBinary( pathname, b_splays, b_walls, b_surface );
-    } else {
-      ret = stl.exportASCII( pathname, b_splays, b_walls, b_surface );
-    }
-    if ( ret ) {
-      Toast.makeText( mCave3D, "OK. Exported " + pathname, Toast.LENGTH_SHORT).show();
-    } else {
-      Toast.makeText( mCave3D, "Failed Export " + pathname, Toast.LENGTH_SHORT).show();
+      if ( ret ) {
+        Toast.makeText( mCave3D, "OK. Exported " + pathname, Toast.LENGTH_SHORT).show();
+      } else {
+        Toast.makeText( mCave3D, "Failed Export " + pathname, Toast.LENGTH_SHORT).show();
+      }
     }
   }
 }
