@@ -55,6 +55,8 @@ public class KMLExporter
 
     Cave3DFix origin = null;
     for ( Cave3DFix fix : fixes ) {
+      if ( fix.cs == null ) continue;
+      if ( ! fix.cs.name.equals("long-lat") ) continue;
       for ( Cave3DStation st : data.getStations() ) {
         if ( st.name.equals( fix.name ) ) {
           origin = fix;
@@ -64,13 +66,17 @@ public class KMLExporter
       }
       if ( origin != null ) break;
     }
-    if ( origin == null ) return false;
+    if ( origin == null ) {
+      // Log.v("Cave3D", "no origin");
+      return false;
+    }
 
     // origin has coordinates ( e, n, z ) these are assumed lat-long
     // altitude is assumed wgs84
     lat = (float)origin.n;
     lng = (float)origin.e;
     asl = (float)origin.z; // KML uses Geoid altitude (unless altitudeMode is set)
+    // Log.v("Cave3D", "origin " + lat + " N " + lng + " E " + asl );
     float alat = ( lat > 0 )? lat : - lat;
 
     s_radius = ((90 - alat) * EARTH_RADIUS1 + alat * EARTH_RADIUS2)/90;
@@ -89,7 +95,7 @@ public class KMLExporter
 
     // Log.v("DistoX", "export as KML " + filename );
     if ( ! getGeolocalizedData( data, 0.0f, 1.0f ) ) { // FIXME declination 0.0f
-      // Error( "Failed KML export: no geolocalized station");
+      // Log.v("Cave3D", "Failed KML export: no geolocalized station");
       return false;
     }
 
@@ -192,14 +198,11 @@ public class KMLExporter
         float et = lng + (st.e - zero.e) * e_radius;
         float nt = lat + (st.n - zero.n) * s_radius;
         float zt = asl + (st.z - zero.z);
-        pw.format("    <LineString id=\"%s-%s\">\n", sf.name, st.name );
+        pw.format("    <LineString id=\"%s-%s\"> <coordinates>\n", sf.name, st.name );
         // pw.format("      <tessellate>1</tessellate>\n"); //   breaks the line up in small chunks
         // pw.format("      <extrude>1</extrude>\n"); // extends the line down to the ground
-        pw.format("      <coordinates>\n");
-        pw.format(Locale.US, "        %f,%f,%f\n", ef, nf, zf );
-        pw.format(Locale.US, "        %f,%f,%f\n", et, nt, zt );
-        pw.format("      </coordinates>\n");
-        pw.format("    </LineString>\n");
+        pw.format(Locale.US, "        %f,%f,%f %f,%f,%f\n", ef, nf, zf, et, nt, zt );
+        pw.format("    </coordinates> </LineString>\n");
       }
       pw.format("  </MultiGeometry>\n");
       pw.format("</Placemark>\n");
@@ -219,14 +222,11 @@ public class KMLExporter
           float et = lng + (sf.e + v.x - zero.e) * e_radius;
           float nt = lat + (sf.n + v.y - zero.n) * s_radius;
           float zt = asl + (sf.z + v.z - zero.z);
-          pw.format("    <LineString id=\"%s-\">\n", sf.name );
+          pw.format("    <LineString> <coordinates>\n" );
           // pw.format("      <tessellate>1</tessellate>\n"); //   breaks the line up in small chunks
           // pw.format("      <extrude>1</extrude>\n"); // extends the line down to the ground
-          pw.format("      <coordinates>\n");
-          pw.format(Locale.US, "        %f,%f,%f\n", ef, nf, zf );
-          pw.format(Locale.US, "        %f,%f,%f\n", et, nt, zt );
-          pw.format("      </coordinates>\n");
-          pw.format("    </LineString>\n");
+          pw.format(Locale.US, "        %f,%f,%f %f,%f,%f\n", ef, nf, zf, et, nt, zt );
+          pw.format("    </coordinates> </LineString>\n");
         }
         pw.format("  </MultiGeometry>\n");
         pw.format("</Placemark>\n");
@@ -267,7 +267,6 @@ public class KMLExporter
         }
         pw.format("  </MultiGeometry>\n");
         pw.format("</Placemark>\n");
-
       }
 
       pw.format("</Document>\n");

@@ -77,6 +77,7 @@ public class Cave3DThParser extends Cave3DParser
     String path = basepath;
     // Log.v("Cave3D", "basepath <" + basepath + ">");
     // Log.v("Cave3D", "filename <" + filename + ">");
+    Cave3DCS cs = null;
 
     int[] survey_pos = new int[50]; // FIXME max 50 levels
     int ks = 0;
@@ -193,6 +194,11 @@ public class Cave3DThParser extends Cave3DParser
                     }
                   } 
                 }
+              } else if ( cmd.equals("cs") ) { // ***** fix station east north Z
+                idx = nextIndex( vals, idx );
+                if ( idx < vals.length ) {
+                  cs = new Cave3DCS( vals[idx] );
+                }
               } else if ( cmd.equals("fix") ) { // ***** fix station east north Z
                 // Log.v( TAG, "command fix");
                 idx = nextIndex( vals, idx );
@@ -218,7 +224,7 @@ public class Cave3DThParser extends Cave3DParser
                         if ( idx < vals.length ) {
                           float z = Float.parseFloat( vals[idx] );
                           // Log.v( TAG, " fix z " + z + " adding fix ");
-	                  fixes.add( new Cave3DFix( name, x, y, z ) );
+	                  fixes.add( new Cave3DFix( name, x, y, z, cs ) );
                         }
                       }
                     }
@@ -482,7 +488,7 @@ public class Cave3DThParser extends Cave3DParser
     if ( fixes.size() == 0 ) {
       // Log.v( TAG, "shots " + shots.size() + " fixes " + fixes.size() );
       Cave3DShot sh = shots.get( 0 );
-      fixes.add( new Cave3DFix( sh.from, 0.0f, 0.0f, 0.0f ) );
+      fixes.add( new Cave3DFix( sh.from, 0.0f, 0.0f, 0.0f, null ) );
     }
  
     int mLoopCnt = 0;

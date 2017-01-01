@@ -1,4 +1,4 @@
-/** @file Cave3DFix.java
+/** @file Cave3DCS.java
  *
  * @author marco corvi
  * @date nov 2011
@@ -12,24 +12,18 @@ package com.topodroid.Cave3D;
 
 import android.util.Log;
 
-public class Cave3DFix
+public class Cave3DCS
 {
   private static final String TAG = "Cave3D";
 
-  /** fix station:
-   * fix stations are supposed to be referred to the same coord system
+  /** coordinate system
    */
-  Cave3DCS cs;
-  String name;
-  float e, n, z; // north east, vertical (upwards)
+  String name; // CS name
+  // String proj4; // proj4 syntax CS description
 
-  public Cave3DFix( String nm, float e0, float n0, float z0, Cave3DCS cs0 )
+  public Cave3DCS( String nm )
   {
     name = nm;
-    e = e0;
-    n = n0;
-    z = z0;
-    cs = cs0;
   }
 
 }
