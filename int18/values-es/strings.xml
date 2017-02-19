@@ -57,7 +57,7 @@
     <string name="Surface">Superficie</string>
 
     <string name="pref_base_path_title">Directorio de la base de datos</string>
-    <string name="pref_base_path_summary">Directorio de la base de datos de la app </string>
+    <string name="pref_base_path_summary">Directorio de la base de datos de la app</string>
     <string name="pref_base_path_message">Directorio que contiene los archivos de Therion</string>
     <string name="pref_text_size_title">Tamaño Texto</string>
     <string name="pref_text_size_summary">Tamaño de la etiqueta estación</string>
