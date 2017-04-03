@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cave3D</string>
+
+    <string name="btn_move">Mover</string>
+    <string name="btn_rotate">Girar</string>
+    <string name="btn_station">Base</string>
+    <string name="btn_splay">Medida Auxiliar</string>
+    <string name="btn_zoom_in">Zoom +</string>
+    <string name="btn_zoom_out">Zoom -</string>
+
+    <string name="menu_open">Abrir arquivo</string>
+    <string name="menu_options">Opções</string>
+    <string name="menu_reset">Reiniciar</string>
+    <string name="menu_viewpoint">Ponto de vista</string>
+    <string name="menu_files">Topos</string>
+    <string name="menu_export">Exportar</string>
+    <string name="menu_frame">Quadro</string>
+    <string name="menu_color">Cor</string>
+    <string name="menu_info">Info</string>
+    <string name="menu_ico">Diagrama Ico</string>
+    <string name="menu_rose">Diagrama Rose</string>
+    <string name="menu_wall">Modo parede</string>
+
+    <string name="info_title">INFO</string>
+    <string name="info_axes">Eixos: azul Norte, verde Leste</string>
+    <string name="info_grid">Grade quadro [m]</string>
+    <string name="info_view">Ponto de vista</string>
+    <string name="info_surveys">Topos</string>
+    <string name="info_shots">Visadas</string>
+    <string name="info_stations">Bases</string>
+    <string name="info_length">Comprimento</string>
+    <string name="info_depth">Profundidade</string>
+    <string name="info_volume">Volume</string>
+
+    <string name="query" formatted="false">Topos: %d visadas: %d bases: %d\nComprimento: %d Profundidade: %d</string>
+    <string name="no_files">Nenhum arquivo</string>
+
+    <string name="title">%1$s  inclinação: %2$.0f  Azimute: %3$.0f</string>
+    <string name="title_clino"> Inclinação: </string>
+    <string name="title_azimuth"> Azimute: </string>
+
+    <string name="survey_legs"> Visadas: </string>
+    <string name="survey_legs_length"> Comprimento das visadas: </string>
+    <string name="survey_splays"> Medidas auxiliares: </string>
+    <string name="survey_splays_length"> Comprimento das medidas auxiliares: </string>
+    <string name="cave_distance"> Distância 3D: %1$.2f</string>
+    <string name="cave_length"> Comprimento da caverna: %1$.2f</string>
+
+    <string name="SURVEYS">T O P O S</string>
+    <string name="INFO">I N F O</string>
+    <string name="EXPORT">E X P O R T A R</string>
+    <string name="STATION">B A S E</string>
+    <string name="STATIONS_DISTANCE">DISTÂNCIA BASES</string>
+    <string name="DISTANCE">DISTÂNCIA</string>
+    <string name="select_file">Cave3D - Escolha um arquivo:</string>
+    <string name="Wall">Paredes</string>
+    <string name="Surface">Superfície</string>
+
+    <string name="view_title">PONTOS DE VISTA</string>
+    <string name="view_top">Topo</string>
+    <string name="view_east">Leste</string>
+    <string name="view_north">Norte</string>
+    <string name="view_west">Oeste</string>
+    <string name="view_south">Sul</string>
+    <string name="view_point">Ponto de vista</string>
+    <string name="view_zoom">Zoom 1</string>
+
+    <string name="pref_base_path_title">Diretório base</string>
+    <string name="pref_base_path_summary">Diretório base da app</string>
+    <string name="pref_base_path_message">Diretório contendo os arquivos Therion</string>
+    <string name="pref_text_size_title">Tamanho do texto</string>
+    <string name="pref_text_size_summary">Tamanho rótulo base</string>
+    <string name="pref_text_size_message">Tamanho do texto do rótulo da base</string>
+    <string name="pref_size_buttons_title">Tamanho botões</string>
+    <string name="pref_size_buttons_summary">Tamanho dos botões</string>
+    <string name="pref_selection_radius_title">Raio seleção</string>
+    <string name="pref_selection_radius_summary">Raio da seleção</string>
+    <string name="pref_selection_radius_message">Raio da seleção</string>
+    <string name="pref_grid_above_title">Grade topo</string>
+    <string name="pref_grid_above_summary">Grade no topo</string>
+    <string name="pref_grid_above_message">Apresentar grade no topo</string>
+    <string name="pref_all_splay_title">Todas medidas auxiliares</string>
+    <string name="pref_all_splay_summary">Todas as medidas auxialires</string>
+    <string name="pref_all_splay_message">Usar todas as medidas auxiliares para as paredes</string>
+    <string name="pref_preprojection_title">Preprojeções</string>
+    <string name="pref_preprojection_summary">Precalcular projeções</string>
+    <string name="pref_preprojection_message">Usar projeções precalculadas</string>
+
+    <string name="pref_split_triangles_title">Partir triângulos</string>
+    <string name="pref_split_triangles_summary">Partir triângulos das paredes</string>
+    <string name="pref_split_triangles_message">Partir triângulos das paredes que se interceptem</string>
+    <string name="pref_split_random_title">Ruído pontos</string>
+    <string name="pref_split_random_summary">Ruído pontos paredes</string>
+    <string name="pref_split_random_message">Adicionar um pequeno ruído nos valores dos pontos das medidas auxiliares</string>
+    <string name="pref_split_stretch_title">Alongar paredes</string>
+    <string name="pref_split_stretch_summary">Alongar pontos das paredes na direção da visada</string>
+    <string name="pref_split_stretch_message">Mover os pontos das paredes por uma pequena distância na direção da visada</string>
+
+</resources>
