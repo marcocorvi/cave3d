@@ -529,12 +529,21 @@ public class Cave3D extends Activity
 
   private void setWallButton( int wall_mode )
   {
-    if ( wall_mode == Cave3DRenderer.WALL_HULL ) {
-      // mButton1[BTN_WALL].setBackgroundDrawable( mBMhull );
-    } else if ( wall_mode == Cave3DRenderer.WALL_DELAUNAY ) {
-      // mButton1[BTN_WALL].setBackgroundDrawable( mBMdelaunay );
-    } else {
-      // mButton1[BTN_WALL].setBackgroundDrawable( mBMconvex );
+    switch ( wall_mode ) {
+      case Cave3DRenderer.WALL_HULL:
+        Toast.makeText( this, "wall mode HULL", Toast.LENGTH_SHORT ).show();
+        // mButton1[BTN_WALL].setBackgroundDrawable( mBMhull );
+        break;
+      case Cave3DRenderer.WALL_DELAUNAY:
+        Toast.makeText( this, "wall mode DELAUNAY", Toast.LENGTH_SHORT ).show();
+        // mButton1[BTN_WALL].setBackgroundDrawable( mBMdelaunay );
+        break;
+      case Cave3DRenderer.WALL_CW:
+        Toast.makeText( this, "wall mode CONVEX", Toast.LENGTH_SHORT ).show();
+        // mButton1[BTN_WALL].setBackgroundDrawable( mBMconvex );
+        break;
+      default:
+        Toast.makeText( this, "wall mode NONE", Toast.LENGTH_SHORT ).show();
     }
   }
 

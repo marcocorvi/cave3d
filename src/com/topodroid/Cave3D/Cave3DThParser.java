@@ -26,6 +26,8 @@ public class Cave3DThParser extends Cave3DParser
   static final int FLIP_HORIZONTAL = 1;
   static final int FLIP_VERTICAL   = 2;
 
+  ArrayList< String > mMarks;
+
   static int parseFlip( String flip )
   {
     if ( flip.equals("horizontal") ) return FLIP_HORIZONTAL;
@@ -33,15 +35,46 @@ public class Cave3DThParser extends Cave3DParser
     return FLIP_NONE;
   }
 
+  private void processMarks()
+  {
+    for ( String mark : mMarks ) {
+      String[] vals = mark.split(" ");
+      int len = vals.length;
+      len = prevIndex( vals, len );
+      if ( len > 0 ) { // 0 must be "mark"
+        int flag = parseFlag( vals[len] );
+        int idx = nextIndex( vals, -1 );
+        while ( idx < len && vals[idx].equals("mark") ) idx = nextIndex( vals, idx );
+        while ( idx < len ) {
+          Cave3DStation st = getStation( vals[idx] );
+          if ( st != null ) st.flag = flag;
+          idx = nextIndex( vals, idx );
+        }
+      }
+    }
+  }
+
+  private int parseFlag( String str ) // parse Therion flag name
+  {
+    if ( str.equals( "fixed" ) ) {
+      return Cave3DStation.FLAG_PAINTED;
+    } else if ( str.equals( "painted" ) ) {
+      return Cave3DStation.FLAG_PAINTED;
+    }
+    return Cave3DStation.FLAG_NONE;
+  }
   public Cave3DThParser( Cave3D cave3d, String filename ) throws Cave3DParserException
   {
     super( cave3d );
+
+    mMarks = new ArrayList< String >();
 
     if ( readFile( filename, "", false, 0.0f, 1.0f, 1.0f, 1.0f ) ) {
       processShots();
       setShotSurveys();
       setSplaySurveys();
       setStationDepths();
+      processMarks();
 
       // System.out.println("Shots    " + shots.size() );
       // System.out.println("Stations " + stations.size() );
@@ -78,6 +111,7 @@ public class Cave3DThParser extends Cave3DParser
     // Log.v("Cave3D", "basepath <" + basepath + ">");
     // Log.v("Cave3D", "filename <" + filename + ">");
     Cave3DCS cs = null;
+
 
     int[] survey_pos = new int[50]; // FIXME max 50 levels
     int ks = 0;
@@ -157,6 +191,10 @@ public class Cave3DThParser extends Cave3DParser
                     Log.e( "Cave3D", "NUMBER ERROR centerline declination number format exception" );
                   }
                 }
+              } else if ( cmd.equals("station") ) {
+                // TODO
+              } else if ( cmd.equals("mark") ) {
+                mMarks.add( line );
               } else if ( cmd.equals("data") ) {
                 // data normal from to length compass clino ...
                 // TODO
@@ -603,8 +641,15 @@ public class Cave3DThParser extends Cave3DParser
   static int nextIndex( String[] vals, int idx )
   {
     ++idx;
-     while ( idx < vals.length && vals[idx].length() == 0 ) ++idx;
-     return idx;
+    while ( idx < vals.length && vals[idx].length() == 0 ) ++idx;
+    return idx;
+  }
+
+  static int prevIndex( String[] vals, int idx )
+  {
+    --idx;
+    while ( idx >= 0 && vals[idx].length() == 0 ) --idx;
+    return idx;
   }
 
 }

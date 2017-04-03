@@ -29,6 +29,10 @@ public class Cave3DStation
   String comment; // not used
   float pathlength; // path length
 
+  static final int FLAG_NONE    = 0;
+  static final int FLAG_FIXED   = 1;
+  static final int FLAG_PAINTED = 2;
+
   private void setName( String nm )
   {
     name = nm;
@@ -56,7 +60,7 @@ public class Cave3DStation
     e = e0;
     n = n0;
     z = z0;
-    flag    = 0;
+    flag    = FLAG_NONE;
     comment = null;
   }
 
@@ -74,6 +78,22 @@ public class Cave3DStation
   }
 
   Cave3DVector toCave3DVector() { return new Cave3DVector( e, n, z ); }
+
+  boolean coincide( Cave3DStation p, double eps )
+  {
+    if ( Math.abs(e - p.e) > eps ) return false;
+    if ( Math.abs(n - p.n) > eps ) return false;
+    if ( Math.abs(z - p.z) > eps ) return false;
+    return true;
+  }
+
+  double distance( Cave3DStation p )
+  {
+    double xx = (e - p.e);
+    double yy = (n - p.n);
+    double zz = (z - p.z);
+    return Math.sqrt( xx*xx + yy*yy + zz*zz );
+  }
 
 }
 

@@ -57,6 +57,7 @@ public class Cave3DExportDialog extends Dialog
     private CheckBox mStlBinary;
     private CheckBox mStlAscii;
     private CheckBox mKmlAscii;
+    private CheckBox mCgalAscii;
 
     private CheckBox mSplay;
     private CheckBox mWalls;
@@ -100,12 +101,14 @@ public class Cave3DExportDialog extends Dialog
       mStlBinary = (CheckBox) findViewById( R.id.stl_binary );
       mStlAscii  = (CheckBox) findViewById( R.id.stl_ascii );
       mKmlAscii  = (CheckBox) findViewById( R.id.kml_ascii );
+      mCgalAscii  = (CheckBox) findViewById( R.id.cgal_ascii );
       // mDebug  = (RadioButton) findViewById( R.id.debug );
       mStlBinary.setChecked( true );
 
       mStlBinary.setOnClickListener( this );
       mStlAscii.setOnClickListener( this );
       mKmlAscii.setOnClickListener( this );
+      mCgalAscii.setOnClickListener( this );
       // mDebug.setOnClickListener( this );
 
       mSplay   = (CheckBox) findViewById( R.id.splay );
@@ -213,6 +216,8 @@ public class Cave3DExportDialog extends Dialog
           mRenderer.exportModel( ModelType.STL_ASCII, pathname, splays, walls, surface );
         } else if ( mKmlAscii.isChecked() ) {
           mRenderer.exportModel( ModelType.KML_ASCII, pathname, splays, walls, station );
+        } else if ( mCgalAscii.isChecked() ) {
+          mRenderer.exportModel( ModelType.CGAL_ASCII, pathname, splays, walls, station );
         } else {
           mRenderer.exportModel( ModelType.SERIAL, pathname, splays, walls, surface );
         }
@@ -226,18 +231,28 @@ public class Cave3DExportDialog extends Dialog
         if ( mStlBinary.isChecked() ) {
           mStlAscii.setChecked( false );
           mKmlAscii.setChecked( false );
+          mCgalAscii.setChecked( false );
         }
         return;
       } else if ( v.getId() == R.id.stl_ascii ) {
         if ( mStlAscii.isChecked() ) {
           mStlBinary.setChecked( false );
           mKmlAscii.setChecked( false );
+          mCgalAscii.setChecked( false );
         }
         return;
       } else if ( v.getId() == R.id.kml_ascii ) {
         if ( mKmlAscii.isChecked() ) {
           mStlBinary.setChecked( false );
           mStlAscii.setChecked( false );
+          mCgalAscii.setChecked( false );
+        }
+        return;
+      } else if ( v.getId() == R.id.cgal_ascii ) {
+        if ( mCgalAscii.isChecked() ) {
+          mStlBinary.setChecked( false );
+          mStlAscii.setChecked( false );
+          mKmlAscii.setChecked( false );
         }
         return;
       }

@@ -59,12 +59,12 @@ public class Cave3DRenderer // implements Renderer
   private float[] projs_border_E;
   private float[] projs_border_N;
 
-  public static final int WALL_NONE = 0;
-  public static final int WALL_CW   = 1;
-  public static final int WALL_MAX  = 2;
-  public static final int WALL_HULL = 3;
-  public static final int WALL_DELAUNAY = 4;
-  int wall_mode;
+  public static final int WALL_NONE     = 0;
+  public static final int WALL_CW       = 1;
+  public static final int WALL_HULL     = 2;
+  public static final int WALL_DELAUNAY = 3;
+  public static final int WALL_MAX      = 2;
+  int wall_mode = WALL_NONE;
 
   private float ZOOM = 100;
 
@@ -95,6 +95,7 @@ public class Cave3DRenderer // implements Renderer
 
   private static Paint shotPaint;
   private static Paint splayPaint;
+  private static Paint splayPaintPoint;
   private static Paint stationPaint;
   private static Paint surveyPaint[];
   private static Paint surfacePaint;
@@ -129,6 +130,7 @@ public class Cave3DRenderer // implements Renderer
   private List< Cave3DDrawPath > paths_frame;
   private List< Cave3DDrawPath > paths_legs;
   private List< Cave3DDrawPath > paths_splays;
+  private List< Cave3DDrawPath > paths_wires;
   private List< Cave3DDrawPath > paths_stations;
   private List< Cave3DDrawPath > paths_walls;
   private List< Cave3DDrawPath > paths_borders;
@@ -139,7 +141,7 @@ public class Cave3DRenderer // implements Renderer
   private boolean do_paths_splays;
   private boolean do_paths_stations;
   private boolean do_paths_walls;
-  private boolean do_paths_borders;
+  // private boolean do_paths_borders;
   private boolean do_paths_surface;
 
   // private boolean do_repaint;
@@ -157,7 +159,13 @@ public class Cave3DRenderer // implements Renderer
   private float xview0;  // center of the canvas
   private float yview0;
   
-  private boolean do_splays;
+  private int do_splays;
+  static final int DO_SPLAY_NO    = 0;
+  static final int DO_SPLAY_SHOT  = 1;
+  static final int DO_SPLAY_POINT = 2;
+  static final int DO_SPLAY_WIRE  = 4; // never used
+  static final int DO_SPLAY_MAX   = 3;
+
   private boolean do_stations;
   private boolean do_surface;
 
@@ -168,8 +176,9 @@ public class Cave3DRenderer // implements Renderer
   private ArrayList< Cave3DStation > stations;
   private ArrayList< Cave3DShot    > shots;
   private ArrayList< Cave3DShot    > splays;
-  // private ArrayList< Cave3DTriangle > triangles_hull;
-  // private ArrayList< Cave3DTriangle > triangles_delaunay;
+  private WireFrame mWireFrame;
+  private ArrayList< Cave3DTriangle > triangles_hull;
+  private ArrayList< Cave3DTriangle > triangles_delaunay;
   private ArrayList< CWConvexHull > walls;
   private ArrayList< CWBorder >     borders;
   private Cave3DSurface mSurface;
@@ -269,7 +278,7 @@ public class Cave3DRenderer // implements Renderer
 
   public void toggleDoSplays() 
   { 
-    do_splays = ! do_splays; 
+    do_splays = (do_splays+1)%DO_SPLAY_MAX; 
     // do_repaint = true;
     do_paths_splays = true;
   }
@@ -284,8 +293,8 @@ public class Cave3DRenderer // implements Renderer
   public int toggleWallMode()
   {
     wall_mode = ( wall_mode + 1 ) % WALL_MAX;
-    do_paths_walls   = true; // (wall_mode != WALL_NONE);
-    do_paths_borders = true; // (wall_mode != WALL_NONE);
+    do_paths_walls   = (wall_mode != WALL_NONE);
+    // do_paths_borders = (wall_mode != WALL_NONE);
     return wall_mode;
   }
 
@@ -459,6 +468,14 @@ public class Cave3DRenderer // implements Renderer
     splayPaint.setStrokeCap(Paint.Cap.ROUND);
     splayPaint.setStrokeWidth( STROKE_WIDTH_SPLAY );
 
+    splayPaintPoint = new Paint();
+    splayPaintPoint.setDither(true);
+    splayPaintPoint.setColor( 0xff666666 ); // grey
+    splayPaintPoint.setStyle(Paint.Style.FILL);
+    splayPaintPoint.setStrokeJoin(Paint.Join.ROUND);
+    splayPaintPoint.setStrokeCap(Paint.Cap.ROUND);
+    splayPaintPoint.setStrokeWidth( STROKE_WIDTH_SPLAY );
+
     stationPaint = new Paint();
     stationPaint.setDither(true);
     stationPaint.setColor( 0xffff6666 ); // dark red
@@ -542,7 +559,7 @@ public class Cave3DRenderer // implements Renderer
   {
     mCave3D = null;
 
-    do_splays   = false;
+    do_splays   = DO_SPLAY_NO;
     do_stations = false;
     do_surface  = false;
     wall_mode   = WALL_NONE;
@@ -556,8 +573,8 @@ public class Cave3DRenderer // implements Renderer
     shots      = null;
     splays     = null;
     stations   = null;
-    // triangles_hull      = null;
-    // triangles_delaunay  = null;
+    triangles_hull      = null;
+    triangles_delaunay  = null;
     walls = null;
     borders   = null;
     mSurface  = null;
@@ -576,6 +593,7 @@ public class Cave3DRenderer // implements Renderer
     paths_frame    = Collections.synchronizedList( new ArrayList< Cave3DDrawPath >() );
     paths_legs     = Collections.synchronizedList( new ArrayList< Cave3DDrawPath >() );
     paths_splays   = Collections.synchronizedList( new ArrayList< Cave3DDrawPath >() );
+    paths_wires    = Collections.synchronizedList( new ArrayList< Cave3DDrawPath >() );
     paths_stations = Collections.synchronizedList( new ArrayList< Cave3DDrawPath >() );
     paths_walls    = Collections.synchronizedList( new ArrayList< Cave3DDrawPath >() );
     paths_borders  = Collections.synchronizedList( new ArrayList< Cave3DDrawPath >() );
@@ -648,6 +666,9 @@ public class Cave3DRenderer // implements Renderer
     projs      = new float[4*nr_station];
     projs_grid_E = new float[ 2 * 2 * GRID_SIZE2 ];
     projs_grid_N = new float[ 2 * 2 * GRID_SIZE2 ];
+
+    mWireFrame = null;
+    computeWireFrame( 8.0, 0.01, 4 ); //  max 2 m,   coincide 0.01 m
     
     mSurface = mParser.getSurface();
     if ( mSurface != null ) {
@@ -677,7 +698,9 @@ public class Cave3DRenderer // implements Renderer
           // Log.v("Cave3D", "splays at " + sf.name + " " + splays1.size() + " at " + st.name + " " + splays2.size() );
           // if ( splays1.size() > 0 && splays2.size() > 0 ) 
           {
-            hulls.add( new Cave3DHull( sh, splays1, splays2, sf, st ) );
+            if ( WALL_HULL < WALL_MAX ) {
+              hulls.add( new Cave3DHull( sh, splays1, splays2, sf, st ) );
+            }
             try {
               CWConvexHull cw = new CWConvexHull( );
               cw.create( legs1, legs2, splays1, splays2, sf, st, all_splay );
@@ -716,33 +739,37 @@ public class Cave3DRenderer // implements Renderer
     }
 
     // FIXME skip WALL_HULL triangles
-    // triangles_hull     = new ArrayList< Cave3DTriangle >();
-    // for ( Cave3DHull h : hulls ) {
-    //   if ( h.triangles != null ) {
-    //     for ( Cave3DTriangle t : h.triangles ) {
-    //       triangles_hull.add( t );
-    //       // Log.v("Cave3D", t.toString() );
-    //     }
-    //   }
-    // }
+    if ( WALL_HULL < WALL_MAX ) {
+      triangles_hull = new ArrayList< Cave3DTriangle >();
+      for ( Cave3DHull h : hulls ) {
+        if ( h.triangles != null ) {
+          for ( Cave3DTriangle t : h.triangles ) {
+            triangles_hull.add( t );
+            // Log.v("Cave3D", t.toString() );
+          }
+        }
+      }
+    }
 
     // FIXME skip WALL_DELAUNAY triangles
-    // triangles_delaunay = new ArrayList< Cave3DTriangle >();
-    // for ( Cave3DStation st : stations ) {
-    //   ArrayList< Cave3DShot > station_splays = mParser.getSplayAt( st, false );
-    //   int ns = station_splays.size();
-    //   
-    //   if ( ns >= 4 ) {
-    //     Cave3DVector[] vec = new Cave3DVector[ns];
-    //     for ( int n=0; n<ns; ++n ) {
-    //       Cave3DShot sh = station_splays.get( n );
-    //       float h = sh.len * (float)Math.cos( sh.cln );
-    //       vec[n] = new Cave3DVector( h * (float)Math.sin(sh.ber), h * (float)Math.cos(sh.ber), sh.len * (float)Math.sin(sh.cln) );
-    //     }
-    //     Cave3DDelaunay delaunay = new Cave3DDelaunay( vec );
-    //     delaunay.insertTrianglesIn( triangles_delaunay, st );
-    //   }
-    // }
+    if ( WALL_DELAUNAY < WALL_MAX ) {
+      triangles_delaunay = new ArrayList< Cave3DTriangle >();
+      for ( Cave3DStation st : stations ) {
+        ArrayList< Cave3DShot > station_splays = mParser.getSplayAt( st, false );
+        int ns = station_splays.size();
+        
+        if ( ns >= 4 ) {
+          Cave3DVector[] vec = new Cave3DVector[ns]; // vector of the splays at station "st"
+          for ( int n=0; n<ns; ++n ) {
+            Cave3DShot sh = station_splays.get( n );
+            float h = sh.len * (float)Math.cos( sh.cln );
+            vec[n] = new Cave3DVector( h * (float)Math.sin(sh.ber), h * (float)Math.cos(sh.ber), sh.len * (float)Math.sin(sh.cln) );
+          }
+          Cave3DDelaunay delaunay = new Cave3DDelaunay( vec );
+          delaunay.insertTrianglesIn( triangles_delaunay, st );
+        }
+      }
+    }
 
     // Log.v(TAG, "prepareModel() shots " + shots.size() 
     //          + " splays " + splays.size() 
@@ -983,8 +1010,8 @@ public class Cave3DRenderer // implements Renderer
     do_paths_legs     = true;
     do_paths_splays   = true;
     do_paths_stations = true;
-    do_paths_walls    = true;
-    do_paths_borders  = true;
+    do_paths_walls    = ( wall_mode != WALL_NONE );
+    // do_paths_borders  = ( wall_mode != WALL_NONE );
     do_paths_surface = ( mSurface != null );
   }
 
@@ -995,7 +1022,7 @@ public class Cave3DRenderer // implements Renderer
     do_paths_splays   = false;
     do_paths_stations = false;
     do_paths_walls    = false;
-    do_paths_borders  = false;
+    // do_paths_borders  = false;
     do_paths_surface  = false;
   }
 
@@ -1224,7 +1251,82 @@ public class Cave3DRenderer // implements Renderer
     paths_borders.add( p );
   }    
 
-  void addSplayShot( Cave3DShot sh, Path path, Paint paint )
+  private void computeWireFrame( double max, double eps, int nn )
+  {
+    mWireFrame = new WireFrame( eps );
+    for ( Cave3DStation st : stations ) {
+      mWireFrame.addPoint( st );
+    }
+    for ( Cave3DShot sh : splays ) {
+      mWireFrame.addSplayPoint( sh.to_station );
+    }
+
+    mWireFrame.makeFrame( max, nn );
+    // Log.v("Cave3D", "number of wires " + mWireFrame.getSegments().size() );
+  }
+
+  void addWireSegment( WireSegment ws, Path path )
+  {
+    Cave3DStation s1 = ws.wp1;
+    Cave3DStation s2 = ws.wp2;
+
+    float x1,y1, x2,y2;
+    float d1, d2;
+
+    // if ( Cave3D.mPreprojection ) {
+    //   int k4 = 4 * s1.vertex;
+    //   x1 = projs[ k4++ ];
+    //   y1 = projs[ k4++ ];
+    //   d1 = projs[ k4   ];
+
+    //   if ( ( k4 = 4 * s2.vertex) < 0 ) {
+    //     float x = s2.e - xc; // vector camera->station
+    //     float y = s2.n - yc;
+    //     float z = s2.z - zc;
+    //     x2 = projectedX( x, y, z );
+    //     y2 = projectedY( x, y, z );
+    //     d2 = projectedZabs( x, y, z );
+    //   } else {
+    //     x2 = projs[ k4++ ];
+    //     y2 = projs[ k4++ ];
+    //     d2 = projs[ k4   ];
+    //   }
+    // } else {
+      // TODO VECTOR
+      float x,y,z;
+      x = s1.e - xc; // vector camera->station
+      y = s1.n - yc;
+      z = s1.z - zc;
+      x1 = projectedX( x, y, z );
+      y1 = projectedY( x, y, z );
+      d1 = projectedZabs( x, y, z );
+      // Cave3DVector v = new Cave3DVector( s1 ).minus( vc );
+      // x1 = projectedX( v );
+      // y1 = projectedY( v );
+      // d1 = projectedZabs( v );
+
+      // TODO VECTOR
+      x = s2.e - xc; // vector camera->station
+      y = s2.n - yc;
+      z = s2.z - zc;
+      x2 = projectedX( x, y, z );
+      y2 = projectedY( x, y, z );
+      d2 = projectedZabs( x, y, z );
+      // v = new Cave3DVector( s1 ).minus( vc );
+      // x2 = projectedX( v );
+      // y2 = projectedY( v );
+      // d2 = projectedZabs( v );
+    // }
+
+    if ( ( x1 >= 0 && x1 < Cave3D.mDisplayWidth && y1 >= 0 && y1 < Cave3D.mDisplayHeight ) 
+      || ( x2 >= 0 && x2 < Cave3D.mDisplayWidth && y2 >= 0 && y2 < Cave3D.mDisplayHeight ) ) {
+      // add draw-line 1-2
+      path.moveTo( x1, y1 );
+      path.lineTo( x2, y2 );
+    }
+  }
+
+  void addSplayShot( Cave3DShot sh, Path path, Paint paint, boolean endpoint )
   {
     Cave3DStation s1 = sh.from_station;
     Cave3DStation s2 = sh.to_station;
@@ -1288,14 +1390,19 @@ public class Cave3DRenderer // implements Renderer
     if ( ( x1 >= 0 && x1 < Cave3D.mDisplayWidth && y1 >= 0 && y1 < Cave3D.mDisplayHeight ) 
       || ( x2 >= 0 && x2 < Cave3D.mDisplayWidth && y2 >= 0 && y2 < Cave3D.mDisplayHeight ) ) {
       // add draw-line 1-2
-      path.moveTo( x1, y1 );
-      path.lineTo( x2, y2 );
-      if ( paint != null ) {
-        int col = 0xff - (int)( 0x88 * ( d1+d2 ) / radius0 );
-        if ( col < 0x66 ) { 
-          col = 0x66;
-        } 
-        paint.setAlpha( col );
+      if ( endpoint ) {
+        // path.moveTo( x2, y2 );
+        path.addCircle( x2, y2, 5, Path.Direction.CCW );
+      } else {
+        path.moveTo( x1, y1 );
+        path.lineTo( x2, y2 );
+        if ( paint != null ) {
+          int col = 0xff - (int)( 0x88 * ( d1+d2 ) / radius0 );
+          if ( col < 0x66 ) { 
+            col = 0x66;
+          } 
+          paint.setAlpha( col );
+        }
       }
     }
   }
@@ -1735,12 +1842,27 @@ public class Cave3DRenderer // implements Renderer
       synchronized( paths_splays ) {
         // Log.v("Cave3D", "compute paths: splays ");
         paths_splays.clear();
-        if ( do_splays ) {
+        paths_wires.clear();
+        if ( do_splays == DO_SPLAY_SHOT ) {
           path  = new Cave3DDrawPath( splayPaint );
           for ( Cave3DShot sh : splays ) {
-            addSplayShot( sh, path.path, null );
+            addSplayShot( sh, path.path, null, false );
           }
           paths_splays.add( path );
+        } else if ( do_splays == DO_SPLAY_POINT ) {
+          path  = new Cave3DDrawPath( splayPaintPoint );
+          for ( Cave3DShot sh : splays ) {
+            addSplayShot( sh, path.path, null, true );
+          }
+          paths_splays.add( path );
+        } else if ( do_splays == DO_SPLAY_WIRE ) {
+          if ( mWireFrame != null ) {
+            path  = new Cave3DDrawPath( splayPaint );
+            for ( WireSegment ws : mWireFrame.getSegments() ) {
+              addWireSegment( ws, path.path );
+            }
+            paths_wires.add( path );
+          }
         }
       }
     }
@@ -1774,16 +1896,16 @@ public class Cave3DRenderer // implements Renderer
           }
 
         // FIXME WALL_HULL dropped in favour of WALL_CW
-        // } else if ( wall_mode == WALL_HULL ) {
-        //   for ( Cave3DTriangle tr : triangles_hull ) {
-        //     addTriangle( tr );
-        //   }
+        } else if ( wall_mode == WALL_HULL ) {
+          for ( Cave3DTriangle tr : triangles_hull ) {
+            addTriangle( tr );
+          }
 
         // FIXME skip WALL_DELAUNAY triangles
-        // } else if ( wall_mode == WALL_DELAUNAY ) {
-        //   for ( Cave3DTriangle tr : triangles_delaunay ) {
-        //     addTriangle( tr );
-        //   }
+        } else if ( wall_mode == WALL_DELAUNAY ) {
+          for ( Cave3DTriangle tr : triangles_delaunay ) {
+            addTriangle( tr );
+          }
         } // else WALL_NONE 
   
         if ( Cave3D.mSplitTriangles ) {
@@ -1836,6 +1958,11 @@ public class Cave3DRenderer // implements Renderer
     }
     synchronized( paths_splays ) {
       for ( Cave3DDrawPath p : paths_splays ) {
+        p.draw( canvas );
+      }
+    }
+    synchronized( paths_wires ) {
+      for ( Cave3DDrawPath p : paths_wires ) {
         p.draw( canvas );
       }
     }
@@ -1895,6 +2022,9 @@ public class Cave3DRenderer // implements Renderer
           }
         }
         ret = kml.exportASCII( pathname, mParser, b_splays, b_walls, b_surface );
+      } else if ( type == ModelType.CGAL_ASCII ) { // CGAL export
+        CGALExporter cgal = new CGALExporter();
+        ret = cgal.exportASCII( pathname, mParser, b_splays, b_walls, b_surface );
       } else { // STL export
         STLExporter stl = new STLExporter();
         for ( CWConvexHull cw : walls ) {

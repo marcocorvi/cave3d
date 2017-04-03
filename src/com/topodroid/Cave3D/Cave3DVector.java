@@ -105,6 +105,14 @@ class Cave3DVector
    */
   Cave3DVector midpoint( Cave3DVector v ) { return new Cave3DVector( (x+v.x)/2, (y+v.y)/2, (z+v.z)/2 ); }
 
+  boolean coincide( Cave3DVector p, double eps )
+  {
+    if ( Math.abs(x - p.x) > eps ) return false;
+    if ( Math.abs(y - p.y) > eps ) return false;
+    if ( Math.abs(z - p.z) > eps ) return false;
+    return true;
+  }
+
   // euclidean distance from another point
   float distance( Cave3DVector p )
   {

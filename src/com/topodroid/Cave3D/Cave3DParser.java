@@ -82,6 +82,14 @@ public class Cave3DParser
     return null;
   }
 
+  Cave3DStation getStation( String name ) 
+  {
+    if ( name == null ) return null;
+    for ( Cave3DStation s : stations ) if ( name.equals( s.short_name ) ) return s;
+    return null;
+  }
+
+
   float getCaveDepth() { return zmax - zmin; }
   float getCaveLength() { return mCaveLength; }
 
