@@ -20,6 +20,8 @@ import android.util.Log;
 
 class Cave3DDelaunay
 {
+  double eps = 0.001;
+
   class DelaunayPoint
   {
     int index; // debug
@@ -36,7 +38,7 @@ class Cave3DDelaunay
       used = false;
     }
 
-    float distance( DelaunayPoint p ) { return orig.distance( p.orig ); }
+    // float distance( DelaunayPoint p ) { return orig.distance( p.orig ); }
   }
 
   class DelaunaySide // half-side
@@ -45,9 +47,6 @@ class Cave3DDelaunay
     DelaunaySide     otherHalf;
     DelaunayTriangle t;
     Cave3DVector     n; // normal
-    // Cave3DVector     u; // unit versor of orig's
-    // double           angle;
-    // float            length; // distance between original points
 
     DelaunaySide( DelaunayPoint i0, DelaunayPoint j0 )
     {
@@ -55,11 +54,7 @@ class Cave3DDelaunay
       p2=j0;
       n = p1.v.cross( p2.v );
       n.normalized();
-      // u = p2.v.minus( p1.v );
-      // u.normalized();
       t = null;
-      // angle = arc_angle( p1, p2 );
-      // length = p1.distance( p2 );
     }
 
     boolean coincide( DelaunayPoint i0, DelaunayPoint j0 ) 
@@ -72,29 +67,21 @@ class Cave3DDelaunay
       return ( p2==i0 && p1==j0 );
     }
 
-    boolean isPositive( Cave3DVector v ) { return n.dot( v ) >= 0; }
+    boolean isPositive( Cave3DVector v, double eps ) { return n.dot( v ) > eps; }
 
-    boolean isNegative( Cave3DVector v ) { return n.dot( v ) <= 0; }
+    // boolean isNegative( Cave3DVector v, double eps ) { return n.dot( v ) < -eps; }
 
-    boolean contains( Cave3DVector v, double eps ) { return Math.abs( n.dot( v ) ) < eps; } 
+    // boolean contains( Cave3DVector v, double eps ) { return Math.abs( n.dot( v ) ) < eps; } 
 
     float dot( Cave3DVector v ) { return n.dot( v ); }
-  }
-
-  void setOpposite( DelaunaySide s1, DelaunaySide s2 )
-  {
-    s1.otherHalf = s2;
-    s2.otherHalf = s1;
   }
 
   class DelaunayTriangle
   {
     DelaunaySide s1, s2, s3;
-    int   sign;
-    float radius;
-    Cave3DVector center;
-    Cave3DVector excenter;
-    float exradius;
+    // int   sign;
+    private float radius; // maximal inside the circumsphere
+    private Cave3DVector center;
 
     DelaunayTriangle( DelaunaySide i0, DelaunaySide j0, DelaunaySide k0 )
     {
@@ -105,13 +92,10 @@ class Cave3DDelaunay
       Cave3DVector v2 = s2.p1.v.minus( v1 );
       Cave3DVector v3 = s3.p1.v.minus( v1 );
       Cave3DVector v0 = v1.plus( s2.p1.v ).plus( s3.p1.v );
-      center = v2.cross( v3 );
+      center = v2.cross( v3 ); // (v2-v1)^(v3-v1) = (v2^v3 + v3^v1 + v1^v2) normalized
       center.normalized();
-      sign = ( center.dot(v0) > 0 )? -1 : +1;
-      radius = (float)Math.abs( center.dot( v1 ));
-      excenter = s1.p1.orig.plus( s2.p1.orig ).plus( s3.p1.orig );
-      excenter.mul( 1.0f/3.0f );
-      exradius = excenter.distance( s1.p1.orig );
+      // sign = ( center.dot(v0) > 0 )? -1 : +1;
+      radius = center.dot( v1 );
     }
 
     DelaunayTriangle( DelaunayTriangle t )
@@ -119,19 +103,22 @@ class Cave3DDelaunay
       s1 = t.s1;
       s2 = t.s2;
       s3 = t.s3;
-      sign   = t.sign;
+      // sign   = t.sign;
       radius = t.radius;
       center = t.center;
     }
 
-    boolean contains( DelaunayPoint p ) { return contains( p.v ); }
+    // v = unit vector
+    boolean circumcontains( Cave3DVector v, double eps ) { return center.dot(v) > radius + eps; }
 
-    boolean contains( Cave3DVector v )
+    // boolean contains( DelaunayPoint p ) { return contains( p.v ); }
+
+    boolean contains( Cave3DVector v, double eps )
     { 
-      if ( sign > 0 ) {
-        return s1.isPositive( v ) && s2.isPositive( v ) && s3.isPositive( v );
-      } // else {
-      return s1.isNegative( v ) || s2.isNegative( v ) || s3.isNegative( v );
+      // if ( sign < 0 ) {
+      //   return s1.isNegative( v, eps ) || s2.isNegative( v, eps ) || s3.isNegative( v, eps );
+      // }
+      return s1.isPositive( v, eps ) && s2.isPositive( v, eps ) && s3.isPositive( v, eps );
     }
 
     DelaunayPoint vertexOf( DelaunaySide s )
@@ -196,16 +183,16 @@ class Cave3DDelaunay
   // }
 
   // dot-product of two Cave3DVectors
-  double dot_product( Cave3DVector v1, Cave3DVector v2 ) { return v1.dot( v2 ); }
+  // double dot_product( Cave3DVector v1, Cave3DVector v2 ) { return v1.dot( v2 ); }
 
   // arc-angle = ( range in [0, 2] )
-  double arc_angle( DelaunayPoint p1, DelaunayPoint p2 ) { return 1 - p1.v.dot( p2.v ); }
+  // double arc_angle( DelaunayPoint p1, DelaunayPoint p2 ) { return 1 - p1.v.dot( p2.v ); }
   
   // arc-distance = arccos of the dot-product ( range in [0, PI] )
-  float arc_distance( DelaunayPoint p1, DelaunayPoint p2 ) { return (float)( Math.acos( p1.v.dot( p2.v ) ) ); }
-  float arc_distance( Cave3DVector v1, Cave3DVector v2 ) { return (float)( Math.acos( v1.dot( v2 ) ) ); }
+  // float arc_distance( DelaunayPoint p1, DelaunayPoint p2 ) { return (float)( Math.acos( p1.v.dot( p2.v ) ) ); }
+  // float arc_distance( Cave3DVector v1, Cave3DVector v2 ) { return (float)( Math.acos( v1.dot( v2 ) ) ); }
 
-  float distance( Cave3DVector v1, Cave3DVector v2 ) { return v1.distance( v2 ); }
+  // float distance( Cave3DVector v1, Cave3DVector v2 ) { return v1.distance( v2 ); }
 
   // triple-product of three Cave3DVectors
   // double triple_product( Cave3DVector p1, Cave3DVector p2, Cave3DVector p3 ) { return p1.cross( p2 ).dot( p3 ); }
@@ -227,66 +214,74 @@ class Cave3DDelaunay
     return side;
   }
 
+  void setOpposite( DelaunaySide s1, DelaunaySide s2 )
+  {
+    s1.otherHalf = s2;
+    s2.otherHalf = s1;
+  }
+
   Cave3DDelaunay( Cave3DVector[] pts )
   {
-    float sqrt2 = 1/(float)(Math.sqrt(2.0));
     N = pts.length;
     mPts = new DelaunayPoint[ N ]; // delaunay points on the unit sphere
-    // mDist = new float[ N*N ];
     for ( int n=0; n<N; ++n ) {
       mPts[n] = new DelaunayPoint( pts[n], n );
-      // for ( int n2=0; n2<n; ++n2 ) {
-      //   mDist[ n*N + n2 ] = mDist[ n2*N + n ] = arc_distance( mPts[n], mPts[n2] );
-      // }
-      // mDist[ n*N + n ] = 0;
     }
-
 
     // prepare null-initialized triangles
     mTri  = new ArrayList<DelaunayTriangle>();
     mSide = new ArrayList<DelaunaySide>();
 
     if ( N >= 4 ) {
-      computeLawson( 0.0001 );
+      computeLawson( );
     }
-    // dump();
   }
 
-  // @param p   input point (on the sphere)
-  // @return triangles the point lies above
-  // @note   SIDE EFFECT these triangles are also removed from the array of triangles
-  //
-  DelaunaySide findSide( Cave3DVector v, double eps )
-  {
-    for ( DelaunaySide side : mSide ) {
-      if ( side.contains( v, eps ) ) return side;
-    }
-    return null;
-  }
+  // DelaunaySide findSide( Cave3DVector v )
+  // {
+  //   for ( DelaunaySide side : mSide ) {
+  //     if ( side.contains( v, eps ) ) return side;
+  //   }
+  //   return null;
+  // }
 
   DelaunayTriangle findTriangle( Cave3DVector v )
   {
-    for ( DelaunayTriangle tri : mTri ) {
-      if ( tri.contains( v ) ) return tri;
+    double e = eps;
+    DelaunayTriangle ret = null;
+    while ( ret == null ) {
+      for ( DelaunayTriangle tri : mTri ) {
+        if ( tri.contains( v, eps ) ) {
+          if ( ret != null ) {
+            Log.v("Cave3D", "point in many triangles ");
+          } else {
+            ret = tri;
+          }
+        }
+      }
+      if ( ret == null ) {
+        // Log.v("Cave3D", "point in no triangle ... retry" );
+        v.x += (float)(e * ( Math.random() - 0.5 ));
+        v.y += (float)(e * ( Math.random() - 0.5 ));
+        v.z += (float)(e * ( Math.random() - 0.5 ));
+        v.normalized();
+        e *= 2;
+      }
     }
-    return null;
+    return ret;
   }
 
   private void handle( DelaunaySide s0, DelaunayPoint p0 )
   {
-    DelaunayTriangle t0 = s0.t;
     DelaunaySide sh = s0.otherHalf;
     DelaunayTriangle th = sh.t;
-    DelaunayPoint ph = th.vertexOf( sh );
-    DelaunaySide sh2 = th.prev( sh );
-    DelaunaySide sh1 = th.next( sh ); 
-    DelaunaySide s02 = t0.prev( s0 );  
-    DelaunaySide s01 = t0.next( s0 );   
-    if ( arc_distance( ph.v, t0.center ) < t0.radius ) { 
-    // if ( distance( ph.orig, t0.excenter ) < t0.exradius ) {
-    // float aext = sh1.u.dot( sh2.u ) + s01.u.dot( s02.u );
-    // float aint = sh2.u.dot( s01.u ) + s02.u.dot( sh1.u );
-    // if ( aext < aint ) {
+    if ( th.circumcontains( p0.v, eps ) ) { 
+      DelaunayTriangle t0 = s0.t;
+      DelaunayPoint ph = th.vertexOf( sh );
+      DelaunaySide sh2 = th.prev( sh );
+      DelaunaySide sh1 = th.next( sh ); 
+      DelaunaySide s02 = t0.prev( s0 );  
+      DelaunaySide s01 = t0.next( s0 );   
       DelaunaySide pph = addSide( p0, ph );    
       DelaunaySide php = addSide( ph, p0 );    
       setOpposite( pph, php );               
@@ -296,52 +291,49 @@ class Cave3DDelaunay
       mSide.remove( sh );
       addTriangle( sh2, s01, pph ); 
       addTriangle( sh1, php, s02 );
-      // Log.v("Cave3D", "add two T " + sh2.p1.k + " " + s0p2p.p1.k + " " + pph.p1.k 
-      //      + "   " + sh1.p1.k + " " + php.p1.k + " " + ps0p1.p1.k );
       handle( sh2, p0 );
       handle( sh1, p0 );
     }
-  
   }
 
-  boolean checkConsistency()
-  {
-    for ( DelaunaySide s0 : mSide ) {
-      DelaunaySide sh = s0.otherHalf;
-      if ( sh == null ) {
-        Log.v("Cave3D", "MISSING opposite sides of " + s0.p1.index + "-" + s0.p2.index );
-        return false; 
-      }
-      if ( s0.p1 != sh.p2 || s0.p2 != sh.p1 ) {
-        Log.v("Cave3D", "BAD opposite sides S0 " + s0.p1.index + "-" + s0.p2.index + " SH " + sh.p1.index + "-" + sh.p2.index );
-        return false; 
-      }
-      DelaunayTriangle t0 = s0.t;
-      if ( t0 == null ) {
-        Log.v("Cave3D", "MISSING triangle" );
-        return false; 
-      }
-      if ( t0.s1 != s0 && t0.s2 != s0 && t0.s3 != s0 ) {
-        Log.v("Cave3D", "Bad triangle" );
-        return false; 
-      }
-    }
-    for ( DelaunayTriangle t : mTri ) {
-      if ( t.s1.p2 != t.s2.p1 ) {
-        Log.v("Cave3D", "MISMATCH 1-2 " + t.s1.p2.index + " " + t.s2.p1.index );
-        return false;
-      }
-      if ( t.s2.p2 != t.s3.p1 ) {
-        Log.v("Cave3D", "MISMATCH 2-3 " + t.s2.p2.index + " " + t.s3.p1.index );
-        return false;
-      }
-      if ( t.s3.p2 != t.s1.p1 ) {
-        Log.v("Cave3D", "MISMATCH 3-1 " + t.s3.p2.index + " " + t.s1.p1.index );
-        return false;
-      }
-    }
-    return true;
-  }
+  // boolean checkConsistency()
+  // {
+  //   for ( DelaunaySide s0 : mSide ) {
+  //     DelaunaySide sh = s0.otherHalf;
+  //     if ( sh == null ) {
+  //       Log.v("Cave3D", "MISSING opposite sides of " + s0.p1.index + "-" + s0.p2.index );
+  //       return false; 
+  //     }
+  //     if ( s0.p1 != sh.p2 || s0.p2 != sh.p1 ) {
+  //       Log.v("Cave3D", "BAD opposite sides S0 " + s0.p1.index + "-" + s0.p2.index + " SH " + sh.p1.index + "-" + sh.p2.index );
+  //       return false; 
+  //     }
+  //     DelaunayTriangle t0 = s0.t;
+  //     if ( t0 == null ) {
+  //       Log.v("Cave3D", "MISSING triangle" );
+  //       return false; 
+  //     }
+  //     if ( t0.s1 != s0 && t0.s2 != s0 && t0.s3 != s0 ) {
+  //       Log.v("Cave3D", "Bad triangle" );
+  //       return false; 
+  //     }
+  //   }
+  //   for ( DelaunayTriangle t : mTri ) {
+  //     if ( t.s1.p2 != t.s2.p1 ) {
+  //       Log.v("Cave3D", "MISMATCH 1-2 " + t.s1.p2.index + " " + t.s2.p1.index );
+  //       return false;
+  //     }
+  //     if ( t.s2.p2 != t.s3.p1 ) {
+  //       Log.v("Cave3D", "MISMATCH 2-3 " + t.s2.p2.index + " " + t.s3.p1.index );
+  //       return false;
+  //     }
+  //     if ( t.s3.p2 != t.s1.p1 ) {
+  //       Log.v("Cave3D", "MISMATCH 3-1 " + t.s3.p2.index + " " + t.s1.p1.index );
+  //       return false;
+  //     }
+  //   }
+  //   return true;
+  // }
 
   private void handleTriangle( DelaunayTriangle tri, DelaunayPoint p ) 
   {
@@ -406,7 +398,7 @@ class Cave3DDelaunay
     
   // n is the third vertex of the triangle
 
-  private void computeLawson( double eps )
+  private void computeLawson( )
   {
     // Log.v("Cave3D", "compute Lawson N pts " + N );
     if ( N < 4 ) return;
@@ -462,11 +454,15 @@ class Cave3DDelaunay
     for ( int k=4; k<kmax; ++k ) {
       int n = (int)(N*Math.random());
       while ( mPts[n].used ) { n = (int)(N*Math.random()); }
+      // Log.v("Cave3D", "handling point " + n );
       mPts[n].used = true;
       DelaunayPoint p = mPts[n];
       Cave3DVector v  = p.v;
-      DelaunaySide s0 = findSide( v, eps );
-      if ( s0 == null ) {
+      // DelaunaySide s0 = findSide( v );
+      // if ( s0 != null ) {
+      //   handleSide( s0, p );
+      // } else 
+      {
         DelaunayTriangle tri = findTriangle( v );
         if ( tri == null ) {
           Log.v("Cave3D", "V on no triangle. " + v.x + " " + v.y + " " + v.z + " S " + mSide.size() + " T " + mTri.size() );
@@ -474,8 +470,6 @@ class Cave3DDelaunay
         }
         // Log.v("Cave3D", "K " + k + " Point " + p.index + " in T " + tri.s1.p1.k + " " + tri.s2.p1.k + " " + tri.s3.p1.k );
         handleTriangle( tri, p );
-      } else {
-        handleSide( s0, p );
       }
       // Log.v("Cave3D", "point " + n + "/" + N + " S " + mSide.size() + " T " + mTri.size() 
       //       + " consistency " + checkConsistency() );
@@ -485,8 +479,11 @@ class Cave3DDelaunay
       mPts[n].used = true;
       DelaunayPoint p = mPts[n];
       Cave3DVector v  = p.v;
-      DelaunaySide s0 = findSide( v, eps );
-      if ( s0 == null ) {
+      // DelaunaySide s0 = findSide( v );
+      // if ( s0 != null ) {
+      //   handleSide( s0, p );
+      // } else
+      {
         DelaunayTriangle tri = findTriangle( v );
         if ( tri == null ) {
           Log.v("Cave3D", "V on no triangle. " + v.x + " " + v.y + " " + v.z + " S " + mSide.size() + " T " + mTri.size() );
@@ -494,38 +491,12 @@ class Cave3DDelaunay
         }
         // Log.v("Cave3D", "N " + n + " Point " + p.index + " in T " + tri.s1.p1.k + " " + tri.s2.p1.k + " " + tri.s3.p1.k );
         handleTriangle( tri, p );
-      } else {
-        handleSide( s0, p );
       }
       // Log.v("Cave3D", "point " + n + "/" + N + " S " + mSide.size() + " T " + mTri.size() 
       //       + " consistency " + checkConsistency() );
     }
 
   }
-
-// ------------------------------------------------------------------
-// sample main
-//
-  // public static void main(String [] args)
-  // {
-  //   ArrayList<Cave3DVector> vec = new ArrayList<Cave3DVector>();
-
-  //   vec.add( new Cave3DVector(  0,  1.1f, 0 ) );
-  //   vec.add( new Cave3DVector(  0, -0.9f, -0.1f ) );
-  //   vec.add( new Cave3DVector(  1.1f,  0.1f, 0 ) );
-  //   vec.add( new Cave3DVector( -1.2f,  0.0f, 0.1f ) );
-  //   vec.add( new Cave3DVector(  0.1f,  0.5f, -1.1f) );
-  //   vec.add( new Cave3DVector( -0.4f,  0.2f, 1 ) );
-  //   // vec.add( new Cave3DVector(  0.5f,  0.4f,  0.3f ) );
-  //   // vec.add( new Cave3DVector(  0.5f, -0.6f,  0.6f ) );
-  //   // vec.add( new Cave3DVector(  0.6f,  0.5f, -0.6f ) );
-  //   // vec.add( new Cave3DVector( -0.3f,  0.5f, -0.8f ) );
-
-  //   Cave3DDelaunay delaunay = new Cave3DDelaunay( vec );
-
-  //   delaunay.dump();
-
-  // }
 
 }
       

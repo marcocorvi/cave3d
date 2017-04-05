@@ -63,7 +63,7 @@ public class Cave3DRenderer // implements Renderer
   public static final int WALL_CW       = 1;
   public static final int WALL_HULL     = 2;
   public static final int WALL_DELAUNAY = 3;
-  public static final int WALL_MAX      = 2;
+  public static final int WALL_MAX      = 4;
   int wall_mode = WALL_NONE;
 
   private float ZOOM = 100;
@@ -163,7 +163,7 @@ public class Cave3DRenderer // implements Renderer
   static final int DO_SPLAY_NO    = 0;
   static final int DO_SPLAY_SHOT  = 1;
   static final int DO_SPLAY_POINT = 2;
-  static final int DO_SPLAY_WIRE  = 4; // never used
+  static final int DO_SPLAY_WIRE  = 3; 
   static final int DO_SPLAY_MAX   = 3;
 
   private boolean do_stations;
@@ -1253,16 +1253,18 @@ public class Cave3DRenderer // implements Renderer
 
   private void computeWireFrame( double max, double eps, int nn )
   {
-    mWireFrame = new WireFrame( eps );
-    for ( Cave3DStation st : stations ) {
-      mWireFrame.addPoint( st );
-    }
-    for ( Cave3DShot sh : splays ) {
-      mWireFrame.addSplayPoint( sh.to_station );
-    }
+    if ( DO_SPLAY_WIRE < DO_SPLAY_MAX ) {
+      mWireFrame = new WireFrame( eps );
+      for ( Cave3DStation st : stations ) {
+        mWireFrame.addPoint( st );
+      }
+      for ( Cave3DShot sh : splays ) {
+        mWireFrame.addSplayPoint( sh.to_station );
+      }
 
-    mWireFrame.makeFrame( max, nn );
-    // Log.v("Cave3D", "number of wires " + mWireFrame.getSegments().size() );
+      mWireFrame.makeFrame( max, nn );
+      // Log.v("Cave3D", "number of wires " + mWireFrame.getSegments().size() );
+    }
   }
 
   void addWireSegment( WireSegment ws, Path path )

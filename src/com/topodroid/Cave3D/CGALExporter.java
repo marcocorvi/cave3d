@@ -59,7 +59,11 @@ public class CGALExporter
         float e = (st.e - zero.e) * e_radius;
         float n = (st.n - zero.n) * s_radius;
         float z = (st.z - zero.z);
-        pw.format("# %s\n", st.name );
+        int cnt = 0;
+        for ( Cave3DShot sp : splays ) {
+          if ( st == sp.from_station ) ++cnt;
+        }
+        pw.format("# %s %d\n", st.name, cnt );
         pw.format(Locale.US, "%.2f %.2f %.2f\n", e, n, z );
         for ( Cave3DShot sp : splays ) {
           if ( st == sp.from_station ) {
