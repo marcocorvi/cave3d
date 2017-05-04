@@ -16,17 +16,35 @@ import java.io.PrintWriter;
 
 class Cave3DTriangle
 {
+  int size;
   Cave3DVector[] vertex;
   Cave3DVector   normal;
 
+  Cave3DTriangle( int sz )
+  {
+    size = sz;
+    vertex = new Cave3DVector[size];
+  }
+
   Cave3DTriangle( Cave3DVector v0, Cave3DVector v1, Cave3DVector v2 )
   {
+    size = 3;
     vertex = new Cave3DVector[3];
     vertex[0] = v0;
     vertex[1] = v1;
     vertex[2] = v2;
-    Cave3DVector w1 = v1.minus( v0 );
-    Cave3DVector w2 = v2.minus( v0 );
+    computeNormal();
+  }
+
+  void setVertex( int k, Cave3DVector v )
+  {
+    vertex[k] = v;
+  }
+
+  void computeNormal()
+  {
+    Cave3DVector w1 = vertex[1].minus( vertex[0] );
+    Cave3DVector w2 = vertex[2].minus( vertex[0] );
     normal = w1.cross(w2);
     normal.normalized();
   }

@@ -21,6 +21,7 @@
     <string name="menu_ico">Ico diagram</string>
     <string name="menu_rose">Rose diagram</string>
     <string name="menu_wall">Wall mode</string>
+    <string name="menu_powercrust">Powercrust</string>
 
     <string name="info_title">INFO</string>
     <string name="info_axes">Axes: blue North, green East</string>
@@ -96,5 +97,16 @@
     <string name="pref_split_stretch_title">Stretch walls</string>
     <string name="pref_split_stretch_summary">Stretch wall points along the leg</string>
     <string name="pref_split_stretch_message">Shift wall points by a small quantity along the leg</string>
+
+<!--
+    <string name="pref_convex_hull_title">Convex hull</string>
+    <string name="pref_convex_hull_summary">Convex hull walls</string>
+    <string name="pref_powercrust_title">Powercrust</string>
+    <string name="pref_powercrust_summary">Powercrust walls</string>
+    <string name="pref_delaunay_title">Delaunay</string>
+    <string name="pref_delaunay_summary">Delaunay walls</string>
+    <string name="pref_hull_title">Hull</string>
+    <string name="pref_hull_summary">Hull walls</string>
+-->
 
 </resources>

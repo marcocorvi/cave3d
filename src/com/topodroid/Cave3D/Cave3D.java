@@ -86,17 +86,25 @@ public class Cave3D extends Activity
   static boolean mSplitStretch   = false;
   static float mSplitRandomizeDelta = 0.1f; // meters
   static float mSplitStretchDelta   = 0.1f;
+  // static boolean mWallConvexHull = true;
+  // static boolean mWallPowercrust = false;
+  // static boolean mWallDelaunay   = false;
+  // static boolean mWallHull       = false;
 
-  static final String CAVE3D_BASE_PATH = "CAVE3D_BASE_PATH";
-  static final String CAVE3D_TEXT_SIZE = "CAVE3D_TEXT_SIZE";
-  static final String CAVE3D_BUTTON_SIZE = "CAVE3D_BUTTON_SIZE";
+  static final String CAVE3D_BASE_PATH        = "CAVE3D_BASE_PATH";
+  static final String CAVE3D_TEXT_SIZE        = "CAVE3D_TEXT_SIZE";
+  static final String CAVE3D_BUTTON_SIZE      = "CAVE3D_BUTTON_SIZE";
   static final String CAVE3D_SELECTION_RADIUS = "CAVE3D_SELECTION_RADIUS";
-  static final String CAVE3D_GRID_ABOVE = "CAVE3D_GRID_ABOVE";
-  static final String CAVE3D_ALL_SPLAY = "CAVE3D_ALL_SPLAY";
-  static final String CAVE3D_PREPROJECTION = "CAVE3D_PREPROJECTION";
-  static final String CAVE3D_SPLIT_TRIANGLES = "CAVE3D_SPLIT_TRIANGLES";
-  static final String CAVE3D_SPLIT_RANDOM    = "CAVE3D_SPLIT_RANDOM";
-  static final String CAVE3D_SPLIT_STRETCH   = "CAVE3D_SPLIT_STRETCH";
+  static final String CAVE3D_GRID_ABOVE       = "CAVE3D_GRID_ABOVE";
+  static final String CAVE3D_ALL_SPLAY        = "CAVE3D_ALL_SPLAY";
+  static final String CAVE3D_PREPROJECTION    = "CAVE3D_PREPROJECTION";
+  static final String CAVE3D_SPLIT_TRIANGLES  = "CAVE3D_SPLIT_TRIANGLES";
+  static final String CAVE3D_SPLIT_RANDOM     = "CAVE3D_SPLIT_RANDOM";
+  static final String CAVE3D_SPLIT_STRETCH    = "CAVE3D_SPLIT_STRETCH";
+  static final String CAVE3D_CONVEX_HULL      = "CAVE3D_CONVEX_HULL";
+  // static final String CAVE3D_POWERCRUST       = "CAVE3D_POWERCRUST";
+  // static final String CAVE3D_DELAUNAY         = "CAVE3D_DELAUNAY";
+  // static final String CAVE3D_HULL             = "CAVE3D_HULL";
 
   public void onSharedPreferenceChanged( SharedPreferences sp, String k ) 
   {
@@ -152,6 +160,14 @@ public class Cave3D extends Activity
           mSplitStretch = false;
         }
       } catch ( NumberFormatException e ) { }
+    // } else if ( k.equals( CAVE3D_CONVEX_HULL ) ) { 
+    //   mWallConvexHull = sp.getBoolean( k, true );
+    // } else if ( k.equals( CAVE3D_POWERCRUST ) ) { 
+    //   mWallPowercrust = sp.getBoolean( k, false );
+    // } else if ( k.equals( CAVE3D_DELAUNAY ) ) { 
+    //   mWallDelaunay = sp.getBoolean( k, false );
+    // } else if ( k.equals( CAVE3D_HULL ) ) { 
+    //   mWallHull = sp.getBoolean( k, false );
     }
   }
 
@@ -191,6 +207,10 @@ public class Cave3D extends Activity
         mSplitStretch = true;
       }
     } catch ( NumberFormatException e ) { }
+    // mWallConvexHull = sp.getBoolean( CAVE3D_CONVEX_HULL, true );
+    // mWallPowercrust = sp.getBoolean( CAVE3D_POWERCRUST,  false );
+    // mWallDelaunay   = sp.getBoolean( CAVE3D_DELAUNAY,    false );
+    // mWallHull       = sp.getBoolean( CAVE3D_HULL,        false );
   }
 
   // -----------------------------------------------------------
@@ -268,6 +288,7 @@ public class Cave3D extends Activity
     R.string.menu_rose,
     R.string.menu_viewpoint,
     R.string.menu_reset,
+    R.string.menu_powercrust,
     R.string.menu_options,
   };
 
@@ -311,6 +332,8 @@ public class Cave3D extends Activity
       }
     } else if ( p++ == pos ) { // RESET
       if ( mFilename != null ) mRenderer.resetGeometry();
+    } else if ( p++ == pos ) { // POWERCRUST
+      mRenderer.makePowercrust();
     } else if ( p++ == pos ) { // OPTIONS
       startActivity( new Intent( this, Cave3DPreferences.class ) );
     }
@@ -347,6 +370,7 @@ public class Cave3D extends Activity
   BitmapDrawable mBMturn;
   BitmapDrawable mBMhull;
   BitmapDrawable mBMdelaunay;
+  BitmapDrawable mBMpowercrust;
   BitmapDrawable mBMconvex;
 
   void resetButtonBar()
@@ -533,6 +557,10 @@ public class Cave3D extends Activity
       case Cave3DRenderer.WALL_HULL:
         Toast.makeText( this, "wall mode HULL", Toast.LENGTH_SHORT ).show();
         // mButton1[BTN_WALL].setBackgroundDrawable( mBMhull );
+        break;
+      case Cave3DRenderer.WALL_POWERCRUST:
+        Toast.makeText( this, "wall mode POWERCRUST", Toast.LENGTH_SHORT ).show();
+        // mButton1[BTN_WALL].setBackgroundDrawable( mBMpowercrust );
         break;
       case Cave3DRenderer.WALL_DELAUNAY:
         Toast.makeText( this, "wall mode DELAUNAY", Toast.LENGTH_SHORT ).show();

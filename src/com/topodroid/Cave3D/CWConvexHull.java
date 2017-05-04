@@ -103,58 +103,62 @@ public class CWConvexHull
       
     try {
       // Log.v("Cave3D", "inserted point T " + vt.x + " " + vt.y + " " + vt.z );
-      if ( legs1.size() <= 1 ) {
-        for ( Cave3DShot s1 : splays1 ) {
-          Cave3DVector v1 = vf0.plus( s1.toCave3DVector() );
-          if ( Cave3D.mSplitRandomize ) v1.randomize( Cave3D.mSplitRandomizeDelta );
-          insertPoint( v1 );
-          pts.add( v1 );
-          // at_from ++;
-          // Log.v("Cave3D", "inserted point (1) " + v1.x + " " + v1.y + " " + v1.z );
-        }
-      } else {
-        for ( Cave3DShot s1 : splays1 ) {
-          boolean inserted = all_splay;
-          Cave3DVector v1 = vf0.plus( s1.toCave3DVector() );
-          if ( Cave3D.mSplitRandomize ) v1.randomize( Cave3D.mSplitRandomizeDelta );
-          if ( ! inserted ) {
-            for ( Cave3DShot l1 : legs1 ) if ( s1.dot( l1 ) >= 0 ) { inserted = true; break; }
-          }
-          if ( inserted ) {
+      if ( splays1.size() > 0 ) {
+        if ( legs1.size() <= 1 ) {
+          for ( Cave3DShot s1 : splays1 ) {
+            Cave3DVector v1 = vf0.plus( s1.toCave3DVector() );
+            if ( Cave3D.mSplitRandomize ) v1.randomize( Cave3D.mSplitRandomizeDelta );
             insertPoint( v1 );
             pts.add( v1 );
             // at_from ++;
-            // Log.v("Cave3D", "point (1) " + v1.x + " " + v1.y + " " + v1.z + " inserted " );
-          } else {
-            // Log.v("Cave3D", "point (1) " + v1.x + " " + v1.y + " " + v1.z + " NOT inserted " );
+            // Log.v("Cave3D", "inserted point (1) " + v1.x + " " + v1.y + " " + v1.z );
+          }
+        } else {
+          for ( Cave3DShot s1 : splays1 ) {
+            boolean inserted = all_splay;
+            Cave3DVector v1 = vf0.plus( s1.toCave3DVector() );
+            if ( Cave3D.mSplitRandomize ) v1.randomize( Cave3D.mSplitRandomizeDelta );
+            if ( ! inserted ) {
+              for ( Cave3DShot l1 : legs1 ) if ( s1.dot( l1 ) >= 0 ) { inserted = true; break; }
+            }
+            if ( inserted ) {
+              insertPoint( v1 );
+              pts.add( v1 );
+              // at_from ++;
+              // Log.v("Cave3D", "point (1) " + v1.x + " " + v1.y + " " + v1.z + " inserted " );
+            } else {
+              // Log.v("Cave3D", "point (1) " + v1.x + " " + v1.y + " " + v1.z + " NOT inserted " );
+            }
           }
         }
       }
       // Log.v("Cave3D", "inserted point F " + vf.x + " " + vf.y + " " + vf.z );
-      if ( legs2.size() <= 1 ) {
-        for ( Cave3DShot s2 : splays2 ) {
-          Cave3DVector v2 = vt0.plus( s2.toCave3DVector() );
-          if ( Cave3D.mSplitRandomize ) v2.randomize( Cave3D.mSplitRandomizeDelta );
-          insertPoint( v2 );
-          pts.add( v2 );
-          // at_to ++;
-          // Log.v("Cave3D", "inserted point (2) " + v2.x + " " + v2.y + " " + v2.z );
-        }
-      } else {
-        for ( Cave3DShot s2 : splays2 ) {
-          boolean inserted = all_splay;
-          Cave3DVector v2 = vt0.plus( s2.toCave3DVector() );
-          if ( Cave3D.mSplitRandomize ) v2.randomize( Cave3D.mSplitRandomizeDelta );
-          if ( ! inserted ) {
-            for ( Cave3DShot l2 : legs2 ) if ( s2.dot( l2 ) >= 0 ) { inserted = true; break; }
-          }
-          if ( inserted ) {
+      if ( splays2.size() > 0 ) {
+        if ( legs2.size() <= 1 ) {
+          for ( Cave3DShot s2 : splays2 ) {
+            Cave3DVector v2 = vt0.plus( s2.toCave3DVector() );
+            if ( Cave3D.mSplitRandomize ) v2.randomize( Cave3D.mSplitRandomizeDelta );
             insertPoint( v2 );
             pts.add( v2 );
             // at_to ++;
-            // Log.v("Cave3D", "point (2) " + v2.x + " " + v2.y + " " + v2.z + " inserted " );
-          } else {
-            // Log.v("Cave3D", "point (2) " + v2.x + " " + v2.y + " " + v2.z + " NOT inserted " );
+            // Log.v("Cave3D", "inserted point (2) " + v2.x + " " + v2.y + " " + v2.z );
+          }
+        } else {
+          for ( Cave3DShot s2 : splays2 ) {
+            boolean inserted = all_splay;
+            Cave3DVector v2 = vt0.plus( s2.toCave3DVector() );
+            if ( Cave3D.mSplitRandomize ) v2.randomize( Cave3D.mSplitRandomizeDelta );
+            if ( ! inserted ) {
+              for ( Cave3DShot l2 : legs2 ) if ( s2.dot( l2 ) >= 0 ) { inserted = true; break; }
+            }
+            if ( inserted ) {
+              insertPoint( v2 );
+              pts.add( v2 );
+              // at_to ++;
+              // Log.v("Cave3D", "point (2) " + v2.x + " " + v2.y + " " + v2.z + " inserted " );
+            } else {
+              // Log.v("Cave3D", "point (2) " + v2.x + " " + v2.y + " " + v2.z + " NOT inserted " );
+            }
           }
         }
       }
@@ -175,8 +179,8 @@ public class CWConvexHull
       // for ( Cave3DShot s2 : splays2 ) {
       //   vt.plus( s2.toCave3DVector() ).dump();
       // }
-      Log.e("Cave3D", "ERROR " + e.getMessage() );
-    throw e;
+      // Log.e("Cave3D", "ERROR " + e.getMessage() );
+      throw e;
     }
     // Log.v("Cave3D", "CW " + sf.short_name + "-" + st.short_name 
     //               + " FROM " + legs1.size() + "/" + splays1.size() 
@@ -725,6 +729,8 @@ public class CWConvexHull
       CWTriangle t1 = t0.s1.otherTriangle( t0 );
       CWTriangle t2 = t0.s2.otherTriangle( t0 );
       CWTriangle t3 = t0.s3.otherTriangle( t0 );
+      if ( t1 == null || t2 == null || t3 == null ) return;
+
       CWPoint v0 = new CWPoint( p0.x, p0.y, p0.z );
       mVertex.add( v0 );
       dropTriangle( t0 );
