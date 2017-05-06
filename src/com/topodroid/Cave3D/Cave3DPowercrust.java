@@ -20,6 +20,9 @@ import android.util.Log;
 
 class Cave3DPowercrust
 {
+  int np;
+  int nf; 
+
   public native int nrPoles();
   public native int nextPole();
   public native double poleX();
@@ -46,16 +49,18 @@ class Cave3DPowercrust
 
   Cave3DPowercrust()
   {
-    Log.v("Cave3D", "powercrust cstr");
+    // Log.v("Cave3D", "powercrust cstr");
     initLog();
     resetSites( 3 );
+    np = 0;
+    nf = 0;
   }
 
   Cave3DVector[] insertTrianglesIn( ArrayList< Cave3DTriangle > triangles )
   {
     float x, y, z;
-    int np = nrPoles();
-    Log.v("Cave3D", "Nr. poles " + np + " Creating vertices ...");
+    np = nrPoles();
+    // Log.v("Cave3D", "Nr. poles " + np + " Creating vertices ...");
     Cave3DVector poles[] = new Cave3DVector[ np ];
     for ( int k=0; k<np; ++k ) {
       x = (float)(poleX());
@@ -65,8 +70,11 @@ class Cave3DPowercrust
       if ( nextPole() == 0 ) break;
     }
 
-    int nf = nrFaces();
-    Log.v("Cave3D", "Nr. faces " + nf + " Creating faces ... ");
+    nf = nrFaces();
+    int small = 0;
+    int large = 0;
+    int good  = 0;
+    int fail  = 0;
     do {
       int nn = faceSize();
       if ( nn > 2 && nn < 32 ) { // FIXME hard upper bound to the size of a face
@@ -80,9 +88,17 @@ class Cave3DPowercrust
         if ( ok ) {
           tri.computeNormal();
           triangles.add( tri );
+          ++ good;
+        } else {
+          ++ fail;
         }
+      } else if ( nn <= 2 ) {
+        ++ small;
+      } else {
+        ++ large;
       }
     } while ( nextFace() != 0 );
+    // Log.v("Cave3D", "Nr. faces " + nf + " Created faces ... G " + good + " F " + fail + " S " + small + " L " + large );
     // release();
     return poles;
   }

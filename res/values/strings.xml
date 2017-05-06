@@ -20,8 +20,7 @@
     <string name="menu_info">Info</string>
     <string name="menu_ico">Ico diagram</string>
     <string name="menu_rose">Rose diagram</string>
-    <string name="menu_wall">Wall mode</string>
-    <string name="menu_powercrust">Powercrust</string>
+    <string name="menu_wall">Wall models</string>
 
     <string name="info_title">INFO</string>
     <string name="info_axes">Axes: blue North, green East</string>
@@ -36,6 +35,7 @@
 
     <string name="query" formatted="false">Surveys: %d Shots: %d Stations: %d\nLength: %d Depth: %d</string>
     <string name="no_files">No files</string>
+    <string name="clear">Clear</string>
 
     <string name="title">%1$s  Clino: %2$.0f  Azimuth: %3$.0f</string>
     <string name="title_clino"> Clino: </string>
@@ -66,6 +66,13 @@
     <string name="view_south">South</string>
     <string name="view_point">Viewpoint</string>
     <string name="view_zoom">Zoom 1</string>
+
+    <string name="walls_title">WALLS</string>
+    <string name="walls_convexhull">Convex Hull</string>
+    <string name="walls_powercrust">Powercrust</string>
+    <string name="walls_hull">Hull</string>
+    <string name="walls_delaunay">Delaunay</string>
+
 
     <string name="pref_base_path_title">Base path</string>
     <string name="pref_base_path_summary">App base path</string>
@@ -101,8 +108,6 @@
 <!--
     <string name="pref_convex_hull_title">Convex hull</string>
     <string name="pref_convex_hull_summary">Convex hull walls</string>
-    <string name="pref_powercrust_title">Powercrust</string>
-    <string name="pref_powercrust_summary">Powercrust walls</string>
     <string name="pref_delaunay_title">Delaunay</string>
     <string name="pref_delaunay_summary">Delaunay walls</string>
     <string name="pref_hull_title">Hull</string>

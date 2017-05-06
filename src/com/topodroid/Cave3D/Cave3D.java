@@ -86,7 +86,7 @@ public class Cave3D extends Activity
   static boolean mSplitStretch   = false;
   static float mSplitRandomizeDelta = 0.1f; // meters
   static float mSplitStretchDelta   = 0.1f;
-  // static boolean mWallConvexHull = true;
+  // static boolean mWallConvexHull = false;
   // static boolean mWallPowercrust = false;
   // static boolean mWallDelaunay   = false;
   // static boolean mWallHull       = false;
@@ -102,7 +102,7 @@ public class Cave3D extends Activity
   static final String CAVE3D_SPLIT_RANDOM     = "CAVE3D_SPLIT_RANDOM";
   static final String CAVE3D_SPLIT_STRETCH    = "CAVE3D_SPLIT_STRETCH";
   static final String CAVE3D_CONVEX_HULL      = "CAVE3D_CONVEX_HULL";
-  // static final String CAVE3D_POWERCRUST       = "CAVE3D_POWERCRUST";
+  static final String CAVE3D_POWERCRUST       = "CAVE3D_POWERCRUST";
   // static final String CAVE3D_DELAUNAY         = "CAVE3D_DELAUNAY";
   // static final String CAVE3D_HULL             = "CAVE3D_HULL";
 
@@ -164,6 +164,7 @@ public class Cave3D extends Activity
     //   mWallConvexHull = sp.getBoolean( k, true );
     // } else if ( k.equals( CAVE3D_POWERCRUST ) ) { 
     //   mWallPowercrust = sp.getBoolean( k, false );
+    //   setMenuAdapter( getResources() );
     // } else if ( k.equals( CAVE3D_DELAUNAY ) ) { 
     //   mWallDelaunay = sp.getBoolean( k, false );
     // } else if ( k.equals( CAVE3D_HULL ) ) { 
@@ -281,14 +282,14 @@ public class Cave3D extends Activity
   boolean    onMenu = false;
 
   int menus[] = {
-    R.string.menu_open,
+    R.string.menu_open,       // 0
     R.string.menu_export,
     R.string.menu_info,
     R.string.menu_ico,
     R.string.menu_rose,
-    R.string.menu_viewpoint,
+    R.string.menu_viewpoint,  // 5
     R.string.menu_reset,
-    R.string.menu_powercrust,
+    R.string.menu_wall,       // 7
     R.string.menu_options,
   };
 
@@ -299,7 +300,9 @@ public class Cave3D extends Activity
 
     // mMenuAdapter = new ArrayAdapter<String>(this, R.layout.menu );
     mMenuAdapter = new MyMenuAdapter( this, this, mMenu, R.layout.menu, new ArrayList< MyMenuItem >() );
-    for ( int k=0; k<menus.length; ++k ) mMenuAdapter.add( res.getString( menus[k] ) );
+    for ( int k=0; k<menus.length; ++k ) {
+      mMenuAdapter.add( res.getString( menus[k] ) );
+    }
     mMenu.setAdapter( mMenuAdapter );
     mMenu.invalidate();
   }
@@ -332,8 +335,9 @@ public class Cave3D extends Activity
       }
     } else if ( p++ == pos ) { // RESET
       if ( mFilename != null ) mRenderer.resetGeometry();
-    } else if ( p++ == pos ) { // POWERCRUST
-      mRenderer.makePowercrust();
+    } else if ( p++ == pos ) { // DO_WALLS
+      new Cave3DWallsDialog( this, this, mRenderer ).show();
+      // mRenderer.makePowercrust();
     } else if ( p++ == pos ) { // OPTIONS
       startActivity( new Intent( this, Cave3DPreferences.class ) );
     }

@@ -88,16 +88,16 @@
 
 <!--
    <android.preference.CheckBoxPreference
-       android:key="CAVE3D_CONVEX_HULL"
-       android:title="@string/pref_convex_hull_title"
-       android:summary="@string/pref_convex_hull_summary"
-       android:dialogTitle="@string/pref_convex_hull_title"
-       />
-   <android.preference.CheckBoxPreference
        android:key="CAVE3D_POWERCRUST"
        android:title="@string/pref_powercrust_title"
        android:summary="@string/pref_powercrust_summary"
        android:dialogTitle="@string/pref_powercrust_title"
+       />
+   <android.preference.CheckBoxPreference
+       android:key="CAVE3D_CONVEX_HULL"
+       android:title="@string/pref_convex_hull_title"
+       android:summary="@string/pref_convex_hull_summary"
+       android:dialogTitle="@string/pref_convex_hull_title"
        />
    <android.preference.CheckBoxPreference
        android:key="CAVE3D_DELAUNAY"

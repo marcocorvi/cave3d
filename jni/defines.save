@@ -1,0 +1,22 @@
+#define USE_STORE 1 /* whether to store poles in memory */
+
+#define FIXED_SITE_SIZE 1
+
+// #define SIGSEGV_HANDLER 1
+
+// #define CGALFILE 1
+
+// #define MYDEBUG 1
+// #define MYPRINT 1
+// #define SIGSEGV_HANDLER 1
+
+// #define MYCHECK 1
+// #define MYFILE  1
+// #define MYTREE  1
+
+// #define DO_CHECK_OVERSHOOT 1
+
+// #define MAIN 1
+// #define OUT_PC    1 /* whether to output powercrust */
+// #define DO_AXIS 1   /* whether to output medial axis */
+

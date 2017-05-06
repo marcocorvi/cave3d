@@ -80,7 +80,8 @@ public class Cave3DInfoDialog extends Dialog
     tv.setText( Integer.toString( (int)(mRenderer.getCaveDepth()) ) );
 
     tv = ( TextView ) findViewById(R.id.info_volume);
-    tv.setText( Integer.toString( (int)(mRenderer.getCaveVolume()) ) );
+    tv.setText( Integer.toString( (int)(mRenderer.getPowercrustVolume()) ) 
+                + " [" + Integer.toString( (int)(mRenderer.getConvexHullVolume()) ) + "]" );
 
 
     int nr = mRenderer.getNrSurveys();
