@@ -48,7 +48,6 @@
       android:layout_height="wrap_content"
       android:orientation="horizontal"
       android:layout_marginTop="10dp"
-      android:layout_marginBottom="20dp"
       >
       <CheckBox android:id="@+id/surface"
           android:layout_width="0dp"
@@ -71,7 +70,7 @@
       android:layout_width="fill_parent" 
       android:layout_height="wrap_content"
       android:orientation="horizontal"
-      android:layout_marginTop="10dp"
+      android:layout_marginTop="20dp"
       >
         <CheckBox android:id="@+id/stl_binary"
           android:layout_width="0dp"
@@ -93,7 +92,6 @@
       android:layout_height="wrap_content"
       android:orientation="horizontal"
       android:layout_marginTop="10dp"
-      android:layout_marginBottom="20dp"
       >
         <CheckBox android:id="@+id/kml_ascii"
           android:layout_width="0dp"
@@ -109,16 +107,31 @@
           android:layout_marginRight="10dp"
           android:text="CGAL"
         />
+    </LinearLayout>
+    <LinearLayout
+      android:layout_width="fill_parent" 
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:layout_marginTop="10dp"
+      >
         <!-- RadioButton android:id="@+id/debug"
           android:layout_width="0dp"
           android:layout_height="wrap_content"
           android:layout_marginRight="10dp"
           android:text="debug"
         / -->
+      <CheckBox android:id="@+id/overwrite"
+        android:layout_width="0dp" 
+        android:layout_height="wrap_content"
+        android:layout_weight="50"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="5dp"
+        android:text="overwrite"
+        />
       <Button android:id="@+id/button_ok"
         android:layout_width="0dp" 
         android:layout_height="wrap_content"
-        android:layout_weight="40"
+        android:layout_weight="50"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="5dp"
         android:text="OK"

@@ -357,12 +357,13 @@ public class Cave3D extends Activity
   HorizontalListView mListView;
   HorizontalButtonView mButtonView1;
   MyButton mButton1[];
-  static int mNrButton1 = 7;
+  static int mNrButton1 = 8;
   static int izons[] = {
     R.drawable.iz_move,
     R.drawable.iz_station,
     R.drawable.iz_splays,
     R.drawable.iz_wall,
+    R.drawable.iz_planview,
     R.drawable.iz_surface,
     R.drawable.iz_color,
     R.drawable.iz_frame,
@@ -421,6 +422,8 @@ public class Cave3D extends Activity
       if ( mRenderer != null ) mRenderer.toggleDoSplays();
     } else if ( b0 == mButton1[k1++] ) { // WALLS
       if ( mRenderer != null ) setWallButton( mRenderer.toggleWallMode() );
+    } else if ( b0 == mButton1[k1++] ) { // PLANVIEW
+      if ( mRenderer != null ) mRenderer.toggleDoPlanview();
     } else if ( b0 == mButton1[k1++] ) { // SURFACE
       if ( mRenderer != null ) mRenderer.toggleDoSurface();
     } else if ( b0 == mButton1[k1++] ) { // COLOR

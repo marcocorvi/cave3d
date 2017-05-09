@@ -31,10 +31,12 @@ public class KMLExporter
   float lat, lng, asl;
   float s_radius, e_radius;
   Cave3DStation zero;
+  ArrayList< Cave3DTriangle > mTriangles;
 
   KMLExporter()
   {
     mFacets = new ArrayList< CWFacet >();
+    mTriangles = null;
   }
 
   void add( CWFacet facet ) { mFacets.add( facet ); }
@@ -264,6 +266,34 @@ public class KMLExporter
           pw.format("    <LineString> <coordinates>\n");
           pw.format("             %f,%f,%.3f %f,%f,%.3f", e3,n3,z3, e1,n1,z1 );
           pw.format("    </coordinates> </LineString>\n");
+        }
+        if ( mTriangles != null ) {
+          for ( Cave3DTriangle t : mTriangles ) {
+            pw.format("    <Polygon>\n");
+            pw.format("      <outerBoundaryIs> <LinearRing> <coordinates>\n");
+            for ( int k = 0; k < t.size; ++k ) {
+              float e1 = lng + (t.vertex[k].x - zero.e) * e_radius;
+              float n1 = lat + (t.vertex[k].y - zero.n) * s_radius;
+              float z1 = asl + (t.vertex[k].z - zero.z);
+              pw.format("             %f,%f,%.3f\n", e1,n1,z1);
+            }
+            pw.format("      </coordinates> </LinearRing> </outerBoundaryIs>\n");
+            pw.format("    </Polygon>\n");
+            float e0 = lng + (t.vertex[t.size-1].x - zero.e) * e_radius;
+            float n0 = lat + (t.vertex[t.size-1].y - zero.n) * s_radius;
+            float z0 = asl + (t.vertex[t.size-1].z - zero.z);
+            for ( int k = 0; k < t.size; ++k ) {
+              float e1 = lng + (t.vertex[k].x - zero.e) * e_radius;
+              float n1 = lat + (t.vertex[k].y - zero.n) * s_radius;
+              float z1 = asl + (t.vertex[k].z - zero.z);
+              pw.format("    <LineString> <coordinates>\n");
+              pw.format("             %f,%f,%.3f %f,%f,%.3f", e0,n0,z0, e1,n1,z1 );
+              pw.format("    </coordinates> </LineString>\n");
+              e0 = e1;
+              n0 = n1;
+              z0 = z1;
+            }
+          }
         }
         pw.format("  </MultiGeometry>\n");
         pw.format("</Placemark>\n");

@@ -19,11 +19,14 @@ class Cave3DTriangle
   int size;
   Cave3DVector[] vertex;
   Cave3DVector   normal;
+  Cave3DVector   center;
+  int direction;
 
   Cave3DTriangle( int sz )
   {
     size = sz;
     vertex = new Cave3DVector[size];
+    direction = 0;
   }
 
   Cave3DTriangle( Cave3DVector v0, Cave3DVector v1, Cave3DVector v2 )
@@ -34,6 +37,7 @@ class Cave3DTriangle
     vertex[1] = v1;
     vertex[2] = v2;
     computeNormal();
+    direction = 0;
   }
 
   void setVertex( int k, Cave3DVector v )
@@ -47,6 +51,11 @@ class Cave3DTriangle
     Cave3DVector w2 = vertex[2].minus( vertex[0] );
     normal = w1.cross(w2);
     normal.normalized();
+    center = new Cave3DVector( 0, 0, 0 );
+    for ( int k=0; k<size; ++k ) {
+      center.add( vertex[k] );
+    }
+    center.mul( 1.0f/size );
   }
 
   void flip()

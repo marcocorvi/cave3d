@@ -63,6 +63,7 @@ public class Cave3DExportDialog extends Dialog
     private CheckBox mWalls;
     private CheckBox mSurface;
     private CheckBox mStation;
+    private CheckBox mOverwrite;
 
     // private RadioButton mDebug;
     private String   mDirname;
@@ -115,6 +116,7 @@ public class Cave3DExportDialog extends Dialog
       mWalls   = (CheckBox) findViewById( R.id.walls );
       mSurface = (CheckBox) findViewById( R.id.surface );
       mStation = (CheckBox) findViewById( R.id.station );
+      mOverwrite = (CheckBox) findViewById( R.id.overwrite );
 
       // mSplay.setVisibility( View.GONE );
       // mWalls.setVisibility( View.GONE );
@@ -210,16 +212,17 @@ public class Cave3DExportDialog extends Dialog
         boolean walls   = mWalls.isChecked();
         boolean surface = mSurface.isChecked();
         boolean station = mStation.isChecked();
+        boolean overwrite = mOverwrite.isChecked();
         if ( mStlBinary.isChecked() ) {
-          mRenderer.exportModel( ModelType.STL_BINARY, pathname, splays, walls, surface );
+          mRenderer.exportModel( ModelType.STL_BINARY, pathname, splays, walls, surface, overwrite );
         } else if ( mStlAscii.isChecked() ) {
-          mRenderer.exportModel( ModelType.STL_ASCII, pathname, splays, walls, surface );
+          mRenderer.exportModel( ModelType.STL_ASCII, pathname, splays, walls, surface, overwrite );
         } else if ( mKmlAscii.isChecked() ) {
-          mRenderer.exportModel( ModelType.KML_ASCII, pathname, splays, walls, station );
+          mRenderer.exportModel( ModelType.KML_ASCII, pathname, splays, walls, station, overwrite );
         } else if ( mCgalAscii.isChecked() ) {
-          mRenderer.exportModel( ModelType.CGAL_ASCII, pathname, splays, walls, station );
+          mRenderer.exportModel( ModelType.CGAL_ASCII, pathname, splays, walls, station, overwrite );
         } else {
-          mRenderer.exportModel( ModelType.SERIAL, pathname, splays, walls, surface );
+          mRenderer.exportModel( ModelType.SERIAL, pathname, splays, walls, surface, overwrite );
         }
       } else if ( v.getId() == R.id.dirname ) {
         int pos = mDirname.lastIndexOf('/');

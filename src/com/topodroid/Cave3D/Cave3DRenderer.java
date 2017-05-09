@@ -11,6 +11,7 @@
 package com.topodroid.Cave3D;
 
 // import java.io.PrintStream;
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.FileWriter;
 import java.io.FileNotFoundException;
@@ -137,12 +138,17 @@ public class Cave3DRenderer // implements Renderer
   private List< Cave3DDrawPath > paths_walls;
   private List< Cave3DDrawPath > paths_borders;
   private List< Cave3DDrawPath > paths_surface;
+  private List< Cave3DDrawPath > paths_planview;
+
+  private ArrayList< Cave3DPolygon > planview = null;
+  private ArrayList< Cave3DPolygon > profileview = null;
 
   private boolean do_paths_frame;
   private boolean do_paths_legs;
   private boolean do_paths_splays;
   private boolean do_paths_stations;
   private boolean do_paths_walls;
+  private boolean do_paths_planview;
   // private boolean do_paths_borders;
   private boolean do_paths_surface;
 
@@ -170,6 +176,7 @@ public class Cave3DRenderer // implements Renderer
 
   private boolean do_stations;
   private boolean do_surface;
+  private int do_planview = 0;
 
   private int nr_shots;      // number of shots
   private int nr_splays;     // number of splay shots
@@ -182,7 +189,7 @@ public class Cave3DRenderer // implements Renderer
   private ArrayList< Cave3DTriangle > triangles_hull       = null;
   private ArrayList< Cave3DTriangle > triangles_delaunay   = null;
   private ArrayList< Cave3DTriangle > triangles_powercrust = null;
-  private Cave3DVector[] vertices_powercrust;
+  private Cave3DSite[] vertices_powercrust;
   private ArrayList< CWConvexHull > walls   = null;
   private ArrayList< CWBorder >     borders = null;
   private Cave3DSurface mSurface;
@@ -278,6 +285,234 @@ public class Cave3DRenderer // implements Renderer
     for ( Cave3DTriangle t : triangles_powercrust ) vol += t.volume( cm );
     return vol / 6;
   }
+
+  public void computePowercrustProfileView()
+  {
+    if ( triangles_powercrust == null || vertices_powercrust == null ) return;
+    profileview = new ArrayList< Cave3DPolygon >();
+    int nst = stations.size();
+    int nsh = shots.size();
+    int S[] = new int[ nsh ];
+    Cave3DPoint F[] = new Cave3DPoint[ nsh ]; // P - from
+    Cave3DPoint T[] = new Cave3DPoint[ nsh ]; // P - to
+    Cave3DPoint P[] = new Cave3DPoint[ nsh ]; // point on bisecant
+    Cave3DPoint B[] = new Cave3DPoint[ nst ]; // bisecant
+    Cave3DPoint M[] = new Cave3DPoint[ nsh ]; // midpoints
+
+    // find bisecant of shots at st
+    for ( int k=0; k < nst; ++k ) {
+      Cave3DStation st = stations.get(k);
+      Cave3DShot sh1 = null;
+      Cave3DShot sh2 = null;
+      // find shots at st
+      for ( Cave3DShot sh : shots ) {
+        if ( sh.from_station == st || sh.to_station == st ) {
+          if ( sh1 == null ) {
+            sh1 = sh;
+          } else {
+            sh2 = sh;
+            break;
+          }
+        }
+      }
+      if ( sh2 != null ) {
+        Cave3DStation st1 = ( sh1.from_station == st )? sh1.to_station : sh1.from_station;
+        Cave3DStation st2 = ( sh2.from_station == st )? sh2.to_station : sh2.from_station;
+        float dx1 = st1.e - st.e;
+        float dy1 = st1.n - st.n;
+        float d1  = (float)Math.sqrt( dx1*dx1 + dy1*dy1 );
+        dx1 /= d1;
+        dy1 /= d1;
+        float dx2 = st2.e - st.e;
+        float dy2 = st2.n - st.n;
+        float d2  = (float)Math.sqrt( dx2*dx2 + dy2*dy2 );
+        dx2 /= d2;
+        dy2 /= d2;
+        float dx = dx1 + dx2;
+        float dy = dy1 + dy2;
+        // float d   = (float)Math.sqrt( dx*dx + dy*dy );
+        // B[k] = new Cave3DPoint( dx/d, dy/d );
+        B[k] = new Cave3DPoint( dx, dy );
+      } else if ( sh1 != null ) {
+        Cave3DStation st1 = ( sh1.from_station == st )? sh1.to_station : sh1.from_station;
+        float dx1 = st1.e - st.e;
+        float dy1 = st1.n - st.n;
+        // float d1  = (float)Math.sqrt( dx1*dx1 + dy1*dy1 );
+        // B[k] = new Cave3DPoint( dy1/d1, -dx1/d1 );
+        B[k] = new Cave3DPoint( dy1, -dx1 ); // no need to normalize
+      } else {
+        Log.v("Cave3D", "ERROR missing station shots at " + st.name );
+        B[k] = new Cave3DPoint( 0, 0 ); // ERROR
+      }
+    }
+
+    // find midpoints
+    for ( int k = 0; k < nsh; ++k ) {
+      Cave3DShot sh = shots.get(k);
+      Cave3DStation fr = sh.from_station;
+      Cave3DStation to = sh.to_station;
+      F[k] = new Cave3DPoint( fr.e, fr.n );
+      T[k] = new Cave3DPoint( to.e, to.n );
+      M[k] = new Cave3DPoint( (fr.e+to.e)/2, (fr.n+to.n)/2 );
+      // intersection of bisecants
+      Cave3DPoint b1 = null;
+      Cave3DPoint b2 = null;
+      for (int kk=0; kk<nst; ++kk ) {
+        Cave3DStation st = stations.get(kk);
+        if ( st == fr ) { b1 = B[kk]; if ( b2 != null ) break; }
+        else if ( st == to ) { b2 = B[kk]; if ( b1 != null ) break; }
+      }
+      // lines: fr + b1 * t
+      //        to + b2 * s
+      // ie  b1.x t - b2.x s = to.x - fr.x
+      //     b1.y t - b2.y s = to.y - fr.y
+      float a11 = b1.x;  float a12 = -b2.x;  float c1 = to.e - fr.e;
+      float a21 = b1.y;  float a22 = -b2.y;  float c2 = to.n - fr.n;
+      float det = a11 * a22 - a12 * a21;
+      float t = ( a22 * c1 - a12 * c2 ) / det;
+      // float s = ( a11 * c2 - a21 * c1 ) / det;
+      P[k] = new Cave3DPoint( fr.e + a11 * t, fr.n + a21 * t );
+      if ( k == 0 ) {
+        S[k] = 1;
+      } else {
+        // check ( P[k] - fr ) * (P[k1] - fr )
+        float z = (P[k].x - fr.e)*(P[k-1].x - fr.e) + (P[k].y - fr.n)*(P[k-1].y - fr.n);
+        S[k] = (z>0)? S[k-1] : -S[k-1];
+      }
+    }
+
+    // clear sites angles
+    int nvp = vertices_powercrust.length;
+    for ( int k=0; k<nvp; ++k ) vertices_powercrust[k].angle = null;
+
+    // project triangles
+    int nup = 0;
+    for ( Cave3DTriangle t : triangles_powercrust ) {
+      int nn = t.size;
+      if ( nn <= 2 ) continue;
+      Cave3DPoint c = new Cave3DPoint( t.center.x, t.center.y );
+      for ( int k=0; k<nsh; ++k ) {
+        float dx = P[k].x - c.x;
+        float dy = P[k].y - c.y;
+        float zf = (P[k].x - F[k].x)*dy - (P[k].y-F[k].y)*dx;
+        float zt = (P[k].x - T[k].x)*dy - (P[k].y-T[k].y)*dx;
+        if ( zf * zt <= 0 ) {
+          Cave3DPoint n = new Cave3DPoint( t.normal.x, t.normal.y );
+          if ( (n.x*dx + n.y*dy)*S[k] > 0 ) {
+            nup ++;
+            Cave3DSite s1 = (Cave3DSite)t.vertex[nn-2];
+            Cave3DSite s0 = (Cave3DSite)t.vertex[nn-1];
+            for ( int kk=0; kk<nn; ++kk ) {
+              Cave3DSite s2 = (Cave3DSite)t.vertex[kk];
+              s0.insertAngle( s1, s2 );
+              s1 = s0;
+              s0 = s2;
+            }
+          }
+          break;
+        }
+      }
+    }
+    profileview = new ArrayList< Cave3DPolygon >();
+    ArrayList< Cave3DPolygon > tmp = new ArrayList< Cave3DPolygon >();
+    makePolygons( tmp );
+    // Log.v("Cave3D", "profile polygons " + tmp.size() );
+    for ( Cave3DPolygon poly : tmp ) {
+      Cave3DPolygon poly2 = new Cave3DPolygon();
+      for ( Cave3DSite site : poly.points ) {
+        float x = site.x;
+        float y = site.y;
+        // find the station the site lies close to
+        Cave3DStation st = null;
+        float dmin = 0;
+        for ( Cave3DStation st1 : stations ) {
+          float d = (x - st1.e)*(x - st1.e) + (y - st1.n)*(y - st1.n);
+          if ( st == null || d < dmin ) { dmin = d; st = st1; }
+        }
+        for ( int k = 0; k < nsh; ++ k ) {
+          Cave3DShot sh = shots.get(k);
+          if ( sh.from_station != st && sh.to_station != st ) continue;
+          float dx = P[k].x - x;
+          float dy = P[k].y - y;
+          float zf = (P[k].x - F[k].x)*dy - (P[k].y-F[k].y)*dx;
+          float zt = (P[k].x - T[k].x)*dy - (P[k].y-T[k].y)*dx;
+          if ( zf * zt <= 0 ) {
+            // project from P[k] onto the line F[k]-T[k]:
+            // intersection of F.x + (T.x-F.x) t = P.x + (site.x-P.x) s
+            // ie,   (Tx-Fx) t + (Px-site.x) s = Px - Fx
+            float a11 = T[k].x - F[k].x;  float a12 = dx;   float c1 = P[k].x - F[k].x;
+            float a21 = T[k].y - F[k].y;  float a22 = dy;   float c2 = P[k].y - F[k].y;
+            float det = a11 * a22 - a12 * a21;
+            float t = ( a22 * c1 - a12 * c2 ) / det;
+            Cave3DSite s1 = new Cave3DSite( F[k].x + a11*t, F[k].y + a21*t, site.z );
+            poly2.addPoint( s1 );
+            s1.poly = poly2;
+            break;
+          }
+        }
+      }
+      profileview.add( poly2 );
+    }
+  }
+
+  public void computePowercrustPlanView()
+  {
+    if ( triangles_powercrust == null || vertices_powercrust == null ) return;
+    float eps = 0.01f;
+    int nup = 0;
+    for ( Cave3DTriangle t : triangles_powercrust ) {
+      if ( t.normal.z < 0 ) {
+        int nn = t.size;
+        if ( nn > 2 ) { 
+          nup ++;
+          Cave3DSite s1 = (Cave3DSite)t.vertex[nn-2];
+          Cave3DSite s0 = (Cave3DSite)t.vertex[nn-1];
+          for ( int k=0; k<nn; ++k ) {
+            Cave3DSite s2 = (Cave3DSite)t.vertex[k];
+            s0.insertAngle( s1, s2 );
+            s1 = s0;
+            s0 = s2;
+          }
+        }
+        t.direction = 1;
+      } else {
+        t.direction = -1;
+      }
+    }
+    planview = new ArrayList< Cave3DPolygon >();
+    makePolygons( planview );
+    // Log.v("Cave3D", "plan polygons " + planview.size() );
+  }
+
+  private void makePolygons( ArrayList< Cave3DPolygon > polygons )
+  {
+    // Log.v("Cave3D", "up triangles " + nup );
+    int nsite = 0;
+    for ( int k = 0; k<vertices_powercrust.length; ++k ) {
+      Cave3DSite s0 = vertices_powercrust[k];
+      if ( s0.poly != null ) continue;
+      if ( s0.isOpen() ) {
+        // Log.v("Cave3D", "found at " + k + " initial polygon vertex " + s0.x + " " + s0.y );
+        Cave3DPolygon polygon = new Cave3DPolygon();
+        polygon.addPoint( s0 );
+        s0.poly = polygon;  
+        for ( Cave3DSite s1 = s0.angle.v1; s1 != s0; s1=s1.angle.v1 ) {
+          // if ( s1.poly != null ) {
+          //   Log.v("Cave3D", "site on two polygons " + s1.x + "  " + s1.y );
+          // } else {
+          //   // Log.v("Cave3D", "add site to polygon  " + s1.x + "  " + s1.y );
+          // }
+          polygon.addPoint( s1 );
+          s1.poly = polygon;
+        }
+        // Log.v("Cave3D", "polygon size " + polygon.size() );
+        polygons.add( polygon );
+        nsite += polygon.size();
+      }
+    }
+    // Log.v("Cave3D", "polygon sites " + nsite );
+  }
+
     
   ArrayList< Cave3DSurvey > getSurveys()
   { 
@@ -306,6 +541,14 @@ public class Cave3DRenderer // implements Renderer
     do_stations = ! do_stations; 
     // do_repaint = true;
     do_paths_stations = true;
+  }
+
+  public void toggleDoPlanview() 
+  {
+    if ( planview != null ) {
+      do_planview = ( do_planview + 1 ) % 4;
+      do_paths_planview = true;
+    }
   }
 
   public int toggleWallMode()
@@ -588,6 +831,7 @@ public class Cave3DRenderer // implements Renderer
     do_splays   = DO_SPLAY_NO;
     do_stations = false;
     do_surface  = false;
+    do_planview = 0;
     wall_mode   = WALL_NONE;
 
     // red   = 1;
@@ -602,6 +846,8 @@ public class Cave3DRenderer // implements Renderer
     triangles_hull       = null;
     triangles_delaunay   = null;
     triangles_powercrust = null;
+    planview = null;
+    profileview = null;
 
     walls     = null;
     borders   = null;
@@ -623,6 +869,7 @@ public class Cave3DRenderer // implements Renderer
     paths_splays   = Collections.synchronizedList( new ArrayList< Cave3DDrawPath >() );
     paths_wires    = Collections.synchronizedList( new ArrayList< Cave3DDrawPath >() );
     paths_stations = Collections.synchronizedList( new ArrayList< Cave3DDrawPath >() );
+    paths_planview = Collections.synchronizedList( new ArrayList< Cave3DDrawPath >() );
     paths_walls    = Collections.synchronizedList( new ArrayList< Cave3DDrawPath >() );
     paths_borders  = Collections.synchronizedList( new ArrayList< Cave3DDrawPath >() );
     paths_surface  = Collections.synchronizedList( new ArrayList< Cave3DDrawPath >() );
@@ -942,6 +1189,8 @@ public class Cave3DRenderer // implements Renderer
       }
       // Log.v("Cave3D", "Powercrust V " + vertices_powercrust.length + " F " + triangles_powercrust.size() );
     }
+    computePowercrustPlanView();
+    computePowercrustProfileView();
   }
 
   private void makeNZ( )
@@ -1128,6 +1377,7 @@ public class Cave3DRenderer // implements Renderer
     do_paths_frame    = true;
     do_paths_legs     = true;
     do_paths_splays   = true;
+    do_paths_planview = true;
     do_paths_stations = true;
     do_paths_walls    = ( wall_mode != WALL_NONE );
     // do_paths_borders  = ( wall_mode != WALL_NONE );
@@ -1139,6 +1389,7 @@ public class Cave3DRenderer // implements Renderer
     do_paths_frame    = false;
     do_paths_legs     = false;
     do_paths_splays   = false;
+    do_paths_planview = false;
     do_paths_stations = false;
     do_paths_walls    = false;
     // do_paths_borders  = false;
@@ -2035,7 +2286,7 @@ public class Cave3DRenderer // implements Renderer
             addTriangle( tr );
           }
         } // else WALL_NONE 
-  
+
         if ( Cave3D.mSplitTriangles ) {
           // synchronized( paths_borders )
           {
@@ -2055,6 +2306,71 @@ public class Cave3DRenderer // implements Renderer
       }
     }
 
+    if ( do_paths_planview ) {
+      do_paths_planview = false;
+      paths_planview.clear();
+      if ( planview != null && ( do_planview == 1 || do_planview == 2 ) ) {
+        for ( Cave3DPolygon poly : planview ) {
+          int nn = poly.size();
+          if ( nn > 2 ) {
+            path  = new Cave3DDrawPath( vertPaint );
+            Cave3DSite p1 = poly.get( nn - 1 );
+            float x = p1.x - xc; // vector camera->station
+            float y = p1.y - yc;
+            float z = zmin - zc;
+            x1 = projectedX( x, y, z );
+            y1 = projectedY( x, y, z );
+            // float d1 = projectedZabs( x, y, z );
+            path.path.moveTo( x1, y1 );
+            for ( int k=0; k<nn; ++k ) {
+              p1 = poly.get( k );
+              x = p1.x - xc; // vector camera->station
+              y = p1.y - yc;
+              z = zmin - zc;
+              x1 = projectedX( x, y, z );
+              y1 = projectedY( x, y, z );
+              // d1 = projectedZabs( x, y, z );
+              path.path.lineTo( x1, y1 );
+            }
+            path.path.close();
+            synchronized( paths_planview ) {
+              paths_planview.add( path );
+            }
+          }
+        }
+      }
+      if ( profileview != null && ( do_planview == 3 || do_planview == 2 ) ) {
+        for ( Cave3DPolygon poly : profileview ) {
+          int nn = poly.size();
+          if ( nn > 2 ) {
+            path  = new Cave3DDrawPath( vertPaint );
+            Cave3DSite p1 = poly.get( nn - 1 );
+            float x = p1.x - xc; // vector camera->station
+            float y = p1.y - yc;
+            float z = p1.z - zc;
+            x1 = projectedX( x, y, z );
+            y1 = projectedY( x, y, z );
+            // float d1 = projectedZabs( x, y, z );
+            path.path.moveTo( x1, y1 );
+            for ( int k=0; k<nn; ++k ) {
+              p1 = poly.get( k );
+              x = p1.x - xc; // vector camera->station
+              y = p1.y - yc;
+              z = p1.z - zc;
+              x1 = projectedX( x, y, z );
+              y1 = projectedY( x, y, z );
+              // d1 = projectedZabs( x, y, z );
+              path.path.lineTo( x1, y1 );
+            }
+            path.path.close();
+            synchronized( paths_planview ) {
+              paths_planview.add( path );
+            }
+          }
+        }
+      }
+    }
+
     // do_repaint = true;
     return true;
   } 
@@ -2065,6 +2381,11 @@ public class Cave3DRenderer // implements Renderer
     
     synchronized( paths_frame ) {
       for ( Cave3DDrawPath p : paths_frame ) {
+        p.draw( canvas );
+      }
+    }
+    synchronized( paths_planview ) {
+      for ( Cave3DDrawPath p : paths_planview ) {
         p.draw( canvas );
       }
     }
@@ -2144,14 +2465,25 @@ public class Cave3DRenderer // implements Renderer
     // }
   }
 
-  void exportModel( int type, String pathname, boolean b_splays, boolean b_walls, boolean b_surface )
+  void exportModel( int type, String pathname, boolean b_splays, boolean b_walls, boolean b_surface, boolean overwrite )
   { 
-    // if ( Cave3D.mWallConvexHull ) {
-      if ( type == ModelType.SERIAL ) { // serialization
-        serializeWalls( pathname );
+    if ( (new File(pathname)).exists() && ! overwrite ) {
+      Toast.makeText( mCave3D, "Not overwriting existing file" + pathname, Toast.LENGTH_SHORT).show();
+      return;
+    }
+      
+    if ( type == ModelType.SERIAL ) { // serialization
+      if ( ! pathname.endsWith(".txt") ) {
+        Toast.makeText( mCave3D, "Not a txt file" + pathname, Toast.LENGTH_SHORT).show();
       } else {
-        boolean ret = false;
-        if ( type == ModelType.KML_ASCII ) { // KML export
+        serializeWalls( pathname );
+      }
+    } else {                          // model export 
+      boolean ret = false;
+      if ( type == ModelType.KML_ASCII ) { // KML export ASCII
+        if ( ! pathname.endsWith(".kml") ) {
+          Toast.makeText( mCave3D, "Not a kml file" + pathname, Toast.LENGTH_SHORT).show();
+        } else {
           KMLExporter kml = new KMLExporter();
           if ( walls != null ) {
             for( CWConvexHull cw : walls ) {
@@ -2160,13 +2492,21 @@ public class Cave3DRenderer // implements Renderer
               }
             }
           } else if ( triangles_powercrust != null ) {
-            // TODO
+            kml.mTriangles = triangles_powercrust;
           }
           ret = kml.exportASCII( pathname, mParser, b_splays, b_walls, b_surface );
-        } else if ( type == ModelType.CGAL_ASCII ) { // CGAL export
+        }
+      } else if ( type == ModelType.CGAL_ASCII ) { // CGAL export: only stations and splay-points
+        if ( ! pathname.endsWith(".cgal") ) {
+          Toast.makeText( mCave3D, "Not a CGAL text file" + pathname, Toast.LENGTH_SHORT).show();
+        } else {
           CGALExporter cgal = new CGALExporter();
           ret = cgal.exportASCII( pathname, mParser, b_splays, b_walls, b_surface );
-        } else { // STL export
+        }
+      } else {                                     // STL export ASCII or binary
+        if ( ! pathname.endsWith(".stl") ) {
+          Toast.makeText( mCave3D, "Not a STL file" + pathname, Toast.LENGTH_SHORT).show();
+        } else {
           STLExporter stl = new STLExporter();
           if ( walls != null ) {
             for ( CWConvexHull cw : walls ) {
@@ -2175,7 +2515,8 @@ public class Cave3DRenderer // implements Renderer
               }
             }
           } else if ( triangles_powercrust != null ) {
-            // TODO
+            stl.mTriangles = triangles_powercrust;
+            stl.mVertex    = vertices_powercrust;
           }
 
           if ( type == ModelType.STL_BINARY ) {
@@ -2184,15 +2525,13 @@ public class Cave3DRenderer // implements Renderer
             ret = stl.exportASCII( pathname, b_splays, b_walls, b_surface );
           }
         }
-        if ( ret ) {
-          Toast.makeText( mCave3D, "OK. Exported " + pathname, Toast.LENGTH_SHORT).show();
-        } else {
-          Toast.makeText( mCave3D, "Failed Export " + pathname, Toast.LENGTH_SHORT).show();
-        }
       }
-    // } else  {
-    //   Toast.makeText( mCave3D, "ConvexHull walls are disabled", Toast.LENGTH_SHORT).show();
-    // }
+      if ( ret ) {
+        Toast.makeText( mCave3D, "OK. Exported " + pathname, Toast.LENGTH_SHORT).show();
+      } else {
+        Toast.makeText( mCave3D, "Failed Export " + pathname, Toast.LENGTH_SHORT).show();
+      }
+    }
   }
 }
 

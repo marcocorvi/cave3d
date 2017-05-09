@@ -23,14 +23,15 @@
 extern FILE * fplog;
 // FILE * fpcgal;
 // #define LOGI( x...) if ( fplog ) { fprintf(fplog, x ); fflush( fplog ); }
-#define LOGI(x...) __android_log_print( ANDROID_LOG_INFO, "Cave3D PC", x)
+// #define LOGI(x...) __android_log_print( ANDROID_LOG_INFO, "Cave3D PC", x)
+#define LOGI(x...) /* nothing */
 
 JNIEXPORT
 void
 JNICALL
 Java_com_topodroid_Cave3D_Cave3DPowercrust_initLog( MYJENV ) 
 { 
-  fplog = fopen("/sdcard/cave3dPC.txt", "w" );
+  // fplog = fopen("/sdcard/cave3dPC.txt", "w" );
   // fpcgal = fopen("/sdcard/cgal", "w" );
 }
 

@@ -28,12 +28,17 @@ public class STLExporter
   ArrayList<CWFacet> mFacets;
   float x, y, z; // offset to have positive coords values
 
+  ArrayList< Cave3DTriangle > mTriangles; // powercrust triangles
+  Cave3DVector[] mVertex; // triangle vertices
+
   STLExporter()
   {
     mFacets = new ArrayList< CWFacet >();
     x = 0;
     y = 0;
     z = 0;
+    mTriangles = null;
+    mVertex    = null;
   }
 
   void add( CWFacet facet ) { mFacets.add( facet ); }
@@ -59,13 +64,20 @@ public class STLExporter
       if ( facet.v3.y < y ) y = facet.v3.y;
       if ( facet.v3.z < z ) z = facet.v3.z;
     }
+    if ( mVertex != null ) {
+      int len = mVertex.length;
+      for ( int k=0; k<len; ++k ) {
+        Cave3DVector v = mVertex[k];
+        if ( v.x < x ) x = v.x;
+        if ( v.y < y ) y = v.y;
+        if ( v.z < z ) z = v.z;
+      }
+    }
     x = -x;
     y = -y;
     z = -z;
   }
   
-    
-
   boolean exportASCII( String filename, boolean splays, boolean walls, boolean surface )
   {
     makePositiveCoords();
@@ -84,6 +96,20 @@ public class STLExporter
         pw.format("      vertex %.3f %.3f %.3f\n", x+facet.v3.x, y+facet.v3.y, z+facet.v3.z );
         pw.format("    endloop\n");
         pw.format("  endfacet\n");
+      }
+      if ( mTriangles != null ) {
+        for ( Cave3DTriangle t : mTriangles ) {
+          int size = t.size;
+          Cave3DVector n = t.normal;
+          pw.format("  facet normal %.3f %.3f %.3f\n", n.x, n.y, n.z );
+          pw.format("    outer loop\n");
+          for ( int k=0; k<size; ++k ) {
+            Cave3DVector v = t.vertex[k];
+            pw.format("      vertex %.3f %.3f %.3f\n", x+v.x, y+v.y, z+v.z );
+          }
+          pw.format("    endloop\n");
+          pw.format("  endfacet\n");
+        }
       }
       pw.format("endsolid %s\n", name );
     } catch ( FileNotFoundException e ) { 
@@ -143,7 +169,9 @@ public class STLExporter
       fw = new FileOutputStream( filename );
       BufferedOutputStream bw = new BufferedOutputStream( fw ); 
       bw.write( header, 0, 80 );
-      intToByte( mFacets.size(), b4 ); fw.write( b4 );
+      int sz = mFacets.size();
+      if ( mTriangles != null ) sz += mTriangles.size();
+      intToByte( sz, b4 ); fw.write( b4 );
       for ( CWFacet facet : mFacets ) {
         floatToByte(   facet.un.x, b4 ); bw.write( b4, 0, 4 );
         floatToByte(   facet.un.y, b4 ); bw.write( b4, 0, 4 );
@@ -158,6 +186,22 @@ public class STLExporter
         floatToByte( y+facet.v3.y, b4 ); bw.write( b4, 0, 4 );
         floatToByte( z+facet.v3.z, b4 ); bw.write( b4, 0, 4 );
         bw.write( b2, 0, 2 );
+      }
+      if ( mTriangles != null ) {
+        for ( Cave3DTriangle t : mTriangles ) {
+          int size = t.size;
+          Cave3DVector n = t.normal;
+          floatToByte( n.x, b4 ); bw.write( b4, 0, 4 );
+          floatToByte( n.y, b4 ); bw.write( b4, 0, 4 );
+          floatToByte( n.z, b4 ); bw.write( b4, 0, 4 );
+          for ( int k=0; k<size; ++k ) {
+            Cave3DVector v = t.vertex[k];
+            floatToByte( x+v.x, b4 ); bw.write( b4, 0, 4 );
+            floatToByte( y+v.y, b4 ); bw.write( b4, 0, 4 );
+            floatToByte( z+v.z, b4 ); bw.write( b4, 0, 4 );
+            bw.write( b2, 0, 2 );
+          }
+        }
       }
     } catch ( FileNotFoundException e ) { 
       Log.e("Cave3D", "ERROR " + e.getMessage() );

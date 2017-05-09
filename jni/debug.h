@@ -64,15 +64,18 @@
   // #define LOGI( x... ) if ( fplog ) { fprintf( fplog, x ); fflush( fplog ); }
   #define LOGI(x...) /* nothing */
 
-  #define ASSERT( x ) if ( ! (x) ) LOGI( "FAIL ASSERT %s\n", #x )
+  #define ASSERT( x ) /* nothing */
+  // #define ASSERT( x ) if ( ! (x) ) LOGI( "FAIL ASSERT %s\n", #x )
+
   #define DEBS(qq)  {if (DEBUG>qq) {
   #define EDEBS }}
   #define DEBOUT DFILE
-  // #define DEB(ll,mes)    /* nothing */
-  // #define DEBEXP(ll,exp) /* nothing */
   #define DEBTR(ll)      /* nothing */
-  #define DEB(ll, mes)   DEBS(ll) LOGI( "%s", #mes ); EDEBS
-  #define DEBEXP(ll,exp) DEBS(ll) LOGI( "%.2f", (float)exp ); EDEBS
+  #define DEB(ll,mes)    /* nothing */
+  #define DEBEXP(ll,exp) /* nothing */
+  // #define DEBTR(ll)      /* nothing */
+  // #define DEB(ll, mes)   DEBS(ll) LOGI( "%s", #mes ); EDEBS
+  // #define DEBEXP(ll,exp) DEBS(ll) LOGI( "%.2f", (float)exp ); EDEBS
   
   #define warning(lev, x)  /* nothing */
   

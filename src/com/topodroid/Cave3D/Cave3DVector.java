@@ -159,5 +159,8 @@ class Cave3DVector
     z += delta * (float)( Math.random() - 0.5 );
   }
 
+  Cave3DPoint projectXY( ) { return new Cave3DPoint( x, y ); }
+
+
 }
 

@@ -56,17 +56,17 @@ class Cave3DPowercrust
     nf = 0;
   }
 
-  Cave3DVector[] insertTrianglesIn( ArrayList< Cave3DTriangle > triangles )
+  Cave3DSite[] insertTrianglesIn( ArrayList< Cave3DTriangle > triangles )
   {
     float x, y, z;
     np = nrPoles();
     // Log.v("Cave3D", "Nr. poles " + np + " Creating vertices ...");
-    Cave3DVector poles[] = new Cave3DVector[ np ];
+    Cave3DSite poles[] = new Cave3DSite[ np ];
     for ( int k=0; k<np; ++k ) {
       x = (float)(poleX());
       y = (float)(poleY());
       z = (float)(poleZ());
-      poles[k] = new Cave3DVector( x, y, z );
+      poles[k] = new Cave3DSite( x, y, z );
       if ( nextPole() == 0 ) break;
     }
 
