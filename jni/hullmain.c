@@ -127,6 +127,8 @@ int   dim;
 // shared among execs
 // simplex * root;
 
+int isAtInfinity( point pt ); // defined in ch.c
+
 // ============================================================
 
 

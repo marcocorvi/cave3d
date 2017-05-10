@@ -35,7 +35,6 @@
 void *p_peak_test(simplex *s) {return (s->peak.vert==p) ? (void*)s : (void*)NULL;}
 int p_neight(simplex *s, int i, void *dum) {return s->neigh[i].vert !=p;}
 
-
 #ifdef MYDEBUG
   void panic(char *fmt, ...) {
     va_list args;
@@ -263,6 +262,8 @@ void no_out(point *v, int vdim, FILE *Fin, int amble) { }
 
 #ifdef MAIN
 
+int isAtInfinity( point );
+
 extern Coord * mins;
 extern Coord * maxs;
 
@@ -314,7 +315,7 @@ void off_out(point *v, int vdim, FILE *Fin, int amble)
     if (pdim!=3) { warning(-10, off apparently for 3d points only); return;}
 
     if (amble==0) {
-        for (i=0;i<vdim;i++) if (v[i]==coordsAtInfinity) return;
+        for (i=0;i<vdim;i++) if ( isAtInfinity(v[i]) ) return;
         fprintf(OFFFILE, "%d ", vdim);
         for (j=0;j<vdim;j++) fprintf(OFFFILE, "%ld ", (site_num)(v[j]));
         fprintf(OFFFILE,"\n");
@@ -369,7 +370,7 @@ void mp_out(point *v, int vdim, FILE *Fin, int amble) {
     if (amble==0) {
         int i;
         if (!v) return;
-        for (i=0;i<vdim;i++) if (v[i]==coordsAtInfinity) {
+        for (i=0;i<vdim;i++) if ( isAtInfinity(v[i]) ) {
             point t=v[i];
             v[i]=v[vdim-1];
             v[vdim-1] = t;
@@ -401,7 +402,7 @@ void ps_out(point *v, int vdim, FILE *Fin, int amble) {
     if (amble==0) {
         int i;
         if (!v) return;
-        for (i=0;i<vdim;i++) if (v[i]==coordsAtInfinity) {
+        for (i=0;i<vdim;i++) if ( isAtInfinity(v[i]) ) {
             point t=v[i];
             v[i]=v[vdim-1];
             v[vdim-1] = t;
@@ -450,7 +451,7 @@ void cpr_out(point *v, int vdim, FILE *Fin, int amble) {
 
     if (pdim!=3) { warning(-10, cpr for 3d points only); return;}
 
-    for (i=0;i<vdim;i++) if (v[i]==coordsAtInfinity) return;
+    for (i=0;i<vdim;i++) if ( isAtInfinity(v[i]) ) return;
 
     fprintf(F, "t %G %G %G %G %G %G %G %G %G 3 128\n",
             toOrig( v[0][0] ), toOrig( v[0][1] ), toOrig( v[0][2] ),

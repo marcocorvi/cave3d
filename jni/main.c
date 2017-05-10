@@ -250,7 +250,7 @@ int main(int argc, char **argv)
     nf = getNrFaces();
     LOGI("Poles %d faces %d\n", np, nf );
     for ( k = 0; k<nf; ++k ) {
-      int f = getNextFace();
+      int f = getNextFace(); f=f; // suppress warning
       int s = getFaceSize();
       int h;
       for ( h=0; h<s; ++h ) {
