@@ -1,0 +1,25 @@
+This code is a rewrite of the original code by Nina Amenta.
+The code base has been downloaded from 
+https://github.com/kubkon/powercrust
+
+and it has been modified to fix memory leaks, so that
+it could be made into a library.
+
+It suits my needs which are the surface reconstruction.
+The medial axis tranform has not been tested.
+
+marco corvi
+
+Nina Amenta's website:
+http://web.cs.ucdavis.edu/~amenta/powercrust.html
+
+Other ports of the algorithm:
+- https://github.com/ialhashim/powercrust Works on both Windows and Linux. Written as standard C++ syntax.
+  by 
+- https://github.com/timhutton/vtkpowercrust A VTK port of the PowerCrust surface reconstruction algorithm
+  by Tim Hutton
+- https://github.com/krm15/Powercrust improvement on Tim Hutton VTK port by Kishore Mosaliganti
+- https://github.com/sanche21/Power-Crust-MATLAB an implementation of the Power Crust algorithm in MATLAB Code
+  by Daniel Sanche
+- https://github.com/phbender/powercrust an export from code.google.com/p/powercrust, and it is forked to
+  survive the dead of Google Code, By Philipp Bender
