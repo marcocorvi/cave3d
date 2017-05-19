@@ -51,13 +51,13 @@ public class MyButton extends Button
   {
     int action = ev.getAction();
     if ( action == MotionEvent.ACTION_DOWN ) {
-      mX = ev.getX();
-      mY = ev.getY();
-      setBackgroundDrawable( mBitmap2 );
-      // Log.v("DistoX", "Touch DOWN");
+      // mX = ev.getX();
+      // mY = ev.getY();
+      // setBackgroundDrawable( mBitmap2 );
+      // Log.v("Cave3D", "Touch DOWN");
       return true;
     } else if ( action == MotionEvent.ACTION_UP ) {
-      setBackgroundDrawable( mBitmap );
+      // setBackgroundDrawable( mBitmap );
       if ( Math.abs( ev.getX() - mX ) < mSize && Math.abs( ev.getY() - mY ) < mSize ) {
         mListener.onClick( this );
       }

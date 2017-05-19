@@ -362,36 +362,104 @@ public class Cave3D extends Activity
     R.drawable.iz_move,
     R.drawable.iz_station,
     R.drawable.iz_splays,
+    R.drawable.iz_wall_no,
+    R.drawable.iz_planview_no,
+    R.drawable.iz_surface_no,
+    R.drawable.iz_color,
+    R.drawable.iz_frame,
+    // secondary bitmaps
     R.drawable.iz_wall,
     R.drawable.iz_planview,
     R.drawable.iz_surface,
-    R.drawable.iz_color,
-    R.drawable.iz_frame,
     // R.drawable.iz_view
   };
-  int BTN_MOVE = 0;
-  int BTN_WALL = 3;
+  int BTN_MOVE     = 0;
+  int BTN_WALL     = 3;
+  int BTN_PLANVIEW = 4;
+  int BTN_SURFACE  = 5;
   BitmapDrawable mBMmove;
   BitmapDrawable mBMturn;
   BitmapDrawable mBMhull;
   BitmapDrawable mBMdelaunay;
   BitmapDrawable mBMpowercrust;
-  BitmapDrawable mBMconvex;
+  // BitmapDrawable mBMconvex;
+  BitmapDrawable mBMwallNo;
+  BitmapDrawable mBMplanviewNo;
+  BitmapDrawable mBMsurfaceNo;
+  BitmapDrawable mBMwall;
+  BitmapDrawable mBMplanview;
+  BitmapDrawable mBMsurface;
 
-  void resetButtonBar()
+  private void resetButtonBar()
   {
     int size = setListViewHeight( this, mListView );
     mButton1 = new MyButton[ mNrButton1 ];
-    for (int k=0; k<mNrButton1; ++k ) {
-      mButton1[k] = new MyButton( this, this, size, izons[k], 0 );
-    }
+    mButton1[0] = new MyButton( this, this, size, izons[0], 0 );
+    mButton1[1] = new MyButton( this, this, size, izons[1], 0 );
+    mButton1[2] = new MyButton( this, this, size, izons[2], 0 );
+    mButton1[3] = new MyButton( this, this, size, izons[3], 0 );
+    mButton1[4] = new MyButton( this, this, size, izons[4], 0 );
+    mButton1[5] = new MyButton( this, this, size, izons[5], 0 );
+    mButton1[6] = new MyButton( this, this, size, izons[6], 0 );
+    mButton1[7] = new MyButton( this, this, size, izons[7], 0 );
+
     mBMmove = mButton1[BTN_MOVE].mBitmap;
     mBMturn = MyButton.getButtonBackground( this, size, R.drawable.iz_turn );
-    mBMconvex = mButton1[BTN_WALL].mBitmap;
+    // mBMconvex = mButton1[BTN_WALL].mBitmap;
+
+    mBMwallNo     = mButton1[ BTN_WALL     ].mBitmap;
+    mBMplanviewNo = mButton1[ BTN_PLANVIEW ].mBitmap;
+    mBMsurfaceNo  = mButton1[ BTN_SURFACE  ].mBitmap;
+    mBMwall       = MyButton.getButtonBackground( this, size, R.drawable.iz_wall );
+    mBMplanview   = MyButton.getButtonBackground( this, size, R.drawable.iz_planview );
+    mBMsurface    = MyButton.getButtonBackground( this, size, R.drawable.iz_surface );
+
+    setButtonSurface();
+    setButtonWall();
 
     // mButtonView1 = new HorizontalImageButtonView( mButton1 );
     mButtonView1 = new HorizontalButtonView( mButton1 );
     mListView.setAdapter( mButtonView1.mAdapter );
+  }
+
+  void setButtonSurface()
+  {
+    if ( mRenderer == null ) {
+      mButton1[ BTN_SURFACE ].setOnClickListener( null );
+      return;
+    }
+    if ( mRenderer.hasSurface() ) {
+      mButton1[ BTN_SURFACE ].setBackgroundDrawable( mBMsurface );
+      mButton1[ BTN_SURFACE ].setOnClickListener( this );
+    } else {
+      mButton1[ BTN_SURFACE ].setBackgroundDrawable( mBMsurfaceNo );
+      mButton1[ BTN_SURFACE ].setOnClickListener( null );
+    }
+  }
+
+  void setButtonWall() 
+  {
+    if ( mRenderer == null ) {
+      mButton1[ BTN_WALL ].setOnClickListener( null );
+      mButton1[ BTN_PLANVIEW ].setOnClickListener( null );
+      return;
+    }
+    if ( mRenderer.hasWall() ) {
+      mButton1[ BTN_WALL ].setBackgroundDrawable( mBMwall );
+      mButton1[ BTN_WALL ].setOnClickListener( this );
+      if ( mRenderer.hasPlanview() ) {
+        mButton1[ BTN_PLANVIEW ].setBackgroundDrawable( mBMplanview );
+        mButton1[ BTN_PLANVIEW ].setOnClickListener( this );
+      } else {
+        mButton1[ BTN_PLANVIEW ].setBackgroundDrawable( mBMplanviewNo );
+        mButton1[ BTN_PLANVIEW ].setOnClickListener( null );
+      }
+    } else {
+      mButton1[ BTN_WALL ].setBackgroundDrawable( mBMwallNo );
+      mButton1[ BTN_WALL ].setOnClickListener( null );
+      mButton1[ BTN_PLANVIEW ].setBackgroundDrawable( mBMplanviewNo );
+      mButton1[ BTN_PLANVIEW ].setOnClickListener( null );
+    }
   }
 
   @Override
@@ -560,6 +628,7 @@ public class Cave3D extends Activity
 
   private void setWallButton( int wall_mode )
   {
+/*
     switch ( wall_mode ) {
       case Cave3DRenderer.WALL_HULL:
         Toast.makeText( this, "wall mode HULL", Toast.LENGTH_SHORT ).show();
@@ -580,6 +649,7 @@ public class Cave3D extends Activity
       default:
         Toast.makeText( this, "wall mode NONE", Toast.LENGTH_SHORT ).show();
     }
+*/
   }
 
   @Override

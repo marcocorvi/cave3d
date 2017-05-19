@@ -196,8 +196,12 @@ public class Cave3DRenderer // implements Renderer
 
   Cave3DShot getShot( int k ) { return shots.get(k); }
 
-  // boolean hasSurface() { return mSurface != null; }
+  boolean hasSurface() { return mSurface != null; }
   Cave3DSurface getSurface() { return mSurface; }
+
+  boolean hasWall() { return triangles_powercrust != null || walls != null; }
+
+  boolean hasPlanview() { return planview != null; }
 
   // TODO VECTOR
   private float x0, y0, z0;       // model center coords (remain fixed)
@@ -945,6 +949,7 @@ public class Cave3DRenderer // implements Renderer
     
     mSurface = mParser.getSurface();
     if ( mSurface != null ) {
+      mCave3D.setButtonSurface();
       projs_surface_E = new float[ mSurface.mNr1 * mSurface.mNr2 ];
       projs_surface_N = new float[ mSurface.mNr1 * mSurface.mNr2 ];
     } else {
@@ -1019,57 +1024,59 @@ public class Cave3DRenderer // implements Renderer
   {
     walls   = null;
     borders = null;
-    if ( clear ) return;
-    if ( WALL_CW < WALL_MAX /* && Cave3D.mWallConvexHull */ ) {
-      walls   = new ArrayList< CWConvexHull >();
-      borders = new ArrayList< CWBorder >();
-      for ( Cave3DShot sh : shots ) {
-        Cave3DStation sf = sh.from_station;
-        Cave3DStation st = sh.to_station;
-        if ( sf != null && st != null ) {
-          ArrayList< Cave3DShot > legs1 = mParser.getLegsAt( sf, st );
-          ArrayList< Cave3DShot > legs2 = mParser.getLegsAt( st, sf );
-          ArrayList< Cave3DShot > splays1 = mParser.getSplayAt( sf, false );
-          ArrayList< Cave3DShot > splays2 = mParser.getSplayAt( st, false );
-          // Log.v("Cave3D", "splays at " + sf.name + " " + splays1.size() + " at " + st.name + " " + splays2.size() );
-          // if ( splays1.size() > 0 && splays2.size() > 0 ) 
-          {
-            try {
-              CWConvexHull cw = new CWConvexHull( );
-              cw.create( legs1, legs2, splays1, splays2, sf, st, Cave3D.mAllSplay );
-              // TODO make convex-concave hull
-              walls.add( cw );
-            } catch ( RuntimeException e ) { 
-              Log.v("Cave3D", "CW create runtime exception [2] " + e.getMessage() );
-            }
-          }
-        }
-      }
-      // Log.v("Cave3D", "convex hulls done. split triangles " + Cave3D.mSplitTriangles );
-
-      // for ( CWConvexHull cv : walls ) cv.randomizePoints( 0.1f );
-      if ( Cave3D.mSplitTriangles ) {
-        // synchronized( paths_borders ) 
-        {
-          // Log.v("Cave3D", "convex hulls borders. nr walls " + walls.size() );
-          for ( int k1 = 0; k1 < walls.size(); ++ k1 ) {
-            CWConvexHull cv1 = walls.get( k1 );
-            for ( int k2 = k1+1; k2 < walls.size(); ++ k2 ) {
-              CWConvexHull cv2 = walls.get( k2 );
-              if ( cv1.mFrom == cv2.mFrom || cv1.mFrom == cv2.mTo || cv1.mTo == cv2.mFrom || cv1.mTo == cv2.mTo ) {
-                CWBorder cwb = new CWBorder( cv1, cv2, 0.00001f );
-                if ( cwb.makeBorder( ) ) {
-                  borders.add( cwb );
-                  cwb.splitCWTriangles();
-                } 
+    if ( ! clear ) {
+      if ( WALL_CW < WALL_MAX /* && Cave3D.mWallConvexHull */ ) {
+        walls   = new ArrayList< CWConvexHull >();
+        borders = new ArrayList< CWBorder >();
+        for ( Cave3DShot sh : shots ) {
+          Cave3DStation sf = sh.from_station;
+          Cave3DStation st = sh.to_station;
+          if ( sf != null && st != null ) {
+            ArrayList< Cave3DShot > legs1 = mParser.getLegsAt( sf, st );
+            ArrayList< Cave3DShot > legs2 = mParser.getLegsAt( st, sf );
+            ArrayList< Cave3DShot > splays1 = mParser.getSplayAt( sf, false );
+            ArrayList< Cave3DShot > splays2 = mParser.getSplayAt( st, false );
+            // Log.v("Cave3D", "splays at " + sf.name + " " + splays1.size() + " at " + st.name + " " + splays2.size() );
+            // if ( splays1.size() > 0 && splays2.size() > 0 ) 
+            {
+              try {
+                CWConvexHull cw = new CWConvexHull( );
+                cw.create( legs1, legs2, splays1, splays2, sf, st, Cave3D.mAllSplay );
+                // TODO make convex-concave hull
+                walls.add( cw );
+              } catch ( RuntimeException e ) { 
+                Log.v("Cave3D", "CW create runtime exception [2] " + e.getMessage() );
               }
             }
           }
-          // Log.v("Cave3D", "convex hulls borders done, nr borders " + borders.size() );
+        }
+        // Log.v("Cave3D", "convex hulls done. split triangles " + Cave3D.mSplitTriangles );
+
+        // for ( CWConvexHull cv : walls ) cv.randomizePoints( 0.1f );
+        if ( Cave3D.mSplitTriangles ) {
+          // synchronized( paths_borders ) 
+          {
+            // Log.v("Cave3D", "convex hulls borders. nr walls " + walls.size() );
+            for ( int k1 = 0; k1 < walls.size(); ++ k1 ) {
+              CWConvexHull cv1 = walls.get( k1 );
+              for ( int k2 = k1+1; k2 < walls.size(); ++ k2 ) {
+                CWConvexHull cv2 = walls.get( k2 );
+                if ( cv1.mFrom == cv2.mFrom || cv1.mFrom == cv2.mTo || cv1.mTo == cv2.mFrom || cv1.mTo == cv2.mTo ) {
+                  CWBorder cwb = new CWBorder( cv1, cv2, 0.00001f );
+                  if ( cwb.makeBorder( ) ) {
+                    borders.add( cwb );
+                    cwb.splitCWTriangles();
+                  } 
+                }
+              }
+            }
+            // Log.v("Cave3D", "convex hulls borders done, nr borders " + borders.size() );
+          }
         }
       }
+      // Toast.makeText( mCave3D, "computing convex hull walls", Toast.LENGTH_SHORT).show();
     }
-    Toast.makeText( mCave3D, "computing convex hull walls", Toast.LENGTH_SHORT).show();
+    mCave3D.setButtonWall();
   }
 
   /*    // FIXME skip WALL_HULL triangles
@@ -1137,60 +1144,62 @@ public class Cave3DRenderer // implements Renderer
   {
     triangles_powercrust = null;
     vertices_powercrust  = null;
-    if ( clear ) return;
-    if ( WALL_POWERCRUST < WALL_MAX /* && Cave3D.mWallPowercrust */ ) {
-      // Log.v("Cave3D PC", "PowerCrust" );
-      triangles_powercrust = new ArrayList< Cave3DTriangle >();
-      try {
-        // Toast.makeText( mCave3D, "computing the powercrust", Toast.LENGTH_SHORT).show();
-        powercrust = new Cave3DPowercrust( );
-        powercrust.resetSites( 3 );
-        int ntot = stations.size();
-        // Log.v("Cave3D PC", "... add sites (stations " + ntot + ")" );
-        double x, y, z;
-        for ( int n0 = 0; n0 < ntot; ++n0 ) {
-          Cave3DStation st = stations.get( n0 );
-          x = st.e;
-          y = st.n;
-          z = st.z;
-          powercrust.addSite( x, y, z );
-          ArrayList< Cave3DShot > station_splays = mParser.getSplayAt( st, false );
-          int ns = station_splays.size();
-          // Log.v("Cave3D", "station " + n0 + ": splays " + ns ); 
-          for ( int n=0; n<ns; ++n ) {
-            Cave3DShot sh = station_splays.get( n );
-            double h = sh.len * Math.cos( sh.cln );
-            x = st.e + h * Math.sin(sh.ber);
-            y = st.n + h * Math.cos(sh.ber);
-            z = st.z + sh.len * Math.sin(sh.cln);
+    if ( ! clear ) {
+      if ( WALL_POWERCRUST < WALL_MAX /* && Cave3D.mWallPowercrust */ ) {
+        // Log.v("Cave3D PC", "PowerCrust" );
+        triangles_powercrust = new ArrayList< Cave3DTriangle >();
+        try {
+          // Toast.makeText( mCave3D, "computing the powercrust", Toast.LENGTH_SHORT).show();
+          powercrust = new Cave3DPowercrust( );
+          powercrust.resetSites( 3 );
+          int ntot = stations.size();
+          // Log.v("Cave3D PC", "... add sites (stations " + ntot + ")" );
+          double x, y, z;
+          for ( int n0 = 0; n0 < ntot; ++n0 ) {
+            Cave3DStation st = stations.get( n0 );
+            x = st.e;
+            y = st.n;
+            z = st.z;
             powercrust.addSite( x, y, z );
+            ArrayList< Cave3DShot > station_splays = mParser.getSplayAt( st, false );
+            int ns = station_splays.size();
+            // Log.v("Cave3D", "station " + n0 + ": splays " + ns ); 
+            for ( int n=0; n<ns; ++n ) {
+              Cave3DShot sh = station_splays.get( n );
+              double h = sh.len * Math.cos( sh.cln );
+              x = st.e + h * Math.sin(sh.ber);
+              y = st.n + h * Math.cos(sh.ber);
+              z = st.z + sh.len * Math.sin(sh.cln);
+              powercrust.addSite( x, y, z );
+            }
+            // long nsites = powercrust.nrSites();
+            // Log.v("Cave3D PC", "after station " + n0 + "/" + ns + " sites " + nsites );
           }
           // long nsites = powercrust.nrSites();
-          // Log.v("Cave3D PC", "after station " + n0 + "/" + ns + " sites " + nsites );
+          // Log.v("Cave3D PC", "done stations. sites " + nsites + ". compute ...");
+          // Log.v("Cave3D PC", "total sites " + powercrust.nrSites() + " ... compute" );
+          int ok = powercrust.compute();
+          if ( ok == 1 ) {
+            // Log.v("Cave3D PC", "... insert triangles" );
+            vertices_powercrust = powercrust.insertTrianglesIn( triangles_powercrust );
+          }
+          // Log.v("Cave3D", "... release powercrust NP " + powercrust.np + " NF " + powercrust.nf );
+          powercrust.release();
+          // Log.v("Cave3D PC", "powercrust done" );
+          if ( ok == 1 ) {
+            Toast.makeText( mCave3D, "powercrust successful " + powercrust.np + "/" + powercrust.nf, Toast.LENGTH_SHORT).show();
+          } else {
+            Toast.makeText( mCave3D, "powercrust failed", Toast.LENGTH_SHORT).show();
+          }
+        } catch ( Exception e ) {
+          Log.v("Cave3D", "ERROR: " + e.getMessage() );
         }
-        // long nsites = powercrust.nrSites();
-        // Log.v("Cave3D PC", "done stations. sites " + nsites + ". compute ...");
-        // Log.v("Cave3D PC", "total sites " + powercrust.nrSites() + " ... compute" );
-        int ok = powercrust.compute();
-        if ( ok == 1 ) {
-          // Log.v("Cave3D PC", "... insert triangles" );
-          vertices_powercrust = powercrust.insertTrianglesIn( triangles_powercrust );
-        }
-        // Log.v("Cave3D", "... release powercrust NP " + powercrust.np + " NF " + powercrust.nf );
-        powercrust.release();
-        // Log.v("Cave3D PC", "powercrust done" );
-        if ( ok == 1 ) {
-          Toast.makeText( mCave3D, "powercrust successful " + powercrust.np + "/" + powercrust.nf, Toast.LENGTH_SHORT).show();
-        } else {
-          Toast.makeText( mCave3D, "powercrust failed", Toast.LENGTH_SHORT).show();
-        }
-      } catch ( Exception e ) {
-        Log.v("Cave3D", "ERROR: " + e.getMessage() );
+        // Log.v("Cave3D", "Powercrust V " + vertices_powercrust.length + " F " + triangles_powercrust.size() );
       }
-      // Log.v("Cave3D", "Powercrust V " + vertices_powercrust.length + " F " + triangles_powercrust.size() );
+      computePowercrustPlanView();
+      computePowercrustProfileView();
     }
-    computePowercrustPlanView();
-    computePowercrustProfileView();
+    mCave3D.setButtonWall();
   }
 
   private void makeNZ( )
