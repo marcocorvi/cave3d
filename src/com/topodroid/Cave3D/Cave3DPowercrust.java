@@ -1,7 +1,7 @@
 /* @file Cave3DPowercrust.java
  *
  * @author marco corvi
- * @date nov 2011
+ * @date may 2017
  *
  * @brief Cave3D Powercrust triangulation
  * --------------------------------------------------------

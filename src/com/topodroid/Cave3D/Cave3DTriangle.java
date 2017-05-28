@@ -58,6 +58,14 @@ class Cave3DTriangle
     center.mul( 1.0f/size );
   }
 
+  // update min-max according to this vector
+  void minMax( Cave3DVector m1, Cave3DVector m2 )
+  {
+    for ( int k=0; k<size; ++k ) {
+      vertex[k].minMax( m1, m2 );
+    }
+  }
+
   void flip()
   {
     Cave3DVector v = vertex[1];

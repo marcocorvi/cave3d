@@ -26,19 +26,30 @@ import android.util.Log;
 public class STLExporter
 {
   ArrayList<CWFacet> mFacets;
-  float x, y, z; // offset to have positive coords values
 
   ArrayList< Cave3DTriangle > mTriangles; // powercrust triangles
   Cave3DVector[] mVertex; // triangle vertices
+  Cave3DVector mMin;
+  Cave3DVector mMax;
+  float x, y, z; // offset to have positive coords values
+  float s;       // scale factor
 
   STLExporter()
   {
     mFacets = new ArrayList< CWFacet >();
+    mTriangles = null;
+    mVertex    = null; 
+    resetMinMax();
+  }
+
+  private void resetMinMax()
+  {
     x = 0;
     y = 0;
     z = 0;
-    mTriangles = null;
-    mVertex    = null;
+    s = 1.0f;
+    mMin = new Cave3DVector();
+    mMax = new Cave3DVector();
   }
 
   void add( CWFacet facet ) { mFacets.add( facet ); }
@@ -49,33 +60,27 @@ public class STLExporter
   }
 
   private void makePositiveCoords()
-  {
-    x = 0;
-    y = 0;
-    z = 0;
+  { 
+    resetMinMax();
     for ( CWFacet facet : mFacets ) {
-      if ( facet.v1.x < x ) x = facet.v1.x;
-      if ( facet.v1.y < y ) y = facet.v1.y;
-      if ( facet.v1.z < z ) z = facet.v1.z;
-      if ( facet.v2.x < x ) x = facet.v2.x;
-      if ( facet.v2.y < y ) y = facet.v2.y;
-      if ( facet.v2.z < z ) z = facet.v2.z;
-      if ( facet.v3.x < x ) x = facet.v3.x;
-      if ( facet.v3.y < y ) y = facet.v3.y;
-      if ( facet.v3.z < z ) z = facet.v3.z;
+      facet.v1.minMax( mMin, mMax );
+      facet.v2.minMax( mMin, mMax );
+      facet.v3.minMax( mMin, mMax );
     }
     if ( mVertex != null ) {
       int len = mVertex.length;
       for ( int k=0; k<len; ++k ) {
-        Cave3DVector v = mVertex[k];
-        if ( v.x < x ) x = v.x;
-        if ( v.y < y ) y = v.y;
-        if ( v.z < z ) z = v.z;
+        mVertex[k].minMax( mMin, mMax );
       }
     }
-    x = -x;
-    y = -y;
-    z = -z;
+    x = - mMin.x;
+    y = - mMin.y;
+    z = - mMin.z;
+    // s = mMax.x - mMin.x;
+    // if ( s < mMax.y - mMin.y) s = mMax.y - mMin.y;
+    // if ( s < mMax.z - mMin.z) s = mMax.z - mMin.z;
+    // s = 1.0f/s;
+    s = 1;
   }
   
   boolean exportASCII( String filename, boolean splays, boolean walls, boolean surface )
@@ -91,9 +96,9 @@ public class STLExporter
       for ( CWFacet facet : mFacets ) {
         pw.format("  facet normal %.3f %.3f %.3f\n", facet.un.x, facet.un.y, facet.un.z );
         pw.format("    outer loop\n");
-        pw.format("      vertex %.3f %.3f %.3f\n", x+facet.v1.x, y+facet.v1.y, z+facet.v1.z );
-        pw.format("      vertex %.3f %.3f %.3f\n", x+facet.v2.x, y+facet.v2.y, z+facet.v2.z );
-        pw.format("      vertex %.3f %.3f %.3f\n", x+facet.v3.x, y+facet.v3.y, z+facet.v3.z );
+        pw.format("      vertex %.3f %.3f %.3f\n", (x+facet.v1.x)*s, (y+facet.v1.y)*s, (z+facet.v1.z)*s );
+        pw.format("      vertex %.3f %.3f %.3f\n", (x+facet.v2.x)*s, (y+facet.v2.y)*s, (z+facet.v2.z)*s );
+        pw.format("      vertex %.3f %.3f %.3f\n", (x+facet.v3.x)*s, (y+facet.v3.y)*s, (z+facet.v3.z)*s );
         pw.format("    endloop\n");
         pw.format("  endfacet\n");
       }
@@ -105,7 +110,7 @@ public class STLExporter
           pw.format("    outer loop\n");
           for ( int k=0; k<size; ++k ) {
             Cave3DVector v = t.vertex[k];
-            pw.format("      vertex %.3f %.3f %.3f\n", x+v.x, y+v.y, z+v.z );
+            pw.format("      vertex %.3f %.3f %.3f\n", (x+v.x)*s, (y+v.y)*s, (z+v.z)*s );
           }
           pw.format("    endloop\n");
           pw.format("  endfacet\n");
@@ -176,30 +181,39 @@ public class STLExporter
         floatToByte(   facet.un.x, b4 ); bw.write( b4, 0, 4 );
         floatToByte(   facet.un.y, b4 ); bw.write( b4, 0, 4 );
         floatToByte(   facet.un.z, b4 ); bw.write( b4, 0, 4 );
-        floatToByte( x+facet.v1.x, b4 ); bw.write( b4, 0, 4 );
-        floatToByte( y+facet.v1.y, b4 ); bw.write( b4, 0, 4 );
-        floatToByte( z+facet.v1.z, b4 ); bw.write( b4, 0, 4 );
-        floatToByte( x+facet.v2.x, b4 ); bw.write( b4, 0, 4 );
-        floatToByte( y+facet.v2.y, b4 ); bw.write( b4, 0, 4 );
-        floatToByte( z+facet.v2.z, b4 ); bw.write( b4, 0, 4 );
-        floatToByte( x+facet.v3.x, b4 ); bw.write( b4, 0, 4 );
-        floatToByte( y+facet.v3.y, b4 ); bw.write( b4, 0, 4 );
-        floatToByte( z+facet.v3.z, b4 ); bw.write( b4, 0, 4 );
+        floatToByte( (x+facet.v1.x)*s, b4 ); bw.write( b4, 0, 4 );
+        floatToByte( (y+facet.v1.y)*s, b4 ); bw.write( b4, 0, 4 );
+        floatToByte( (z+facet.v1.z)*s, b4 ); bw.write( b4, 0, 4 );
+        floatToByte( (x+facet.v2.x)*s, b4 ); bw.write( b4, 0, 4 );
+        floatToByte( (y+facet.v2.y)*s, b4 ); bw.write( b4, 0, 4 );
+        floatToByte( (z+facet.v2.z)*s, b4 ); bw.write( b4, 0, 4 );
+        floatToByte( (x+facet.v3.x)*s, b4 ); bw.write( b4, 0, 4 );
+        floatToByte( (y+facet.v3.y)*s, b4 ); bw.write( b4, 0, 4 );
+        floatToByte( (z+facet.v3.z)*s, b4 ); bw.write( b4, 0, 4 );
         bw.write( b2, 0, 2 );
       }
       if ( mTriangles != null ) {
         for ( Cave3DTriangle t : mTriangles ) {
           int size = t.size;
           Cave3DVector n = t.normal;
-          floatToByte( n.x, b4 ); bw.write( b4, 0, 4 );
-          floatToByte( n.y, b4 ); bw.write( b4, 0, 4 );
-          floatToByte( n.z, b4 ); bw.write( b4, 0, 4 );
-          for ( int k=0; k<size; ++k ) {
-            Cave3DVector v = t.vertex[k];
-            floatToByte( x+v.x, b4 ); bw.write( b4, 0, 4 );
-            floatToByte( y+v.y, b4 ); bw.write( b4, 0, 4 );
-            floatToByte( z+v.z, b4 ); bw.write( b4, 0, 4 );
+          Cave3DVector v0 = t.vertex[0];
+          Cave3DVector v1 = t.vertex[1];
+          for ( int k=2; k<size; ++k ) {
+            floatToByte( n.x, b4 ); bw.write( b4, 0, 4 );
+            floatToByte( n.y, b4 ); bw.write( b4, 0, 4 );
+            floatToByte( n.z, b4 ); bw.write( b4, 0, 4 );
+            Cave3DVector v2 = t.vertex[k];
+            floatToByte( (x+v0.x)*s, b4 ); bw.write( b4, 0, 4 );
+            floatToByte( (y+v0.y)*s, b4 ); bw.write( b4, 0, 4 );
+            floatToByte( (z+v0.z)*s, b4 ); bw.write( b4, 0, 4 );
+            floatToByte( (x+v1.x)*s, b4 ); bw.write( b4, 0, 4 );
+            floatToByte( (y+v1.y)*s, b4 ); bw.write( b4, 0, 4 );
+            floatToByte( (z+v1.z)*s, b4 ); bw.write( b4, 0, 4 );
+            floatToByte( (x+v2.x)*s, b4 ); bw.write( b4, 0, 4 );
+            floatToByte( (y+v2.y)*s, b4 ); bw.write( b4, 0, 4 );
+            floatToByte( (z+v2.z)*s, b4 ); bw.write( b4, 0, 4 );
             bw.write( b2, 0, 2 );
+            v1 = v2;
           }
         }
       }

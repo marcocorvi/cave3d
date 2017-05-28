@@ -161,6 +161,12 @@ class Cave3DVector
 
   Cave3DPoint projectXY( ) { return new Cave3DPoint( x, y ); }
 
+  void minMax( Cave3DVector m1, Cave3DVector m2 )
+  {
+    if ( m1.x > x ) m1.x = x; else if ( m2.x < x ) m2.x = x;
+    if ( m1.y > y ) m1.y = y; else if ( m2.y < y ) m2.y = y;
+    if ( m1.z > z ) m1.z = z; else if ( m2.z < z ) m2.z = z;
+  }
 
 }
 
