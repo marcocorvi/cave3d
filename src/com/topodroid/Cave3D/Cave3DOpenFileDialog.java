@@ -96,7 +96,7 @@ public class  Cave3DOpenFileDialog extends Activity
       }
     } else {
       // should never comes here
-      Toast.makeText( this, "Missing initial directory", Toast.LENGTH_LONG ).show();
+      Toast.makeText( this, R.string.warning_no_cwd, Toast.LENGTH_LONG ).show();
     }
   }
 

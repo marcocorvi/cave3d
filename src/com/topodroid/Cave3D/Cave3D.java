@@ -273,6 +273,23 @@ public class Cave3D extends Activity
     return getPackageManager().hasSystemFeature( PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH );
   }
 
+  void toast( int r )
+  {
+    Toast.makeText( this, r, Toast.LENGTH_SHORT).show();
+  }
+
+  void toast( int r, String str )
+  {
+    String msg = String.format( getResources().getString( r ), str );
+    Toast.makeText( this, msg, Toast.LENGTH_SHORT).show();
+  }
+
+  void toast( int r, int n1, int n2 )
+  {
+    String msg = String.format( getResources().getString( r ), n1, n2 );
+    Toast.makeText( this, msg, Toast.LENGTH_SHORT).show();
+  }
+
   // ---------------------------------------------------------------
   // MENU
 

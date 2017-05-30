@@ -30,6 +30,7 @@ public class Cave3DStationDialog extends Dialog
                                  implements View.OnClickListener
 {
     private Button mBtDistance;
+    private Button mBtCenter;
     private TextView mTvSurface;
 
     private Cave3DView mCave3Dview;
@@ -71,6 +72,8 @@ public class Cave3DStationDialog extends Dialog
         tv = ( TextView ) findViewById(R.id.st_vert);
         tv.setText( sw3.getBuffer().toString() );
 
+        mBtCenter = (Button) findViewById( R.id.st_center );
+        mBtCenter.setOnClickListener( this );
         mBtDistance = (Button) findViewById( R.id.st_distance );
         mBtDistance.setOnClickListener( this );
 
@@ -93,6 +96,8 @@ public class Cave3DStationDialog extends Dialog
       Button b = (Button)v;
       if ( b == mBtDistance ) {
         mCave3Dview.startStationDistance( mStation );
+      } else if ( b == mBtCenter ) {
+        mCave3Dview.centerStation( mStation );
       }  
       dismiss();
     }

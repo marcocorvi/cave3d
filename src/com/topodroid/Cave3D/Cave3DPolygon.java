@@ -31,9 +31,12 @@ class Cave3DPolygon
 
   Cave3DSite get( int k ) { return points.get(k); }
 
-  void addPoint( Cave3DSite s )
+  // return true if the site is already in the polygon
+  boolean addPoint( Cave3DSite s )
   {
+    for ( Cave3DSite pt : points ) if ( pt == s ) return true;
     points.add( s );
     // points.add( new Cave3DPoint( s.x, s.y ) );
+    return false;
   }
 }

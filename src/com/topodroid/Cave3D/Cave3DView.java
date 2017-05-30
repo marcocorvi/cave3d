@@ -86,6 +86,13 @@ public class Cave3DView extends SurfaceView
     mStartStation = station;
   }
 
+  void centerStation( Cave3DStation station )
+  {
+    float x = x_start - mWidth/2;
+    float y = y_start - mHeight/2;
+    mRenderer.centerAtStation( station );
+    mRenderer.changeParams( x, y, Cave3D.MODE_TRANSLATE );
+  }
 
   public Cave3DView(Context context, AttributeSet attrs )
   {

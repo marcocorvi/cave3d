@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Stack;
 
-import android.widget.Toast;
+// import android.widget.Toast;
 
 import android.util.Log;
 
@@ -51,6 +51,8 @@ public class Cave3DRenderer // implements Renderer
 
   private Cave3DPowercrust powercrust = null;
   private Cave3D mCave3D;
+
+  private Cave3DStation mCenterStation = null;
 
   private float[] coords;    // station coordinates: E, N, Z
   private float[] projs;      // pre-projections: X, Y, |Z|, Z
@@ -85,7 +87,6 @@ public class Cave3DRenderer // implements Renderer
   public static final int STROKE_WIDTH_SPLAY = 1;
   public static final int STROKE_WIDTH_STATION = 1;
 
-  public static final int SURVEY_PAINT_NR = 6;
 
   private static final int GRID_SIZE = 5;
   private static final int GRID_SIZE2 = 2*GRID_SIZE;
@@ -104,8 +105,13 @@ public class Cave3DRenderer // implements Renderer
   private static Paint surfacePaint;
   private static Paint borderPaint;
   private static Paint splitPaint;
+
   private static int surveyColor[] = 
-    { 0xffff0000, 0xff00ff00, 0xff0000ff, 0xffff00ff, 0xffffff00, 0xff00ffff };
+    { 0xff004949, 0xff009292, 0xffff6d36, 0xffffb677, 0xff490092, 0xff006ddb,
+      0xffb66dff, 0xff6db6ff, 0xffb6dbff, 0xff920000, 0xff924900, 0xffdbd100,
+      0xff24ff24, 0xffffff6d 
+    };
+  public static final int SURVEY_PAINT_NR = 14; // size of surveyColor
 
   static void setStationPaintTextSize( int size )
   {
@@ -202,6 +208,8 @@ public class Cave3DRenderer // implements Renderer
   boolean hasWall() { return triangles_powercrust != null || walls != null; }
 
   boolean hasPlanview() { return planview != null; }
+
+  void centerAtStation( Cave3DStation st ) { mCenterStation = st; }
 
   // TODO VECTOR
   private float x0, y0, z0;       // model center coords (remain fixed)
@@ -500,14 +508,20 @@ public class Cave3DRenderer // implements Renderer
         Cave3DPolygon polygon = new Cave3DPolygon();
         polygon.addPoint( s0 );
         s0.poly = polygon;  
+        int ns = 0;
         for ( Cave3DSite s1 = s0.angle.v1; s1 != s0; s1=s1.angle.v1 ) {
           // if ( s1.poly != null ) {
           //   Log.v("Cave3D", "site on two polygons " + s1.x + "  " + s1.y );
           // } else {
           //   // Log.v("Cave3D", "add site to polygon  " + s1.x + "  " + s1.y );
           // }
-          polygon.addPoint( s1 );
+          if ( s1 == null ) break;
+          if ( polygon.addPoint( s1 ) ) break;
           s1.poly = polygon;
+          // if ( ns++ > 1024 ) {
+          //   Log.v("Cave3D", "exceeded max nr polygon sites" );
+          //   break;
+          // }
         }
         // Log.v("Cave3D", "polygon size " + polygon.size() );
         polygons.add( polygon );
@@ -793,6 +807,7 @@ public class Cave3DRenderer // implements Renderer
 
   public void resetGeometry()
   {
+    mCenterStation = null;
     zoom0 = ZOOM / radius0; // FIXME use 200.0
     // Log.v( TAG, "radius0 " + radius0 + " zoom0 " + zoom0 );
     zoom  = zoom0;   // projection scale
@@ -897,7 +912,7 @@ public class Cave3DRenderer // implements Renderer
       // computeProjection();
     } catch ( Cave3DParserException e ) {
       // Log.v( TAG, "parser exception " + filename );
-      Toast.makeText( mCave3D, "parser error " + filename, Toast.LENGTH_SHORT).show();
+      mCave3D.toast(R.string.error_parser_error, filename);
       mParser = null;
     }
     return hasParser(); 
@@ -1008,9 +1023,9 @@ public class Cave3DRenderer // implements Renderer
     // Log.v(TAG, "shif factor " + shift_factor + " zoom " + zoom );
 
     // TODO VECTOR
-    x0 = (xmin + xmax)/2;  // center of the model
-    y0 = (ymin + ymax)/2;
-    z0 = (zmin + zmax)/2;
+      x0 = (xmin + xmax)/2;  // center of the model
+      y0 = (ymin + ymax)/2;
+      z0 = (zmin + zmax)/2;
     // v0 = new Cave3DVector( (xmin + xmax)/2, (ymin + ymax)/2, (zmin + zmax)/2 );
 
     // Log.v(TAG, "bounds X " + xmin + " " + xmax + " Y " + ymin + " " + ymax
@@ -1074,7 +1089,7 @@ public class Cave3DRenderer // implements Renderer
           }
         }
       }
-      // Toast.makeText( mCave3D, "computing convex hull walls", Toast.LENGTH_SHORT).show();
+      // mCave3D.toast( "computing convex hull walls" );
     }
     mCave3D.setButtonWall();
   }
@@ -1146,15 +1161,18 @@ public class Cave3DRenderer // implements Renderer
     vertices_powercrust  = null;
     if ( ! clear ) {
       if ( WALL_POWERCRUST < WALL_MAX /* && Cave3D.mWallPowercrust */ ) {
+        // if ( mParser.getSplayNumber() < 50 * mParser.getShotNumber() ) {
+        //   mCave3D.toast( R.string.powercrust_few_splays );
+        // }
         // Log.v("Cave3D PC", "PowerCrust" );
         triangles_powercrust = new ArrayList< Cave3DTriangle >();
         try {
-          // Toast.makeText( mCave3D, "computing the powercrust", Toast.LENGTH_SHORT).show();
+          // mCave3D.toast( "computing the powercrust" );
           powercrust = new Cave3DPowercrust( );
           powercrust.resetSites( 3 );
-          int ntot = stations.size();
           // Log.v("Cave3D PC", "... add sites (stations " + ntot + ")" );
           double x, y, z;
+          int ntot = stations.size();
           for ( int n0 = 0; n0 < ntot; ++n0 ) {
             Cave3DStation st = stations.get( n0 );
             x = st.e;
@@ -1187,9 +1205,9 @@ public class Cave3DRenderer // implements Renderer
           powercrust.release();
           // Log.v("Cave3D PC", "powercrust done" );
           if ( ok == 1 ) {
-            Toast.makeText( mCave3D, "powercrust successful " + powercrust.np + "/" + powercrust.nf, Toast.LENGTH_SHORT).show();
+            mCave3D.toast(R.string.powercrust_successful, powercrust.np, powercrust.nf);
           } else {
-            Toast.makeText( mCave3D, "powercrust failed", Toast.LENGTH_SHORT).show();
+            mCave3D.toast( R.string.powercrust_failed );
           }
         } catch ( Exception e ) {
           Log.v("Cave3D", "ERROR: " + e.getMessage() );
@@ -1231,9 +1249,15 @@ public class Cave3DRenderer // implements Renderer
 
     // Camera = Origin + radius * NZ
     // TODO VECTOR
-    xc = x0 + xoff + radius * nzx; // st * cp;
-    yc = y0 + yoff + radius * nzy; // st * sp;
-    zc = z0 + zoff + radius * nzz; // ct;
+    if ( mCenterStation == null ) {
+      xc = x0 + xoff + radius * nzx; // st * cp;
+      yc = y0 + yoff + radius * nzy; // st * sp;
+      zc = z0 + zoff + radius * nzz; // ct;
+    } else {
+      xc = mCenterStation.e;
+      yc = mCenterStation.n;
+      zc = mCenterStation.z;
+    }
     // vc = v0.plus( voff ).plus( nz.times( radius ) );
 
     // Log.v(TAG, "Origin " + x0 + " " + y0 + " " + z0 );
@@ -1859,8 +1883,7 @@ public class Cave3DRenderer // implements Renderer
     }
   }
 
-  void addSegment( float e1, float n1, float z1, float e2, float n2, float z2, Path path )
-  // void addSegment( Cave3DVector v1, Cave3DVector v2, Path path )
+  void addSegmentArrow( float e1, float n1, float z1, float e2, float n2, float z2, Path path )
   {
     float x1,y1, x2,y2;
 
@@ -1888,6 +1911,11 @@ public class Cave3DRenderer // implements Renderer
     // if ( ( x1 < 0 && x2 < 0 ) || ( x1 > Cave3D.mDisplayWidth && x2 > Cave3D.mDisplayWidth ) ) return;
     // if ( ( y1 < 0 && y2 < 0 ) || ( y1 > Cave3D.mDisplayHeight && y2 > Cave3D.mDisplayHeight ) ) return;
     path.moveTo( x1, y1 );
+    path.lineTo( x2, y2 );
+    float x3 = (x2-x1)/40;
+    float y3 = (y2-y1)/40;
+    path.lineTo( x2-2*x3+y3, y2-2*y3-x3 );
+    path.lineTo( x2-2*x3-y3, y2-2*y3+x3 );
     path.lineTo( x2, y2 );
   }
 
@@ -2003,8 +2031,7 @@ public class Cave3DRenderer // implements Renderer
           // v2 = v1.plus( r, 0.0, 0.0 );
 
           path  = new Cave3DDrawPath( eastPaint );
-          addSegment( x1, y1, z1, x2, y2, z2, path.path );
-          // addSegment( v1, v2, path.path );
+          addSegmentArrow( x1, y1, z1, x2, y2, z2, path.path );
           paths_frame.add( path );
 
           // TODO VECTOR
@@ -2014,8 +2041,7 @@ public class Cave3DRenderer // implements Renderer
           // v2 = v1.plus( 0.0, r, 0.0 );
 
           path  = new Cave3DDrawPath( northPaint );
-          addSegment( x1, y1, z1, x2, y2, z2, path.path );
-          // addSegment( v1, v2, path.path );
+          addSegmentArrow( x1, y1, z1, x2, y2, z2, path.path );
           paths_frame.add( path );
 
           // TODO VECTOR
@@ -2025,8 +2051,7 @@ public class Cave3DRenderer // implements Renderer
           // v2 = v1.plus( 0.0, 0.0, 2*r );
 
           path  = new Cave3DDrawPath( vertPaint );
-          addSegment( x1, y1, z1, x2, y2, z2, path.path );
-          // addSegment( v1, v2, path.path );
+          addSegmentArrow( x1, y1, z1, x2, y2, z2, path.path );
           paths_frame.add( path );
         } else if ( frameMode == FRAME_GRID ) {
           path  = new Cave3DDrawPath( northPaint );
@@ -2042,6 +2067,13 @@ public class Cave3DRenderer // implements Renderer
               // add grid horiz-line
               path.path.moveTo( x1f, y1f );
               path.path.lineTo( x2f, y2f );
+              if ( k == 0 ) {
+                float x = (x2f - x1f)/40;
+                float y = (y2f - y1f)/40;
+                path.path.lineTo( x2f-2*x-y, y2f-2*y+x);
+                path.path.lineTo( x2f-2*x+y, y2f-2*y-x);
+                path.path.lineTo( x2f, y2f );
+              }
             }
           } else {
             // TODO VECTOR
@@ -2066,6 +2098,13 @@ public class Cave3DRenderer // implements Renderer
               if ( ( y1f < 0 && y2f < 0 ) || ( y1f > hh && y2f > hh ) ) continue;
               path.path.moveTo( x1f, y1f );
               path.path.lineTo( x2f, y2f );
+              if ( k == 0 ) {
+                float x = (x2f - x1f)/40;
+                float y = (y2f - y1f)/40;
+                path.path.lineTo( x2f-2*x-y, y2f-2*y+x);
+                path.path.lineTo( x2f-2*x+y, y2f-2*y-x);
+                path.path.lineTo( x2f, y2f );
+              }
             }
           } else {
             // TODO VECTOR
@@ -2458,9 +2497,9 @@ public class Cave3DRenderer // implements Renderer
           // TODO
         }
       } catch ( FileNotFoundException e ) { 
-        Toast.makeText( mCave3D, "File not found", Toast.LENGTH_SHORT).show();
+        mCave3D.toast( R.string.error_file_not_found );
       } catch ( IOException e ) {
-        Toast.makeText( mCave3D, "IO Exception", Toast.LENGTH_SHORT).show();
+        mCave3D.toast( R.string.error_io_exception );
       } finally {
         if ( fw != null ) {
           try {
@@ -2470,20 +2509,20 @@ public class Cave3DRenderer // implements Renderer
         }
       }
     // } else  {
-    //   Toast.makeText( mCave3D, "ConvexHull walls are disabled", Toast.LENGTH_SHORT).show();
+    //   mCave3D.toast( "ConvexHull walls are disabled" );
     // }
   }
 
   void exportModel( int type, String pathname, boolean b_splays, boolean b_walls, boolean b_surface, boolean overwrite )
   { 
     if ( (new File(pathname)).exists() && ! overwrite ) {
-      Toast.makeText( mCave3D, "Not overwriting existing file" + pathname, Toast.LENGTH_SHORT).show();
+      mCave3D.toast(R.string.warning_not_overwrite, pathname);
       return;
     }
       
     if ( type == ModelType.SERIAL ) { // serialization
       if ( ! pathname.endsWith(".txt") ) {
-        Toast.makeText( mCave3D, "Not a txt file" + pathname, Toast.LENGTH_SHORT).show();
+        mCave3D.toast(R.string.warning_not_txt, pathname);
       } else {
         serializeWalls( pathname );
       }
@@ -2491,7 +2530,7 @@ public class Cave3DRenderer // implements Renderer
       boolean ret = false;
       if ( type == ModelType.KML_ASCII ) { // KML export ASCII
         if ( ! pathname.endsWith(".kml") ) {
-          Toast.makeText( mCave3D, "Not a kml file" + pathname, Toast.LENGTH_SHORT).show();
+          mCave3D.toast(R.string.warning_not_kml, pathname);
         } else {
           KMLExporter kml = new KMLExporter();
           if ( walls != null ) {
@@ -2507,14 +2546,14 @@ public class Cave3DRenderer // implements Renderer
         }
       } else if ( type == ModelType.CGAL_ASCII ) { // CGAL export: only stations and splay-points
         if ( ! pathname.endsWith(".cgal") ) {
-          Toast.makeText( mCave3D, "Not a CGAL text file" + pathname, Toast.LENGTH_SHORT).show();
+          mCave3D.toast(R.string.warning_not_cgal, pathname);
         } else {
           CGALExporter cgal = new CGALExporter();
           ret = cgal.exportASCII( pathname, mParser, b_splays, b_walls, b_surface );
         }
       } else {                                     // STL export ASCII or binary
         if ( ! pathname.endsWith(".stl") ) {
-          Toast.makeText( mCave3D, "Not a STL file" + pathname, Toast.LENGTH_SHORT).show();
+          mCave3D.toast(R.string.warning_not_stl, pathname);
         } else {
           STLExporter stl = new STLExporter();
           if ( walls != null ) {
@@ -2536,9 +2575,9 @@ public class Cave3DRenderer // implements Renderer
         }
       }
       if ( ret ) {
-        Toast.makeText( mCave3D, "OK. Exported " + pathname, Toast.LENGTH_SHORT).show();
+        mCave3D.toast(R.string.ok_export, pathname);
       } else {
-        Toast.makeText( mCave3D, "Failed Export " + pathname, Toast.LENGTH_SHORT).show();
+        mCave3D.toast(R.string.error_export_failed, pathname);
       }
     }
   }

@@ -41,7 +41,7 @@
   <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
     android:layout_width="wrap_content" 
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:paddingLeft="6dip"
     android:paddingRight="6dip"
     android:paddingBottom="3dip">
@@ -50,6 +50,11 @@
           android:layout_width="wrap_content" 
           android:layout_height="wrap_content" 
           android:text="@string/DISTANCE"
+    />
+    <Button android:id="@+id/st_center"
+          android:layout_width="wrap_content" 
+          android:layout_height="wrap_content" 
+          android:text="@string/CENTER"
     />
 
   </LinearLayout>

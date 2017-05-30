@@ -54,6 +54,7 @@
     <string name="STATION">S T A T I O N</string>
     <string name="STATIONS_DISTANCE">STATIONS DISTANCE</string>
     <string name="DISTANCE">DISTANCE</string>
+    <string name="CENTER">CENTER</string>
     <string name="select_file">Cave3D - Select a file:</string>
     <string name="Wall">Walls</string>
     <string name="Surface">Surface</string>
@@ -73,6 +74,23 @@
     <string name="walls_hull">Hull</string>
     <string name="walls_delaunay">Delaunay</string>
 
+    <string name="powercrust_few_splays">Powercrust: too few splays</string>
+    <string name="powercrust_failed">Powercrust failed</string>
+    <string name="powercrust_successful">Powercrust successful: %1$d / %2$d</string>
+
+    <string name="ok_export">OK. Exported %1$s</string>
+
+    <string name="error_file_not_found">Error: file not found</string>
+    <string name="error_io_exception">Error: IO exception</string>
+    <string name="error_parser_error">Error: parser error %1$s</string>
+    <string name="error_export_failed">Error: failed export %1$s</string>
+
+    <string name="warning_not_overwrite">Warning: not overwriting existing file %1$s</string>
+    <string name="warning_not_txt">Warning: not txt file %1$s</string>
+    <string name="warning_not_kml">Warning: not kml file %1$s</string>
+    <string name="warning_not_cgal">Warning: not CGAL text file %1$s</string>
+    <string name="warning_not_stl">Warning: not stl file %1$s</string>
+    <string name="warning_no_cwd">Warning: missing initial directory</string>
 
     <string name="pref_base_path_title">Base path</string>
     <string name="pref_base_path_summary">App base path</string>
