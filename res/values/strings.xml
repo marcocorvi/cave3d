@@ -123,6 +123,9 @@
     <string name="pref_split_stretch_summary">Stretch wall points along the leg</string>
     <string name="pref_split_stretch_message">Shift wall points by a small quantity along the leg</string>
 
+    <string name="pref_powercrust_delta_title">Powercrust Delta</string>
+    <string name="pref_powercrust_delta_summary">Splay filtering</string>
+    <string name="pref_powercrust_delta_message">Filter out splays differing from previous and next ones too much</string>
 <!--
     <string name="pref_convex_hull_title">Convex hull</string>
     <string name="pref_convex_hull_summary">Convex hull walls</string>

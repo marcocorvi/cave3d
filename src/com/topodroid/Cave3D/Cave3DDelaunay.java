@@ -192,7 +192,7 @@ class Cave3DDelaunay
   // float arc_distance( DelaunayPoint p1, DelaunayPoint p2 ) { return (float)( Math.acos( p1.v.dot( p2.v ) ) ); }
   // float arc_distance( Cave3DVector v1, Cave3DVector v2 ) { return (float)( Math.acos( v1.dot( v2 ) ) ); }
 
-  // float distance( Cave3DVector v1, Cave3DVector v2 ) { return v1.distance( v2 ); }
+  // float distance3D( Cave3DVector v1, Cave3DVector v2 ) { return v1.distance3D( v2 ); }
 
   // triple-product of three Cave3DVectors
   // double triple_product( Cave3DVector p1, Cave3DVector p2, Cave3DVector p3 ) { return p1.cross( p2 ).dot( p3 ); }

@@ -22,9 +22,13 @@ import android.util.Log;
 
 public class Cave3DThParser extends Cave3DParser
 {
-  static final int FLIP_NONE = 0;
+  static final int FLIP_NONE       = 0;
   static final int FLIP_HORIZONTAL = 1;
   static final int FLIP_VERTICAL   = 2;
+
+  static final int DATA_NONE      = 0;
+  static final int DATA_NORMAL    = 1;
+  static final int DATA_DIMENSION = 2;
 
   ArrayList< String > mMarks;
 
@@ -111,7 +115,7 @@ public class Cave3DThParser extends Cave3DParser
     // Log.v("Cave3D", "basepath <" + basepath + ">");
     // Log.v("Cave3D", "filename <" + filename + ">");
     Cave3DCS cs = null;
-
+    int in_data = 0; // 0 none, 1 normal, 2 dimension
 
     int[] survey_pos = new int[50]; // FIXME max 50 levels
     int ks = 0;
@@ -196,8 +200,18 @@ public class Cave3DThParser extends Cave3DParser
               } else if ( cmd.equals("mark") ) {
                 mMarks.add( line );
               } else if ( cmd.equals("data") ) {
+                in_data = 0;
                 // data normal from to length compass clino ...
-                // TODO
+                idx = nextIndex( vals, idx );
+                if ( idx < vals.length ) {
+                  if ( vals[idx].equals("normal") ) {
+                    in_data = DATA_NORMAL;
+                  } else if ( vals[idx].equals("dimension") ) {
+                    in_data = DATA_DIMENSION;
+                  } else {
+                    // TODO
+                  }
+                }
               } else if ( cmd.equals("units") ) {
                 idx = nextIndex( vals, idx );
                 if ( idx < vals.length ) {
@@ -271,46 +285,50 @@ public class Cave3DThParser extends Cave3DParser
                   }
                 }
               } else if ( vals.length >= 5 ) {
-                String from = vals[idx];
-                idx = nextIndex( vals, idx );
-                if ( idx < vals.length ) {
-                  String to = vals[idx]; 
-                  try {
-                    idx = nextIndex( vals, idx );
-                    if ( idx < vals.length ) {
-                      float len  = Float.parseFloat( vals[idx] ) * units_len;
+                if ( in_data == DATA_NORMAL ) {
+                  String from = vals[idx];
+                  idx = nextIndex( vals, idx );
+                  if ( idx < vals.length ) {
+                    String to = vals[idx]; 
+                    try {
                       idx = nextIndex( vals, idx );
                       if ( idx < vals.length ) {
-                        float ber  = Float.parseFloat( vals[idx] ) * units_len;
-                        if ( use_centerline_declination ) {
-                          ber += centerline_declination;
-                        } else if ( use_survey_declination ) {
-                          ber += survey_declination;
-                        }
+                        float len  = Float.parseFloat( vals[idx] ) * units_len;
                         idx = nextIndex( vals, idx );
                         if ( idx < vals.length ) {
-                          float cln  = Float.parseFloat( vals[idx] ) * units_len;
-                          // TODO add shot
-                          if ( to.equals("-") || to.equals(".") ) {
-                            // TODO splay shot
-                            from = from + "@" + path;
-                            to = null;
-                            splays.add( new Cave3DShot( from, to, len, ber, cln ) );
-                          } else {
-                            from = from + "@" + path;
-                            to   = to + "@" + path;
-                            // StringWriter sw = new StringWriter();
-                            // PrintWriter pw = new PrintWriter( sw );
-                            // pw.format("%s %s %.2f %.1f %.1f", from, to, len, ber, cln );
-                            // Log.v("Cave3D", sw.getBuffer().toString() );
-                            shots.add( new Cave3DShot( from, to, len, ber, cln ) );
+                          float ber  = Float.parseFloat( vals[idx] ) * units_len;
+                          if ( use_centerline_declination ) {
+                            ber += centerline_declination;
+                          } else if ( use_survey_declination ) {
+                            ber += survey_declination;
+                          }
+                          idx = nextIndex( vals, idx );
+                          if ( idx < vals.length ) {
+                            float cln  = Float.parseFloat( vals[idx] ) * units_len;
+                            // TODO add shot
+                            if ( to.equals("-") || to.equals(".") ) {
+                              // TODO splay shot
+                              from = from + "@" + path;
+                              to = null;
+                              splays.add( new Cave3DShot( from, to, len, ber, cln ) );
+                            } else {
+                              from = from + "@" + path;
+                              to   = to + "@" + path;
+                              // StringWriter sw = new StringWriter();
+                              // PrintWriter pw = new PrintWriter( sw );
+                              // pw.format("%s %s %.2f %.1f %.1f", from, to, len, ber, cln );
+                              // Log.v("Cave3D", sw.getBuffer().toString() );
+                              shots.add( new Cave3DShot( from, to, len, ber, cln ) );
+                            }
                           }
                         }
                       }
+                    } catch ( NumberFormatException e ) {
+                      Log.e("Cave3D", "NUMBER ERROR shot data number format exception");
                     }
-                  } catch ( NumberFormatException e ) {
-                    Log.e("Cave3D", "NUMBER ERROR shot data number format exception");
                   }
+                } else if ( in_data == DATA_DIMENSION ) {
+                  // TODO
                 }
               }            
             } else if ( in_surface ) {

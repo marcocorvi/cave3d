@@ -84,6 +84,16 @@
        android:dialogMessage="@string/pref_split_stretch_message"
        android:inputType="numberDecimal"
        />
+
+    <android.preference.EditTextPreference
+       android:key="CAVE3D_POWERCRUST_DELTA"
+       android:title="@string/pref_powercrust_delta_title"
+       android:summary="@string/pref_powercrust_delta_summary"
+       android:dialogTitle="@string/pref_powercrust_delta_title"
+       android:dialogMessage="@string/pref_powercrust_delta_message"
+       android:inputType="numberDecimal"
+       />
+
    </android.preference.PreferenceCategory>
 
 <!--

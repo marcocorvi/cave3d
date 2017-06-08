@@ -114,7 +114,7 @@ class Cave3DVector
   }
 
   // euclidean distance from another point
-  float distance( Cave3DVector p )
+  float distance3D( Cave3DVector p )
   {
     float a = x - p.x;
     float b = y - p.y;
@@ -123,7 +123,7 @@ class Cave3DVector
     return (float)Math.sqrt( a*a + b*b + c*c );
   }
 
-  float squareDistance( Cave3DVector p )
+  float squareDistance3D( Cave3DVector p )
   {
     float a = x - p.x;
     float b = y - p.y;

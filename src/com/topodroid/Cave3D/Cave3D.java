@@ -86,6 +86,7 @@ public class Cave3D extends Activity
   static boolean mSplitStretch   = false;
   static float mSplitRandomizeDelta = 0.1f; // meters
   static float mSplitStretchDelta   = 0.1f;
+  static float mPowercrustDelta     = 0.1f; // meters
   // static boolean mWallConvexHull = false;
   // static boolean mWallPowercrust = false;
   // static boolean mWallDelaunay   = false;
@@ -101,8 +102,9 @@ public class Cave3D extends Activity
   static final String CAVE3D_SPLIT_TRIANGLES  = "CAVE3D_SPLIT_TRIANGLES";
   static final String CAVE3D_SPLIT_RANDOM     = "CAVE3D_SPLIT_RANDOM";
   static final String CAVE3D_SPLIT_STRETCH    = "CAVE3D_SPLIT_STRETCH";
-  static final String CAVE3D_CONVEX_HULL      = "CAVE3D_CONVEX_HULL";
-  static final String CAVE3D_POWERCRUST       = "CAVE3D_POWERCRUST";
+  // static final String CAVE3D_CONVEX_HULL      = "CAVE3D_CONVEX_HULL";
+  // static final String CAVE3D_POWERCRUST       = "CAVE3D_POWERCRUST";
+  static final String CAVE3D_POWERCRUST_DELTA = "CAVE3D_POWERCRUST_DELTA";
   // static final String CAVE3D_DELAUNAY         = "CAVE3D_DELAUNAY";
   // static final String CAVE3D_HULL             = "CAVE3D_HULL";
 
@@ -160,6 +162,11 @@ public class Cave3D extends Activity
           mSplitStretch = false;
         }
       } catch ( NumberFormatException e ) { }
+    } else if ( k.equals( CAVE3D_POWERCRUST_DELTA ) ) { 
+      try {
+        mPowercrustDelta = Float.parseFloat( sp.getString( k, "0.1" ) );
+      } catch ( NumberFormatException e ) { }
+      
     // } else if ( k.equals( CAVE3D_CONVEX_HULL ) ) { 
     //   mWallConvexHull = sp.getBoolean( k, true );
     // } else if ( k.equals( CAVE3D_POWERCRUST ) ) { 
@@ -354,7 +361,6 @@ public class Cave3D extends Activity
       if ( mFilename != null ) mRenderer.resetGeometry();
     } else if ( p++ == pos ) { // DO_WALLS
       new Cave3DWallsDialog( this, this, mRenderer ).show();
-      // mRenderer.makePowercrust();
     } else if ( p++ == pos ) { // OPTIONS
       startActivity( new Intent( this, Cave3DPreferences.class ) );
     }

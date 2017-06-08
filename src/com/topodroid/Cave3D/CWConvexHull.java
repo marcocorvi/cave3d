@@ -206,7 +206,7 @@ public class CWConvexHull
     for ( int k1 = 0; k1 < mVertex.size(); ++k1 ) {
       CWPoint p1 = mVertex.get(k1);
       for ( int k2 = k1+1; k2 < mVertex.size(); ++k2 ) {
-        float d = p1.distance( mVertex.get( k2 ) );
+        float d = p1.distance3D( mVertex.get( k2 ) );
         if ( d > diam ) diam = d;
       }
     }
@@ -522,9 +522,9 @@ public class CWConvexHull
       for ( CWTriangle t : mFace ) {
         // Log.v("Cave3D", "Triangle " + t.mCnt + " area " + t.area() );
         if ( t.area() < 0.01f ) {
-          float d12 = t.v1.distance( t.v2 );
-          float d13 = t.v1.distance( t.v3 );
-          float d23 = t.v3.distance( t.v2 );
+          float d12 = t.v1.distance3D( t.v2 );
+          float d13 = t.v1.distance3D( t.v3 );
+          float d23 = t.v3.distance3D( t.v2 );
           if ( d12 < d13 ) {
             if ( d12 < d23 ) {
               reduce( t, t.v2, t.v1, t.v3, t.s3, t.s1, t.s2 );
@@ -741,13 +741,13 @@ public class CWConvexHull
       CWPoint p3 = t3.oppositePointOf( t0.s3 );
       CWPoint p1 = t1.oppositePointOf( t0.s1 );
       CWPoint p2 = t2.oppositePointOf( t0.s2 );
-      if ( v0.squareDistance(p3) < t0.v1.squareDistance(t0.v2) ) {
+      if ( v0.squareDistance3D(p3) < t0.v1.squareDistance3D(t0.v2) ) {
         reformDiamond( v0, p3, t0.v1, t0.v2, t3, t31, t0.s3 );
       }
-      if ( v0.squareDistance(p1) < t0.v2.squareDistance(t0.v3) ) {
+      if ( v0.squareDistance3D(p1) < t0.v2.squareDistance3D(t0.v3) ) {
         reformDiamond( v0, p1, t0.v2, t0.v3, t1, t11, t0.s1 );
       }
-      if ( v0.squareDistance(p2) < t0.v3.squareDistance(t0.v1) ) {
+      if ( v0.squareDistance3D(p2) < t0.v3.squareDistance3D(t0.v1) ) {
         reformDiamond( v0, p2, t0.v3, t0.v1, t2, t21, t0.s2 );
       }
       insidePts.remove( p0 );
@@ -781,7 +781,7 @@ public class CWConvexHull
   
   private boolean isVertex( Cave3DVector p, float eps )
   {
-    for ( CWPoint v : mVertex ) if ( v.distance(p) < eps ) return true;
+    for ( CWPoint v : mVertex ) if ( v.distance3D(p) < eps ) return true;
     return false;
   }
 
@@ -1147,10 +1147,10 @@ public class CWConvexHull
       int k = ks;
       CWIntersection ii = ints.get( k % ns );
       int kmin = k;
-      float dmin = w2.distance( ii.mV2 ) + w3.distance( ii.mV2 );
+      float dmin = w2.distance3D( ii.mV2 ) + w3.distance3D( ii.mV2 );
       for ( ; k < ke; ++k ) {
         ii = ints.get( k % ns );
-        float d = w2.distance( ii.mV2 ) + w3.distance( ii.mV2 );
+        float d = w2.distance3D( ii.mV2 ) + w3.distance3D( ii.mV2 );
         if ( d < dmin ) { dmin = d; kmin = k; }
       }
       // Log.v("Cave3D", "[1] ks " + ks + " ke " + ke + " kmin " + kmin );
@@ -1167,10 +1167,10 @@ public class CWConvexHull
       int k = ks;
       CWIntersection ii = ints.get( k % ns );
       int kmin = k;
-      float dmin = w2.distance( ii.mV2 ) + w3.distance( ii.mV2 );
+      float dmin = w2.distance3D( ii.mV2 ) + w3.distance3D( ii.mV2 );
       for ( ; k < ke; ++k ) {
         ii = ints.get( k % ns );
-        float d = w2.distance( ii.mV2 ) + w3.distance( ii.mV2 );
+        float d = w2.distance3D( ii.mV2 ) + w3.distance3D( ii.mV2 );
         if ( d < dmin ) { dmin = d; kmin = k; }
       }
       // Log.v("Cave3D", "[2] ks " + ks + " ke " + ke + " kmin " + kmin );

@@ -40,7 +40,7 @@ class Cave3DPowercrust
   public native void addSite( double x, double y, double z );
   public native long nrSites();
 
-  public native int compute();
+  public native int compute( );
   public native void release();
 
   static {

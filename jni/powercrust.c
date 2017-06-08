@@ -127,7 +127,7 @@ Java_com_topodroid_Cave3D_Cave3DPowercrust_compute( MYJENV )
   double theta = 0.0;
   double est_r = 1.0;
   // fclose( fpcgal ) ;
-  LOGI( "powercrust compute\n" );
+  // filter out sites that lies in a ball of radius da without any other site
   return driver( seed, est_r, defer, deep, theta, vd, bad );
   // num_poles = exec_first_part( 3, seed, mup, vd, bad,  NULL );
   // LOGI( "%d", num_poles );

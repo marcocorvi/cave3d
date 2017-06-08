@@ -87,13 +87,16 @@ public class Cave3DStation
     return true;
   }
 
-  double distance( Cave3DStation p )
+  double distance3D( Cave3DStation p )
   {
     double xx = (e - p.e);
     double yy = (n - p.n);
     double zz = (z - p.z);
     return Math.sqrt( xx*xx + yy*yy + zz*zz );
   }
+
+  Cave3DVector toVector() { return new Cave3DVector( e, n, z ); }
+  Cave3DPoint  toPoint()  { return new Cave3DPoint( e, n ); }
 
 }
 

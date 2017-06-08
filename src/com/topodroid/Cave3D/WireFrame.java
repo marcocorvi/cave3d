@@ -57,7 +57,7 @@ public class WireFrame
         if ( k1 == k2 ) continue;
         Cave3DStation s2 = mPoint.get(k2);
         if ( s2 == null ) continue;
-        double d = s1.distance( s2 );
+        double d = s1.distance3D( s2 );
         for ( int k = 0; k<n; ++k) {
           if ( d < dist[k] ) {
             for ( int kk = n-1; kk > k; --kk ) {

@@ -147,7 +147,8 @@ public class Cave3DRenderer // implements Renderer
   private List< Cave3DDrawPath > paths_planview;
 
   private ArrayList< Cave3DPolygon > planview = null;
-  private ArrayList< Cave3DPolygon > profileview = null;
+  // private ArrayList< Cave3DPolygon > profileview = null;
+  private ArrayList< Cave3DSegment > profilearcs = null;
 
   private boolean do_paths_frame;
   private boolean do_paths_legs;
@@ -298,18 +299,44 @@ public class Cave3DRenderer // implements Renderer
     return vol / 6;
   }
 
+  // return the intersection abscissa if [p1,p2) intersect [q1,q2] in the X-Y plane
+  // p1, p2 shot endpoints
+  // q1, q2 triangle side
+  //
+  //   p1x * (1-s) + p2x * s = q1x * (1-t) + q2x * t
+  //     (p2x-p1x) * s + (q1x-q2x) * t == q1x - p1x
+  //     (p2y-p1y) * s + (q1y-q2y) * t == q1y - p1y
+  //   det = (p2x-p1x)*(q1y-q2y) - (q1x-q2x)*(p2y-p1y)
+  //
+  private float intersectZ = 0;
+
+  private Cave3DVector intersect2D( Cave3DVector p1, Cave3DVector p2, Cave3DVector q1, Cave3DVector q2 )
+  {
+    float det = (p2.x-p1.x)*(q1.y-q2.y) - (q1.x-q2.x)*(p2.y-p1.y);
+    if ( det == 0f ) return null;
+
+    float s = ( (q1.y-q2.y) * (q1.x - p1.x) - (q1.x-q2.x) * (q1.y - p1.y) )/ det;
+    float t = (-(p2.y-p1.y) * (q1.x - p1.x) + (p2.x-p1.x) * (q1.y - p1.y) )/ det;
+    if ( t >= 0 && t < 1 ) {
+      intersectZ = s;
+      return q1.times(1-t).plus( q2.times(t) );
+    }
+    return null;
+  }
+
   public void computePowercrustProfileView()
   {
     if ( triangles_powercrust == null || vertices_powercrust == null ) return;
-    profileview = new ArrayList< Cave3DPolygon >();
+    // profileview = null;
+    profilearcs = null;
     int nst = stations.size();
     int nsh = shots.size();
     int S[] = new int[ nsh ];
-    Cave3DPoint F[] = new Cave3DPoint[ nsh ]; // P - from
-    Cave3DPoint T[] = new Cave3DPoint[ nsh ]; // P - to
-    Cave3DPoint P[] = new Cave3DPoint[ nsh ]; // point on bisecant
-    Cave3DPoint B[] = new Cave3DPoint[ nst ]; // bisecant
-    Cave3DPoint M[] = new Cave3DPoint[ nsh ]; // midpoints
+    Cave3DPoint F[] = new Cave3DPoint[ nsh ]; // P - from point of shot k
+    Cave3DPoint T[] = new Cave3DPoint[ nsh ]; // P - to point of shot k
+    Cave3DPoint P[] = new Cave3DPoint[ nsh ]; // point on intersection of bisecants
+    Cave3DPoint B[] = new Cave3DPoint[ nst ]; // bisecant at station j
+    Cave3DPoint M[] = new Cave3DPoint[ nsh ]; // midpoint of shot k
 
     // find bisecant of shots at st
     for ( int k=0; k < nst; ++k ) {
@@ -367,8 +394,8 @@ public class Cave3DRenderer // implements Renderer
       T[k] = new Cave3DPoint( to.e, to.n );
       M[k] = new Cave3DPoint( (fr.e+to.e)/2, (fr.n+to.n)/2 );
       // intersection of bisecants
-      Cave3DPoint b1 = null;
-      Cave3DPoint b2 = null;
+      Cave3DPoint b1 = null; // bisecant at from point
+      Cave3DPoint b2 = null; // bisecant at to point
       for (int kk=0; kk<nst; ++kk ) {
         Cave3DStation st = stations.get(kk);
         if ( st == fr ) { b1 = B[kk]; if ( b2 != null ) break; }
@@ -397,74 +424,173 @@ public class Cave3DRenderer // implements Renderer
     int nvp = vertices_powercrust.length;
     for ( int k=0; k<nvp; ++k ) vertices_powercrust[k].angle = null;
 
-    // project triangles
     int nup = 0;
-    for ( Cave3DTriangle t : triangles_powercrust ) {
-      int nn = t.size;
-      if ( nn <= 2 ) continue;
-      Cave3DPoint c = new Cave3DPoint( t.center.x, t.center.y );
-      for ( int k=0; k<nsh; ++k ) {
-        float dx = P[k].x - c.x;
-        float dy = P[k].y - c.y;
-        float zf = (P[k].x - F[k].x)*dy - (P[k].y-F[k].y)*dx;
-        float zt = (P[k].x - T[k].x)*dy - (P[k].y-T[k].y)*dx;
-        if ( zf * zt <= 0 ) {
-          Cave3DPoint n = new Cave3DPoint( t.normal.x, t.normal.y );
-          if ( (n.x*dx + n.y*dy)*S[k] > 0 ) {
-            nup ++;
-            Cave3DSite s1 = (Cave3DSite)t.vertex[nn-2];
-            Cave3DSite s0 = (Cave3DSite)t.vertex[nn-1];
-            for ( int kk=0; kk<nn; ++kk ) {
-              Cave3DSite s2 = (Cave3DSite)t.vertex[kk];
-              s0.insertAngle( s1, s2 );
-              s1 = s0;
-              s0 = s2;
+    // if ( true ) {
+      profilearcs = new ArrayList< Cave3DSegment >();
+      // intersection triangles is ok for vertical caves
+      for ( int k = 0; k < nsh; ++k ) {
+        Cave3DShot sh = shots.get(k);
+        Cave3DVector p1 = sh.from_station.toVector();
+        Cave3DVector p2 = sh.to_station.toVector();
+        ArrayList< Cave3DSegment > tmp = new ArrayList< Cave3DSegment >();
+        // ArrayList< Cave3DSegment > tmp = new ArrayList< Cave3DSegment >();
+        for ( Cave3DTriangle t : triangles_powercrust ) {
+          int nn = t.size;
+          if ( nn <= 2 ) continue;
+          Cave3DVector q1 = null; // intersection points
+          Cave3DSite s1 = (Cave3DSite)t.vertex[nn-1];
+          float z1=1;
+          for ( int kk=0; kk<nn; ++kk ) {
+            Cave3DSite s2 = (Cave3DSite)t.vertex[kk];
+            Cave3DVector qq = intersect2D( p1, p2, s1, s2 );
+            if ( qq != null ) {
+              if ( q1 == null ) {
+                q1 = qq;
+                z1 = intersectZ;
+              } else {
+                float z2 = intersectZ;
+                if ( z1 > z2 ) { float zz = z1; z1 = z2; z2 = zz; }
+                if ( z1 < 1 && z2 > 0 ) {
+                  tmp.add( new Cave3DSegment( q1, qq ) );
+                }
+                break;
+              }
+            }
+            s1 = s2;
+          }
+        }
+        // make lists of connected paths
+        ArrayList< Cave3DSegmentList > list = new ArrayList< Cave3DSegmentList >();
+        int nt = tmp.size();
+        for ( Cave3DSegment s1 : tmp ) {
+          Cave3DSegmentList ll = null;
+          for ( Cave3DSegmentList l1 : list ) {
+            if ( ll == null ) {
+              for ( Cave3DSegment s2 = l1.head; s2 != null; s2 = s2.next ) {
+                if ( s1.touches( s2, 0.01f ) ) {
+                  l1.add( s1 );
+                  ll = l1;
+                  break;
+                }
+              }
+            } else {
+              for ( Cave3DSegment s2 = l1.head; s2 != null; s2 = s2.next ) {
+                if ( s1.touches( s2, 0.01f ) ) {
+                  ll.mergeIn( l1 );
+                  break;
+                }
+              }
             }
           }
-          break;
+          if ( ll == null ) {
+            list.add( new Cave3DSegmentList( s1 ) );
+          } 
+          // else could remove empty lists
         }
-      }
-    }
-    profileview = new ArrayList< Cave3DPolygon >();
-    ArrayList< Cave3DPolygon > tmp = new ArrayList< Cave3DPolygon >();
-    makePolygons( tmp );
-    // Log.v("Cave3D", "profile polygons " + tmp.size() );
-    for ( Cave3DPolygon poly : tmp ) {
-      Cave3DPolygon poly2 = new Cave3DPolygon();
-      for ( Cave3DSite site : poly.points ) {
-        float x = site.x;
-        float y = site.y;
-        // find the station the site lies close to
-        Cave3DStation st = null;
-        float dmin = 0;
-        for ( Cave3DStation st1 : stations ) {
-          float d = (x - st1.e)*(x - st1.e) + (y - st1.n)*(y - st1.n);
-          if ( st == null || d < dmin ) { dmin = d; st = st1; }
+        // get the closest path-list (does not work properly)
+        // float zmin = ( p1.z < p2.z )? p1.z : p2.z;
+        // float zmax = ( p1.z < p2.z )? p2.z : p1.z;
+        float zmed = ( p1.z + p2.z ) / 2;
+        Cave3DSegmentList lup = null;
+        Cave3DSegmentList ldw = null;
+        float zup =   Float.MAX_VALUE;
+        float zdw = - Float.MAX_VALUE;
+        for ( Cave3DSegmentList ll : list ) {
+          if ( ll.size == 0 ) continue;
+          float z0 = ll.centerZ();
+          // float z1 = ll.maxZ();
+          // float z2 = ll.minZ();
+          if ( z0 > zmed && z0 < zup ) { 
+            lup = ll;
+            zup = z0;
+          } 
+          if ( z0 < zmed && z0 > zdw ) {
+            ldw = ll;
+            zdw = z0;
+          }
         }
-        for ( int k = 0; k < nsh; ++ k ) {
-          Cave3DShot sh = shots.get(k);
-          if ( sh.from_station != st && sh.to_station != st ) continue;
-          float dx = P[k].x - x;
-          float dy = P[k].y - y;
-          float zf = (P[k].x - F[k].x)*dy - (P[k].y-F[k].y)*dx;
-          float zt = (P[k].x - T[k].x)*dy - (P[k].y-T[k].y)*dx;
-          if ( zf * zt <= 0 ) {
-            // project from P[k] onto the line F[k]-T[k]:
-            // intersection of F.x + (T.x-F.x) t = P.x + (site.x-P.x) s
-            // ie,   (Tx-Fx) t + (Px-site.x) s = Px - Fx
-            float a11 = T[k].x - F[k].x;  float a12 = dx;   float c1 = P[k].x - F[k].x;
-            float a21 = T[k].y - F[k].y;  float a22 = dy;   float c2 = P[k].y - F[k].y;
-            float det = a11 * a22 - a12 * a21;
-            float t = ( a22 * c1 - a12 * c2 ) / det;
-            Cave3DSite s1 = new Cave3DSite( F[k].x + a11*t, F[k].y + a21*t, site.z );
-            poly2.addPoint( s1 );
-            s1.poly = poly2;
-            break;
+        if ( lup != null ) {
+          for ( Cave3DSegment s = lup.head; s != null; s = s.next ) {
+            profilearcs.add( s );
+          }
+        }
+        if ( ldw != null ) {
+          for ( Cave3DSegment s = ldw.head; s != null; s = s.next ) {
+            profilearcs.add( s );
           }
         }
       }
-      profileview.add( poly2 );
-    }
+      // now make polygons from segments ???
+
+    // } else {
+    //   // project triangles is ok for horizontal caves
+    //   for ( Cave3DTriangle t : triangles_powercrust ) {
+    //     int nn = t.size;
+    //     if ( nn <= 2 ) continue;
+    //     Cave3DPoint c = new Cave3DPoint( t.center.x, t.center.y );
+    //     for ( int k=0; k<nsh; ++k ) {
+    //       float dx = P[k].x - c.x;
+    //       float dy = P[k].y - c.y;
+    //       float zf = (P[k].x - F[k].x)*dy - (P[k].y-F[k].y)*dx;
+    //       float zt = (P[k].x - T[k].x)*dy - (P[k].y-T[k].y)*dx;
+    //       if ( zf * zt <= 0 ) {
+    //         Cave3DPoint n = new Cave3DPoint( t.normal.x, t.normal.y );
+    //         if ( (n.x*dx + n.y*dy)*S[k] > 0 ) {
+    //           nup ++;
+    //           Cave3DSite s1 = (Cave3DSite)t.vertex[nn-2];
+    //           Cave3DSite s0 = (Cave3DSite)t.vertex[nn-1];
+    //           for ( int kk=0; kk<nn; ++kk ) {
+    //             Cave3DSite s2 = (Cave3DSite)t.vertex[kk];
+    //             s0.insertAngle( s1, s2 );
+    //             s1 = s0;
+    //             s0 = s2;
+    //           }
+    //         }
+    //         break;
+    //       }
+    //     }
+    //   }
+    //   profileview = new ArrayList< Cave3DPolygon >();
+    //   ArrayList< Cave3DPolygon > tmp = new ArrayList< Cave3DPolygon >();
+    //   makePolygons( tmp );
+    //   // Log.v("Cave3D", "profile polygons " + tmp.size() );
+    //   for ( Cave3DPolygon poly : tmp ) {
+    //     Cave3DPolygon poly2 = new Cave3DPolygon();
+    //     for ( Cave3DSite site : poly.points ) {
+    //       float x = site.x;
+    //       float y = site.y;
+    //       // find the station the site lies close to
+    //       Cave3DStation st = null;
+    //       float dmin = 0;
+    //       for ( Cave3DStation st1 : stations ) {
+    //         float d = (x - st1.e)*(x - st1.e) + (y - st1.n)*(y - st1.n);
+    //         if ( st == null || d < dmin ) { dmin = d; st = st1; }
+    //       }
+    //       for ( int k = 0; k < nsh; ++ k ) {
+    //         Cave3DShot sh = shots.get(k);
+    //         if ( sh.from_station != st && sh.to_station != st ) continue;
+    //         float dx = P[k].x - x;
+    //         float dy = P[k].y - y;
+    //         float zf = (P[k].x - F[k].x)*dy - (P[k].y-F[k].y)*dx;
+    //         float zt = (P[k].x - T[k].x)*dy - (P[k].y-T[k].y)*dx;
+    //         if ( zf * zt <= 0 ) {
+    //           // project from P[k] onto the line F[k]-T[k]:
+    //           // intersection of F.x + (T.x-F.x) t = P.x + (site.x-P.x) s
+    //           // ie,   (Tx-Fx) t + (Px-site.x) s = Px - Fx
+    //           float a11 = T[k].x - F[k].x;  float a12 = dx;   float c1 = P[k].x - F[k].x;
+    //           float a21 = T[k].y - F[k].y;  float a22 = dy;   float c2 = P[k].y - F[k].y;
+    //           float det = a11 * a22 - a12 * a21;
+    //           float t = ( a22 * c1 - a12 * c2 ) / det;
+    //           Cave3DSite s1 = new Cave3DSite( F[k].x + a11*t, F[k].y + a21*t, site.z );
+    //           poly2.addPoint( s1 );
+    //           s1.poly = poly2;
+    //           break;
+    //         }
+    //       }
+    //     }
+    //     profileview.add( poly2 );
+    //   }
+    // }
   }
 
   public void computePowercrustPlanView()
@@ -865,8 +991,10 @@ public class Cave3DRenderer // implements Renderer
     triangles_hull       = null;
     triangles_delaunay   = null;
     triangles_powercrust = null;
-    planview = null;
-    profileview = null;
+    planview    = null;
+    // profileview = null;
+    profilearcs = null;
+              
 
     walls     = null;
     borders   = null;
@@ -1159,6 +1287,7 @@ public class Cave3DRenderer // implements Renderer
   {
     triangles_powercrust = null;
     vertices_powercrust  = null;
+    float delta = Cave3D.mPowercrustDelta;
     if ( ! clear ) {
       if ( WALL_POWERCRUST < WALL_MAX /* && Cave3D.mWallPowercrust */ ) {
         // if ( mParser.getSplayNumber() < 50 * mParser.getShotNumber() ) {
@@ -1171,8 +1300,41 @@ public class Cave3DRenderer // implements Renderer
           powercrust = new Cave3DPowercrust( );
           powercrust.resetSites( 3 );
           // Log.v("Cave3D PC", "... add sites (stations " + ntot + ")" );
-          double x, y, z;
+          double x, y, z, v;
           int ntot = stations.size();
+
+          /* average angular distance
+          double da = 0;
+          int na = 0;
+          for ( int n0 = 0; n0 < ntot; ++n0 ) {
+            Cave3DStation st = stations.get( n0 );
+            ArrayList< Cave3DShot > station_splays = mParser.getSplayAt( st, false );
+            int ns = station_splays.size();
+            Cave3DShot sh = station_splays.get( 0 );
+            double h = sh.len * Math.cos( sh.cln );
+            double x0 = h * Math.sin(sh.ber);
+            double y0 = h * Math.cos(sh.ber);
+            double z0 = sh.len * Math.sin(sh.cln);
+            double v0 = sh.len;
+            for ( int n=0; n<ns; ++n ) {
+              sh = station_splays.get( n );
+              h = sh.len * Math.cos( sh.cln );
+              x = h * Math.sin(sh.ber);
+              y = h * Math.cos(sh.ber);
+              z = sh.len * Math.sin(sh.cln);
+              v = sh.len;
+              da += ( x*x0 + y*y0 + z*z0 )/(v*v0);
+              na ++;
+              x0 = x;
+              y0 = y;
+              z0 = z;
+              v0 = v;
+            } 
+          }
+          da = (1.0 - da/na);
+          Log.v("Cave3D", "average splay angle " + da );
+          */
+
           for ( int n0 = 0; n0 < ntot; ++n0 ) {
             Cave3DStation st = stations.get( n0 );
             x = st.e;
@@ -1181,22 +1343,50 @@ public class Cave3DRenderer // implements Renderer
             powercrust.addSite( x, y, z );
             ArrayList< Cave3DShot > station_splays = mParser.getSplayAt( st, false );
             int ns = station_splays.size();
-            // Log.v("Cave3D", "station " + n0 + ": splays " + ns ); 
-            for ( int n=0; n<ns; ++n ) {
-              Cave3DShot sh = station_splays.get( n );
-              double h = sh.len * Math.cos( sh.cln );
-              x = st.e + h * Math.sin(sh.ber);
-              y = st.n + h * Math.cos(sh.ber);
-              z = st.z + sh.len * Math.sin(sh.cln);
-              powercrust.addSite( x, y, z );
+            if ( ns > 1 ) {
+              // Log.v("Cave3D", "station " + n0 + ": splays " + ns ); 
+              double len_prev = station_splays.get( 0 ).len;
+     
+              for ( int n=0; n<ns; ++n ) {
+                Cave3DShot sh = station_splays.get( n );
+                double len = sh.len;
+                double len_next = (n<ns-1)? station_splays.get( n+1 ).len : len;
+                if ( ( len+delta < len_prev && len+delta < len_next ) ||
+                     ( len-delta > len_prev && len-delta > len_next ) ) {
+                  /* nothing */
+                } else {
+                  double h = sh.len * Math.cos( sh.cln );
+                  x = h * Math.sin(sh.ber);
+                  y = h * Math.cos(sh.ber);
+                  z = sh.len * Math.sin(sh.cln);
+                  /* filtering with average angular distance
+                  double r2 = sh.len * da;
+                  r2 = r2*r2;
+                  for ( int n1=0; n1<ns; ++n1 ) {
+                    if ( n1 == n ) continue;
+                    Cave3DShot sh1 = station_splays.get( n );
+                    h = sh.len * Math.cos( sh.cln );
+                    double x1 = h * Math.sin(sh.ber) - x;
+                    double y1 = h * Math.cos(sh.ber) - y;
+                    double z1 = sh.len * Math.sin(sh.cln) - z;
+                    if ( (x1*x1 + y1*y1 + z1*z1) < r2 ) {
+                      powercrust.addSite( st.e+x, st.n+y, st.z+z );
+                      break;
+                    }
+                  }
+                  */
+                  powercrust.addSite( st.e+x, st.n+y, st.z+z );
+                }
+                len_prev = len;
+              }
             }
-            // long nsites = powercrust.nrSites();
-            // Log.v("Cave3D PC", "after station " + n0 + "/" + ns + " sites " + nsites );
+            long nsites = powercrust.nrSites();
+            Log.v("Cave3D PC", "after station " + n0 + "/" + ns + " sites " + nsites );
           }
           // long nsites = powercrust.nrSites();
           // Log.v("Cave3D PC", "done stations. sites " + nsites + ". compute ...");
           // Log.v("Cave3D PC", "total sites " + powercrust.nrSites() + " ... compute" );
-          int ok = powercrust.compute();
+          int ok = powercrust.compute( );
           if ( ok == 1 ) {
             // Log.v("Cave3D PC", "... insert triangles" );
             vertices_powercrust = powercrust.insertTrianglesIn( triangles_powercrust );
@@ -2380,19 +2570,49 @@ public class Cave3DRenderer // implements Renderer
               // d1 = projectedZabs( x, y, z );
               path.path.lineTo( x1, y1 );
             }
-            path.path.close();
+            // path.path.close();
             synchronized( paths_planview ) {
               paths_planview.add( path );
             }
           }
         }
       }
-      if ( profileview != null && ( do_planview == 3 || do_planview == 2 ) ) {
-        for ( Cave3DPolygon poly : profileview ) {
-          int nn = poly.size();
-          if ( nn > 2 ) {
-            path  = new Cave3DDrawPath( vertPaint );
-            Cave3DSite p1 = poly.get( nn - 1 );
+      if ( do_planview == 3 || do_planview == 2 ) {
+        // if ( profileview != null ) {
+        //   path  = new Cave3DDrawPath( vertPaint );
+        //   for ( Cave3DPolygon poly : profileview ) {
+        //     int nn = poly.size();
+        //     if ( nn > 2 ) {
+        //       Cave3DSite p1 = poly.get( nn - 1 );
+        //       float x = p1.x - xc; // vector camera->station
+        //       float y = p1.y - yc;
+        //       float z = p1.z - zc;
+        //       x1 = projectedX( x, y, z );
+        //       y1 = projectedY( x, y, z );
+        //       // float d1 = projectedZabs( x, y, z );
+        //       path.path.moveTo( x1, y1 );
+        //       for ( int k=0; k<nn; ++k ) {
+        //         p1 = poly.get( k );
+        //         x = p1.x - xc; // vector camera->station
+        //         y = p1.y - yc;
+        //         z = p1.z - zc;
+        //         x1 = projectedX( x, y, z );
+        //         y1 = projectedY( x, y, z );
+        //         // d1 = projectedZabs( x, y, z );
+        //         path.path.lineTo( x1, y1 );
+        //       }
+        //     }
+        //   }
+        //   // path.path.close();
+        //   synchronized( paths_planview ) {
+        //     paths_planview.add( path );
+        //   }
+        // } else
+        if ( profilearcs != null ) {
+          path  = new Cave3DDrawPath( vertPaint );
+          for ( Cave3DSegment sgm : profilearcs ) {
+            Cave3DVector p1 = sgm.v1;
+            Cave3DVector p2 = sgm.v2;
             float x = p1.x - xc; // vector camera->station
             float y = p1.y - yc;
             float z = p1.z - zc;
@@ -2400,20 +2620,17 @@ public class Cave3DRenderer // implements Renderer
             y1 = projectedY( x, y, z );
             // float d1 = projectedZabs( x, y, z );
             path.path.moveTo( x1, y1 );
-            for ( int k=0; k<nn; ++k ) {
-              p1 = poly.get( k );
-              x = p1.x - xc; // vector camera->station
-              y = p1.y - yc;
-              z = p1.z - zc;
-              x1 = projectedX( x, y, z );
-              y1 = projectedY( x, y, z );
-              // d1 = projectedZabs( x, y, z );
-              path.path.lineTo( x1, y1 );
-            }
-            path.path.close();
-            synchronized( paths_planview ) {
-              paths_planview.add( path );
-            }
+            x = p2.x - xc; // vector camera->station
+            y = p2.y - yc;
+            z = p2.z - zc;
+            x1 = projectedX( x, y, z );
+            y1 = projectedY( x, y, z );
+            // d1 = projectedZabs( x, y, z );
+            path.path.lineTo( x1, y1 );
+          }
+          // path.path.close();
+          synchronized( paths_planview ) {
+            paths_planview.add( path );
           }
         }
       }

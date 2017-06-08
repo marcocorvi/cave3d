@@ -24,19 +24,19 @@ class Cave3DPoint
     y = yy;
   }
 
-  Cave3DPoint midpoint( Cave3DPoint v ) { return new Cave3DPoint( (x+v.x)/2, (y+v.y)/2 ); }
+  Cave3DPoint midpoint2D( Cave3DPoint v ) { return new Cave3DPoint( (x+v.x)/2, (y+v.y)/2 ); }
 
-  float distance( Cave3DPoint p ) 
+  float distance2D( Cave3DPoint p ) 
   { 
     float dx = x - p.x;
     float dy = y - p.y;
     return (float)( Math.sqrt( dx*dx + dy*dy ) );
   }
 
-  boolean isDistinct( Cave3DPoint p, float eps ) 
-  {
-    return distance(p) > eps;
-  }
+  // boolean isDistinct2D( Cave3DPoint p, float eps ) 
+  // {
+  //   return distance2D(p) > eps;
+  // }
 
 
 }
