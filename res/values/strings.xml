@@ -106,6 +106,9 @@
     <string name="pref_grid_above_title">Top grid</string>
     <string name="pref_grid_above_summary">Grid on the top</string>
     <string name="pref_grid_above_message">Show the grid on the top</string>
+    <string name="pref_neg_clino_title">Below-horizon views</string>
+    <string name="pref_neg_clino_summary">Allow below-horizon viewpoints</string>
+    <string name="pref_neg_clino_message">Allow views from below the horizon</string>
     <string name="pref_all_splay_title">All splays</string>
     <string name="pref_all_splay_summary">All the splays for walls</string>
     <string name="pref_all_splay_message">Whether to use all the splays for the walls</string>

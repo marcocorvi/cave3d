@@ -61,7 +61,7 @@ public class Cave3DView extends SurfaceView
   protected DrawThread thread;
   private Bitmap mBitmap;
   public boolean isDrawing = true;
-  private SurfaceHolder mHolder; // canvas holder
+  private SurfaceHolder mHolder = null; // canvas holder
   private Context mContext;
   private AttributeSet mAttrs;
   private int mWidth;            // canvas width
@@ -282,28 +282,12 @@ public class Cave3DView extends SurfaceView
       public void run() 
       {
         while ( _run ) {
-          if ( isDrawing == true ) {
-            refresh();
-            // Canvas canvas = null;
-            // try{
-            //   canvas = mSurfaceHolder.lockCanvas(null);
-            //   if(mBitmap == null){
-            //     mBitmap = Bitmap.createBitmap (1, 1, Bitmap.Config.ARGB_8888);
-            //   }
-            //   final Canvas c = new Canvas (mBitmap);
-            //   mWidth  = c.getWidth();
-            //   mHeight = c.getHeight();
-
-            //   c.drawColor(0, PorterDuff.Mode.CLEAR);
-            //   canvas.drawColor(0, PorterDuff.Mode.CLEAR);
-
-            //   commandManager.executeAll(c,previewDoneHandler);
-            //   previewPath.draw(c);
-            //     
-            //   canvas.drawBitmap (mBitmap, 0,  0,null);
-            // } finally {
-            //   mSurfaceHolder.unlockCanvasAndPost(canvas);
-            // }
+          if ( mHolder != null && isDrawing ) {
+            refresh( );
+            Thread.yield();
+            try { Thread.sleep(1); } catch ( InterruptedException e ) { } // FIXME this is necessary
+          } else {
+            try { Thread.sleep(100); } catch ( InterruptedException e ) { }
           }
         }
       }

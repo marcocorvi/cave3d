@@ -81,6 +81,9 @@
     <string name="pref_grid_above_title">Сетка сверху</string>
     <string name="pref_grid_above_summary">Сетка сверху</string>
     <string name="pref_grid_above_message">Показать сетку над пещерой</string>
+    <!-- TODO string name="pref_neg_clino_title">Below-horizon views</string -->
+    <!-- TODO string name="pref_neg_clino_summary">Allow below-horizon viewpoints</string -->
+    <!-- TODO string name="pref_neg_clino_message">Allow views from below the horizon</string -->
     <string name="pref_all_splay_title">Все сплеи</string>
     <string name="pref_all_splay_summary">Все сплеи для стен</string>
     <string name="pref_all_splay_message">Использовать все сплеи для построения стен</string>

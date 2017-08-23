@@ -777,8 +777,8 @@ public class Cave3DRenderer // implements Renderer
         if ( clino > PIOVERTWO ) {
           clino = PIOVERTWO;
         }
-        if ( clino < -PIOVERTWO ) {
-          clino = -PIOVERTWO;
+        if ( clino < Cave3D.mMinClino ) {
+          clino = Cave3D.mMinClino;
         }
         while ( phi >= TWOPI ) phi -= TWOPI;
         while ( phi < 0 ) phi += TWOPI;

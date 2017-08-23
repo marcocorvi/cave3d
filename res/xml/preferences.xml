@@ -43,6 +43,13 @@
        />
 
   <android.preference.CheckBoxPreference
+       android:key="CAVE3D_NEG_CLINO"
+       android:title="@string/pref_neg_clino_title"
+       android:summary="@string/pref_neg_clino_summary"
+       android:dialogTitle="@string/pref_neg_clino_title"
+       />
+
+  <android.preference.CheckBoxPreference
        android:key="CAVE3D_PREPROJECTION"
        android:title="@string/pref_preprojection_title"
        android:summary="@string/pref_preprojection_summary"

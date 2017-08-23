@@ -80,6 +80,7 @@ public class Cave3D extends Activity
   static int mButtonSize      = 1;
   static boolean mAllSplay    = true;
   static boolean mGridAbove   = false;
+  static float   mMinClino    = 0;
   static boolean mPreprojection = true;
   static boolean mSplitTriangles = true;
   static boolean mSplitRandomize = true;
@@ -97,6 +98,7 @@ public class Cave3D extends Activity
   static final String CAVE3D_BUTTON_SIZE      = "CAVE3D_BUTTON_SIZE";
   static final String CAVE3D_SELECTION_RADIUS = "CAVE3D_SELECTION_RADIUS";
   static final String CAVE3D_GRID_ABOVE       = "CAVE3D_GRID_ABOVE";
+  static final String CAVE3D_NEG_CLINO        = "CAVE3D_NEG_CLINO";
   static final String CAVE3D_ALL_SPLAY        = "CAVE3D_ALL_SPLAY";
   static final String CAVE3D_PREPROJECTION    = "CAVE3D_PREPROJECTION";
   static final String CAVE3D_SPLIT_TRIANGLES  = "CAVE3D_SPLIT_TRIANGLES";
@@ -136,6 +138,8 @@ public class Cave3D extends Activity
         mGridAbove = b;
         mRenderer.precomputeProjectionsGrid();
       }
+    } else if ( k.equals( CAVE3D_NEG_CLINO ) ) { 
+      mMinClino = sp.getBoolean( k, false ) ? - Cave3DRenderer.PIOVERTWO : 0;
     } else if ( k.equals( CAVE3D_ALL_SPLAY ) ) { 
       mAllSplay = sp.getBoolean( k, true );
     } else if ( k.equals( CAVE3D_PREPROJECTION ) ) { 
@@ -196,6 +200,7 @@ public class Cave3D extends Activity
     } catch ( NumberFormatException e ) {
     }
     mGridAbove      = sp.getBoolean( CAVE3D_GRID_ABOVE, false );
+    mMinClino       = sp.getBoolean( CAVE3D_NEG_CLINO, false ) ? - Cave3DRenderer.PIOVERTWO : 0;
     mAllSplay       = sp.getBoolean( CAVE3D_ALL_SPLAY, true );
     mPreprojection  = sp.getBoolean( CAVE3D_PREPROJECTION, true );
     mSplitTriangles = sp.getBoolean( CAVE3D_SPLIT_TRIANGLES, true );
