@@ -42,3 +42,51 @@ $(PROG)	: $(OBJS) jni/hullmain.o jni/main.o
 clean	:
 	-rm -f $(OBJS) jni/hullmain.o
 	-rm -rf target
+
+# -------------------------------------------------------
+
+VERSION = `grep versionName AndroidManifest.xml | sed -e 's/ *android:versionName=//' | sed -e 's/"//g' `
+
+release:
+	ant release
+	mv bin/Cave3D-release.apk Cave3D-$(VERSION).apk
+
+install:
+	adb install -r bin/Cave3D-debug.apk
+
+rebuild:
+	ant clean
+	ant debug
+
+clean:
+	ant clean
+
+
+SRC = \
+  ./AndroidManifest.xml \
+  ./build.properties \
+  ./build.xml \
+  ./LICENSE \
+  ./COPYING \
+  ./local.properties \
+  ./Makefile \
+  ./make_symbols.sh \
+  ./proguard.cfg \
+  ./project.properties \
+  ./README.md \
+  ./regression-test.txt \
+  ./assets/*/* \
+  ./firmware/* \
+  ./int18/*/* \
+  ./res/*/* \
+  ./utils/* \
+  ./unused/* \
+  ./unused/*/* \
+  ./src/com/topodroid/Cave3D/* 
+
+version:
+	echo $(VERSION)
+
+archive:
+	tar -czf ../topodroid.tgz --exclude-vcs $(SRC)
+
