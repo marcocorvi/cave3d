@@ -66,6 +66,8 @@ class LoxFile
   private LoxSurface              mSurface;
   private LoxBitmap               mBitmap;
 
+  private int linenr = 0; // chunk number
+
   LoxFile( String filename ) throws Cave3DParserException
   {
     mSurface = null;
@@ -77,10 +79,11 @@ class LoxFile
     mScraps   = new ArrayList< LoxScrap >();
     
     File file = new File( filename );
+    linenr = 0;
     if ( file.exists() ) {
       readChunks( filename );
     } else {
-      throw new Cave3DParserException();
+      throw new Cave3DParserException( filename, linenr );
     }
   }
 
@@ -196,6 +199,7 @@ class LoxFile
     try {
       fis = new FileInputStream( filename );
       while ( true ) {
+	++linenr;
         fis.read( int32, 0, SIZE32 );
         type = toIntLEndian( int32 );
         if ( type < 1 || type > 6 ) {
@@ -242,10 +246,10 @@ class LoxFile
       }
     } catch( FileNotFoundException e ) {
       Log.e("Cave3D", "FILE NOT FOUND ERROR " + e.getMessage() );
-      throw new Cave3DParserException();
+      throw new Cave3DParserException( filename, linenr );
     } catch( IOException e ) {
       Log.e("Cave3D", "I/O ERROR " + e.getMessage() );
-      throw new Cave3DParserException();
+      throw new Cave3DParserException( filename, linenr );
     } finally {
       try {
         if ( fis != null ) fis.close();

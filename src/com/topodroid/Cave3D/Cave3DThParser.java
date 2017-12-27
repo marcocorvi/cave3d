@@ -67,9 +67,10 @@ public class Cave3DThParser extends Cave3DParser
     }
     return Cave3DStation.FLAG_NONE;
   }
+
   public Cave3DThParser( Cave3D cave3d, String filename ) throws Cave3DParserException
   {
-    super( cave3d );
+    super( cave3d, filename );
 
     mMarks = new ArrayList< String >();
 
@@ -112,6 +113,7 @@ public class Cave3DThParser extends Cave3DParser
                   throws Cave3DParserException
   {
     String path = basepath;
+    int linenr = 0;
     // Log.v("Cave3D", "basepath <" + basepath + ">");
     // Log.v("Cave3D", "filename <" + filename + ">");
     Cave3DCS cs = null;
@@ -141,9 +143,9 @@ public class Cave3DThParser extends Cave3DParser
 
       FileReader fr = new FileReader( filename );
       BufferedReader br = new BufferedReader( fr );
+      ++linenr;
       String line = br.readLine();
-      int cnt = 1;
-      // Log.v(TAG, cnt + ":" + line );
+      // Log.v(TAG, linenr + ":" + line );
       while ( line != null ) {
         line = line.trim();
         int pos = line.indexOf( '#' );
@@ -376,7 +378,7 @@ public class Cave3DThParser extends Cave3DParser
                 }
                 // and read grid data
                 if ( mSurface != null ) {
-                  mSurface.readGridData( units_grid, grid_flip, br );
+                  mSurface.readGridData( units_grid, grid_flip, br, filename );
                 }
               } else if ( cmd.equals("grid-flip") ) {
                 // parse the flip-value
@@ -463,7 +465,7 @@ public class Cave3DThParser extends Cave3DParser
             } else if ( cmd.equals("endsurvey") ) {
               --ks;
               if ( ks < 0 ) {
-                Log.e( TAG, filename + ":" + cnt + " negative survey level" );
+                Log.e( TAG, filename + ":" + linenr + " negative survey level" );
               } else {
                 path = path.substring(0, survey_pos[ks]); // return to previous survey_pos in path
                 // Log.v("Cave3D", "endsurvey PATH " + path );
@@ -472,13 +474,13 @@ public class Cave3DThParser extends Cave3DParser
             }
           }
         }
+        ++linenr;
         line = br.readLine();
-        ++ cnt;
-        // Log.v(TAG, cnt + ":" + line );
+        // Log.v(TAG, linenr + ":" + line );
       }
     } catch ( IOException e ) {
       Log.e(TAG, "I/O ERROR " + e.getMessage() );
-      throw new Cave3DParserException();
+      throw new Cave3DParserException( filename, linenr );
     }
     // Log.v(TAG, "done readFile " + filename );
 

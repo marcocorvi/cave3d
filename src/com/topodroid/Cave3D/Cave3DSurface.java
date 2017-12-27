@@ -83,9 +83,10 @@ public class Cave3DSurface
   //   from the bottom (n2) to the top (n1)
   //   each row being filled left (e1) to right (e2)
   //
-  void readGridData( double units, int flip, BufferedReader br )
+  void readGridData( double units, int flip, BufferedReader br, String filename )
       throws Cave3DParserException
   {
+    int linenr = 0;
     int x, y;
     int x1 = 0;
     int x2 = mNr1;
@@ -107,6 +108,7 @@ public class Cave3DSurface
 
     try {
       while ( y != y2 ) {
+        ++linenr;
         String line = br.readLine();
         line = line.trim();
         int pos = line.indexOf( '#' );
@@ -158,7 +160,7 @@ public class Cave3DSurface
     } catch ( IOException e ) {
       // TODO
       Log.e(TAG, "exception " + e.toString() );
-      throw new Cave3DParserException();
+      throw new Cave3DParserException( filename, linenr );
     }
     // Log.v( "Cave3D", "surface data: rows " + y );
   }

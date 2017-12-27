@@ -18,5 +18,6 @@ public class ModelType
   static final int SERIAL     = 2;
   static final int KML_ASCII  = 3;
   static final int CGAL_ASCII = 4;
+  static final int LAS_BINARY = 5;
 }
 

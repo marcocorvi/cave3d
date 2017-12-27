@@ -35,6 +35,7 @@ public class Cave3DParser
   public float emin, emax, nmin, nmax, zmin, zmax;
   protected Cave3DSurface mSurface;
   protected float mCaveLength;
+  String mName; // file base name
 
   // public float getEmin() { return emin; }
   // public float getEmax() { return emax; }
@@ -104,6 +105,21 @@ public class Cave3DParser
       v[k3++] = s.n; // Y vertical
       v[k3++] = s.z; // Z depth
     }
+    return v;
+  }
+
+  public float[] getSplaysEndpoints()
+  {
+    float v[] = new float[ 3 * splays.size() ];
+    int k3=0;
+    for ( Cave3DShot sp : splays ) {
+      Cave3DVector vv = sp.to3DPoint();
+      if ( vv != null ) {
+	v[k3++] = vv.x;
+	v[k3++] = vv.y;
+	v[k3++] = vv.z;
+      }
+    } 
     return v;
   }
  
@@ -257,11 +273,21 @@ public class Cave3DParser
     if ( stations.size() > 0 ) do_render = true;
   }
 
-  public Cave3DParser( Cave3D cave3d ) 
+  public Cave3DParser( Cave3D cave3d, String filename ) 
   {
     do_render = false;
 
     // Log.v("Cave3D", "parsing " + filename );
+    int pos = filename.lastIndexOf('/');
+    if ( pos > 0 ) {
+      mName = filename.substring(pos+1);
+    } else {
+      mName = filename;
+    }
+    pos = mName.lastIndexOf('.');
+    if ( pos > 0 ) {
+      mName = mName.substring(0,pos);
+    }
 
     mCave3D = cave3d;
     mSurface = null;

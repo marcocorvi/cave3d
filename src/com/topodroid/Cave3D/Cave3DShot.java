@@ -83,6 +83,20 @@ public class Cave3DShot
     return new Cave3DVector( h * (float)Math.sin(ber), h * (float)Math.cos(ber), len * (float)Math.sin(cln) );
   }
 
+  // makes sense only for splays
+  Cave3DVector to3DPoint()
+  {
+    int sign = 1;
+    Cave3DStation st = from_station;
+    if ( st == null ) {
+      st = to_station;
+      sign = -1;
+    }
+    if ( st == null ) return null;
+    float h = sign * len * (float)Math.cos(cln);
+    return new Cave3DVector( st.e + h * (float)Math.sin(ber), st.n + h * (float)Math.cos(ber), st.z + sign * len * (float)Math.sin(cln) );
+  }
+
   Cave3DStation getOtherStation( Cave3DStation st )
   {
     if ( st == from_station ) return to_station;

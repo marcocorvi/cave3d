@@ -107,6 +107,13 @@
           android:layout_marginRight="10dp"
           android:text="CGAL"
         />
+        <CheckBox android:id="@+id/las_binary"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_weight="50"
+          android:layout_marginRight="10dp"
+          android:text="LAS"
+        />
     </LinearLayout>
     <LinearLayout
       android:layout_width="fill_parent" 

@@ -86,10 +86,11 @@
     <string name="error_export_failed">Error: failed export %1$s</string>
 
     <string name="warning_not_overwrite">Warning: not overwriting existing file %1$s</string>
-    <string name="warning_not_txt">Warning: not txt file %1$s</string>
-    <string name="warning_not_kml">Warning: not kml file %1$s</string>
-    <string name="warning_not_cgal">Warning: not CGAL text file %1$s</string>
-    <string name="warning_not_stl">Warning: not stl file %1$s</string>
+    <!-- UNUSED string name="warning_not_txt">Warning: not txt file %1$s</string -->
+    <!-- UNUSED string name="warning_not_kml">Warning: not kml file %1$s</string -->
+    <!-- UNUSED string name="warning_not_las">Warning: not las file %1$s</string -->
+    <!-- UNUSED string name="warning_not_cgal">Warning: not CGAL text file %1$s</string -->
+    <!-- UNUSED string name="warning_not_stl">Warning: not stl file %1$s</string -->
     <string name="warning_no_cwd">Warning: missing initial directory</string>
 
     <string name="pref_base_path_title">Base path</string>

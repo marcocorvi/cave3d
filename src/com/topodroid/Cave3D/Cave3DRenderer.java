@@ -248,6 +248,11 @@ public class Cave3DRenderer // implements Renderer
   {
     return mParser != null && mParser.do_render;
   }
+
+  String getName()
+  {
+    return mParser == null? null : mParser.mName;
+  }
   
 
 // -----------------------------------------------------------
@@ -1040,7 +1045,7 @@ public class Cave3DRenderer // implements Renderer
       // computeProjection();
     } catch ( Cave3DParserException e ) {
       // Log.v( TAG, "parser exception " + filename );
-      mCave3D.toast(R.string.error_parser_error, filename);
+      cave3d.toast(R.string.error_parser_error, filename + " " + e.msg() );
       mParser = null;
     }
     return hasParser(); 
@@ -2732,63 +2737,80 @@ public class Cave3DRenderer // implements Renderer
 
   void exportModel( int type, String pathname, boolean b_splays, boolean b_walls, boolean b_surface, boolean overwrite )
   { 
-    if ( (new File(pathname)).exists() && ! overwrite ) {
-      mCave3D.toast(R.string.warning_not_overwrite, pathname);
-      return;
-    }
       
     if ( type == ModelType.SERIAL ) { // serialization
       if ( ! pathname.endsWith(".txt") ) {
-        mCave3D.toast(R.string.warning_not_txt, pathname);
-      } else {
-        serializeWalls( pathname );
+        pathname = pathname + ".txt";
+      } 
+      if ( (new File(pathname)).exists() && ! overwrite ) {
+        mCave3D.toast(R.string.warning_not_overwrite, pathname);
+        return;
       }
+      serializeWalls( pathname );
     } else {                          // model export 
       boolean ret = false;
       if ( type == ModelType.KML_ASCII ) { // KML export ASCII
         if ( ! pathname.endsWith(".kml") ) {
-          mCave3D.toast(R.string.warning_not_kml, pathname);
-        } else {
-          KMLExporter kml = new KMLExporter();
-          if ( walls != null ) {
-            for( CWConvexHull cw : walls ) {
-              synchronized( cw ) {
-                for ( CWTriangle f : cw.mFace ) kml.add( f );
-              }
-            }
-          } else if ( triangles_powercrust != null ) {
-            kml.mTriangles = triangles_powercrust;
-          }
-          ret = kml.exportASCII( pathname, mParser, b_splays, b_walls, b_surface );
+          pathname = pathname + ".kml";
+        } 
+        if ( (new File(pathname)).exists() && ! overwrite ) {
+          mCave3D.toast(R.string.warning_not_overwrite, pathname);
+          return;
         }
+        KMLExporter kml = new KMLExporter();
+        if ( walls != null ) {
+          for( CWConvexHull cw : walls ) {
+            synchronized( cw ) {
+              for ( CWTriangle f : cw.mFace ) kml.add( f );
+            }
+          }
+        } else if ( triangles_powercrust != null ) {
+          kml.mTriangles = triangles_powercrust;
+        }
+        ret = kml.exportASCII( pathname, mParser, b_splays, b_walls, b_surface );
       } else if ( type == ModelType.CGAL_ASCII ) { // CGAL export: only stations and splay-points
         if ( ! pathname.endsWith(".cgal") ) {
-          mCave3D.toast(R.string.warning_not_cgal, pathname);
-        } else {
-          CGALExporter cgal = new CGALExporter();
-          ret = cgal.exportASCII( pathname, mParser, b_splays, b_walls, b_surface );
+          pathname = pathname + ".cgal";
         }
+        if ( (new File(pathname)).exists() && ! overwrite ) {
+          mCave3D.toast(R.string.warning_not_overwrite, pathname);
+          return;
+        }
+        CGALExporter cgal = new CGALExporter();
+        ret = cgal.exportASCII( pathname, mParser, b_splays, b_walls, b_surface );
+      } else if ( type == ModelType.LAS_BINARY ) { // LAS v. 1.2
+        if ( ! pathname.endsWith(".las") ) {
+	  pathname = pathname + ".las";
+        }
+        if ( (new File(pathname)).exists() && ! overwrite ) {
+          mCave3D.toast(R.string.warning_not_overwrite, pathname);
+          return;
+        }
+        ret = LASExporter.exportBinary( pathname, mParser, b_splays, b_walls, b_surface );
       } else {                                     // STL export ASCII or binary
         if ( ! pathname.endsWith(".stl") ) {
-          mCave3D.toast(R.string.warning_not_stl, pathname);
-        } else {
-          STLExporter stl = new STLExporter();
-          if ( walls != null ) {
-            for ( CWConvexHull cw : walls ) {
-              synchronized( cw ) {
-                for ( CWTriangle f : cw.mFace ) stl.add( f );
-              }
+          pathname = pathname + ".stl";
+        } 
+        if ( (new File(pathname)).exists() && ! overwrite ) {
+          mCave3D.toast(R.string.warning_not_overwrite, pathname);
+          return;
+        }
+        STLExporter stl = new STLExporter();
+        if ( walls != null ) {
+          for ( CWConvexHull cw : walls ) {
+            synchronized( cw ) {
+              for ( CWTriangle f : cw.mFace ) stl.add( f );
             }
-          } else if ( triangles_powercrust != null ) {
-            stl.mTriangles = triangles_powercrust;
-            stl.mVertex    = vertices_powercrust;
           }
+        } else if ( triangles_powercrust != null ) {
+          stl.mTriangles = triangles_powercrust;
+          stl.mVertex    = vertices_powercrust;
+        }
 
-          if ( type == ModelType.STL_BINARY ) {
-            ret = stl.exportBinary( pathname, b_splays, b_walls, b_surface );
-          } else { // type == ModelType.STL_ASCII
-            ret = stl.exportASCII( pathname, b_splays, b_walls, b_surface );
-          }
+        if ( type == ModelType.STL_BINARY ) {
+          ret = stl.exportBinary( pathname, b_splays, b_walls, b_surface );
+        } else { // type == ModelType.STL_ASCII
+          ret = stl.exportASCII( pathname, b_splays, b_walls, b_surface );
         }
       }
       if ( ret ) {

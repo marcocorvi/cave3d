@@ -26,7 +26,7 @@ public class Cave3DLoxParser extends Cave3DParser
 
   public Cave3DLoxParser( Cave3D cave3d, String filename ) throws Cave3DParserException
   {
-    super( cave3d );
+    super( cave3d, filename );
 
     readfile( filename );
 
