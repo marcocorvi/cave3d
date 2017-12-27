@@ -70,9 +70,9 @@
     <string name="pref_grid_above_title">Situación de la cuadrícula</string>
     <string name="pref_grid_above_summary">Situar la cuadrícula en la parte superior</string>
     <string name="pref_grid_above_message">Mostrar la cuadrícula en la parte superior</string>
-    <!-- TODO string name="pref_neg_clino_title">Below-horizon views</string -->
-    <!-- TODO string name="pref_neg_clino_summary">Allow below-horizon viewpoints</string -->
-    <!-- TODO string name="pref_neg_clino_message">Allow views from below the horizon</string -->
+    <string name="pref_neg_clino_title">Vistas por debajo del horizonte</string>
+    <string name="pref_neg_clino_summary">Permitir puntos de vista por debajo del horizonte</string>
+    <string name="pref_neg_clino_message">Permitir vistas desde debajo del horizonte</string>
     <string name="pref_all_splay_title">Todas las tomas laterales</string>
     <string name="pref_all_splay_summary">Todas las tomas laterales para paredes</string>
     <string name="pref_all_splay_message">Usar todas las tomas laterales para las paredes</string>
