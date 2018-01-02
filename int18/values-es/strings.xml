@@ -87,7 +87,7 @@
     <string name="pref_split_random_summary">Selección aleatoria de puntos de pared</string>
     <string name="pref_split_random_message">Añadir un pequeño vector aleatorio a las tomas laterales</string>
     <string name="pref_split_stretch_title">Estiramiento de paredes</string>
-    <string name="pref_split_stretch_summary">puntos de pared de estiramiento a lo largo de la toma</string>
-    <string name="pref_split_stretch_message">Puntos de cambio de la pared por una pequeña cantidad a lo largo de la toma</string>
+    <string name="pref_split_stretch_summary">Estiramiento de puntos de pared a lo largo de la toma</string>
+    <string name="pref_split_stretch_message">Cambio de Puntos de pared por una pequeña cantidad a lo largo de la toma</string>
 
 </resources>
