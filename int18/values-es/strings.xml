@@ -57,7 +57,7 @@
     <string name="Surface">Superficie</string>
 
     <string name="pref_base_path_title">Directorio de la base de datos</string>
-    <string name="pref_base_path_summary">Directorio de la base de datos de la app</string>
+    <string name="pref_base_path_summary">Directorio que contiene los archivos de Therion.</string>
     <string name="pref_base_path_message">Directorio que contiene los archivos de Therion</string>
     <string name="pref_text_size_title">Tamaño Texto</string>
     <string name="pref_text_size_summary">Tamaño de la etiqueta estación</string>
@@ -73,9 +73,9 @@
     <string name="pref_neg_clino_title">Vistas por debajo del horizonte</string>
     <string name="pref_neg_clino_summary">Permitir puntos de vista por debajo del horizonte</string>
     <string name="pref_neg_clino_message">Permitir vistas desde debajo del horizonte</string>
-    <string name="pref_all_splay_title">Todas las tomas laterales</string>
-    <string name="pref_all_splay_summary">Todas las tomas laterales para paredes</string>
-    <string name="pref_all_splay_message">Usar todas las tomas laterales para las paredes</string>
+    <string name="pref_all_splay_title">Todas las tomas radiales</string>
+    <string name="pref_all_splay_summary">Todas las tomas radiales para paredes</string>
+    <string name="pref_all_splay_message">Usar todas las tomas radiales para las paredes</string>
     <string name="pref_preprojection_title">Preproyecciones</string>
     <string name="pref_preprojection_summary">Cálculo preproyecciones</string>
     <string name="pref_preprojection_message">Usar proyecciones precalculadas</string>
@@ -83,7 +83,7 @@
     <string name="pref_split_triangles_title">Dividir triángulos</string>
     <string name="pref_split_triangles_summary">Dividir triángulos de paredes</string>
     <string name="pref_split_triangles_message">Dividir la intersección de los triángulos de pared</string>
-    <string name="pref_split_random_title">Selección puntos aleatorios</string>
+    <string name="pref_split_random_title">Aleatorizar puntos</string>
     <string name="pref_split_random_summary">Selección aleatoria de puntos de pared</string>
     <string name="pref_split_random_message">Añadir un pequeño vector aleatorio a las tomas laterales</string>
     <string name="pref_split_stretch_title">Estiramiento de paredes</string>
