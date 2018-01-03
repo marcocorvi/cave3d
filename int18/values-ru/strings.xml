@@ -36,6 +36,7 @@
 
     <string name="query" formatted="false">Съёмки: %d Замеры: %d Пикеты: %d\nДлина: %d Глубина: %d</string>
     <string name="no_files">Нет файлов</string>
+    <!-- TODO string name="clear">Clear</string -->
 
     <string name="title">%1$s  Наклон: %2$.0f  Азимут: %3$.0f</string>
     <string name="title_clino"> Наклон: </string>
@@ -54,6 +55,7 @@
     <string name="STATION">П И К Е Т</string>
     <string name="STATIONS_DISTANCE">УДАЛЁННОСТЬ ПИКЕТОВ</string>
     <string name="DISTANCE">РАССТОЯНИЕ</string>
+    <!-- TODO string name="CENTER">CENTER</string -->
     <string name="select_file">Cave3D - Выберите файл:</string>
     <string name="Wall">Стены</string>
     <string name="Surface">Поверхность</string>
@@ -66,6 +68,31 @@
     <string name="view_south">Юг</string>
     <string name="view_point">Точка просмотра</string>
     <string name="view_zoom">Зум 1</string>
+
+    <!-- TODO string name="walls_title">WALLS</string -->
+    <!-- TODO string name="walls_convexhull">Convex Hull</string -->
+    <!-- TODO string name="walls_powercrust">Powercrust</string -->
+    <!-- TODO string name="walls_hull">Hull</string -->
+    <!-- TODO string name="walls_delaunay">Delaunay</string -->
+
+    <!-- TODO string name="powercrust_few_splays">Powercrust: too few splays</string -->
+    <!-- TODO string name="powercrust_failed">Powercrust failed</string -->
+    <!-- TODO string name="powercrust_successful">Powercrust successful: %1$d / %2$d</string -->
+
+    <!-- TODO string name="ok_export">OK. Exported %1$s</string -->
+
+    <!-- TODO string name="error_file_not_found">Error: file not found</string -->
+    <!-- TODO string name="error_io_exception">Error: IO exception</string -->
+    <!-- TODO string name="error_parser_error">Error: parser error %1$s</string -->
+    <!-- TODO string name="error_export_failed">Error: failed export %1$s</string -->
+
+    <!-- TODO string name="warning_not_overwrite">Warning: not overwriting existing file %1$s</string -->
+    <!-- UNUSED string name="warning_not_txt">Warning: not txt file %1$s</string -->
+    <!-- UNUSED string name="warning_not_kml">Warning: not kml file %1$s</string -->
+    <!-- UNUSED string name="warning_not_las">Warning: not las file %1$s</string -->
+    <!-- UNUSED string name="warning_not_cgal">Warning: not CGAL text file %1$s</string -->
+    <!-- UNUSED string name="warning_not_stl">Warning: not stl file %1$s</string -->
+    <!-- TODO string name="warning_no_cwd">Warning: missing initial directory</string -->
 
     <string name="pref_base_path_title">Рабочий каталог</string>
     <string name="pref_base_path_summary">Путь к файлам съёмок</string>
@@ -100,5 +127,16 @@
     <string name="pref_split_stretch_title">Растянуть стены</string>
     <string name="pref_split_stretch_summary">Растянуть точки стен вдоль замеров</string>
     <string name="pref_split_stretch_message">Слегка сдвинуть точки стен вдоль замеров</string>
+    <!-- TODO string name="pref_powercrust_delta_title">Powercrust Delta</string -->
+    <!-- TODO string name="pref_powercrust_delta_summary">Splay filtering</string -->
+    <!-- TODO string name="pref_powercrust_delta_message">Filter out splays differing from previous and next ones too much</string -->
+<!--
+    <string name="pref_convex_hull_title">Convex hull</string>
+    <string name="pref_convex_hull_summary">Convex hull walls</string>
+    <string name="pref_delaunay_title">Delaunay</string>
+    <string name="pref_delaunay_summary">Delaunay walls</string>
+    <string name="pref_hull_title">Hull</string>
+    <string name="pref_hull_summary">Hull walls</string>
+-->
 
 </resources>
