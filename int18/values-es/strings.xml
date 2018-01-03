@@ -34,8 +34,8 @@
     <string name="info_volume">Volumen</string>
 
     <string name="query" formatted="false">Proyecto: %d Tomas: %d Estación: %d\nLongitud: %d Profundidad: %d</string>
-    <!-- TODO string name="no_files">No files</string -->
-    <!-- TODO string name="clear">Clear</string -->
+    <string name="no_files">No hay archivos</string>
+    <string name="clear">Limpiar</string>
 
     <string name="title">%1$s  Clino: %2$.0f  Rumbo: %3$.0f</string>
     <string name="title_clino"> Clino: </string>
@@ -58,39 +58,39 @@
     <string name="Wall">Paredes</string>
     <string name="Surface">Superficie</string>
 
-    <!-- TODO string name="view_title">VIEWPOINTS</string -->
-    <!-- TODO string name="view_top">Top</string -->
-    <!-- TODO  name="view_east">East</string -->
-    <!-- TODO string name="view_north">North</string -->
-    <!-- TODO string name="view_west">West</string -->
-    <!-- TODO string name="view_south">South</string -->
-    <!-- TODO string name="view_point">Viewpoint</string -->
-    <!-- TODO string name="view_zoom">Zoom 1</string -->
+    <string name="view_title">PUNTOS DE VISTA</string>
+    <string name="view_top">Parte superior</string>
+    <string name="view_east">Este</string>
+    <string name="view_north">Norte</string>
+    <string name="view_west">Oeste</string>
+    <string name="view_south">Sur</string>
+    <string name="view_point">Punto de vista</string>
+    <string name="view_zoom">Zoom 1</string>
 
-    <!-- TODO string name="walls_title">WALLS</string -->
-    <!-- TODO string name="walls_convexhull">Convex Hull</string -->
-    <!-- TODO string name="walls_powercrust">Powercrust</string -->
-    <!-- TODO string name="walls_hull">Hull</string -->
-    <!-- TODO string name="walls_delaunay">Delaunay</string -->
+    <string name="walls_title">Paredes</string>
+    <string name="walls_convexhull">Recubrimiento Convexo</string>
+    <string name="walls_powercrust">Recubrimiento fuerte</string>
+    <string name="walls_hull">Recubrimiento</string>
+    <string name="walls_delaunay">Delaunay</string>
 
-    <!-- TODO string name="powercrust_few_splays">Powercrust: too few splays</string -->
-    <!-- TODO string name="powercrust_failed">Powercrust failed</string -->
-    <!-- TODO string name="powercrust_successful">Powercrust successful: %1$d / %2$d</string -->
+    <string name="powercrust_few_splays">Recubrimiento fuerte: muy pocas tomas radiales</string -->
+    <string name="powercrust_failed">Recubrimiento fuerte falló</string -->
+    <string name="powercrust_successful">Recubrimiento fuerte se aplicó con éxito: %1$d / %2$d</string -->
 
-    <!-- TODO string name="ok_export">OK. Exported %1$s</string -->
+    <string name="ok_export">OK. Exportado %1$s</string>
 
-    <!-- TODO string name="error_file_not_found">Error: file not found</string -->
-    <!-- TODO string name="error_io_exception">Error: IO exception</string -->
-    <!-- TODO string name="error_parser_error">Error: parser error %1$s</string -->
-    <!-- TODO string name="error_export_failed">Error: failed export %1$s</string -->
+    <string name="error_file_not_found">Error: archivo no encontrado</string>
+    <string name="error_io_exception">Error: IO excepción</string>
+    <string name="error_parser_error">Error: error del analizador %1$s</string>
+    <string name="error_export_failed">Error: Fallo de exportación %1$s</string>
 
-    <!-- TODO string name="warning_not_overwrite">Warning: not overwriting existing file %1$s</string -->
-    <!-- UNUSED string name="warning_not_txt">Warning: not txt file %1$s</string -->
-    <!-- UNUSED string name="warning_not_kml">Warning: not kml file %1$s</string -->
-    <!-- UNUSED string name="warning_not_las">Warning: not las file %1$s</string -->
-    <!-- UNUSED string name="warning_not_cgal">Warning: not CGAL text file %1$s</string -->
-    <!-- UNUSED string name="warning_not_stl">Warning: not stl file %1$s</string -->
-    <!-- TODO string name="warning_no_cwd">Warning: missing initial directory</string -->
+    <string name="warning_not_overwrite">Advertencia: no sobrescribir el archivo existente %1$s</string>
+    <!-- UNUSED string name="warning_not_txt">Advertencia: No hay archivo txt %1$s</string -->
+    <!-- UNUSED string name="warning_not_kml">Advertencia: No hay archivo Kml %1$s</string -->
+    <!-- UNUSED string name="warning_not_las">Advertencia: No hay archivo %1$s</string -->
+    <!-- UNUSED string name="warning_not_cgal">Advertencia: No hay archivo de texto CGAL %1$s</string -->
+    <!-- UNUSED string name="warning_not_stl">Advertencia: No hay archivo stl %1$s</string -->
+    <string name="warning_no_cwd">Advertencia: falta el directorio inicial</string>
     <string name="pref_base_path_title">Directorio de la base de datos</string>
     <string name="pref_base_path_summary">Directorio que contiene los archivos de Therion.</string>
     <string name="pref_base_path_message">Directorio que contiene los archivos de Therion</string>
@@ -124,9 +124,9 @@
     <string name="pref_split_stretch_title">Estiramiento de paredes</string>
     <string name="pref_split_stretch_summary">puntos de pared de estiramiento a lo largo de la toma</string>
     <string name="pref_split_stretch_message">Puntos de cambio de la pared por una pequeña cantidad a lo largo de la toma</string>
-    <!-- TODO string name="pref_powercrust_delta_title">Powercrust Delta</string -->
-    <!-- TODO string name="pref_powercrust_delta_summary">Splay filtering</string -->
-    <!-- TODO string name="pref_powercrust_delta_message">Filter out splays differing from previous and next ones too much</string -->
+    <string name="pref_powercrust_delta_title">Recubrimiento fuerte Delta</string>
+    <string name="pref_powercrust_delta_summary">Filtradi de tomas radiales</string>
+    <string name="pref_powercrust_delta_message">Filtrar quita las tomas radiales de diferente a las anteriores y las siguientes</strimg>
 <!--
     <string name="pref_convex_hull_title">Convex hull</string>
     <string name="pref_convex_hull_summary">Convex hull walls</string>
