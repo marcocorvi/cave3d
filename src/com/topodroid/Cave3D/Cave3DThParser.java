@@ -277,8 +277,8 @@ public class Cave3DThParser extends Cave3DParser
                         idx = nextIndex( vals, idx );
                         if ( idx < vals.length ) {
                           float z = Float.parseFloat( vals[idx] );
-                          // Log.v( TAG, " fix z " + z + " adding fix ");
 	                  fixes.add( new Cave3DFix( name, x, y, z, cs ) );
+                          // Log.v( "Cave3D", " adding fix " + x + " " + y + " " + z );
                         }
                       }
                     }
@@ -551,7 +551,7 @@ public class Cave3DThParser extends Cave3DParser
  
     int mLoopCnt = 0;
     Cave3DFix f0 = fixes.get( 0 );
-    // Log.v( TAG, "fix " + f0.name + " " + f0.e + " " + f0.n );
+    // Log.v( "Cave3D", "Process Shots. Fix " + f0.name + " " + f0.e + " " + f0.n + " " + f0.z );
 
     mCaveLength = 0.0f;
 

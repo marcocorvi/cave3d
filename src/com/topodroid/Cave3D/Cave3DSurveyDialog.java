@@ -20,6 +20,7 @@ import android.content.Intent;
 
 import android.graphics.*;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -46,6 +47,7 @@ public class Cave3DSurveyDialog extends Dialog
   {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.cave3d_survey_dialog);
+    getWindow().setLayout( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
 
     TextView tv;
     tv = (TextView) findViewById( R.id.survey_legs );

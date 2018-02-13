@@ -18,6 +18,7 @@ import android.content.Intent;
 
 import android.graphics.*;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -55,6 +56,7 @@ public class Cave3DInfoDialog extends Dialog
   {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.cave3d_info_dialog);
+    getWindow().setLayout( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
 
     TextView tv = ( TextView ) findViewById(R.id.info_grid);
     tv.setText( Integer.toString( mRenderer.getGrid() ) );

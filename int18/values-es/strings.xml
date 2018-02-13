@@ -73,13 +73,14 @@
     <string name="walls_hull">Recubrimiento</string>
     <string name="walls_delaunay">Delaunay</string>
 
-    <string name="powercrust_few_splays">Recubrimiento fuerte: muy pocas tomas radiales</string -->
-    <string name="powercrust_failed">Recubrimiento fuerte falló</string -->
-    <string name="powercrust_successful">Recubrimiento fuerte se aplicó con éxito: %1$d / %2$d</string -->
+    <string name="powercrust_few_splays">Recubrimiento fuerte: muy pocas tomas radiales</string>
+    <string name="powercrust_failed">Recubrimiento fuerte falló</string>
+    <string name="powercrust_successful">Recubrimiento fuerte se aplicó con éxito: %1$d / %2$d</string>
 
     <string name="ok_export">OK. Exportado %1$s</string>
 
     <string name="error_file_not_found">Error: archivo no encontrado</string>
+    <!-- TODO string name="error_file_not_readable">Error: file not readable</string -->
     <string name="error_io_exception">Error: IO excepción</string>
     <string name="error_parser_error">Error: error del analizador %1$s</string>
     <string name="error_export_failed">Error: Fallo de exportación %1$s</string>
@@ -126,7 +127,7 @@
     <string name="pref_split_stretch_message">Puntos de cambio de la pared por una pequeña cantidad a lo largo de la toma</string>
     <string name="pref_powercrust_delta_title">Recubrimiento fuerte Delta</string>
     <string name="pref_powercrust_delta_summary">Filtrado de tomas radiales</string>
-    <string name="pref_powercrust_delta_message">Filtrar quita las tomas radiales de diferente a las anteriores y las siguientes</strimg>
+    <string name="pref_powercrust_delta_message">Filtrar quita las tomas radiales de diferente a las anteriores y las siguientes</string>
 <!--
     <string name="pref_convex_hull_title">Convex hull</string>
     <string name="pref_convex_hull_summary">Convex hull walls</string>

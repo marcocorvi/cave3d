@@ -27,6 +27,7 @@ import android.widget.TextView;
 
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Toast;
 
 public class  Cave3DOpenFileDialog extends Activity
@@ -42,7 +43,9 @@ public class  Cave3DOpenFileDialog extends Activity
     public boolean accept( File dir, String name ) {
       if ( name.endsWith( ".th" ) ) return true;
       if ( name.endsWith( "thconfig" ) ) return true;
-      if ( name.endsWith( "lox" ) ) return true;
+      if ( name.endsWith( ".lox" ) ) return true;
+      if ( name.endsWith( ".mak" ) ) return true;
+      if ( name.endsWith( ".dat" ) ) return true;
       return false;
     }
   }
@@ -62,6 +65,7 @@ public class  Cave3DOpenFileDialog extends Activity
     super.onCreate( savedInstanceState );
 
     setContentView(R.layout.openfile);
+    getWindow().setLayout( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
 
     setTitle( R.string.select_file );
     mList = (ListView) findViewById( R.id.list );

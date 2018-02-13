@@ -82,6 +82,7 @@
     <!-- TODO string name="ok_export">OK. Exported %1$s</string -->
 
     <!-- TODO string name="error_file_not_found">Error: file not found</string -->
+    <!-- TODO string name="error_file_not_readable">Error: file not readable</string -->
     <!-- TODO string name="error_io_exception">Error: IO exception</string -->
     <!-- TODO string name="error_parser_error">Error: parser error %1$s</string -->
     <!-- TODO string name="error_export_failed">Error: failed export %1$s</string -->

@@ -18,6 +18,8 @@ import java.io.StringWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import android.widget.Toast;
+
 import android.util.Log;
 
 public class Cave3DParser
@@ -56,6 +58,20 @@ public class Cave3DParser
   public ArrayList< Cave3DFix >     getFixes() { return fixes; }
 
   public Cave3DSurface getSurface() { return mSurface; }
+
+  protected boolean checkPath( String path )
+  {
+    File file = new File( path );
+    if ( ! file.exists() ) {
+      Toast.makeText( mCave3D, mCave3D.getResources().getString( R.string.error_file_not_found ) + " " + path, Toast.LENGTH_LONG ).show();
+      return false;
+    }
+    if ( ! file.canRead() ) {
+      Toast.makeText( mCave3D, mCave3D.getResources().getString( R.string.error_file_not_readable ) + " " + path, Toast.LENGTH_LONG ).show();
+      return false;
+    }
+    return true;
+  }
 
   void setStationsPathlength( float len ) 
   {

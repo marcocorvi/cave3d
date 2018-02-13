@@ -23,6 +23,7 @@ import android.content.Intent;
 
 import android.graphics.*;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -51,6 +52,7 @@ public class Cave3DStationDistanceDialog extends Dialog
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.cave3d_station_distance_dialog);
+        getWindow().setLayout( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
 
         TextView tv = ( TextView ) findViewById(R.id.st_name);
         tv.setText( mStation1.name + " - " + mStation2.name );
