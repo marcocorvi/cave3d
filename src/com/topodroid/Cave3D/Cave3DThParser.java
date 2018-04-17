@@ -20,6 +20,8 @@ import java.util.ArrayList;
 
 import android.util.Log;
 
+import android.widget.Toast;
+
 public class Cave3DThParser extends Cave3DParser
 {
   static final int FLIP_NONE       = 0;
@@ -100,6 +102,16 @@ public class Cave3DThParser extends Cave3DParser
     }
   }
 
+  private String makeName( String in, String path )
+  {
+    int index = in.indexOf('@');
+    if ( index > 0 ) {
+      return in.substring(0,index) + "@" + path + "." + in.substring(index+1);
+    } else {
+      return in + "@" + path;
+    }
+  }
+  
   /** read input file
    * @param usd
    * @param sd
@@ -112,6 +124,10 @@ public class Cave3DThParser extends Cave3DParser
                             float ul, float ub, float uc )
                   throws Cave3DParserException
   {
+    if ( ! checkPath( filename ) ) return false;
+
+    Toast.makeText( mCave3D, "Reading " + filename, Toast.LENGTH_SHORT ).show();
+
     String path = basepath;
     int linenr = 0;
     // Log.v("Cave3D", "basepath <" + basepath + ">");
@@ -257,13 +273,7 @@ public class Cave3DThParser extends Cave3DParser
                 // Log.v( TAG, "command fix");
                 idx = nextIndex( vals, idx );
                 if ( idx < vals.length ) {
-                  String name;
-                  int index = vals[idx].indexOf('@');
-                  if ( index > 0 ) {
-                    name = vals[idx].substring(0,index) + "@" + path + "." + vals[1].substring(index+1);
-                  } else {
-                    name = vals[idx] + "@" + path;
-                  }
+                  String name = makeName( vals[idx], path );
                   // Log.v( TAG, "command fix " + name );
                   try { 
                     idx = nextIndex( vals, idx );
@@ -310,12 +320,12 @@ public class Cave3DThParser extends Cave3DParser
                             // TODO add shot
                             if ( to.equals("-") || to.equals(".") ) {
                               // TODO splay shot
-                              from = from + "@" + path;
+                              from = makeName( from, path );
                               to = null;
                               splays.add( new Cave3DShot( from, to, len, ber, cln ) );
                             } else {
-                              from = from + "@" + path;
-                              to   = to + "@" + path;
+                              from = makeName( from, path );
+                              to   = makeName( to, path );
                               // StringWriter sw = new StringWriter();
                               // PrintWriter pw = new PrintWriter( sw );
                               // pw.format("%s %s %.2f %.1f %.1f", from, to, len, ber, cln );
@@ -431,22 +441,11 @@ public class Cave3DThParser extends Cave3DParser
             } else if ( cmd.equals("equate") ) {
               idx = nextIndex( vals, idx );
               if ( idx < vals.length ) {
-                String from, to;
-                int index = vals[idx].indexOf('@');
-                if ( index > 0 ) {
-                  from = vals[idx].substring(0,index) + "@" + path + "." + vals[idx].substring(index+1);
-                } else {
-                  from = vals[idx] + "@" + path;
-                }
+                String from = makeName( vals[idx], path );
                 while ( idx < vals.length ) {
                   idx = nextIndex( vals, idx );
                   if ( idx < vals.length ) {
-                    index = vals[idx].indexOf('@');
-                    if ( index > 0 ) {
-                      to = vals[idx].substring(0,index) + "@" + path + "." + vals[idx].substring(index+1);
-                    } else {
-                      to = vals[idx] + "@" + path;
-                    }
+		    String to = makeName( vals[idx], path );
                     // StringWriter sw = new StringWriter();
                     // PrintWriter pw = new PrintWriter( sw );
                     // pw.format("EQUATE %s %s 0.00 0.0 0.0", from, to );
@@ -543,8 +542,8 @@ public class Cave3DThParser extends Cave3DParser
   private void processShots()
   {
     if ( shots.size() == 0 ) return;
+    // Log.v( TAG, "shots " + shots.size() + " fixes " + fixes.size() );
     if ( fixes.size() == 0 ) {
-      // Log.v( TAG, "shots " + shots.size() + " fixes " + fixes.size() );
       Cave3DShot sh = shots.get( 0 );
       fixes.add( new Cave3DFix( sh.from, 0.0f, 0.0f, 0.0f, null ) );
     }
@@ -554,7 +553,9 @@ public class Cave3DThParser extends Cave3DParser
     // Log.v( "Cave3D", "Process Shots. Fix " + f0.name + " " + f0.e + " " + f0.n + " " + f0.z );
 
     mCaveLength = 0.0f;
+    // Log.v("Cave3D", "shots " + shots.size() + " splays " + splays.size() + " fixes " + fixes.size() );
 
+    int used_cnt = 0; // number of used shots
     for ( Cave3DFix f : fixes ) {
       boolean found = false;
       // Log.v( TAG, "checking fix " + f.name );
@@ -569,6 +570,7 @@ public class Cave3DThParser extends Cave3DParser
       stations.add( new Cave3DStation( f.name, f.e, f.n, f.z ) );
       // sh.from_station = s0;
     
+
       boolean repeat = true;
       while ( repeat ) {
         // Log.v(TAG, "scanning the shots");
@@ -596,6 +598,7 @@ public class Cave3DThParser extends Cave3DParser
           if ( sf != null && st != null ) {
             // Log.v( TAG, "unused shot " + sh.from + " " + sh.to + " : " + sf.name + " " + st.name );
             sh.used = true; // LOOP
+	    ++ used_cnt;
             mCaveLength += sh.len;
             // make a fake station
             Cave3DStation s = sh.getStationFromStation( sf );
@@ -603,13 +606,15 @@ public class Cave3DThParser extends Cave3DParser
             s.name = s.name + "-" + mLoopCnt;
             ++ mLoopCnt;
             sh.to_station = s;
+            repeat = true; // unnecessary
           } else if ( sf != null && st == null ) {
             // Log.v( TAG, "unused shot " + sh.from + " " + sh.to + " : " + sf.name + " null" );
             Cave3DStation s = sh.getStationFromStation( sf );
             stations.add( s );
             sh.to_station = s;
-            // Log.v(TAG, "add station " + sh.to_station.name + " N " + sh.to_station.n + " E " + sh.to_station.e + " Z " + sh.to_station.z );
+            // Log.v(TAG, "add station TO " + sh.from + " " + sh.to + " " + sh.to_station.name );
             sh.used = true;
+	    ++ used_cnt;
             mCaveLength += sh.len;
             repeat = true;
           } else if ( sf == null && st != null ) {
@@ -617,8 +622,9 @@ public class Cave3DThParser extends Cave3DParser
             Cave3DStation s = sh.getStationFromStation( st );
             stations.add( s );
             sh.from_station = s;
-            // Log.v(TAG, "add station " + sh.from_station.name + " N " + sh.from_station.n + " E " + sh.from_station.e + " Z " + sh.from_station.z );
+            // Log.v(TAG, "add station FR " + sh.from + " " + sh.to + " " + sh.from_station.name  );
             sh.used = true;
+	    ++ used_cnt;
             mCaveLength += sh.len;
             repeat = true;
           } else {
@@ -627,6 +633,10 @@ public class Cave3DThParser extends Cave3DParser
         }
       }
     } // for ( Cave3DFix f : fixes )
+    // Log.v( TAG, "used shot " + used_cnt + " loops " + mLoopCnt );
+    // StringBuilder sb = new StringBuilder();
+    // for ( Cave3DStation st : stations ) { sb.append(" "); sb.append( st.name ); }
+    // Log.v("Cave3D", sb.toString() );
 
     // 3D splay shots
     for ( Cave3DShot sh : splays ) {

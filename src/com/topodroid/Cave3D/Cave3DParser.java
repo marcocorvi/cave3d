@@ -292,6 +292,7 @@ public class Cave3DParser
   public Cave3DParser( Cave3D cave3d, String filename ) 
   {
     do_render = false;
+    // Toast.makeText( cave3d, "Reading " + filename, Toast.LENGTH_SHORT ).show();
 
     // Log.v("Cave3D", "parsing " + filename );
     int pos = filename.lastIndexOf('/');

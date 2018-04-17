@@ -21,7 +21,9 @@
     <string name="menu_ico">Ico diagram</string>
     <string name="menu_rose">Rose diagram</string>
     <string name="menu_wall">Wall models</string>
+    <string name="menu_fractal">Fractal counts</string>
 
+    <string name="fractal_title">Fractal counts</string>
     <string name="info_title">INFO</string>
     <string name="info_axes">Axes: blue North, green East</string>
     <string name="info_grid">Frame grid [m]</string>

@@ -148,6 +148,7 @@ public class Cave3DDatParser extends Cave3DParser
       ++linenr;
       String line = br.readLine();
       // Log.v(TAG, linenr + ":" + line );
+      int cnt_shot = 0;
       while ( line != null ) {
         line = line.trim();
 	if ( line.startsWith( "DECLINATION:" ) ) {
@@ -156,8 +157,9 @@ public class Cave3DDatParser extends Cave3DParser
           idx = nextIndex( vals, idx );
 	  try {
             declination = Float.parseFloat( vals[idx] );
+	    // Log.v("Cave3D", "declination " + declination );
 	  } catch ( NumberFormatException e ) { }
-	} else if ( line.startsWith( "FROM TO " ) ) {
+	} else if ( line.contains("FROM") && line.contains("TO" ) ) {
           ++linenr; line = br.readLine();
           // Log.v(TAG, linenr + ":" + line );
 	  for ( ; ; ) {
@@ -166,9 +168,12 @@ public class Cave3DDatParser extends Cave3DParser
               // Log.v(TAG, linenr + ":" + line );
               continue;
 	    }
-	    if ( line.charAt(0) == 0x0c ) break; // formfeed
+	    if ( line.charAt(0) == 0x0c ) {
+              // Log.v("Cave3D", "formfeed");
+              break; // formfeed
+	    }
             String[] vals = line.split( " " );
-	    if ( vals.length >= 5 ) { // FROM TO LEN BEAR INC L U D R
+	    if ( vals.length >= 5 ) { // FROM TO LEN BEAR INC L U D R FLAGS COMMENT
               idx = nextIndex( vals, -1 );
               String f0   = vals[idx];
 	      String from = vals[idx] + survey;
@@ -183,7 +188,7 @@ public class Cave3DDatParser extends Cave3DParser
                 idx = nextIndex( vals, idx );
                 float cln = Float.parseFloat( vals[idx] );
                 shots.add( new Cave3DShot( from, to, len, ber, cln ) );
-
+                ++ cnt_shot;
                 if ( vals.length >= 9 ) {
                   idx = nextIndex( vals, idx );
 		  len = Float.parseFloat( vals[idx] ); // LEFT
@@ -206,14 +211,16 @@ public class Cave3DDatParser extends Cave3DParser
 	}
         ++linenr; line = br.readLine();
         // Log.v(TAG, linenr + ":" + line );
-	if ( linenr > 20 ) break;
       }
-      if ( station != null ) fixes.add( new Cave3DFix( station+survey, x, y, z, cs ) );
+      if ( station != null ) {
+        // Log.v("Cave3D", "add fix station " +  station + survey );
+	fixes.add( new Cave3DFix( station+survey, x, y, z, cs ) );
+      }
     } catch ( IOException e ) {
       Log.e(TAG, "I/O ERROR " + e.getMessage() );
       throw new Cave3DParserException( filename, linenr );
     }
-
+    // Log.v(TAG, "shots " + shots.size() );
     return ( shots.size() > 0 );
   }
 

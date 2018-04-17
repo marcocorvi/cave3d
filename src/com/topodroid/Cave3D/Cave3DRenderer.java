@@ -203,6 +203,9 @@ public class Cave3DRenderer // implements Renderer
 
   Cave3DShot getShot( int k ) { return shots.get(k); }
 
+  ArrayList<Cave3DShot> getShots( )  { return shots;  }
+  ArrayList<Cave3DShot> getSplays( ) { return splays; }
+
   boolean hasSurface() { return mSurface != null; }
   Cave3DSurface getSurface() { return mSurface; }
 
@@ -1040,6 +1043,8 @@ public class Cave3DRenderer // implements Renderer
       } else {
         return false;
       }
+      Log.v("Cave3D", "Station " + mParser.getStationNumber() + " shot " + mParser.getShotNumber() );
+
       mCave3D = cave3d;
       CWConvexHull.resetCounters();
       prepareModel();
@@ -2823,5 +2828,3 @@ public class Cave3DRenderer // implements Renderer
     }
   }
 }
-
-
