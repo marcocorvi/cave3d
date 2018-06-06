@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cave3D</string>
+
+    <string name="btn_move">Déplacer</string>
+    <string name="btn_rotate">Tourner</string>
+    <string name="btn_station">Station</string>
+    <string name="btn_splay">Visées latérales</string>
+    <string name="btn_zoom_in">Zoom +</string>
+    <string name="btn_zoom_out">Zoom -</string>
+
+    <string name="menu_open">Ouvrir archive</string>
+    <string name="menu_options">Options</string>
+    <string name="menu_reset">Reset</string>
+    <!-- UNUSED string name="menu_zoom_one">Zoom 1</string -->
+    <string name="menu_files">Fichier</string>
+    <string name="menu_export">Exporter</string>
+    <string name="menu_frame">Fenêtre</string>
+    <string name="menu_color">Couleur</string>
+    <string name="menu_info">Information</string>
+    <string name="menu_ico">Diagramme icone</string>
+    <string name="menu_rose">Diagramme rosace</string>
+    <string name="menu_wall">Menu parois</string>
+
+    <string name="info_title">Information</string>
+    <string name="info_axes">Axes: bleu Nord, vert Est</string>
+    <string name="info_grid">Grille quadrillage (m)</string>
+    <string name="info_view">Point de vue</string>
+    <string name="info_surveys">Topographie</string>
+    <string name="info_shots">Visées</string>
+    <string name="info_stations">Stations</string>
+    <string name="info_length">Longueur</string>
+    <string name="info_depth">Profondeur/string>
+    <string name="info_volume">Volume</string>
+
+    <string name="query" formatted="false">Topographie: %d Visées: %d Station: %d\nLongueur : %d Profondeur : %d</string>
+    <string name="no_files">Pas de fichier archive</string>
+    <string name="clear">Effacer</string>
+
+    <string name="title">%1$s  Pente: %2$.0f  Azimut: %3$.0f</string>
+    <string name="title_clino"> Pente : </string>
+    <string name="title_azimuth"> Azimut : </string>
+
+    <string name="survey_legs"> Visées : </string>
+    <string name="survey_legs_length"> Longueur des visées : </string>
+    <string name="survey_splays"> Visées latérales : </string>
+    <string name="survey_splays_length"> Longueur des visées latérales : </string>
+    <string name="cave_distance"> Distance 3D : %1$.2f</string>
+    <string name="cave_length"> Longueur de la cavité : %1$.2f</string>
+
+    <string name="SURVEYS">T o p o g r a p h i e</string>
+    <string name="INFO">I n f o r m a t i o n</string>
+    <string name="EXPORT">E x p o r t e r</string>
+    <string name="STATION">S t a t i o n</string>
+    <string name="STATIONS_DISTANCE">Distance station</string>
+    <string name="DISTANCE">Distance</string>
+    <string name="select_file">Cave3D - Selectionner archive :</string>
+    <string name="Wall">Parois</string>
+    <string name="Surface">Superficie</string>
+
+    <string name="view_title">POINTS DE VUE</string>
+    <string name="view_top">Partie supérieure</string>
+    <string name="view_east">Est</string>
+    <string name="view_north">Nord</string>
+    <string name="view_west">Ouest</string>
+    <string name="view_south">Sud</string>
+    <string name="view_point">Point de vue</string>
+    <string name="view_zoom">Zoom 1</string>
+
+    <string name="walls_title">Parois</string>
+    <string name="walls_convexhull">Enveloppe Convexe</string>
+    <string name="walls_powercrust">Enveloppe Powercrust</string>
+    <string name="walls_hull">Enveloppe simple</string>
+    <string name="walls_delaunay">Enveloppe Delaunay</string>
+
+    <string name="powercrust_few_splays">Enveloppe Powercrust : très peu de visées latérales</string>
+    <string name="powercrust_failed">Enveloppe Powercrust en échec</string>
+    <string name="powercrust_successful">Enveloppe Powercrust appliquée avec succès : %1$d / %2$d</string>
+
+    <string name="ok_export">OK. Exporté %1$s</string>
+
+    <string name="error_file_not_found">Erreur : archive  non trouvée</string>
+    <!-- TODO string name="error_file_not_readable">Erreur : fichier illisible</string -->
+    <string name="error_io_exception">Erreur : IO exception</string>
+    <string name="error_parser_error">Erreur : erreur de l'analyseur %1$s</string>
+    <string name="error_export_failed">Erreur : exportation défaillante %1$s</string>
+
+    <string name="warning_not_overwrite">Avertissement : ne pas écraser l'archive existante %1$s</string>
+    <!-- UNUSED string name="warning_not_txt">Avertissement : pas d'archive txt %1$s</string -->
+    <!-- UNUSED string name="warning_not_kml">Avertissement : pas d'archive Kml %1$s</string -->
+    <!-- UNUSED string name="warning_not_las">Avertissement : pas d'archive %1$s</string -->
+    <!-- UNUSED string name="warning_not_cgal">Avertissement : pas d'archive de texte CGAL %1$s</string -->
+    <!-- UNUSED string name="warning_not_stl">Avertissement : pas d'archive stl %1$s</string -->
+    <string name="warning_no_cwd">Avertissement : répertoire initial absent</string>
+    <string name="pref_base_path_title">Dossier de la base de données</string>
+    <string name="pref_base_path_summary">Dossier Therion</string>
+    <string name="pref_base_path_message">Dossier qui contient les archives Therion</string>
+    <string name="pref_text_size_title">Taille Texte</string>
+    <string name="pref_text_size_summary">Taille des étiquettes de stations</string>
+    <string name="pref_text_size_message">Taille du texte des étiquettes des stations</string>
+    <string name="pref_size_buttons_title">Taille Boutons</string>
+    <string name="pref_size_buttons_summary">Taille des boutons</string>
+    <string name="pref_selection_radius_title">Selection rayon</string>
+    <string name="pref_selection_radius_summary">Selectionn rayon</string>
+    <string name="pref_selection_radius_message">Selection du rayon</string>
+    <string name="pref_grid_above_title">Situation de la grille quadrillée</string>
+    <string name="pref_grid_above_summary">Placer la grille dans la partie supérieure/string>
+    <string name="pref_grid_above_message">Montrer la grille dans la partie supérieure</string>
+    <string name="pref_neg_clino_title">Vue sous l'horizon</string>
+    <string name="pref_neg_clino_summary">Permettre point de vue sous horizon</string>
+    <string name="pref_neg_clino_message">Permettre d'avoir un point de vue sous l'horizon</string>
+    <string name="pref_all_splay_title">Toutes visées latérales</string>
+    <string name="pref_all_splay_summary">Toutes visées latérales pour parois</string>
+    <string name="pref_all_splay_message">Utiliser la totalité des visées latérales pour tracer les parois</string>
+    <string name="pref_preprojection_title">Pré-projections</string>
+    <string name="pref_preprojection_summary">Calculer les pré-projections</string>
+    <string name="pref_preprojection_message">Utiliser les projections pré-calculées</string>
+
+    <string name="pref_split_triangles_title">Diviser triangles</string>
+    <string name="pref_split_triangles_summary">Diviser les parois en triangles</string>
+    <string name="pref_split_triangles_message">Diviser l'intersection des triangles de parois</string>
+    <string name="pref_split_random_title">Points aléatoires</string>
+    <string name="pref_split_random_summary">Selection aléatoire des points de parois</string>
+    <string name="pref_split_random_message">Ajouter un petit vecteur aléatoire aux visées latérales</string>
+    <string name="pref_split_stretch_title">Etirer les parois</string>
+    <string name="pref_split_stretch_summary">Etirer les parois le long de la visée</string>
+    <string name="pref_split_stretch_message">Modifier les points de paroi d'une faible valeur le long de la visée</string>
+    <string name="pref_powercrust_delta_title">Enveloppe Powercrust Delta</string>
+    <string name="pref_powercrust_delta_summary">Filtrage des visées latérales</string>
+    <string name="pref_powercrust_delta_message">Le filtre sépare les visées latérales entre précédente et suivante</string>
+<!--
+    <string name="pref_convex_hull_title">Enveloppe convexe</string>
+    <string name="pref_convex_hull_summary">Enveloppe de parois convexes</string>
+    <string name="pref_delaunay_title">Enveloppe Delaunay</string>
+    <string name="pref_delaunay_summary">Enveloppe de parois Delaunay</string>
+    <string name="pref_hull_title">Enveloppe</string>
+    <string name="pref_hull_summary">Enveloppe parois</string>
+-->
+
+</resources>
+
+    © 2018 GitHub, Inc.
+    Terms
+    Privacy
+    Security
+    Status
+    Help
+
+    Contact GitHub
+    API
+    Training
+    Shop
+    Blog
+About
