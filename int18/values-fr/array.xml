@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+  <string-array name="sizeButtons">
+     <item name="small1">Petit</item>
+     <item name="large">Grand</item>
+  </string-array>
+
+</resources>

@@ -320,8 +320,8 @@ public class Cave3D extends Activity
     R.string.menu_viewpoint,  // 5
     R.string.menu_reset,
     R.string.menu_wall,       // 7
-    R.string.menu_options,
-    R.string.menu_fractal, // FRACTAL
+    R.string.menu_options
+    // R.string.menu_fractal, // FRACTAL
   };
 
   void setMenuAdapter( Resources res )
@@ -370,8 +370,8 @@ public class Cave3D extends Activity
       new Cave3DWallsDialog( this, this, mRenderer ).show();
     } else if ( p++ == pos ) { // OPTIONS
       startActivity( new Intent( this, Cave3DPreferences.class ) );
-    } else if ( p++ == pos ) { // FRACTAL
-      new FractalDialog( this, this, mRenderer ).show();
+    // } else if ( p++ == pos ) { // FRACTAL
+    //   new FractalDialog( this, this, mRenderer ).show();
     }
   }
 
