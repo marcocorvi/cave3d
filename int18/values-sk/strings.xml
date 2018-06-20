@@ -1,1 +1,145 @@
-CUT-N-PASTE FROM ENGLISH HERE
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cave3D</string>
+
+    <string name="btn_move">Posun</string>
+    <string name="btn_rotate">Otáčanie</string>
+    <string name="btn_station">Staničenie</string>
+    <string name="btn_splay">Pomocná zámera</string>
+    <string name="btn_zoom_in">Zoom +</string>
+    <string name="btn_zoom_out">Zoom -</string>
+
+    <string name="menu_open">Otvoriť súbor</string>
+    <string name="menu_options">Nastavenia</string>
+    <string name="menu_reset">Reset</string>
+    <string name="menu_viewpoint">Pohľad z ...</string>
+    <string name="menu_files">Jaskyne</string>
+    <string name="menu_export">Export</string>
+    <string name="menu_frame">Rám</string>
+    <string name="menu_color">Farba</string>
+    <string name="menu_info">Info</string>
+    <string name="menu_ico">Ico diagram</string>
+    <string name="menu_rose">Ružicový diagram</string>
+    <string name="menu_wall">Modely Stien</string>
+    <string name="menu_fractal">Fraktálne výpočty</string>
+
+    <string name="fractal_title">Fraktálne výpočty</string>
+    <string name="info_title">INFO</string>
+    <string name="info_axes">Osi: modrá = Sever, zelená = Východ</string>
+    <string name="info_grid">Rám mriežky [m]</string>
+    <string name="info_view">Pohľad z</string>
+    <string name="info_surveys">Jaskyne</string>
+    <string name="info_shots">Zámery</string>
+    <string name="info_stations">Staničenia</string>
+    <string name="info_length">Dĺžka</string>
+    <string name="info_depth">Hĺbka</string>
+    <string name="info_volume">Objem</string>
+
+    <string name="query" formatted="false">Jaskyne: %d Zámery: %d Staničenia: %d\nDĺžka: %d Hĺbka: %d</string>
+    <string name="no_files">Žiadne súbory</string>
+    <string name="clear">Vyčistiť</string>
+
+    <string name="title">%1$s  Uhol: %2$.0f  Azimut: %3$.0f</string>
+    <string name="title_clino"> Uhol: </string>
+    <string name="title_azimuth"> Azimut: </string>
+
+    <string name="survey_legs"> Hlavné zámery: </string>
+    <string name="survey_legs_length"> Dĺžka hlavných zámer: </string>
+    <string name="survey_splays"> Pomocné zámery: </string>
+    <string name="survey_splays_length"> Dĺžka pomocných zámer: </string>
+    <string name="cave_distance"> 3D vzdialenosť: %1$.2f</string>
+    <string name="cave_length"> Dĺžka jaskyne: %1$.2f</string>
+
+    <string name="SURVEYS">JASKYNE</string>
+    <string name="INFO">INFO</string>
+    <string name="EXPORT">EXPORT</string>
+    <string name="STATION">MERAČSKÝ BOD</string>
+    <string name="STATIONS_DISTANCE">VZDIALENOSŤ MERAČSKÝCH BODOV</string>
+    <string name="DISTANCE">VZDIALENOSŤ</string>
+    <string name="CENTER">CENTROVANIE</string>
+    <string name="select_file">Cave3D - Vybrať súbor:</string>
+    <string name="Wall">Steny</string>
+    <string name="Surface">Povrch</string>
+
+    <string name="view_title">POHĽAD Z</string>
+    <string name="view_top">Vrchu</string>
+    <string name="view_east">Východu</string>
+    <string name="view_north">Severu</string>
+    <string name="view_west">Západu</string>
+    <string name="view_south">Juhu</string>
+    <string name="view_point">Pohľad z</string>
+    <string name="view_zoom">Zoom 1</string>
+
+    <string name="walls_title">STENY</string>
+    <string name="walls_convexhull">Convex Hull</string>
+    <string name="walls_powercrust">Powercrust</string>
+    <string name="walls_hull">Hull</string>
+    <string name="walls_delaunay">Delaunay</string>
+
+    <string name="powercrust_few_splays">Powercrust: príliš málo pomocných zámer</string>
+    <string name="powercrust_failed">Powercrust zlyhanie</string>
+    <string name="powercrust_successful">Powercrust úspešný: %1$d / %2$d</string>
+
+    <string name="ok_export">OK. Export dokončený %1$s</string>
+
+    <string name="error_file_not_found">Error: súbor nenájdený</string>
+    <string name="error_file_not_readable">Error: súbor nečitateľný</string>
+    <string name="error_io_exception">Error: IO výnimka</string>
+    <string name="error_parser_error">Error: chyba syntaktického analyzátora %1$s</string>
+    <string name="error_export_failed">Error: export zlyhal %1$s</string>
+
+    <string name="warning_not_overwrite">Varovanie: Existujúci súbor neprepísaný %1$s</string>
+    <!-- UNUSED string name="warning_not_txt">Warning: not txt file %1$s</string -->
+    <!-- UNUSED string name="warning_not_kml">Warning: not kml file %1$s</string -->
+    <!-- UNUSED string name="warning_not_las">Warning: not las file %1$s</string -->
+    <!-- UNUSED string name="warning_not_cgal">Warning: not CGAL text file %1$s</string -->
+    <!-- UNUSED string name="warning_not_stl">Warning: not stl file %1$s</string -->
+    <string name="warning_no_cwd">Varovanie: Chybná cesta k adresáru</string>
+
+    <string name="pref_base_path_title">Základný adresár</string>
+    <string name="pref_base_path_summary">Základný adresár/cesta k súborom</string>
+    <string name="pref_base_path_message">Adresár obsahujúci Therion súbory</string>
+    <string name="pref_text_size_title">Veľkosť meračských bodov</string>
+    <string name="pref_text_size_summary">Veľkosť meračských bodov - Staničenia</string>
+    <string name="pref_text_size_message">Veľkosť meračských bodov - Staničenia</string>
+    <string name="pref_size_buttons_title">Veľkosť ikoniek</string>
+    <string name="pref_size_buttons_summary">Veľkosť ikoniek na obrazovke</string>
+    <string name="pref_selection_radius_title">Rozsah výberu</string>
+    <string name="pref_selection_radius_summary">Rozsah výberu</string>
+    <string name="pref_selection_radius_message">Rozsah výberu</string>
+    <string name="pref_grid_above_title">Mriežka navrchu</string>
+    <string name="pref_grid_above_summary">Zaškrtnuté = mriežka hore</string>
+    <string name="pref_grid_above_message">Ukázať mriežku navrchu</string>
+    <string name="pref_neg_clino_title">Pohľady spod horizontu</string>
+    <string name="pref_neg_clino_summary">Dovoliť pohľady aj spod horizontu</string>
+    <string name="pref_neg_clino_message">Dovoliť pohľady aj spod horizontu</string>
+    <string name="pref_all_splay_title">Všetky pomocné zámery</string>
+    <string name="pref_all_splay_summary">Použiť všetky pomocné zámery pre zobrazenie stien</string>
+    <string name="pref_all_splay_message">Použiť všetky pomocné zámery pre zobrazenie stien</string>
+    <string name="pref_preprojection_title">Preprojekcie</string>
+    <string name="pref_preprojection_summary">Použiť Prepočítané projekcie</string>
+    <string name="pref_preprojection_message">Použiť Prepočítané projekcie</string>
+
+    <string name="pref_split_triangles_title">Rozdeliť trojuholníky</string>
+    <string name="pref_split_triangles_summary">Rozdeliť pretínajúce sa stenové trojuholníky</string>
+    <string name="pref_split_triangles_message">Rozdeliť pretínajúce sa stenové trojuholníky</string>
+    <string name="pref_split_random_title">Náhodné body</string>
+    <string name="pref_split_random_summary">Náhodné body na stenách</string>
+    <string name="pref_split_random_message">Pridať malé náhodné vektory k pomocným zámerám</string>
+    <string name="pref_split_stretch_title">Roztiahnuť steny</string>
+    <string name="pref_split_stretch_summary">Roztiahnuť body na stenách pozdĺž hlavných zámer</string>
+    <string name="pref_split_stretch_message">Posunúť  body na stenách o malý kúsok oproti hlavným zámerám</string>
+
+    <string name="pref_powercrust_delta_title">Powercrust Delta</string>
+    <string name="pref_powercrust_delta_summary">Filtrovanie pomocných zámer</string>
+    <string name="pref_powercrust_delta_message">Odfiltrovať pomocné zámery, ktoré sa príliš líšia od predchádzajúcich a nasledujúcich</string>
+<!--
+    <string name="pref_convex_hull_title">Convex hull</string>
+    <string name="pref_convex_hull_summary">Convex hull walls</string>
+    <string name="pref_delaunay_title">Delaunay</string>
+    <string name="pref_delaunay_summary">Delaunay walls</string>
+    <string name="pref_hull_title">Hull</string>
+    <string name="pref_hull_summary">Hull walls</string>
+-->
+
+</resources>
