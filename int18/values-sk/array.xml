@@ -1,1 +1,14 @@
-CUT-N-PASTE FROM ENGLISH HERE
+?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+  <string-array name="sizeButtons">
+     <item name="small1">Small</item>
+     <item name="large">Large</item>
+  </string-array>
+  <string-array name="sizeButtonsValue">
+     <item name="small">1</item>
+     <item name="large">2</item>
+  </string-array>
+
+</resources>
