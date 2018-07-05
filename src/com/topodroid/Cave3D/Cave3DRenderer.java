@@ -17,6 +17,8 @@ import java.io.FileWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import java.util.Locale;
+
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -2715,7 +2717,7 @@ public class Cave3DRenderer // implements Renderer
         if ( walls != null ) {
           fw = new FileWriter( filename );
           PrintWriter out = new PrintWriter( fw );
-          out.format("E %d %d\n", walls.size(), borders.size() );
+          out.format(Locale.US, "E %d %d\n", walls.size(), borders.size() );
           for ( CWConvexHull wall : walls ) {
             wall.serialize( out );
           }

@@ -12,6 +12,8 @@
 package com.topodroid.Cave3D;
 
 import java.util.List;
+import java.util.Locale;
+
 import java.io.PrintWriter;
 // import java.io.PrintStream;
 // import java.io.IOException;
@@ -142,7 +144,7 @@ public class CWTriangle extends CWFacet
   
   void serialize( PrintWriter out )
   {
-    out.format( "T %d %d %d %d %d %d %d %d %.3f %.3f %.3f\n",
+    out.format(Locale.US, "T %d %d %d %d %d %d %d %d %.3f %.3f %.3f\n",
                 mCnt, mType, v1.mCnt, v2.mCnt, v3.mCnt, s1.mCnt, s2.mCnt, s3.mCnt, un.x, un.y, un.z );
   }
 

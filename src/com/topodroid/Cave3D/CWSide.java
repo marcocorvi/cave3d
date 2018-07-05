@@ -15,6 +15,8 @@ import java.io.PrintWriter;
 // import java.io.PrintStream;
 import java.io.IOException;
 
+import java.util.Locale;
+
 import android.util.Log;
 
 /**
@@ -137,7 +139,7 @@ public class CWSide
   void serialize( PrintWriter out )
   {
     Cave3DVector dp = p2.minus(p1);
-    out.format( "S %d %d %d %d %d %.3f %.3f %.3f\n", mCnt, p1.mCnt, p2.mCnt,
+    out.format(Locale.US, "S %d %d %d %d %d %.3f %.3f %.3f\n", mCnt, p1.mCnt, p2.mCnt,
                 ((t1 == null)? "-1" : t1.mCnt), ((t2 == null)? "-1" : t2.mCnt), dp.x, dp.y, dp.z );
   }
 }

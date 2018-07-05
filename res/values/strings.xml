@@ -22,6 +22,7 @@
     <string name="menu_rose">Rose diagram</string>
     <string name="menu_wall">Wall models</string>
     <string name="menu_fractal">Fractal counts</string>
+    <string name="menu_help">Help</string>
 
     <string name="fractal_title">Fractal counts</string>
     <string name="info_title">INFO</string>
@@ -94,7 +95,7 @@
     <!-- UNUSED string name="warning_not_las">Warning: not las file %1$s</string -->
     <!-- UNUSED string name="warning_not_cgal">Warning: not CGAL text file %1$s</string -->
     <!-- UNUSED string name="warning_not_stl">Warning: not stl file %1$s</string -->
-    <string name="warning_no_cwd">Warning: missing initial directory</string>
+    <string name="warning_no_cwd">Warning: missing base path</string>
 
     <string name="pref_base_path_title">Base path</string>
     <string name="pref_base_path_summary">App base path</string>
@@ -142,4 +143,57 @@
     <string name="pref_hull_summary">Hull walls</string>
 -->
 
+    <string name="help">Cave3D Help\n
+Cave3D is a 3d viewer for Therion projects and Loch files.\n
+The model is shown with a reference grid (blue north, green east) or triplet (pink upward).\n\n
+
+BUTTONS\n
+Tilt - Move: green arrow switches the view between rotation and move modes.\n
+Stations: button displays and hides station numbers.\n
+Splays: button will display and hide splay shots. Splays are shown as lines or as endpoints.\n
+Walls: button will display or hide wall models if there is any.\n
+Projections: display the plan view built from the wall 3D reconstruction, projected on the grid plane, and/or the profile curtain.\n
+Surface: button will display surface.  Works only if ASCII surface data is specified in .th file.\n
+Color: button will change color-coding of centreline from all grey to survey and depth.\n
+Grid: button will switch between underlying grid or X, Y, Z axis.\n\n
+
+MENU\n
+Open file: opens a dialogue to select a .th file from th subfolder in TopoDroid working directory.\n
+Export: opens the export dialogue.\n
+Info: will display survey statistics.\n
+Ico diagram: displays ICO diagram.\n
+Rose diagram: displays azimuth rose diagram.\n
+Viewpoint: will let you select a point of view.\n
+Reset: center the 3D model in top-view and zoom to fit it in the screen\n
+Wall models: create or clear a wall 3D reconstruction.\n
+Options\n
+Help\n\n
+
+OPTIONS\n
+Base path: Directory containing the Therion/Loch files\n
+Text size: Station label text size\n
+Buttons size: Buttons size\n
+Selection radius: Radius of selection\n
+Top grid: Show the grid on the top\n
+Projections: Whether to use precompute projections\n
+All splay: Whether to use all the splays for the walls\n
+Split triangles: Whether to split intersecting wall triangles\n
+Randomize points: Add a small random vector to splays\n
+Stretch walls: Shift wall points by a small quantity along the leg\n\n
+
+EXPORTS\n
+Model can be exported into Therion, KML, STL or STL-bin formats, CGAL and LAS.
+There are options to include splays, walls, stations and surface in export. The model can be also serialized in a text file.\n\n
+
+Walls\n
+The wall envelope is not computed automatically when the file is opened, but it must be
+requested by the user thru the "wall" menu.
+There are two models: pseudo conevx-hull, and powercrust. The first is good when the splay are not dense. The second is for dense splays.
+After the wall has been computed it can be displayed with the "wall" button.\n\n
+
+Station actions\n
+When the stations are displayed, they can be selected tapping on the station.
+The selected station can be set as origin of the model ("center"), or the distance from 
+another station can be measured.\n
+  </string>
 </resources>

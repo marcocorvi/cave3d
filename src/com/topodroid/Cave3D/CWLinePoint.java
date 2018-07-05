@@ -14,6 +14,8 @@ package com.topodroid.Cave3D;
 import java.io.PrintWriter;
 // import java.io.PrintStream;
 
+import java.util.Locale;
+
 public class CWLinePoint extends Cave3DVector 
 {
   float mAlpha;  // line abscissa
@@ -60,6 +62,6 @@ public class CWLinePoint extends Cave3DVector
 
   void serialize( PrintWriter out )
   {
-     out.format("L %d %d %.3f %.3f %.3f %.3f\n", mTri.mCnt, mSide.mCnt, mAlpha, x, y, z );
+     out.format(Locale.US, "L %d %d %.3f %.3f %.3f %.3f\n", mTri.mCnt, mSide.mCnt, mAlpha, x, y, z );
   }
 }

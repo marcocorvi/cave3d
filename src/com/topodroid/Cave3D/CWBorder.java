@@ -14,6 +14,8 @@ package com.topodroid.Cave3D;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.Locale;
+
 import java.io.PrintWriter;
 // import java.io.PrintStream;
 
@@ -245,7 +247,7 @@ public class CWBorder
   
   void serialize( PrintWriter out )
   {
-    out.format( "B %d %d %d %d %d %d\n", mCnt, mCV1.mCnt, mCV2.mCnt, mInts.size(), pts2in1.size(), pts1in2.size() );
+    out.format(Locale.US,  "B %d %d %d %d %d %d\n", mCnt, mCV1.mCnt, mCV2.mCnt, mInts.size(), pts2in1.size(), pts1in2.size() );
     for ( CWIntersection ii : mInts ) ii.serialize( out );
     for ( CWPoint p2 : pts2in1 )      p2.serialize( out );
     for ( CWPoint p1 : pts1in2 )      p1.serialize( out );

@@ -51,9 +51,9 @@ public class CGALExporter
 
       int nst = stations.size();
       int nsp = splays.size();
-      pw.format("OFF\n");
-      pw.format("%d 0 0\n", (nst+nsp) );
-      pw.format("\n");
+      pw.format(Locale.US, "OFF\n");
+      pw.format(Locale.US, "%d 0 0\n", (nst+nsp) );
+      pw.format(Locale.US, "\n");
 
       for ( Cave3DStation st : stations ) {
         float e = (st.e - zero.e) * e_radius;
@@ -63,7 +63,7 @@ public class CGALExporter
         for ( Cave3DShot sp : splays ) {
           if ( st == sp.from_station ) ++cnt;
         }
-        pw.format("# %s %d\n", st.name, cnt );
+        pw.format(Locale.US, "# %s %d\n", st.name, cnt );
         pw.format(Locale.US, "%.2f %.2f %.2f\n", e, n, z );
         for ( Cave3DShot sp : splays ) {
           if ( st == sp.from_station ) {

@@ -39,7 +39,7 @@ class Icosahedron
     //   StringWriter sw = new StringWriter();
     //   PrintWriter  pw = new PrintWriter( sw );
     //   for (int k2=0; k2<12; ++k2 ) {
-    //     pw.format("%1d ", mNghb[ k1*12 + k2 ] );
+    //     pw.format(Locale.US, "%1d ", mNghb[ k1*12 + k2 ] );
     //   }
     //   Log.v( "Cave3D", sw.getBuffer().toString() );
     // }

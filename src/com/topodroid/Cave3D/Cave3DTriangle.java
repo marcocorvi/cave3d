@@ -14,6 +14,8 @@ package com.topodroid.Cave3D;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 
+import java.util.Locale;
+
 class Cave3DTriangle
 {
   int size;
@@ -78,7 +80,7 @@ class Cave3DTriangle
   {
     StringWriter sw = new StringWriter();
     PrintWriter pw = new PrintWriter( sw );
-    pw.format("%.2f %.2f %.2f - %.2f %.2f %.2f - %.2f %.2f %.2f",
+    pw.format(Locale.US, "%.2f %.2f %.2f - %.2f %.2f %.2f - %.2f %.2f %.2f",
       vertex[0].x, vertex[0].y, vertex[0].z,
       vertex[1].x, vertex[1].y, vertex[1].z,
       vertex[2].x, vertex[2].y, vertex[2].z );

@@ -13,6 +13,8 @@ package com.topodroid.Cave3D;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 
+import java.util.Locale;
+
 import android.os.Bundle;
 import android.app.Dialog;
 // import android.app.Activity;
@@ -63,9 +65,9 @@ public class Cave3DStationDialog extends Dialog
         PrintWriter  pw2 = new PrintWriter( sw2 );
         StringWriter sw3 = new StringWriter();
         PrintWriter  pw3 = new PrintWriter( sw3 );
-        pw1.format( "E %.2f", mStation.e );
-        pw2.format( "N %.2f", mStation.n );
-        pw3.format( "Z %.2f", mStation.z );
+        pw1.format(Locale.US, "E %.2f", mStation.e );
+        pw2.format(Locale.US, "N %.2f", mStation.n );
+        pw3.format(Locale.US, "Z %.2f", mStation.z );
 
         tv = ( TextView ) findViewById(R.id.st_east);
         tv.setText( sw1.getBuffer().toString() );
@@ -84,7 +86,7 @@ public class Cave3DStationDialog extends Dialog
           double zs = mSurface.computeZ( mStation.e, mStation.n );
           StringWriter sw = new StringWriter();
           PrintWriter pw = new PrintWriter( sw );
-          pw.format("Depth %.1f", zs - mStation.z );
+          pw.format(Locale.US, "Depth %.1f", zs - mStation.z );
           mTvSurface.setText( sw.getBuffer().toString() );
         }
         

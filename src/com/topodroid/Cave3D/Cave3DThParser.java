@@ -328,7 +328,7 @@ public class Cave3DThParser extends Cave3DParser
                               to   = makeName( to, path );
                               // StringWriter sw = new StringWriter();
                               // PrintWriter pw = new PrintWriter( sw );
-                              // pw.format("%s %s %.2f %.1f %.1f", from, to, len, ber, cln );
+                              // pw.format(Locale.US, "%s %s %.2f %.1f %.1f", from, to, len, ber, cln );
                               // Log.v("Cave3D", sw.getBuffer().toString() );
                               shots.add( new Cave3DShot( from, to, len, ber, cln ) );
                             }
@@ -448,7 +448,7 @@ public class Cave3DThParser extends Cave3DParser
 		    String to = makeName( vals[idx], path );
                     // StringWriter sw = new StringWriter();
                     // PrintWriter pw = new PrintWriter( sw );
-                    // pw.format("EQUATE %s %s 0.00 0.0 0.0", from, to );
+                    // pw.format(Locale.US, "EQUATE %s %s 0.00 0.0 0.0", from, to );
                     // Log.v("Cave3D", sw.getBuffer().toString() );
                     // Log.v(TAG, "Equate " + from + " " + to );
                     shots.add( new Cave3DShot( from, to, 0.0f, 0.0f, 0.0f ) );

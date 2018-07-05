@@ -12,6 +12,7 @@
 package com.topodroid.Cave3D;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -92,31 +93,31 @@ public class STLExporter
     try {
       fw = new FileWriter( filename );
       PrintWriter pw = new PrintWriter( fw );
-      pw.format("solid %s\n", name );
+      pw.format(Locale.US, "solid %s\n", name );
       for ( CWFacet facet : mFacets ) {
-        pw.format("  facet normal %.3f %.3f %.3f\n", facet.un.x, facet.un.y, facet.un.z );
-        pw.format("    outer loop\n");
-        pw.format("      vertex %.3f %.3f %.3f\n", (x+facet.v1.x)*s, (y+facet.v1.y)*s, (z+facet.v1.z)*s );
-        pw.format("      vertex %.3f %.3f %.3f\n", (x+facet.v2.x)*s, (y+facet.v2.y)*s, (z+facet.v2.z)*s );
-        pw.format("      vertex %.3f %.3f %.3f\n", (x+facet.v3.x)*s, (y+facet.v3.y)*s, (z+facet.v3.z)*s );
-        pw.format("    endloop\n");
-        pw.format("  endfacet\n");
+        pw.format(Locale.US, "  facet normal %.3f %.3f %.3f\n", facet.un.x, facet.un.y, facet.un.z );
+        pw.format(Locale.US, "    outer loop\n");
+        pw.format(Locale.US, "      vertex %.3f %.3f %.3f\n", (x+facet.v1.x)*s, (y+facet.v1.y)*s, (z+facet.v1.z)*s );
+        pw.format(Locale.US, "      vertex %.3f %.3f %.3f\n", (x+facet.v2.x)*s, (y+facet.v2.y)*s, (z+facet.v2.z)*s );
+        pw.format(Locale.US, "      vertex %.3f %.3f %.3f\n", (x+facet.v3.x)*s, (y+facet.v3.y)*s, (z+facet.v3.z)*s );
+        pw.format(Locale.US, "    endloop\n");
+        pw.format(Locale.US, "  endfacet\n");
       }
       if ( mTriangles != null ) {
         for ( Cave3DTriangle t : mTriangles ) {
           int size = t.size;
           Cave3DVector n = t.normal;
-          pw.format("  facet normal %.3f %.3f %.3f\n", n.x, n.y, n.z );
-          pw.format("    outer loop\n");
+          pw.format(Locale.US, "  facet normal %.3f %.3f %.3f\n", n.x, n.y, n.z );
+          pw.format(Locale.US, "    outer loop\n");
           for ( int k=0; k<size; ++k ) {
             Cave3DVector v = t.vertex[k];
-            pw.format("      vertex %.3f %.3f %.3f\n", (x+v.x)*s, (y+v.y)*s, (z+v.z)*s );
+            pw.format(Locale.US, "      vertex %.3f %.3f %.3f\n", (x+v.x)*s, (y+v.y)*s, (z+v.z)*s );
           }
-          pw.format("    endloop\n");
-          pw.format("  endfacet\n");
+          pw.format(Locale.US, "    endloop\n");
+          pw.format(Locale.US, "  endfacet\n");
         }
       }
-      pw.format("endsolid %s\n", name );
+      pw.format(Locale.US, "endsolid %s\n", name );
     } catch ( FileNotFoundException e ) { 
       Log.e("Cave3D", "ERROR " + e.getMessage() );
       ret = false;

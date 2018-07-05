@@ -16,6 +16,8 @@ package com.topodroid.Cave3D;
 import java.io.PrintWriter;
 // import java.io.PrintStream;
 
+import java.util.Locale;
+
 import android.util.Log;
 
 public class CWIntersection {
@@ -156,7 +158,7 @@ public class CWIntersection {
   
   void serialize( PrintWriter out )
   {
-    out.format( "I %d %d %d %d %.3f %.3f %.3f %.3f %.3f %.3f\n",
+    out.format(Locale.US, "I %d %d %d %d %.3f %.3f %.3f %.3f %.3f %.3f\n",
                 mCnt, mType, mTriA.mCnt, mTriB.mCnt, mV.x, mV.y, mV.z, mN.x, mN.y, mN.z );
     mV1.serialize( out );
     mV2.serialize( out );

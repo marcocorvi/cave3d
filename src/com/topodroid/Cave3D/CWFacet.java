@@ -85,7 +85,7 @@ public class CWFacet
 
   // void serialize( PrintWriter out )
   // {
-  //   out.format( "F %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f\n",
+  //   out.format(Locale.US, "F %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f\n",
   //               un.x, un.y, un.z, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, v3.x, v3.y, v3.z );
   // }
 

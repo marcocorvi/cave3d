@@ -13,6 +13,7 @@ package com.topodroid.Cave3D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
+import java.util.Locale;
 // import java.util.Collection;
 // import static java.util.stream.Collectors.toList;
 
@@ -683,7 +684,7 @@ public class CWConvexHull
   
   void serialize( PrintWriter out )
   {
-    out.format( "C %d %d %d %d\n", mCnt, mVertex.size(), mSide.size(), mFace.size() );
+    out.format(Locale.US, "C %d %d %d %d\n", mCnt, mVertex.size(), mSide.size(), mFace.size() );
     for ( CWPoint v :  mVertex ) v.serialize( out );
     for ( CWSide s : mSide )     s.serialize( out );
     for ( CWTriangle f : mFace ) f.serialize( out );

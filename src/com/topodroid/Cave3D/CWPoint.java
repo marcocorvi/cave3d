@@ -12,6 +12,7 @@
 package com.topodroid.Cave3D;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import java.io.PrintWriter;
 // import java.io.PrintStream;
@@ -114,7 +115,7 @@ public class CWPoint extends Cave3DVector
   void serialize( PrintWriter out )
   {
     int size = ( mTriangle != null )? mTriangle.size() : -1;
-    out.format( "V %d %d %.3f %.3f %.3f\n", mCnt, size, x, y, z );
+    out.format(Locale.US, "V %d %d %.3f %.3f %.3f\n", mCnt, size, x, y, z );
   }
 
 }

@@ -11,6 +11,7 @@
 package com.topodroid.Cave3D;
 
 // import java.util.List;
+import java.util.Locale;
 
 import java.io.StringWriter;
 import java.io.PrintWriter;
@@ -93,7 +94,7 @@ public class Cave3DIcoDialog extends Dialog
 
     StringWriter sw = new StringWriter();
     PrintWriter pw = new PrintWriter( sw );
-    pw.format( "Clino %.0f Azimuth %.0f",
+    pw.format(Locale.US, "Clino %.0f Azimuth %.0f",
       90 - mTheta*180/Math.PI, 
       mPhi*180/Math.PI );
     mText.setText( sw.getBuffer().toString() );
