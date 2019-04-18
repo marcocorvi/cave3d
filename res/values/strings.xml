@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">Cave3D</string>
 
+    <string name="btn_ok">OK</string>
+
     <string name="btn_move">Move</string>
     <string name="btn_rotate">Turn</string>
     <string name="btn_station">Station</string>
@@ -83,6 +85,8 @@
 
     <string name="ok_export">OK. Exported %1$s</string>
 
+    <string name="powercrust_dxf_not_supported">powercrust dxf export not supported</string>
+
     <string name="error_file_not_found">Error: file not found</string>
     <string name="error_file_not_readable">Error: file not readable</string>
     <string name="error_io_exception">Error: IO exception</string>
@@ -142,6 +146,11 @@
     <string name="pref_hull_title">Hull</string>
     <string name="pref_hull_summary">Hull walls</string>
 -->
+
+    <string name="Cave3DPerms">Permissions</string>
+    <string name="perms_mandatory">Cave3D cannot run without these permissions:</string>
+    <string name="perms_optional">Cave3D may fail without these permissions:</string>
+    <string name="welcome_title">Cave3D %1$s</string>
 
     <string name="help">Cave3D Help\n
 Cave3D is a 3d viewer for Therion projects and Loch files.\n

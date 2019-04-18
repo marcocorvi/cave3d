@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 
 import android.graphics.drawable.BitmapDrawable;
 
@@ -64,12 +65,15 @@ public class Cave3D extends Activity
                     , OnSharedPreferenceChangeListener
 {
   private static final String TAG = "Cave3D";
+  static String VERSION = "";
 
   private static final int REQUEST_OPEN_FILE = 1;
   static boolean mUseSplayVector = true;
 
   static String APP_BASE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/TopoDroid/th/";
   static String mAppBasePath  = APP_BASE_PATH;
+
+  static int mCheckPerms = -1;
 
   // -----------------------------------------------------
   // PREFERENCES
@@ -692,6 +696,12 @@ public class Cave3D extends Activity
   {
     super.onCreate( savedInstanceState );
     // Log.v( TAG, "Cave3D::onCreate");
+    try {
+      VERSION = getPackageManager().getPackageInfo( getPackageName(), 0 ).versionName;
+    } catch ( NameNotFoundException e ) {
+      e.printStackTrace(); // FIXME
+    }
+    FeatureChecker.createPermissions( this, this );
 
     mIsNotMultitouch = ! getPackageManager().hasSystemFeature( PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH );
 
@@ -744,19 +754,32 @@ public class Cave3D extends Activity
     setMenuAdapter( getResources() );
     closeMenu();
 
-    Bundle extras = getIntent().getExtras();
-    if ( extras != null ) {
-      String name = extras.getString( "survey" );
-      // Log.v("Cave3D", "TopoDroid filename " + name );
-      if ( name != null ) {
-        if ( ! doOpenFile( name ) ) {
-          Log.e("Cave3D", "Cannot open TopoDroid file " + name );
-          finish();
+    mCheckPerms = FeatureChecker.checkPermissions( this );
+    Cave3DPerms perms_dialog = null;
+    if ( mCheckPerms != 0 ) {
+      perms_dialog = new Cave3DPerms( this, mCheckPerms );
+      perms_dialog.show();
+    }
+
+    if ( mCheckPerms >= 0 ) {
+      Bundle extras = getIntent().getExtras();
+      if ( extras != null ) {
+        String name = extras.getString( "survey" );
+        // Log.v("Cave3D", "TopoDroid filename " + name );
+        if ( name != null ) {
+          if ( ! doOpenFile( name ) ) {
+            Log.e("Cave3D", "Cannot open TopoDroid file " + name );
+            finish();
+          }
         }
+      } else {
+        // Log.v("Cave3D", "No filename: openfile dialog" );
+        openFile();
       }
     } else {
-      // Log.v("Cave3D", "No filename: openfile dialog" );
-      openFile();
+      Log.e("Cave3D", "finishing activity ... perms " + mCheckPerms );
+      if ( perms_dialog != null ) perms_dialog.dismiss();
+      finish();
     }
   }
 
@@ -774,5 +797,30 @@ public class Cave3D extends Activity
   protected void onResume() {
     super.onResume();
   }
+
+
+  /* FIXME-23 */
+  @Override
+  public void onRequestPermissionsResult( int code, final String[] perms, int[] results )
+  {
+    // TDLog.Log(TDLog.LOG_PERM, "MAIN req code " + code + " results length " + results.length );
+    if ( code == FeatureChecker.REQUEST_PERMISSIONS ) {
+      if ( results.length > 0 ) {
+	for ( int k = 0; k < results.length; ++ k ) {
+	  FeatureChecker.GrantedPermission[k] = ( results[k] == PackageManager.PERMISSION_GRANTED );
+	  // Log.v("ThManager", "MAIN perm " + k + " perms " + perms[k] + " result " + results[k] );
+	}
+      }
+    }
+    // Log.v("ThManager", "MAIN must restart " + FeatureChecker.MustRestart );
+    // if ( ! FeatureChecker.MustRestart ) {
+    //   TopoDroidAlertDialog.makeAlert( this, getResources(), R.string.perm_required,
+    //     new DialogInterface.OnClickListener() {
+    //       @Override public void onClick( DialogInterface dialog, int btn ) { finish(); }
+    //     }
+    //   );
+    // }
+  }
+  /* */
 
 }

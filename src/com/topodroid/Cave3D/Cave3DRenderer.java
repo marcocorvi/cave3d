@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Stack;
 
-// import android.widget.Toast;
+import android.widget.Toast;
 
 import android.util.Log;
 
@@ -2796,6 +2796,27 @@ public class Cave3DRenderer // implements Renderer
           return;
         }
         ret = LASExporter.exportBinary( pathname, mParser, b_splays, b_walls, b_surface );
+      } else if ( type == ModelType.DXF_ASCII ) { // DXF
+        if ( ! pathname.endsWith(".dxf") ) {
+	  pathname = pathname + ".dxf";
+        }
+        if ( (new File(pathname)).exists() && ! overwrite ) {
+          mCave3D.toast(R.string.warning_not_overwrite, pathname);
+          return;
+        }
+        DXFExporter dxf = new DXFExporter();
+        if ( walls != null ) {
+          for ( CWConvexHull cw : walls ) {
+            synchronized( cw ) {
+              for ( CWTriangle f : cw.mFace ) dxf.add( f );
+            }
+          }
+          boolean b_legs = true;
+          ret = dxf.exportAscii( pathname, mParser, b_legs, b_splays, b_walls, true ); // true = version13
+        } else if ( triangles_powercrust != null ) {
+          mCave3D.toast(R.string.powercrust_dxf_not_supported, pathname );
+          return;
+        }
       } else {                                     // STL export ASCII or binary
         if ( ! pathname.endsWith(".stl") ) {
           pathname = pathname + ".stl";

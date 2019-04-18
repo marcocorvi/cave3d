@@ -28,9 +28,12 @@ import android.view.View.OnClickListener;
 class HelpDialog extends Dialog
                  implements OnClickListener
 {
+  private Context mContext;
+
   HelpDialog( Context context )
   {
     super( context ); 
+    mContext = context;
   }
 
   @Override
@@ -38,6 +41,7 @@ class HelpDialog extends Dialog
   {
     super.onCreate( savedInstanceState );
     setContentView( R.layout.help_dialog );
+    setTitle( String.format( mContext.getResources().getString( R.string.welcome_title ), Cave3D.VERSION ) );
   }
 
   @Override 
