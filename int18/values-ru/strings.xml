@@ -2,8 +2,8 @@
 <resources>
     <string name="app_name">Cave3D</string>
 
-    <!-- TODO string name="btn_ok">OK</string -->
-    <!-- TODO string name="btn_cancel">Cancel</string -->
+    <string name="btn_ok">OK</string>
+    <string name="btn_cancel">Отмена</string>
 
     <string name="btn_move">Перемещение</string>
     <string name="btn_rotate">Поворот</string>
