@@ -47,14 +47,16 @@
     android:paddingBottom="3dip">
 
     <Button android:id="@+id/st_distance"
-          android:layout_width="wrap_content" 
-          android:layout_height="wrap_content" 
-          android:text="@string/DISTANCE"
+        style="@style/button_default"
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content" 
+        android:text="@string/DISTANCE"
     />
     <Button android:id="@+id/st_center"
-          android:layout_width="wrap_content" 
-          android:layout_height="wrap_content" 
-          android:text="@string/CENTER"
+        style="@style/button_default"
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content" 
+        android:text="@string/CENTER"
     />
 
   </LinearLayout>

@@ -899,9 +899,9 @@ public class DXFExporter
 
       }
       writeEndSection( out );
-      if ( version13 ) {
-        handle = writeSectionObjects( out, handle );
-      }
+      // if ( version13 ) {
+      //   handle = writeSectionObjects( out, handle );
+      // }
       writeString( out, 0, "EOF" );
       out.flush();
     } catch ( IOException e ) {
@@ -911,7 +911,6 @@ public class DXFExporter
     }
     return true;
   }
-
 
   static private int writeSectionObjects( BufferedWriter out, int handle ) throws IOException
   {

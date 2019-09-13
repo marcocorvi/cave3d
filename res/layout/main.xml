@@ -16,7 +16,7 @@
             android:id="@+id/caveView"
     />
     <LinearLayout
-      android:layout_width="fill_parent"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:orientation="vertical"
       >
@@ -56,10 +56,11 @@
         android:choiceMode="singleChoice"
         android:divider="@android:color/transparent"
         android:dividerHeight="10dp"
-        android:background="#111"
         android:orientation="vertical"
         android:layout_gravity="right"
         android:gravity="right"
+        android:textSize="@dimen/textsize"
+        android:background="@color/edit_background"
         />
     </LinearLayout>
     <View

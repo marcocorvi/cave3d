@@ -46,6 +46,7 @@ public class  Cave3DOpenFileDialog extends Activity
       if ( name.endsWith( ".lox" ) ) return true;
       if ( name.endsWith( ".mak" ) ) return true;
       if ( name.endsWith( ".dat" ) ) return true;
+      if ( name.endsWith( ".tro" ) ) return true;
       return false;
     }
   }

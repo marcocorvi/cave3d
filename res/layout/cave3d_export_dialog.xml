@@ -147,26 +147,25 @@
         android:layout_height="wrap_content"
         android:layout_weight="50"
         android:layout_marginLeft="10dp"
-        android:layout_marginRight="5dp"
+        android:layout_marginRight="10dp"
         android:text="overwrite"
         />
       <Button android:id="@+id/button_ok"
+        style="@style/button_default"
         android:layout_width="0dp" 
         android:layout_height="wrap_content"
         android:layout_weight="50"
         android:layout_marginLeft="10dp"
-        android:layout_marginRight="5dp"
-        android:text="OK"
+        android:layout_marginRight="10dp"
+        android:text="@string/btn_ok"
         />
      </LinearLayout>
 
      <ListView android:id="@+id/list"
-        android:layout_width="fill_parent" 
+        style="@style/list_bottom"
+        android:layout_width="match_parent" 
         android:layout_height="match_parent"
-        android:stackFromBottom="true"
-        android:transcriptMode="alwaysScroll"
         android:layout_weight="1"
-        android:textSize="14sp"
        />
 
 

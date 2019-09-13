@@ -40,6 +40,7 @@ public class Cave3DWallsDialog extends Dialog
     private Cave3DRenderer mRenderer;
 
     private Button   mButtonOK;
+    private Button   mButtonCancel;
     private CheckBox mCBconvexhull;
     private CheckBox mCBpowercrust;
     private CheckBox mCBconvexhullNo;
@@ -63,6 +64,8 @@ public class Cave3DWallsDialog extends Dialog
 
       mButtonOK = (Button) findViewById( R.id.button_ok );
       mButtonOK.setOnClickListener( this );
+      mButtonCancel = (Button) findViewById( R.id.button_cancel );
+      mButtonCancel.setOnClickListener( this );
 
       mCBconvexhull   = (CheckBox) findViewById( R.id.convexhull );
       mCBpowercrust   = (CheckBox) findViewById( R.id.powercrust );
@@ -84,6 +87,7 @@ public class Cave3DWallsDialog extends Dialog
           mRenderer.makePowercrust( mCBpowercrustNo.isChecked() );
         }
         // mCave3D.refresh();
+      // } else if ( v.getId() == R.id.button_cancel ) {
       }
       dismiss();
     }

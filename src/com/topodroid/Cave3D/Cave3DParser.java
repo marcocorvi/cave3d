@@ -17,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import android.widget.Toast;
 
@@ -39,6 +40,13 @@ public class Cave3DParser
   protected float mCaveLength;
   String mName; // file base name
 
+  static Pattern pattern = Pattern.compile( "\\s+" );
+
+  static String[] splitLine( String line )
+  {
+     return pattern.split(line); // line.split( "\\s+" );
+  }
+   
   // public float getEmin() { return emin; }
   // public float getEmax() { return emax; }
   // public float getNmin() { return nmin; }

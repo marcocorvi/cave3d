@@ -169,7 +169,7 @@ public class Cave3DThParser extends Cave3DParser
           line = line.substring( 0, pos );
         }
         if ( line.length() > 0 ) {
-          String[] vals = line.split( " " );
+          String[] vals = splitLine( line );
           // Log.v("Cave3D", "[" + vals.length + "] >>" + line + "<<" );
           // for (int j=0; j<vals.length; ++j ) Log.v("Cave3D", "    " + vals[j] );
           if ( vals.length > 0 ) {

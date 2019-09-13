@@ -21,6 +21,7 @@
       android:orientation="horizontal" 
       >
       <Button android:id="@+id/button_zoom_minus"
+        style="@style/button_default"
         android:layout_width="wrap_content" 
         android:layout_height="wrap_content" 
         android:layout_gravity="left"
@@ -28,6 +29,7 @@
         />
    		
       <Button android:id="@+id/button_zoom_one"
+        style="@style/button_default"
         android:layout_width="wrap_content" 
         android:layout_height="wrap_content" 
         android:layout_gravity="center"
@@ -35,6 +37,7 @@
         />
 
       <Button android:id="@+id/button_zoom_plus"
+        style="@style/button_default"
         android:layout_width="wrap_content" 
         android:layout_height="wrap_content" 
         android:layout_gravity="right"
@@ -44,10 +47,11 @@
     </LinearLayout>
 
     <Button android:id="@+id/button_zoom_cancel"
+        style="@style/button_default"
         android:layout_width="wrap_content" 
         android:layout_height="wrap_content" 
         android:layout_gravity="right"
-        android:text="Cancel"
+        android:text="btn_cancel"
         />
 
 </LinearLayout>

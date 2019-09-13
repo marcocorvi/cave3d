@@ -27,6 +27,7 @@
         android:orientation="horizontal">
    					  
       <Button android:id="@+id/coverage_eval"
+        style="@style/button_default"
         android:layout_width="wrap_content" 
         android:layout_height="wrap_content" 
         android:layout_gravity="left"
@@ -37,6 +38,7 @@
         />
 
       <Button android:id="@+id/coverage_eval_cal"
+        style="@style/button_default"
         android:layout_width="wrap_content" 
         android:layout_height="wrap_content" 
         android:layout_gravity="left"

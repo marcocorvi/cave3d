@@ -100,6 +100,9 @@ public class Cave3DInfoDialog extends Dialog
     mList.setDividerHeight( 2 );
 
     setTitle( R.string.INFO );
+
+    mBtnOk = (Button) findViewById( R.id.button_ok );
+    mBtnOk.setOnClickListener( this );
   }
 
   public void onClick(View view)

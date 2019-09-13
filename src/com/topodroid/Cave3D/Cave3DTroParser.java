@@ -1,9 +1,9 @@
-/** @file Cave3DDatParser.java
+/** @file Cave3DTroParser.java
  *
  * @author marco corvi
  * @date nov 2011
  *
- * @brief Cave3D compass file parser
+ * @brief Cave3D VisualTopo file parser
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 import android.util.Log;
 
-public class Cave3DDatParser extends Cave3DParser
+public class Cave3DTroParser extends Cave3DParser
 {
   static final int FLIP_NONE       = 0;
   static final int FLIP_HORIZONTAL = 1;
@@ -30,86 +30,42 @@ public class Cave3DDatParser extends Cave3DParser
   static final int DATA_NORMAL    = 1;
   static final int DATA_DIMENSION = 2;
 
+  float declination = 0.0f;
+  boolean dmb = false; // whether bearing is DD.MM
+  boolean dmc = false;
+  float ul = 1;  // units factor [m]
+  float ub = 1;  // dec.deg
+  float uc = 1;  // dec.deg
+  int dirw = 1;  // width direction
+  int dirb = 1;  // bearing direction
+  int dirc = 1;  // clino direction
 
-  public Cave3DDatParser( Cave3D cave3d, String filename ) throws Cave3DParserException
+  public Cave3DTroParser( Cave3D cave3d, String filename ) throws Cave3DParserException
   {
     super( cave3d, filename );
 
-    if ( filename.endsWith(".mak") ) {
-      readFile( filename );
-    } else {
-      readFile( filename, null, 0.0f, 0.0f, 0.0f );
-    }
+    readFile( filename );
     processShots();
     setShotSurveys();
     setSplaySurveys();
     setStationDepths();
   }
 
-  /** read input MAK file
-   */
-  private boolean readFile( String filename )
-                  throws Cave3DParserException
+
+  private float angle( float value, float unit, boolean dm )
   {
-    if ( ! checkPath( filename ) ) return false;
-
-    int linenr = 0;
-
-    try {
-      String dirname = "./";
-      int i = filename.lastIndexOf('/');
-      if ( i > 0 ) dirname = filename.substring(0, i+1);
-      // Log.v( TAG, "reading MAK file " + filename + " dir " + dirname );
-
-      FileReader fr = new FileReader( filename );
-      BufferedReader br = new BufferedReader( fr );
-      ++linenr;
-      String line = br.readLine();
-      // Log.v(TAG, linenr + ":" + line );
-      while ( line != null ) {
-        // line = line.trim();
-        if ( line.startsWith( "#" ) ) {
-          i = line.lastIndexOf( ',' );
-	  String file = line.substring(1,i);
-
-          ++linenr; line = br.readLine();
-          line = line.trim();
-	  i = line.indexOf( '[' );
-	  String station = line.substring(0,i);
-	  int j = line.indexOf( ']' );
-	  String data = line.substring( i+3, j );
-          // Log.v(TAG, "++ " + linenr + ": " + station + " - " + data );
-          String[] vals = data.split( "," );
-          if ( vals.length >= 3 ) {
-            try {
-              int idx = nextIndex( vals, -1 );
-	      float x = Float.parseFloat( vals[idx] );
-              idx = nextIndex( vals, idx );
-	      float y = Float.parseFloat( vals[idx] );
-              idx = nextIndex( vals, idx );
-	      float z = Float.parseFloat( vals[idx] );
-	      readFile( dirname + file, station, x, y, z );
-	    } catch ( NumberFormatException e ) {
-	      Log.e( TAG, "Error file " + filename + ":" + linenr );
-	    }
-	  }
-	}
-      
-        ++linenr; line = br.readLine();
-        // Log.v(TAG, linenr + ":" + line );
-      }
-    } catch ( IOException e ) {
-      Log.e(TAG, "I/O ERROR " + e.getMessage() );
-      throw new Cave3DParserException( filename, linenr );
+    if ( dm ) {
+      int sign = 1;
+      if ( value < 0 ) { sign = -1; value = -value; }
+      int iv = (int)value;
+      return sign * ( iv + (value-iv)*0.6f ); // 0.6 = 60/100
     }
-    // Log.v(TAG, "done readFile " + filename );
-
-    return ( shots.size() > 0 );
+    return value * unit;
   }
 
-  /** read input DAT file
+  /** read input TRO file
    */
-  private boolean readFile( String filename, String station, float x, float y, float z )
+  private boolean readFile( String filename )
                   throws Cave3DParserException
   {
     if ( ! checkPath( filename ) ) return false;
@@ -119,110 +75,181 @@ public class Cave3DDatParser extends Cave3DParser
     Cave3DCS cs = null;
     // int in_data = 0; // 0 none, 1 normal, 2 dimension
 
-    int[] survey_pos = new int[50]; // FIXME max 50 levels
-    int ks = 0;
-    boolean in_survey = false;
+    // String survey = null; // UNUSED
 
-    float declination = 0.0f;
-    float units_len = 0.3048f; // foot to meter
-    float units_ber = 1;
-    float units_cln = 1;
-    int idx;
 
-    String survey = null;
+    boolean splayAtFrom = true;
+    String comment = "";
 
+    String line = null;
     try {
-      String dirname = "./";
-      int i = filename.lastIndexOf('/');
-      if ( i > 0 ) {
-        dirname = filename.substring(0, i+1);
-	survey  = "@" + filename.substring(i+1);
-      } else {
-        survey = "@" + filename;
-      }
-      survey.replace(".dat", "");
+      // String dirname = "./";
+      // int i = filename.lastIndexOf('/');
+      // if ( i > 0 ) {
+      //   dirname = filename.substring(0, i+1);
+      //   survey  = "@" + filename.substring(i+1);
+      // } else {
+      //   survey = "@" + filename;
+      // }
+      // survey.replace(".tro", "");
       // Log.v( TAG, "reading file " + filename + " dir " + dirname );
 
       FileReader fr = new FileReader( filename );
       BufferedReader br = new BufferedReader( fr );
-      ++linenr;
-      String line = br.readLine();
-      // Log.v(TAG, linenr + ":" + line );
+
       int cnt_shot = 0;
+      int cnt_splay = 0;
+      ++linenr;
+      line = br.readLine();
       while ( line != null ) {
         line = line.trim();
-	if ( line.startsWith( "DECLINATION:" ) ) {
-          String[] vals = splitLine( line );
-          idx = nextIndex( vals, -1 );
-          idx = nextIndex( vals, idx );
-	  try {
-            declination = Float.parseFloat( vals[idx] );
-	    // Log.v("Cave3D", "declination " + declination );
-	  } catch ( NumberFormatException e ) { }
-	} else if ( line.contains("FROM") && line.contains("TO" ) ) {
-          ++linenr; line = br.readLine();
-          // Log.v(TAG, linenr + ":" + line );
-	  for ( ; ; ) {
-	    if ( line.length() == 0 ) {
-              ++linenr; line = br.readLine();
-              // Log.v(TAG, linenr + ":" + line );
-              continue;
-	    }
-	    if ( line.charAt(0) == 0x0c ) {
-              // Log.v("Cave3D", "formfeed");
-              break; // formfeed
-	    }
-            String[] vals = splitLine( line );
-	    if ( vals.length >= 5 ) { // FROM TO LEN BEAR INC L U D R FLAGS COMMENT
-              idx = nextIndex( vals, -1 );
-              String f0   = vals[idx];
-	      String from = vals[idx] + survey;
-	      if ( station == null ) station = f0;
-              idx = nextIndex( vals, idx );
-              String to   = vals[idx] + survey;
-	      try {
-                idx = nextIndex( vals, idx );
-                float len = Float.parseFloat( vals[idx] ) * units_len;
-                idx = nextIndex( vals, idx );
-                float ber = Float.parseFloat( vals[idx] ) + declination;
-                idx = nextIndex( vals, idx );
-                float cln = Float.parseFloat( vals[idx] );
-                shots.add( new Cave3DShot( from, to, len, ber, cln ) );
-                ++ cnt_shot;
-                if ( vals.length >= 9 ) {
-                  idx = nextIndex( vals, idx );
-		  len = Float.parseFloat( vals[idx] ); // LEFT
-		  if ( len > 0 ) splays.add( new Cave3DShot( from, f0+"-L"+survey, len, ber-90, 0 ) );
-                  idx = nextIndex( vals, idx );
-		  len = Float.parseFloat( vals[idx] ); // UP
-		  if ( len > 0 ) splays.add( new Cave3DShot( from, f0+"-U"+survey, len, ber, 90 ) );
-                  idx = nextIndex( vals, idx );
-		  len = Float.parseFloat( vals[idx] ); // DOWN
-		  if ( len > 0 ) splays.add( new Cave3DShot( from, f0+"-D"+survey, len, ber, -90 ) );
-                  idx = nextIndex( vals, idx );
-		  len = Float.parseFloat( vals[idx] ); // RIGHT
-		  if ( len > 0 ) splays.add( new Cave3DShot( from, f0+"-R"+survey, len, ber+90, 0 ) );
+        // Log.v("Cave3D", "LINE: " + line );
+        if ( line.startsWith("[Configuration]") ) break;
+
+        int pos = line.indexOf(";");
+        if ( pos >= 0 ) {
+          comment = (pos+1<line.length())? line.substring( pos+1 ) : "";
+          line    = line.substring( 0, pos );
+          comment = comment.trim();
+        } else {
+          comment = "";
+        }
+
+        if ( line.length() == 0 ) {    // comment
+        } else {
+          String[] vals = splitLine( line ); 
+          int idx = nextIndex( vals, -1 );
+          if ( line.startsWith("Version") ) {
+            // IGNORE
+          } else if ( line.startsWith("Trou") ) { // cave name and crs are not handled
+            // String[] params = line.substring(5).split(",");
+            // if ( params.length > 0 ) {
+            //   String name = params[0].replaceAll(" ","_");
+            //   try { // TODO coordinates
+            //     float x = Float.parseFloat( params[1] );
+            //     float y = Float.parseFloat( params[2] );
+            //     // float z = Float.parseFloat( params[3] );
+            //     String vt_cs = params[3]; // ccords system: must be present in VisualTopo registry
+            //     fixes.add( new Cave3DFix( name, x, y, z, cs ) ); // FIXME
+            //   } catch ( NumberFormatException e ) { }
+            // }
+          } else if ( vals[idx].equals("Param") ) {
+            for ( int k = idx+1; k < vals.length; ++k ) {
+              if ( vals[k].equals("Deca") ) {
+                if ( ++k < vals.length ) {
+                  ub = 1;
+                  dmb = false;
+                  if ( vals[k].equals("Deg") ) {
+                    dmb = true;
+                  } else if ( vals[k].equals("Gra" ) ) {
+                    ub = 0.9f; // 360/400
+                  } else { // if ( vals[k].equals("Degd" ) 
+                    /* nothing */
+                  }
                 }
-	      } catch ( NumberFormatException e ) { }
-	    }
-            ++linenr; line = br.readLine();
-            // Log.v(TAG, linenr + ":" + line );
-	  }
-	}
-        ++linenr; line = br.readLine();
-        // Log.v(TAG, linenr + ":" + line );
+              } else if ( vals[k].equals("Clino") ) {
+                if ( ++k < vals.length ) {
+                  uc = 1;
+                  dmc = false;
+                  if ( vals[k].equals("Deg") ) {
+                    dmc = true;
+                  } else if ( vals[k].equals("Gra" ) ) {
+                    uc = 0.9f; // 360/400
+                  } else { // if ( vals[k].equals("Degd" ) 
+                    /* nothing */
+                  }
+                }
+              } else if ( vals[k].startsWith("Dir") || vals[k].startsWith("Inv") ) {
+                String[] dirs = vals[k].split(",");
+                if ( dirs.length == 3 ) {
+                  dirb = ( dirs[0].equals("Dir") )? 1 : -1;
+                  dirc = ( dirs[1].equals("Dir") )? 1 : -1;
+                  dirw = ( dirs[2].equals("Dir") )? 1 : -1;
+                }
+              } else if ( vals[k].equals("Inc") ) {
+                // FIXME splay at next station: Which ???
+                splayAtFrom = false;
+              } else if ( vals[k].equals("Dep") ) {
+                splayAtFrom = true;
+              } else if ( vals[k].equals("Arr") ) {
+                splayAtFrom = false;
+              } else if ( vals[k].equals("Std") ) {
+                // standard colors; ignore
+              } else if ( k == 5 ) {
+                try {
+                  declination = angle( Float.parseFloat( vals[k] ), 1, true );
+                } catch ( NumberFormatException e ) { }
+              } else {
+                // ignore colors
+              }
+            }
+          } else if ( vals[idx].equals("Entree") ) { // entrance station
+          } else if ( vals[idx].equals("Club") ) {  // team and caving club
+            // IGNORE mTeam = line.substring(5);
+          } else if ( vals[idx].equals("Couleur") ) { 
+            // IGNORE
+          } else if ( vals[idx].equals("Surface") ) {
+            // IGNORE
+          } else { // survey data
+            if ( vals.length >= 5 ) {
+              String from = vals[idx];
+              idx = nextIndex( vals, idx );
+              String to   = vals[idx];
+              if ( ! from.equals( to ) ) {
+                boolean splay = ( to.equals( "*" ) );
+
+                try {
+                  idx = nextIndex( vals, idx );
+                  float len = Float.parseFloat(vals[idx]) * ul;
+                  idx = nextIndex( vals, idx );
+                  float ber = angle( Float.parseFloat(vals[idx]), ub, dmb);
+                  idx = nextIndex( vals, idx );
+                  float cln = angle( Float.parseFloat(vals[idx]), uc, dmc); 
+                  if ( splay ) {
+                    splays.add( new Cave3DShot( from, from + cnt_splay, len, ber, cln ) );
+                    ++ cnt_splay;
+
+                  } else {
+                    String station = ( (splayAtFrom || splay )? from : to );
+                    shots.add( new Cave3DShot( from, to, len, ber, cln ) );
+                    ++ cnt_shot;
+
+                    idx = nextIndex( vals, idx );
+	            len = vals[idx].equals("*")? -1 : Float.parseFloat(vals[idx]) * ul; 
+	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-L", len, ber-90, 0 ) );
+                    
+                    idx = nextIndex( vals, idx );
+	            len = vals[idx].equals("*")? -1 : Float.parseFloat(vals[idx]) * ul; 
+	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-R", len, ber+90, 0 ) );
+                    idx = nextIndex( vals, idx );
+	            len = vals[idx].equals("*")? -1 : Float.parseFloat(vals[idx]) * ul; 
+	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-U", len, ber, 90 ) );
+                    
+                    idx = nextIndex( vals, idx );
+	            len = vals[idx].equals("*")? -1 : Float.parseFloat(vals[idx]) * ul; 
+	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-D", len, ber, -90 ) );
+                    
+                  }
+                } catch ( NumberFormatException e ) {
+                  Log.v("Cave3D", "ERROR " + linenr + ": " + line + " " + e.getMessage() );
+                }
+              }
+            }
+          }
+        }
+        ++linenr;
+        line = br.readLine();
       }
-      if ( station != null ) {
-        // Log.v("Cave3D", "add fix station " +  station + survey );
-	fixes.add( new Cave3DFix( station+survey, x, y, z, cs ) );
-      }
+
     } catch ( IOException e ) {
       Log.e(TAG, "I/O ERROR " + e.getMessage() );
       throw new Cave3DParserException( filename, linenr );
     }
-    // Log.v(TAG, "shots " + shots.size() );
+    // Log.v("Cave3D-VT", "shots " + shots.size() + " splays " + splays.size() );
     return ( shots.size() > 0 );
   }
+
+  // ------------------------------------------------------------
 
   private void setShotSurveys()
   {
@@ -281,9 +308,9 @@ public class Cave3DDatParser extends Cave3DParser
   {
     if ( shots.size() == 0 ) return;
     if ( fixes.size() == 0 ) {
-      // Log.v( TAG, "shots " + shots.size() + " fixes " + fixes.size() );
       Cave3DShot sh = shots.get( 0 );
       fixes.add( new Cave3DFix( sh.from, 0.0f, 0.0f, 0.0f, null ) );
+      // Log.v( "Cave3D-VT", "shots " + shots.size() + " no fixes. starts at " + sh.from );
     }
  
     int mLoopCnt = 0;

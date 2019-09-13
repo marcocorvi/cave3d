@@ -6,12 +6,11 @@
       android:layout_height="fill_parent"
       >
       <ListView android:id="@+id/list"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:stackFromBottom="true"
-          android:transcriptMode="alwaysScroll"
-          android:layout_weight="1"
-          android:textSize="12sp"
+        style="@style/list_bottom"
+        android:background="@color/edit_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
       />  
   </LinearLayout>
 

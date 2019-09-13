@@ -3,6 +3,8 @@
     <string name="app_name">Cave3D</string>
 
     <string name="btn_ok">OK</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_compute">Compute</string>
 
     <string name="btn_move">Move</string>
     <string name="btn_rotate">Turn</string>
@@ -153,7 +155,7 @@
     <string name="welcome_title">Cave3D %1$s</string>
 
     <string name="help">Cave3D Help\n
-Cave3D is a 3d viewer for Therion projects and Loch files.\n
+Cave3D is a 3d viewer for Therion, Loch, Compass, and VisualTopo.\n
 The model is shown with a reference grid (blue north, green east) or triplet (pink upward).\n\n
 
 BUTTONS\n

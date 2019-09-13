@@ -1042,6 +1042,8 @@ public class Cave3DRenderer // implements Renderer
         mParser = new Cave3DLoxParser( cave3d, filename );
       } else if ( filename.endsWith( ".mak" ) || filename.endsWith( ".dat" ) ) {
         mParser = new Cave3DDatParser( cave3d, filename );
+      } else if ( filename.endsWith( ".tro" ) ) {
+        mParser = new Cave3DTroParser( cave3d, filename );
       } else {
         return false;
       }

@@ -84,10 +84,13 @@
     </RadioGroup>
 
     <Button android:id="@+id/fractal_ok"
+      style="@style/button_default"
       android:layout_width="wrap_content" 
       android:layout_height="wrap_content"
       android:layout_marginTop="10dp"
-      android:text="Compute"
+      android:layout_marginRight="10dp"
+      android:layout_marginLeft="10dp"
+      android:text="btn_compute"
       />
 
 </LinearLayout>

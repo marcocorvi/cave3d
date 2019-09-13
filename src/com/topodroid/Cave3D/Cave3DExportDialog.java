@@ -112,7 +112,6 @@ public class Cave3DExportDialog extends Dialog
       mLasBinary  = (CheckBox) findViewById( R.id.las_binary );
       mDxfAscii   = (CheckBox) findViewById( R.id.dxf_ascii );
       // mDebug  = (RadioButton) findViewById( R.id.debug );
-      mStlBinary.setChecked( true );
 
       mStlBinary.setOnClickListener( this );
       mStlAscii.setOnClickListener( this );
@@ -121,6 +120,8 @@ public class Cave3DExportDialog extends Dialog
       mLasBinary.setOnClickListener( this );
       mDxfAscii.setOnClickListener( this );
       // mDebug.setOnClickListener( this );
+
+      mDxfAscii.setChecked( true );
 
       mSplay   = (CheckBox) findViewById( R.id.splay );
       mWalls   = (CheckBox) findViewById( R.id.walls );
@@ -223,6 +224,7 @@ public class Cave3DExportDialog extends Dialog
         boolean surface = mSurface.isChecked();
         boolean station = mStation.isChecked();
         boolean overwrite = mOverwrite.isChecked();
+
         if ( mStlBinary.isChecked() ) {
           mRenderer.exportModel( ModelType.STL_BINARY, pathname, splays, walls, surface, overwrite );
         } else if ( mStlAscii.isChecked() ) {
