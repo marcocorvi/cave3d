@@ -58,8 +58,8 @@ public class Cave3DRenderer // implements Renderer
 
   private float[] coords;    // station coordinates: E, N, Z
   private float[] projs;      // pre-projections: X, Y, |Z|, Z
-  private float[] projs_grid_E; // grid pre-projections
-  private float[] projs_grid_N; // grid pre-projections
+  private float[] projs_grid_E = null; // grid pre-projections
+  private float[] projs_grid_N = null; // grid pre-projections
   private float[] projs_surface_E;
   private float[] projs_surface_N;
   private float[] projs_border_E;
@@ -400,7 +400,7 @@ public class Cave3DRenderer // implements Renderer
       Cave3DShot sh = shots.get(k);
       Cave3DStation fr = sh.from_station;
       Cave3DStation to = sh.to_station;
-      F[k] = new Cave3DPoint( fr.e, fr.n );
+      F[k] = new Cave3DPoint( fr.e, fr.n ); // CRASH here - but there is no reason a shot doesnot have stations
       T[k] = new Cave3DPoint( to.e, to.n );
       M[k] = new Cave3DPoint( (fr.e+to.e)/2, (fr.n+to.n)/2 );
       // intersection of bisecants
@@ -1100,8 +1100,8 @@ public class Cave3DRenderer // implements Renderer
     stations   = mParser.getStations();
     coords     = mParser.getStationVertices();
     projs      = new float[4*nr_station];
-    projs_grid_E = new float[ 2 * 2 * GRID_SIZE2 ];
-    projs_grid_N = new float[ 2 * 2 * GRID_SIZE2 ];
+    if ( projs_grid_E == null ) projs_grid_E = new float[ 2 * 2 * GRID_SIZE2 ];
+    if ( projs_grid_N == null ) projs_grid_N = new float[ 2 * 2 * GRID_SIZE2 ];
 
     mWireFrame = null;
     computeWireFrame( 8.0, 0.01, 4 ); //  max 2 m,   coincide 0.01 m
@@ -1184,6 +1184,7 @@ public class Cave3DRenderer // implements Renderer
     walls   = null;
     borders = null;
     if ( ! clear ) {
+      if ( shots == null ) return;
       if ( WALL_CW < WALL_MAX /* && Cave3D.mWallConvexHull */ ) {
         walls   = new ArrayList< CWConvexHull >();
         borders = new ArrayList< CWBorder >();
@@ -1235,7 +1236,9 @@ public class Cave3DRenderer // implements Renderer
       }
       // mCave3D.toast( "computing convex hull walls" );
     }
-    mCave3D.setButtonWall();
+    if ( mCave3D != null ) { // CRASH here - this should not be necessary
+      mCave3D.setButtonWall();
+    }
   }
 
   /*    // FIXME skip WALL_HULL triangles
@@ -1423,7 +1426,9 @@ public class Cave3DRenderer // implements Renderer
       computePowercrustPlanView();
       computePowercrustProfileView();
     }
-    mCave3D.setButtonWall();
+    if ( mCave3D != null ) { // CRASH here - this should not be necessary
+      mCave3D.setButtonWall();
+    }
   }
 
   private void makeNZ( )
@@ -1536,6 +1541,8 @@ public class Cave3DRenderer // implements Renderer
 
   void precomputeProjectionsGrid()
   {
+    if ( projs_grid_E == null ) projs_grid_E = new float[ 2 * 2 * GRID_SIZE2 ];
+    if ( projs_grid_N == null ) projs_grid_N = new float[ 2 * 2 * GRID_SIZE2 ];
     int k = 0;
     float x, y;
     float z = ( Cave3D.mGridAbove )? (float)( zmax - zc ) : (float)( zmin - zc );
@@ -2845,10 +2852,12 @@ public class Cave3DRenderer // implements Renderer
           ret = stl.exportASCII( pathname, b_splays, b_walls, b_surface );
         }
       }
-      if ( ret ) {
-        mCave3D.toast(R.string.ok_export, pathname);
-      } else {
-        mCave3D.toast(R.string.error_export_failed, pathname);
+      if ( mCave3D != null ) { // CRASH here - this should not be necessary
+        if ( ret ) {
+          mCave3D.toast(R.string.ok_export, pathname);
+        } else {
+          mCave3D.toast(R.string.error_export_failed, pathname);
+        }
       }
     }
   }
