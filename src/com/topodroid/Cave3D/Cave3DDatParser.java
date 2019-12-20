@@ -74,9 +74,12 @@ public class Cave3DDatParser extends Cave3DParser
 
           ++linenr; line = br.readLine();
           line = line.trim();
+          if ( line.length() == 0 ) continue; // no georeference
 	  i = line.indexOf( '[' );
+          if ( i <= 0 ) continue; // missing station name
 	  String station = line.substring(0,i);
 	  int j = line.indexOf( ']' );
+          if ( j <= i+3 ) continue; // bad syntax
 	  String data = line.substring( i+3, j );
           // Log.v(TAG, "++ " + linenr + ": " + station + " - " + data );
           String[] vals = data.split( "," );
@@ -129,6 +132,8 @@ public class Cave3DDatParser extends Cave3DParser
     float units_cln = 1;
     int idx;
 
+    float length, bearing, clino, left, up, down, right, back_bearing, back_clino;
+
     String survey = null;
 
     try {
@@ -151,6 +156,9 @@ public class Cave3DDatParser extends Cave3DParser
       int cnt_shot = 0;
       while ( line != null ) {
         line = line.trim();
+        // "SURVEY NAME" not used
+        // "SURVEY DATE" not used
+        // "SURVEY TEAM" not used
 	if ( line.startsWith( "DECLINATION:" ) ) {
           String[] vals = splitLine( line );
           idx = nextIndex( vals, -1 );
@@ -182,15 +190,15 @@ public class Cave3DDatParser extends Cave3DParser
               String to   = vals[idx] + survey;
 	      try {
                 idx = nextIndex( vals, idx );
-                float len = Float.parseFloat( vals[idx] ) * units_len;
+                length = Float.parseFloat( vals[idx] ) * units_len;
                 idx = nextIndex( vals, idx );
-                float ber = Float.parseFloat( vals[idx] );
+                bearing = Float.parseFloat( vals[idx] );
                 idx = nextIndex( vals, idx );
-                float cln = Float.parseFloat( vals[idx] );
-                float left  = -999;
-                float up    = -999;
-                float down  = -999;
-                float right = -999;
+                clino = Float.parseFloat( vals[idx] );
+                left  = -999;
+                up    = -999;
+                down  = -999;
+                right = -999;
                 if ( vals.length >= 9 ) {
                   idx = nextIndex( vals, idx );
 		  left = Float.parseFloat( vals[idx] ); // LEFT
@@ -205,44 +213,47 @@ public class Cave3DDatParser extends Cave3DParser
                     if (vals[idx].startsWith("#")) {
                       // mFlag = vals[idx];
                       // if ( k < kmax ) mComment = TDUtil.concat( vals, k );
-                    } else if ( ber < -900 || cln < -900 ) {
-                      float bearing = Float.parseFloat(vals[idx]) + 180;
-                      if ( bearing >= 360 ) bearing -= 360;
-                      if ( ber < -900 ) {
-                        ber = bearing;
-                      } else if ( bearing >= 0 && bearing <= 360 ) {
-                        if ( Math.abs( ber - bearing ) > 180 ) {
-                          ber = ( ber + bearing + 360 ) / 2;
-                          if ( ber >= 360 ) ber -= 360;
+                    } else if ( bearing < -900 || clino < -900 ) {
+                      back_bearing = Float.parseFloat(vals[idx]) + 180;
+                      if ( back_bearing >= 360 ) back_bearing -= 360;
+                      if ( bearing < -900 ) {
+                        bearing = back_bearing;
+                      } else if ( back_bearing >= 0 && back_bearing <= 360 ) {
+                        if ( Math.abs( bearing - back_bearing ) > 180 ) {
+                          bearing = ( bearing + back_bearing + 360 ) / 2;
+                          if ( bearing >= 360 ) bearing -= 360;
                         } else {
-                          ber = ( ber + bearing ) / 2;
+                          bearing = ( bearing + back_bearing ) / 2;
                         }
                       }
                       idx = nextIndex( vals, idx );
-                      float clino = Float.parseFloat(vals[idx]);
-                      if ( cln < -900 ) {
-                        cln = - clino;
-                      } else if ( clino >= -90 && clino <= 90 ) {
-                        cln = ( cln - clino ) / 2;
+                      back_clino = Float.parseFloat(vals[idx]);
+                      if ( clino < -900 ) {
+                        clino = - back_clino;
+                      } else if ( back_clino >= -90 && back_clino <= 90 ) {
+                        clino = ( clino - back_clino ) / 2;
                       }
                  
-                      if ( vals.length >= 12 ) {
-                        idx = nextIndex( vals, idx );
-                        if (vals[idx].startsWith("#")) {
-                          // mFlag = vals[idx];
-                          // if ( k < kmax ) mComment = TDUtil.concat( vals, k );
-                        }
-                      }
+                      // if ( vals.length >= 12 ) {
+                      //   idx = nextIndex( vals, idx );
+                      //   if (vals[idx].startsWith("#")) {
+                      //     // mFlag = vals[idx];
+                      //     // if ( k < kmax ) mComment = TDUtil.concat( vals, k );
+                      //   }
+                      // }
                     }
                   }
                 }
-                ber += declination;
-                shots.add( new Cave3DShot( from, to, len, ber, cln ) );
+                if ( bearing >= 360 ) bearing -= 360;
+                else if ( bearing < 0 ) bearing += 360;
+
+                bearing += declination;
+                shots.add( new Cave3DShot( from, to, length, bearing, clino ) );
                 ++ cnt_shot;
-		if ( left > 0 ) splays.add( new Cave3DShot( from, f0+"-L"+survey, left, ber-90, 0 ) );
-		if ( up > 0 ) splays.add( new Cave3DShot( from, f0+"-U"+survey, up, ber, 90 ) );
-		if ( down > 0 ) splays.add( new Cave3DShot( from, f0+"-D"+survey, down, ber, -90 ) );
-		if ( right > 0 ) splays.add( new Cave3DShot( from, f0+"-R"+survey, right, ber+90, 0 ) );
+		if ( left > 0 ) splays.add( new Cave3DShot( from, f0+"-L"+survey, left, bearing-90, 0 ) );
+		if ( up > 0 ) splays.add( new Cave3DShot( from, f0+"-U"+survey, up, bearing, 90 ) );
+		if ( down > 0 ) splays.add( new Cave3DShot( from, f0+"-D"+survey, down, bearing, -90 ) );
+		if ( right > 0 ) splays.add( new Cave3DShot( from, f0+"-R"+survey, right, bearing+90, 0 ) );
 
 	      } catch ( NumberFormatException e ) { }
 	    }
