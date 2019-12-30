@@ -18,6 +18,8 @@ import java.io.StringWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import java.util.List;
+
 import android.util.Log;
 
 import android.widget.Toast;
@@ -33,6 +35,8 @@ public class Cave3DThParser extends Cave3DParser
   static final int DATA_DIMENSION = 2;
 
   ArrayList< String > mMarks;
+
+  DataHelper mData;
 
   static int parseFlip( String flip )
   {
@@ -76,6 +80,15 @@ public class Cave3DThParser extends Cave3DParser
 
     mMarks = new ArrayList< String >();
 
+    int pos = filename.indexOf("thconfig");
+    if ( pos >= 0 ) {
+      String path = filename.substring(0, pos) + "distox14.sqlite";
+      Log.v("Cave3D", "DB " + path );
+      mData = new DataHelper( cave3d, path, 42 ); // FIXME DB VERSION
+    } else {
+      mData = null;
+    }
+
     if ( readFile( filename, "", false, 0.0f, 1.0f, 1.0f, 1.0f ) ) {
       processShots();
       setShotSurveys();
@@ -110,6 +123,55 @@ public class Cave3DThParser extends Cave3DParser
     } else {
       return in + "@" + path;
     }
+  }
+
+  private boolean readSurvey( String surveyname, String basepath, boolean usd, float sd ) 
+                  throws Cave3DParserException
+  {
+    if ( mData == null ) return false;
+
+    SurveyInfo info = mData.getSurveyInfo( surveyname );
+    if ( info == null ) return false;
+
+    long sid = info.id;
+    List< DBlock > blks = mData.getSurveyShots( sid, 0 );
+    if ( blks.size() == 0 ) return false;
+
+    boolean use_centerline_declination = false;
+    float declination = 0.0f;
+    if ( info.hasDeclination() ) {
+      use_centerline_declination = true;
+      declination = info.declination;
+    } else if ( usd ) {
+      declination = sd;
+    }
+
+    int[] survey_pos = new int[50]; // FIXME max 50 levels
+    int ks = 0;
+    String path = basepath;
+    survey_pos[ks] = path.length();
+    path = path + "." + surveyname;
+    ++ks;
+
+    for ( DBlock blk : blks ) {
+      if ( blk.mFrom.length() > 0 ) {
+        float ber = blk.mBearing + declination;
+        if ( ber >= 360 ) ber -= 360; else if ( ber < 0 ) ber += 360;
+        String from = makeName( blk.mFrom, path );
+        if ( blk.mTo.length() > 0 ) {
+          String to = makeName( blk.mTo, path );
+          shots.add( new Cave3DShot( from, to, blk.mLength, ber, blk.mClino ) );
+        } else {
+          splays.add( new Cave3DShot( from, null, blk.mLength, ber, blk.mClino ) );
+        }
+      } else if ( blk.mTo.length() > 0 ) {
+        String to = makeName( blk.mTo, path );
+        float ber = 180 + blk.mBearing + declination;
+        if ( ber >= 360 ) ber -= 360;
+        splays.add( new Cave3DShot( to, null, blk.mLength, ber, -blk.mClino ) );
+      }
+    }
+    return true;
   }
   
   /** read input file
@@ -436,6 +498,15 @@ public class Cave3DThParser extends Cave3DParser
                   }
                 } else {
                   Log.e(TAG, "Input file <" + filename + "> has no .th extension");
+                }
+              }
+            } else if ( cmd.equals("load") ) {
+              idx = nextIndex( vals, idx );
+              if ( idx < vals.length ) {
+                filename = vals[idx]; // survey name
+                Log.v( "Cave3D", "SURVEY " + filename );
+                if ( ! readSurvey( filename, path, use_survey_declination, survey_declination ) ) {
+                  return false;
                 }
               }
             } else if ( cmd.equals("equate") ) {
