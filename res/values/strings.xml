@@ -88,6 +88,8 @@
     <string name="ok_export">OK. Exported %1$s</string>
 
     <string name="powercrust_dxf_not_supported">powercrust dxf export not supported</string>
+    <string name="no_planview">No plan view</string>
+    <string name="no_surface">No surface DEM</string>
 
     <string name="error_file_not_found">Error: file not found</string>
     <string name="error_file_not_readable">Error: file not readable</string>
@@ -102,6 +104,12 @@
     <!-- UNUSED string name="warning_not_cgal">Warning: not CGAL text file %1$s</string -->
     <!-- UNUSED string name="warning_not_stl">Warning: not stl file %1$s</string -->
     <string name="warning_no_cwd">Warning: missing base path</string>
+
+    <string name="done_fractals">Done fractals dims</string>
+    <string name="done_convexhull">Done convex-hull walls</string>
+    <string name="fail_convexhull">Failed convex-hull walls</string>
+    <string name="done_powercrust">Done powercrust walls</string>
+    <string name="fail_powercrust">Failed powercrust walls</string>
 
     <string name="pref_base_path_title">Base path</string>
     <string name="pref_base_path_summary">App base path</string>

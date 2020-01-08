@@ -37,6 +37,11 @@ class FractalResult
           computer.computeFractalCounts( r.getShots(), r.getSplays() );
 	  return null;
 	}
+
+        public void onPostExecute( Void v )
+        {
+          Toast.makeText( mContext, R.string.done_fractals, Toast.LENGTH_SHORT ).show();
+        }
     }).execute();
     return 0;
   }
