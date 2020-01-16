@@ -236,7 +236,7 @@ public class Cave3DExportDialog extends Dialog
         } else if ( mLasBinary.isChecked() ) {
           mRenderer.exportModel( ModelType.LAS_BINARY, pathname, splays, walls, station, overwrite );
         } else if ( mDxfAscii.isChecked() ) {
-          Log.v("Cave3D", "export DXF" );
+          // Log.v("Cave3D", "export DXF" );
           mRenderer.exportModel( ModelType.DXF_ASCII, pathname, splays, walls, station, overwrite );
         } else {
           mRenderer.exportModel( ModelType.SERIAL, pathname, splays, walls, surface, overwrite );

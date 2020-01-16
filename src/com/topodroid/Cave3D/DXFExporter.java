@@ -906,7 +906,7 @@ public class DXFExporter
       out.flush();
     } catch ( IOException e ) {
       // FIXME
-      Log.v("Cave3D", "DXF io-exception " + e.toString() );
+      Log.e("Cave3D", "DXF io-exception " + e.toString() );
       return false;
     }
     return true;

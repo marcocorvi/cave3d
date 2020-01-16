@@ -253,7 +253,7 @@ class Cave3DDelaunay
       for ( DelaunayTriangle tri : mTri ) {
         if ( tri.contains( v, eps ) ) {
           if ( ret != null ) {
-            Log.v("Cave3D", "point in many triangles ");
+            Log.e("Cave3D", "point in many triangles ");
           } else {
             ret = tri;
           }
@@ -465,7 +465,7 @@ class Cave3DDelaunay
       {
         DelaunayTriangle tri = findTriangle( v );
         if ( tri == null ) {
-          Log.v("Cave3D", "V on no triangle. " + v.x + " " + v.y + " " + v.z + " S " + mSide.size() + " T " + mTri.size() );
+          Log.e("Cave3D", "V on no triangle. " + v.x + " " + v.y + " " + v.z + " S " + mSide.size() + " T " + mTri.size() );
           return;
         }
         // Log.v("Cave3D", "K " + k + " Point " + p.index + " in T " + tri.s1.p1.k + " " + tri.s2.p1.k + " " + tri.s3.p1.k );
@@ -486,7 +486,7 @@ class Cave3DDelaunay
       {
         DelaunayTriangle tri = findTriangle( v );
         if ( tri == null ) {
-          Log.v("Cave3D", "V on no triangle. " + v.x + " " + v.y + " " + v.z + " S " + mSide.size() + " T " + mTri.size() );
+          Log.e("Cave3D", "V on no triangle. " + v.x + " " + v.y + " " + v.z + " S " + mSide.size() + " T " + mTri.size() );
           return;
         }
         // Log.v("Cave3D", "N " + n + " Point " + p.index + " in T " + tri.s1.p1.k + " " + tri.s2.p1.k + " " + tri.s3.p1.k );

@@ -44,7 +44,7 @@ public class LASExporter
   { 
     float[] v = data.getSplaysEndpoints();
     int nr_pts = data.getSplayNumber();
-    Log.v("Cave3D", "Number of points " + nr_pts );
+    // Log.v("Cave3D", "Number of points " + nr_pts );
     int fmt = FMT1_SIZE;
     int nr_vlr = 0;
 

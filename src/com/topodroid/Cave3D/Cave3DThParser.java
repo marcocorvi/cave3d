@@ -26,6 +26,8 @@ import android.widget.Toast;
 
 public class Cave3DThParser extends Cave3DParser
 {
+  static final int TOPODROID_DB_VERSION = 42; // must agree with TopoDroid
+
   static final int FLIP_NONE       = 0;
   static final int FLIP_HORIZONTAL = 1;
   static final int FLIP_VERTICAL   = 2;
@@ -74,17 +76,36 @@ public class Cave3DThParser extends Cave3DParser
     return Cave3DStation.FLAG_NONE;
   }
 
+  public Cave3DThParser( Cave3D cave3d, String survey, String base ) throws Cave3DParserException
+  {
+    super( cave3d, survey );
+    mMarks = new ArrayList< String >();
+
+    String path = base + "distox14.sqlite";
+    // Log.v("DistoX-Cave3D", "DB " + path );
+    mData = new DataHelper( cave3d, path, TOPODROID_DB_VERSION ); // FIXME DB VERSION
+
+    if ( readSurvey( survey, "", false, 0 ) ) {
+      processShots();
+      setShotSurveys();
+      setSplaySurveys();
+      setStationDepths();
+      processMarks();
+      // Log.v("DistoX-Cave3D", "read survey" );
+    }
+  }
+
   public Cave3DThParser( Cave3D cave3d, String filename ) throws Cave3DParserException
   {
     super( cave3d, filename );
 
+    // Log.v("Cave3D-FILE", "Th parser " + filename );
     mMarks = new ArrayList< String >();
-
     int pos = filename.indexOf("thconfig");
     if ( pos >= 0 ) {
       String path = filename.substring(0, pos) + "distox14.sqlite";
-      Log.v("Cave3D", "DB " + path );
-      mData = new DataHelper( cave3d, path, 42 ); // FIXME DB VERSION
+      // Log.v("Cave3D", "DB " + path );
+      mData = new DataHelper( cave3d, path, TOPODROID_DB_VERSION ); // FIXME DB VERSION
     } else {
       mData = null;
     }
@@ -125,7 +146,7 @@ public class Cave3DThParser extends Cave3DParser
     }
   }
 
-  private boolean readSurvey( String surveyname, String basepath, boolean usd, float sd ) 
+  boolean readSurvey( String surveyname, String basepath, boolean usd, float sd ) 
                   throws Cave3DParserException
   {
     if ( mData == null ) return false;
@@ -232,8 +253,9 @@ public class Cave3DThParser extends Cave3DParser
         }
         if ( line.length() > 0 ) {
           String[] vals = splitLine( line );
-          // Log.v("Cave3D", "[" + vals.length + "] >>" + line + "<<" );
-          // for (int j=0; j<vals.length; ++j ) Log.v("Cave3D", "    " + vals[j] );
+          // Log.v("Cave3D-FILE", "[" + vals.length + "] >>" + line + "<<" );
+          // for (int j=0; j<vals.length; ++j ) Log.v("Cave3D-FILE", "    " + vals[j] );
+
           if ( vals.length > 0 ) {
             int idx = nextIndex( vals, -1 );
             String cmd = vals[idx];
@@ -504,8 +526,24 @@ public class Cave3DThParser extends Cave3DParser
               idx = nextIndex( vals, idx );
               if ( idx < vals.length ) {
                 filename = vals[idx]; // survey name
-                Log.v( "Cave3D", "SURVEY " + filename );
+                // Log.v( "Cave3D-FILE", "SURVEY " + filename );
+                if ( mData == null ) {
+                  String base = null;
+                  if ( dirname.endsWith( "tdconfig/" ) ) {
+                    base = dirname.replace( "tdconfig/", "" );
+                    i = base.lastIndexOf('/');
+                    if ( i > 0 && i < base.length() ) base = base.substring(0, i+1);
+                  } else {
+                    base = dirname;
+                  }
+                  String db_path = base + "distox14.sqlite";
+                  // Log.v("Cave3D-FILE", "DB " + db_path );
+                  if ( (new File(db_path)).exists() ) {
+                    mData = new DataHelper( mCave3D, db_path, TOPODROID_DB_VERSION );
+                  }
+                }
                 if ( ! readSurvey( filename, path, use_survey_declination, survey_declination ) ) {
+                  Log.e("Cave3D", "read survey " + filename + " failed");
                   return false;
                 }
               }

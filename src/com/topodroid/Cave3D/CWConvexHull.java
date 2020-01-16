@@ -676,7 +676,7 @@ public class CWConvexHull
 
   void dump( )
   {
-    Log.v("Cave3D", "CV v " + mVertex.size() + " s " + mSide.size() + " t " + mFace.size() );
+    Log.v("Cave3D-CV", "v " + mVertex.size() + " s " + mSide.size() + " t " + mFace.size() );
     // for ( CWPoint v :  mVertex ) v.dump( );
     // for ( CWSide s : mSide )     s.dump( );
     for ( CWTriangle f : mFace ) f.dump( );

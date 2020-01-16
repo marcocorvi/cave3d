@@ -56,7 +56,7 @@ class Cave3DHull
   {
     int s1 = projs1.size();
     int s2 = projs2.size();
-    Log.v( "Cave3D", "Hull at station " + mStationFrom.name + " size " + s1 + " " + mStationTo.name + " " + s2 );
+    Log.v( "Cave3D-CH", "Hull at station " + mStationFrom.name + " size " + s1 + " " + mStationTo.name + " " + s2 );
     // for (int k=0; k<s1; ++k ) {
     //   Cave3DProjection p = projs1.get(k);
     //   Log.v( "Cave3D", k + ": " + p.angle + " - " + p.proj.x + " " + p.proj.y + " " + p.proj.z );

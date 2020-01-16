@@ -553,7 +553,7 @@ public class Cave3D extends Activity
         if ( result == Activity.RESULT_OK ) {
           String filename = data.getExtras().getString( "com.topodroid.Cave3D.filename" );
           if ( filename != null && filename.length() > 0 ) {
-            // Log.v("Cave3D", "path " + mAppBasePath + " file " + filename );
+            Log.v("Cave3D", "path " + mAppBasePath + " file " + filename );
             doOpenFile( mAppBasePath + "/" + filename );
           }
         }
@@ -568,6 +568,15 @@ public class Cave3D extends Activity
     } else {
       setTitle( "C A V E _ 3 D ");
     }
+  }
+
+  private boolean doOpenSurvey( String survey, String base )
+  {
+    mAppBasePath = base;
+    mFilename = survey;
+    boolean ret = mRenderer.initRendering( this, survey, base );
+    // Log.v("DistoX-Cave3D", "do open survey: " + (ret? "true" : "false" ) );
+    return true;
   }
 
   private boolean doOpenFile( String filename )
@@ -764,14 +773,27 @@ public class Cave3D extends Activity
     if ( mCheckPerms >= 0 ) {
       Bundle extras = getIntent().getExtras();
       if ( extras != null ) {
-        String name = extras.getString( "survey" );
+        String name = extras.getString( "INPUT_FILE" );
         // Log.v("Cave3D", "TopoDroid filename " + name );
         if ( name != null ) {
           if ( ! doOpenFile( name ) ) {
-            Log.e("Cave3D", "Cannot open TopoDroid file " + name );
+            Log.e("Cave3D", "Cannot open input file " + name );
             finish();
           }
-        }
+        } else {
+          name = extras.getString( "INPUT_SURVEY" );
+          String base = extras.getString( "SURVEY_BASE" );
+          // Log.v("DistoX-Cave3D", "open input survey " + name + " base " + base );
+          if ( name != null ) {
+            if ( ! doOpenSurvey( name, base ) ) {
+              Log.e("Cave3D", "Cannot open input survey " + name );
+              finish();
+            }
+          } else {
+            Log.e("Cave3D", "No input file or survey");
+            finish();
+          }
+        }          
       } else {
         // Log.v("Cave3D", "No filename: openfile dialog" );
         openFile();

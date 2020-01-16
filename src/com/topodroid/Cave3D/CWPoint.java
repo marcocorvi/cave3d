@@ -109,7 +109,7 @@ public class CWPoint extends Cave3DVector
   {
     StringBuilder sb = new StringBuilder();
     for ( CWTriangle t : mTriangle ) sb.append( "-" + t.mCnt );
-    Log.v("Cave3D", "CWPoint " + mCnt + " T" + sb.toString() + " " + x + " " + y + " " + z );
+    Log.v("Cave3D-CV", "Point " + mCnt + " T" + sb.toString() + " " + x + " " + y + " " + z );
   }
   
   void serialize( PrintWriter out )

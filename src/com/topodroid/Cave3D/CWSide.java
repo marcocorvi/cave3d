@@ -131,7 +131,7 @@ public class CWSide
 
   void dump( )
   {
-    Log.v("Cave3D", "CWSide " + mCnt + " P " + p1.mCnt + "-" + p2.mCnt 
+    Log.v("Cave3D-CV", "Side " + mCnt + " P " + p1.mCnt + "-" + p2.mCnt 
                      + " T " + ((t1 == null)? "-" : t1.mCnt) + " " + ((t2 == null)? "-" : t2.mCnt)
     );
   }

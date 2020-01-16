@@ -231,7 +231,7 @@ public class Cave3DTroParser extends Cave3DParser
                     
                   }
                 } catch ( NumberFormatException e ) {
-                  Log.v("Cave3D", "ERROR " + linenr + ": " + line + " " + e.getMessage() );
+                  Log.e("Cave3D", "ERROR " + linenr + ": " + line + " " + e.getMessage() );
                 }
               }
             }

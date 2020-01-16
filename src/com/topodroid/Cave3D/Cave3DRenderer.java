@@ -690,6 +690,25 @@ public class Cave3DRenderer // implements Renderer
     paths_surface  = Collections.synchronizedList( new ArrayList< Cave3DDrawPath >() );
   }
 
+  public boolean initRendering( Cave3D cave3d, String survey, String base ) 
+  {
+    mParser = null;
+    try {
+      resetAllPaths();
+      mParser = new Cave3DThParser( cave3d, survey, base ); // survey data directly from TopoDroid database
+      // Log.v("DistoX-Cave3D", "Station " + mParser.getStationNumber() + " shot " + mParser.getShotNumber() );
+      mCave3D = cave3d;
+      CWConvexHull.resetCounters();
+      prepareModel();
+    } catch ( Cave3DParserException e ) {
+      // Log.v( TAG, "parser exception " + filename );
+      cave3d.toast(R.string.error_parser_error, survey + " " + e.msg() );
+      mParser = null;
+    }
+    // Log.v("DistoX-Cave3D", "renderer ready" );
+    return hasParser(); 
+  }
+
   public boolean initRendering( Cave3D cave3d, String filename )
   {
     mParser = null;
@@ -708,8 +727,7 @@ public class Cave3DRenderer // implements Renderer
       } else {
         return false;
       }
-      Log.v("Cave3D", "Station " + mParser.getStationNumber() + " shot " + mParser.getShotNumber() );
-
+      // Log.v("Cave3D", "Station " + mParser.getStationNumber() + " shot " + mParser.getShotNumber() );
       mCave3D = cave3d;
       CWConvexHull.resetCounters();
       prepareModel();

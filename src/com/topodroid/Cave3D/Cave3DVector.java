@@ -149,7 +149,7 @@ class Cave3DVector
 
   void dump() 
   {
-    Log.v("Cave3DX", x + " " + y + " " + z );
+    Log.v("Cave3D-X", x + " " + y + " " + z );
   } 
 
   void randomize( float delta )

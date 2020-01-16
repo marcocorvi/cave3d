@@ -136,7 +136,7 @@ public class CWTriangle extends CWFacet
 
   void dump( )
   {
-    Log.v("Cave3D", "Tri " + mCnt + " " + mType + " V " + v1.mCnt + " " + v2.mCnt + " " + v3.mCnt 
+    Log.v("Cave3D-CV", "Tri " + mCnt + " " + mType + " V " + v1.mCnt + " " + v2.mCnt + " " + v3.mCnt 
                      + " S " + s1.mCnt + " " + s2.mCnt + " " + s3.mCnt 
                      // + " U " + un.x + " " + un.y + " " + un.z
     );

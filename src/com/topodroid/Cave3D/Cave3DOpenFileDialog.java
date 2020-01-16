@@ -10,6 +10,8 @@
  */
 package com.topodroid.Cave3D;
 
+import android.util.Log;
+
 import java.io.File;
 import java.io.FilenameFilter;
 
@@ -43,6 +45,7 @@ public class  Cave3DOpenFileDialog extends Activity
     public boolean accept( File dir, String name ) {
       if ( name.endsWith( ".th" ) ) return true;
       if ( name.endsWith( "thconfig" ) ) return true;
+      if ( name.endsWith( "tdconfig" ) ) return true;
       if ( name.endsWith( ".lox" ) ) return true;
       if ( name.endsWith( ".mak" ) ) return true;
       if ( name.endsWith( ".dat" ) ) return true;
@@ -125,6 +128,7 @@ public class  Cave3DOpenFileDialog extends Activity
       updateList( Cave3D.mAppBasePath );
       return;
     }
+    // Log.v("Cave3D-FILE", "FILE " + name );
     Intent intent = new Intent();
     intent.putExtra( "com.topodroid.Cave3D.filename", name );
     setResult( Activity.RESULT_OK, intent );
