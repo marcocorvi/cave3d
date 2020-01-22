@@ -17,6 +17,8 @@ import java.util.ArrayList;
 
 class ConvexHullComputer
 {
+  private static final String TAG = "Cave3D CH";
+
   Cave3DParser mParser;
   List<Cave3DShot> mShots;
   ArrayList<CWConvexHull> mWalls;
@@ -46,7 +48,7 @@ class ConvexHullComputer
         ArrayList< Cave3DShot > legs2   = mParser.getLegsAt( st, sf );
         ArrayList< Cave3DShot > splays1 = mParser.getSplayAt( sf, false );
         ArrayList< Cave3DShot > splays2 = mParser.getSplayAt( st, false );
-        // Log.v("Cave3D", "splays at " + sf.name + " " + splays1.size() + " at " + st.name + " " + splays2.size() );
+        // Log.v( TAG, "splays at " + sf.name + " " + splays1.size() + " at " + st.name + " " + splays2.size() );
         // if ( splays1.size() > 0 && splays2.size() > 0 ) 
         {
           try {
@@ -55,19 +57,19 @@ class ConvexHullComputer
             // TODO make convex-concave hull
             mWalls.add( cw );
           } catch ( RuntimeException e ) { 
-            Log.v("Cave3D", "CW create runtime exception [2] " + e.getMessage() );
+            Log.e( TAG, "create runtime exception [2] " + e.getMessage() );
             return false;
           }
         }
       }
     }
-    // Log.v("Cave3D", "convex hulls done. split triangles " + Cave3D.mSplitTriangles );
+    // Log.v( TAG, "convex hulls done. split triangles " + Cave3D.mSplitTriangles );
 
     // for ( CWConvexHull cv : mWalls ) cv.randomizePoints( 0.1f );
     if ( Cave3D.mSplitTriangles ) {
       // synchronized( paths_borders ) 
       {
-        // Log.v("Cave3D", "convex hulls borders. nr walls " + mWalls.size() );
+        // Log.v( TAG, "convex hulls borders. nr walls " + mWalls.size() );
         for ( int k1 = 0; k1 < mWalls.size(); ++ k1 ) {
           CWConvexHull cv1 = mWalls.get( k1 );
           for ( int k2 = k1+1; k2 < mWalls.size(); ++ k2 ) {
@@ -81,7 +83,7 @@ class ConvexHullComputer
             }
           }
         }
-        // Log.v("Cave3D", "convex hulls borders done, nr borders " + mBorders.size() );
+        // Log.v( TAG, "convex hulls borders done, nr borders " + mBorders.size() );
       }
     }
     return true;

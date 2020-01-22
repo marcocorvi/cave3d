@@ -20,6 +20,8 @@ import android.util.Log;
 
 class FractalComputer
 {
+  private static final String TAG = "Cave3D FRACTAL";
+
   // Context mContext;
   static int DIM_ONE = 8;
   static int DIM_TWO = DIM_ONE - 1;
@@ -162,7 +164,7 @@ class FractalComputer
       nz = nnz;
       nyx = nx * ny;
       nn  = nx * ny * nz;
-      // Log.v("Cave3D", "single box " + nnx + " " + nny + " " + nnz + " nn " + nn + " base " + sd + " scale " + sc );
+      // Log.v( TAG, "single box " + nnx + " " + nny + " " + nnz + " nn " + nn + " base " + sd + " scale " + sc );
       // box = new boolean[nn];
       box = new TreeSet<Integer>();
       side  = sd;
@@ -171,9 +173,9 @@ class FractalComputer
 
     void set( int x, int y, int z )
     {
-      if ( x < 0 || x >= nx ) Log.v("Cave3D", "X:X " + x + "/" + nx + " Y " + y + "/" + ny + " Z " + z + "/" + nz );
-      if ( y < 0 || y >= ny ) Log.v("Cave3D", "Y:X " + x + "/" + nx + " Y " + y + "/" + ny + " Z " + z + "/" + nz );
-      if ( z < 0 || z >= nz ) Log.v("Cave3D", "Z:X " + x + "/" + nx + " Y " + y + "/" + ny + " Z " + z + "/" + nz );
+      if ( x < 0 || x >= nx ) Log.v( TAG, "X:X " + x + "/" + nx + " Y " + y + "/" + ny + " Z " + z + "/" + nz );
+      if ( y < 0 || y >= ny ) Log.v( TAG, "Y:X " + x + "/" + nx + " Y " + y + "/" + ny + " Z " + z + "/" + nz );
+      if ( z < 0 || z >= nz ) Log.v( TAG, "Z:X " + x + "/" + nx + " Y " + y + "/" + ny + " Z " + z + "/" + nz );
       // box[ (z*ny + y)*nx + x] = true;
       box.add( (z*ny + y)*nx + x );
     }
@@ -243,7 +245,7 @@ class FractalComputer
 
     MultiBox( int dim, int nx, int ny, int nz, float base, int mode )
     {
-      // Log.v("Cave3D", "create multibox " + nx + " " + ny + " " + nz + " base " + base );
+      // Log.v( TAG, "create multibox " + nx + " " + ny + " " + nz + " base " + base );
       DIM   = dim;
       mMode = mode;
       // nx0 = nx;
@@ -295,7 +297,7 @@ class FractalComputer
     // @param counter array of counters (pre-initialized at 0)
     void count( int[] counter, int off, int step )
     {
-      // for ( int k=0; k<DIM; ++k ) Log.v("Cave3D", "CNT " + k + " " + box[k].count() );
+      // for ( int k=0; k<DIM; ++k ) Log.v( TAG, "CNT " + k + " " + box[k].count() );
 
       int k = DIM-1; // last index for the multibox, in the counters
       if ( mMode == COUNT_TOTAL ) {
@@ -337,9 +339,9 @@ class FractalComputer
     int dx = xmax - xmin;
     int dy = ymax - ymin;
     int dz = zmax - zmin;
-    // Log.v("Cave3D", "DX " + dx );
-    // Log.v("Cave3D", "DY " + dy );
-    // Log.v("Cave3D", "DZ " + dz );
+    // Log.v( TAG, "DX " + dx );
+    // Log.v( TAG, "DY " + dy );
+    // Log.v( TAG, "DZ " + dz );
 
     // dims: make shure tey are multiple of max_side
     int max_side = 1<<DIM_ONE;
@@ -361,7 +363,7 @@ class FractalComputer
       checkShot( sh, box1, one );
       checkShot( sh, box2, two );
     }
-    // Log.v("Cave3D", "processed legs ");
+    // Log.v( TAG, "processed legs ");
 
     if ( mDoSplay ) {
       for ( Cave3DShot sh : splays ) {
@@ -372,7 +374,7 @@ class FractalComputer
           checkShot( sh, box2, two );
         }
       }
-      // Log.v("Cave3D", "processed splays");
+      // Log.v( TAG, "processed splays");
     }
 
     int[] counter = new int[ DIM ];
@@ -381,7 +383,7 @@ class FractalComputer
     box1.count( counter, 0, STEP );
     box2.count( counter, 1, STEP );
 
-    // for ( int k=0; k<DIM; ++k ) Log.v("Cave3D", "Count " + k + " " + counter[k] );
+    // for ( int k=0; k<DIM; ++k ) Log.v( TAG, "Count " + k + " " + counter[k] );
 
     float invLogStep = 1.0f/(float)Math.log( Math.sqrt(2.0) );
     for ( int k=0; k<SIZE; ++k ) {
@@ -390,7 +392,7 @@ class FractalComputer
     }
 
     // Toast.makeText( mContext, "Fractal compute finished", Toast.LENGTH_SHORT ).show();
-    // Log.v("Cave3D", "processed finished");
+    // Log.v( TAG, "processed finished");
 
     FractalResult.releaseComputer();
   }
@@ -409,7 +411,7 @@ class FractalComputer
   {
 
     if ( sh.from_station == null || sh.to_station == null ) {
-      Log.v("Cave3D", "shot without station " + sh.from + " " + sh.to );
+      Log.v( TAG, "shot without station " + sh.from + " " + sh.to );
       return;
     }
 

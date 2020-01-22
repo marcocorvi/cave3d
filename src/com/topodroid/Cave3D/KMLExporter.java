@@ -11,6 +11,8 @@
  */
 package com.topodroid.Cave3D;
 
+import android.util.Log;
+
 import java.util.Locale;
 import java.util.List;
 import java.util.ArrayList;
@@ -23,10 +25,10 @@ import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import android.util.Log;
-
 public class KMLExporter
 {
+  private static final String TAG = "Cave3D KML";
+
   ArrayList<CWFacet> mFacets;
   float lat, lng, asl;
   float s_radius, e_radius;
@@ -51,7 +53,7 @@ public class KMLExporter
 
   private boolean getGeolocalizedData( Cave3DParser data, float decl, float asl_factor )
   {
-    // Log.v("DistoX", "get geoloc. data. Decl " + decl );
+    // Log.v( TAG, "get geoloc. data. Decl " + decl );
     List< Cave3DFix > fixes = data.getFixes();
     if ( fixes.size() == 0 ) return false;
 
@@ -69,7 +71,7 @@ public class KMLExporter
       if ( origin != null ) break;
     }
     if ( origin == null ) {
-      // Log.v("Cave3D", "no origin");
+      // Log.v( TAG, "no geolocalized origin");
       return false;
     }
 
@@ -78,7 +80,7 @@ public class KMLExporter
     lat = (float)origin.n;
     lng = (float)origin.e;
     asl = (float)origin.z; // KML uses Geoid altitude (unless altitudeMode is set)
-    // Log.v("Cave3D", "origin " + lat + " N " + lng + " E " + asl );
+    // Log.v( TAG, "origin " + lat + " N " + lng + " E " + asl );
     float alat = ( lat > 0 )? lat : - lat;
 
     s_radius = ((90 - alat) * EARTH_RADIUS1 + alat * EARTH_RADIUS2)/90;
@@ -95,9 +97,9 @@ public class KMLExporter
     String name = "Cave3D";
     boolean ret = true;
 
-    // Log.v("DistoX", "export as KML " + filename );
+    // Log.v( TAG, "export as KML " + filename );
     if ( ! getGeolocalizedData( data, 0.0f, 1.0f ) ) { // FIXME declination 0.0f
-      // Log.v("Cave3D", "Failed KML export: no geolocalized station");
+      Log.w( TAG, "no geolocalized station");
       return false;
     }
 
@@ -305,7 +307,7 @@ public class KMLExporter
       fw.close();
       return true;
     } catch ( IOException e ) {
-      // TDLog.Error( "Failed KML export: " + e.getMessage() );
+      Log.w( TAG, "I/O error " + e.getMessage() );
       return false;
     }
   }

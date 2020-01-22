@@ -26,7 +26,7 @@ import android.view.View.OnClickListener;
 // import android.widget.Toast;
 
 class Cave3DPerms extends Dialog
-                     implements OnClickListener
+                  implements OnClickListener
 {
   // private Button mBTok;
   // private Context mContext; // INHERITED

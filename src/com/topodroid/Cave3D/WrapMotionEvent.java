@@ -12,10 +12,12 @@ package com.topodroid.Cave3D;
 
 import android.os.Build;
 import android.view.MotionEvent;
-import android.util.Log;
+// import android.util.Log;
 
 public class WrapMotionEvent 
 {
+  // private static final String TAG = "Cave3D EVT";
+
    protected MotionEvent event;
 
    protected WrapMotionEvent(MotionEvent event) 
@@ -27,10 +29,10 @@ public class WrapMotionEvent
    {
       // Use Build.VERSION.SDK_INT if you don't have to support Cupcake
       if (Integer.parseInt(Build.VERSION.SDK) >= Build.VERSION_CODES.ECLAIR) {
-         // Log.d("WrapMotionEvent", "Using Eclair version");
+         // Log.d( TAG, "Using Eclair version");
          return new EclairMotionEvent(event);
       } else {
-         // Log.d("WrapMotionEvent", "Using Cupcake/Donut version");
+         // Log.d( TAG, "Using Cupcake/Donut version");
          return new WrapMotionEvent(event);
       }
    }

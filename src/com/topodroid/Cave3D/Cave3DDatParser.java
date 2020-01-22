@@ -22,6 +22,8 @@ import android.util.Log;
 
 public class Cave3DDatParser extends Cave3DParser
 {
+  private static final String TAG = "Cave3D DAT";
+
   static final int FLIP_NONE       = 0;
   static final int FLIP_HORIZONTAL = 1;
   static final int FLIP_VERTICAL   = 2;
@@ -102,7 +104,7 @@ public class Cave3DDatParser extends Cave3DParser
         // Log.v(TAG, linenr + ":" + line );
       }
     } catch ( IOException e ) {
-      Log.e(TAG, "I/O ERROR " + e.getMessage() );
+      Log.e( TAG, "I/O error " + e.getMessage() );
       throw new Cave3DParserException( filename, linenr );
     }
     // Log.v(TAG, "done readFile " + filename );
@@ -118,7 +120,7 @@ public class Cave3DDatParser extends Cave3DParser
     if ( ! checkPath( filename ) ) return false;
 
     int linenr = 0;
-    // Log.v("Cave3D", "DAT file <" + filename + "> station " + station );
+    // Log.v( TAG, "DAT file <" + filename + "> station " + station );
     Cave3DCS cs = null;
     // int in_data = 0; // 0 none, 1 normal, 2 dimension
 
@@ -165,7 +167,7 @@ public class Cave3DDatParser extends Cave3DParser
           idx = nextIndex( vals, idx );
 	  try {
             declination = Float.parseFloat( vals[idx] );
-	    // Log.v("Cave3D", "declination " + declination );
+	    // Log.v( TAG, "declination " + declination );
 	  } catch ( NumberFormatException e ) { }
 	} else if ( line.contains("FROM") && line.contains("TO" ) ) {
           ++linenr; line = br.readLine();
@@ -177,7 +179,7 @@ public class Cave3DDatParser extends Cave3DParser
               continue;
 	    }
 	    if ( line.charAt(0) == 0x0c ) {
-              // Log.v("Cave3D", "formfeed");
+              // Log.v( TAG, "formfeed");
               break; // formfeed
 	    }
             String[] vals = splitLine( line );
@@ -265,11 +267,11 @@ public class Cave3DDatParser extends Cave3DParser
         // Log.v(TAG, linenr + ":" + line );
       }
       if ( station != null ) {
-        // Log.v("Cave3D", "add fix station " +  station + survey );
+        // Log.v( TAG, "add fix station " +  station + survey );
 	fixes.add( new Cave3DFix( station+survey, x, y, z, cs ) );
       }
     } catch ( IOException e ) {
-      Log.e(TAG, "I/O ERROR " + e.getMessage() );
+      Log.e( TAG, "I/O error " + e.getMessage() );
       throw new Cave3DParserException( filename, linenr );
     }
     // Log.v(TAG, "shots " + shots.size() );
@@ -340,7 +342,7 @@ public class Cave3DDatParser extends Cave3DParser
  
     int mLoopCnt = 0;
     Cave3DFix f0 = fixes.get( 0 );
-    // Log.v( "Cave3D", "Process Shots. Fix " + f0.name + " " + f0.e + " " + f0.n + " " + f0.z );
+    // Log.v( TAG, "Process Shots. Fix " + f0.name + " " + f0.e + " " + f0.n + " " + f0.z );
 
     mCaveLength = 0.0f;
 

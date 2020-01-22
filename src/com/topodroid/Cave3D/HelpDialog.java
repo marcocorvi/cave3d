@@ -11,6 +11,8 @@
  */
 package com.topodroid.Cave3D;
 
+// import android.util.Log;
+
 import android.os.Bundle;
 import android.app.Dialog;
 // import android.app.Activity;
@@ -22,8 +24,6 @@ import android.widget.TextView;
 
 import android.view.View;
 import android.view.View.OnClickListener;
-
-// import android.util.Log;
 
 class HelpDialog extends Dialog
                  implements OnClickListener

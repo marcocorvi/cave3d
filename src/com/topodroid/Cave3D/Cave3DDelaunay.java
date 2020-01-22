@@ -20,6 +20,8 @@ import android.util.Log;
 
 class Cave3DDelaunay
 {
+  private static final String TAG = "Cave3D DELAUNAY";
+
   double eps = 0.001;
 
   class DelaunayPoint
@@ -253,14 +255,14 @@ class Cave3DDelaunay
       for ( DelaunayTriangle tri : mTri ) {
         if ( tri.contains( v, eps ) ) {
           if ( ret != null ) {
-            Log.e("Cave3D", "point in many triangles ");
+            Log.e( TAG, "point in many triangles ");
           } else {
             ret = tri;
           }
         }
       }
       if ( ret == null ) {
-        // Log.v("Cave3D", "point in no triangle ... retry" );
+        // Log.v( TAG, "point in no triangle ... retry" );
         v.x += (float)(e * ( Math.random() - 0.5 ));
         v.y += (float)(e * ( Math.random() - 0.5 ));
         v.z += (float)(e * ( Math.random() - 0.5 ));
@@ -301,34 +303,34 @@ class Cave3DDelaunay
   //   for ( DelaunaySide s0 : mSide ) {
   //     DelaunaySide sh = s0.otherHalf;
   //     if ( sh == null ) {
-  //       Log.v("Cave3D", "MISSING opposite sides of " + s0.p1.index + "-" + s0.p2.index );
+  //       Log.v( TAG, "MISSING opposite sides of " + s0.p1.index + "-" + s0.p2.index );
   //       return false; 
   //     }
   //     if ( s0.p1 != sh.p2 || s0.p2 != sh.p1 ) {
-  //       Log.v("Cave3D", "BAD opposite sides S0 " + s0.p1.index + "-" + s0.p2.index + " SH " + sh.p1.index + "-" + sh.p2.index );
+  //       Log.v( TAG, "BAD opposite sides S0 " + s0.p1.index + "-" + s0.p2.index + " SH " + sh.p1.index + "-" + sh.p2.index );
   //       return false; 
   //     }
   //     DelaunayTriangle t0 = s0.t;
   //     if ( t0 == null ) {
-  //       Log.v("Cave3D", "MISSING triangle" );
+  //       Log.v( TAG, "MISSING triangle" );
   //       return false; 
   //     }
   //     if ( t0.s1 != s0 && t0.s2 != s0 && t0.s3 != s0 ) {
-  //       Log.v("Cave3D", "Bad triangle" );
+  //       Log.v( TAG, "Bad triangle" );
   //       return false; 
   //     }
   //   }
   //   for ( DelaunayTriangle t : mTri ) {
   //     if ( t.s1.p2 != t.s2.p1 ) {
-  //       Log.v("Cave3D", "MISMATCH 1-2 " + t.s1.p2.index + " " + t.s2.p1.index );
+  //       Log.v( TAG, "MISMATCH 1-2 " + t.s1.p2.index + " " + t.s2.p1.index );
   //       return false;
   //     }
   //     if ( t.s2.p2 != t.s3.p1 ) {
-  //       Log.v("Cave3D", "MISMATCH 2-3 " + t.s2.p2.index + " " + t.s3.p1.index );
+  //       Log.v( TAG, "MISMATCH 2-3 " + t.s2.p2.index + " " + t.s3.p1.index );
   //       return false;
   //     }
   //     if ( t.s3.p2 != t.s1.p1 ) {
-  //       Log.v("Cave3D", "MISMATCH 3-1 " + t.s3.p2.index + " " + t.s1.p1.index );
+  //       Log.v( TAG, "MISMATCH 3-1 " + t.s3.p2.index + " " + t.s1.p1.index );
   //       return false;
   //     }
   //   }
@@ -400,7 +402,7 @@ class Cave3DDelaunay
 
   private void computeLawson( )
   {
-    // Log.v("Cave3D", "compute Lawson N pts " + N );
+    // Log.v( TAG, "compute Lawson N pts " + N );
     if ( N < 4 ) return;
     // decide whether 0,1,2,3 is right-handed
     DelaunayPoint[] pp = new DelaunayPoint[4];
@@ -448,13 +450,13 @@ class Cave3DDelaunay
       addTriangle( s01, s13, s30 ); //     1          2
     }
     // dumpTriangles( 2 );
-    // Log.v("Cave3D", "start with volume " + d + " consistency " + checkConsistency() );
+    // Log.v( TAG, "start with volume " + d + " consistency " + checkConsistency() );
 
     int kmax = N/2;
     for ( int k=4; k<kmax; ++k ) {
       int n = (int)(N*Math.random());
       while ( mPts[n].used ) { n = (int)(N*Math.random()); }
-      // Log.v("Cave3D", "handling point " + n );
+      // Log.v( TAG, "handling point " + n );
       mPts[n].used = true;
       DelaunayPoint p = mPts[n];
       Cave3DVector v  = p.v;
@@ -465,13 +467,13 @@ class Cave3DDelaunay
       {
         DelaunayTriangle tri = findTriangle( v );
         if ( tri == null ) {
-          Log.e("Cave3D", "V on no triangle. " + v.x + " " + v.y + " " + v.z + " S " + mSide.size() + " T " + mTri.size() );
+          Log.e( TAG, "V on no triangle. " + v.x + " " + v.y + " " + v.z + " S " + mSide.size() + " T " + mTri.size() );
           return;
         }
-        // Log.v("Cave3D", "K " + k + " Point " + p.index + " in T " + tri.s1.p1.k + " " + tri.s2.p1.k + " " + tri.s3.p1.k );
+        // Log.v( TAG, "K " + k + " Point " + p.index + " in T " + tri.s1.p1.k + " " + tri.s2.p1.k + " " + tri.s3.p1.k );
         handleTriangle( tri, p );
       }
-      // Log.v("Cave3D", "point " + n + "/" + N + " S " + mSide.size() + " T " + mTri.size() 
+      // Log.v( TAG, "point " + n + "/" + N + " S " + mSide.size() + " T " + mTri.size() 
       //       + " consistency " + checkConsistency() );
     }
     for ( int n=0; n<N; ++n ) {
@@ -486,13 +488,13 @@ class Cave3DDelaunay
       {
         DelaunayTriangle tri = findTriangle( v );
         if ( tri == null ) {
-          Log.e("Cave3D", "V on no triangle. " + v.x + " " + v.y + " " + v.z + " S " + mSide.size() + " T " + mTri.size() );
+          Log.e( TAG, "V on no triangle. " + v.x + " " + v.y + " " + v.z + " S " + mSide.size() + " T " + mTri.size() );
           return;
         }
-        // Log.v("Cave3D", "N " + n + " Point " + p.index + " in T " + tri.s1.p1.k + " " + tri.s2.p1.k + " " + tri.s3.p1.k );
+        // Log.v( TAG, "N " + n + " Point " + p.index + " in T " + tri.s1.p1.k + " " + tri.s2.p1.k + " " + tri.s3.p1.k );
         handleTriangle( tri, p );
       }
-      // Log.v("Cave3D", "point " + n + "/" + N + " S " + mSide.size() + " T " + mTri.size() 
+      // Log.v( TAG, "point " + n + "/" + N + " S " + mSide.size() + " T " + mTri.size() 
       //       + " consistency " + checkConsistency() );
     }
 

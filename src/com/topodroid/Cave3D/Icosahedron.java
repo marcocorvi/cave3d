@@ -8,10 +8,12 @@ import java.util.ArrayList;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 
-import android.util.Log;
+// import android.util.Log;
 
 class Icosahedron
 {
+  // private static final String TAG = "Cave3D ICO";
+
   int mN;
   int mPointNr;
   IcoPoint[] mPoint;
@@ -41,7 +43,7 @@ class Icosahedron
     //   for (int k2=0; k2<12; ++k2 ) {
     //     pw.format(Locale.US, "%1d ", mNghb[ k1*12 + k2 ] );
     //   }
-    //   Log.v( "Cave3D", sw.getBuffer().toString() );
+    //   Log.v( TAG, sw.getBuffer().toString() );
     // }
   }
 
@@ -75,33 +77,33 @@ class Icosahedron
     }
     mN = n;
     mPointNr = 12 + ns * (n-1) + nf * (n-1)*(n-2) / 2;
-    // Log.v( "Cave3D", "expected nr. points " + mPointNr );
+    // Log.v( TAG, "expected nr. points " + mPointNr );
     mPoint = new IcoPoint[ mPointNr ];
     int np = 0;
     for (int k=0; k<12; ++k ) {
       mPoint[np] = mVertex[k];
-      // Log.v( "Cave3D", "V-Point " + np + ": " + mPoint[np].x + " " + mPoint[np].y + " " + mPoint[np].z );
+      // Log.v( TAG, "V-Point " + np + ": " + mPoint[np].x + " " + mPoint[np].y + " " + mPoint[np].z );
       ++ np;
     }
     for (int k=0; k<ns; ++k ) {
       IcoSide side = mSide[k];
       for ( int i=1; i<n; ++i ) {
-        // Log.v( "Cave3D", "side " + k + " index " + i + " point " + np );
+        // Log.v( TAG, "side " + k + " index " + i + " point " + np );
         mPoint[np] = side.interpolate( i, n );
-        // Log.v( "Cave3D", "S-Point " + np + ": " + mPoint[np].x + " " + mPoint[np].y + " " + mPoint[np].z );
+        // Log.v( TAG, "S-Point " + np + ": " + mPoint[np].x + " " + mPoint[np].y + " " + mPoint[np].z );
         ++ np;
       }
     }
     for (int k=0; k<nf; ++k ) {
       IcoFace face = mFace[k];
       for ( int i=1; i<n; ++i ) for ( int j = 1; j < n-i; ++j ) {
-        // Log.v( "Cave3D", "face " + k + " index " + i + "/" + j + " point " + np );
+        // Log.v( TAG, "face " + k + " index " + i + "/" + j + " point " + np );
         mPoint[np] = face.interpolate( i, j, n );
-        // Log.v( "Cave3D", "F-Point " + np + ": " + mPoint[np].x + " " + mPoint[np].y + " " + mPoint[np].z );
+        // Log.v( TAG, "F-Point " + np + ": " + mPoint[np].x + " " + mPoint[np].y + " " + mPoint[np].z );
         ++ np;
       }
     }
-    // Log.v( "Cave3D", "ico points " + np + " " + mPointNr );
+    // Log.v( TAG, "ico points " + np + " " + mPointNr );
   }
 }
        

@@ -19,10 +19,12 @@ import java.util.Locale;
 import java.io.PrintWriter;
 // import java.io.PrintStream;
 
-import android.util.Log;
+// import android.util.Log;
 
 public class CWBorder 
 {
+  // private static final String TAG = "Cave3D BORDER";
+
   static int cnt = 0;
   static void resetCounter() { cnt = 0; }
 
@@ -43,7 +45,7 @@ public class CWBorder
     mInts = new ArrayList< CWIntersection >();
     pts2in1 = cv1.computeInsidePoints( cv2, eps ); // points of cv2 inside cv1
     pts1in2 = cv2.computeInsidePoints( cv1, eps );
-    // Log.v( "Cave3D", "Border " + mCnt + ": " + pts2in1.size() + " points of " + cv2.mCnt + " in " + cv1.mCnt 
+    // Log.v( TAG, "Border " + mCnt + ": " + pts2in1.size() + " points of " + cv2.mCnt + " in " + cv1.mCnt 
     //      + " " + pts1in2.size() + " points of " + cv1.mCnt + " in " + cv2.mCnt );
     hasVolume = false;
   }
@@ -70,11 +72,11 @@ public class CWBorder
       ii.makeSignature();
       // ii.dump();
     }
-    // Log.v("Cave3D", "make border. nr ints " + ints.size() );
+    // Log.v(TAG, "make border. nr ints " + ints.size() );
 
     boolean ret = orderIntersections( ints );
     // int sz = ints.size();
-    // Log.v("Cave3D", "make border. order ints " + ret + " nr " +  mInts.size() );
+    // Log.v(TAG, "make border. order ints " + ret + " nr " +  mInts.size() );
 
     int ns = mInts.size();
     for ( int k = 0; k < ns; ++ k ) {
@@ -82,7 +84,7 @@ public class CWBorder
       CWIntersection i2 = mInts.get( (k+1)%ns );
       i1.setNext( i2 );
     }
-    // Log.v("Cave3D", "Border " + mCnt + " size " + mInts.size() );
+    // Log.v(TAG, "Border " + mCnt + " size " + mInts.size() );
     // for ( CWIntersection ii : mInts ) {
     //   ii.dump();
     // }
@@ -92,10 +94,10 @@ public class CWBorder
 
   void splitCWTriangles( )
   {
-    // Log.v("Cave3D", "split CW ints: " + mInts.size() + " pts2in1 " + pts2in1.size() + " pts1in2 " + pts1in2.size() );
+    // Log.v(TAG, "split CW ints: " + mInts.size() + " pts2in1 " + pts2in1.size() + " pts1in2 " + pts1in2.size() );
     mCV1.splitTriangles( 1, mInts, pts1in2 );
     mCV2.splitTriangles( 2, mInts, pts2in1 );
-    // Log.v("Cave3D", "split CW done");
+    // Log.v(TAG, "split CW done");
   }
 
   // ---------------------------------------------------------------------------
@@ -211,7 +213,7 @@ public class CWBorder
     
     List<CWPoint> pts2in1 = mCV1.computeInsidePoints( mCV2, eps ); // points of cv2 inside cv1
     List<CWPoint> pts1in2 = mCV2.computeInsidePoints( mCV1, eps );
-    // Log.v("Cave3D", "Pts1in2 " + pts1in2.size() + " Pts2in1 " + pts2in1.size() );
+    // Log.v(TAG, "Pts1in2 " + pts1in2.size() + " Pts2in1 " + pts2in1.size() );
     
     if ( pts1in2.size() == 0 && pts2in1.size() == 0 ) return 0;
     float vol = 0;

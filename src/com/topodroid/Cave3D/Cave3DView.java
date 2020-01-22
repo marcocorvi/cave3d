@@ -10,6 +10,8 @@
  */
 package com.topodroid.Cave3D;
 
+// import android.util.Log;
+
 import android.view.MotionEvent;
 
 import android.content.Context;
@@ -29,14 +31,14 @@ import android.widget.ZoomButtonsController.OnZoomListener;
 import android.util.DisplayMetrics;
 import android.util.AttributeSet;
 // import android.util.FloatMath;
-import android.util.Log;
 
 public class Cave3DView extends SurfaceView
                         implements SurfaceHolder.Callback
 {
+  // private static final String TAG = "Cave3D SURFACE";
+
   static final int RADIUS1 = 40;
   static final int RADIUS2 = 40;
-  private static final String TAG = "Cave3D";
 
   static final int MODE_MOVE = 0;
   static final int MODE_ZOOM = 1;
@@ -82,7 +84,7 @@ public class Cave3DView extends SurfaceView
 
   void startStationDistance( Cave3DStation station )
   {
-    // Log.v("Cave3D", "set station for distance " + station.name );
+    // Log.v( TAG, "set station for distance " + station.name );
     mStartStation = station;
   }
 

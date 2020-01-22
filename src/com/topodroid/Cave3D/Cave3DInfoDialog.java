@@ -10,6 +10,8 @@
  */
 package com.topodroid.Cave3D;
 
+// import android.util.Log;
+
 import android.os.Bundle;
 import android.app.Dialog;
 // import android.app.Activity;
@@ -29,12 +31,12 @@ import android.widget.ListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
-// import android.util.Log;
-
 public class Cave3DInfoDialog extends Dialog 
                               implements View.OnClickListener
                               , OnItemClickListener
 {
+  // private static final String TAG = "Cave3D INFO";
+
   private Button mBtnOk;
 
   private Cave3D mCave3D;

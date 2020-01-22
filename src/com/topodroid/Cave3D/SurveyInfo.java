@@ -11,7 +11,7 @@
  */
 package com.topodroid.Cave3D;
 
-import android.util.Log;
+// import android.util.Log;
 
 class SurveyInfo
 {

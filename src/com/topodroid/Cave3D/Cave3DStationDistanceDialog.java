@@ -10,6 +10,8 @@
  */
 package com.topodroid.Cave3D;
 
+// import android.util.Log;
+
 import java.io.StringWriter;
 import java.io.PrintWriter;
 
@@ -27,11 +29,11 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.TextView;
 
-// import android.util.Log;
-
 public class Cave3DStationDistanceDialog extends Dialog 
                                  implements View.OnClickListener
 {
+  // private static final String TAG = "Cave3D DISTANCE";
+
     // private Cave3DView mCave3Dview;
     private Context mContext;
     private Cave3DStation  mStation1;

@@ -10,7 +10,7 @@
  */
 package com.topodroid.Cave3D;
 
-import android.util.Log;
+// import android.util.Log;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -35,6 +35,8 @@ import android.widget.Toast;
 public class  Cave3DOpenFileDialog extends Activity
                             implements OnItemClickListener
 {
+  // private static final String TAG = "Cave3D FILE";
+
   // private ArrayAdapter<String> mArrayAdapter;
   private ArrayList< MyFileItem > mItems;
   private MyFileAdapter mArrayAdapter;
@@ -128,7 +130,7 @@ public class  Cave3DOpenFileDialog extends Activity
       updateList( Cave3D.mAppBasePath );
       return;
     }
-    // Log.v("Cave3D-FILE", "FILE " + name );
+    // Log.v( TAG, "FILE " + name );
     Intent intent = new Intent();
     intent.putExtra( "com.topodroid.Cave3D.filename", name );
     setResult( Activity.RESULT_OK, intent );

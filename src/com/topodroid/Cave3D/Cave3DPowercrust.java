@@ -10,16 +10,18 @@
  */
 package com.topodroid.Cave3D;
 
+// import android.util.Log;
+
 //  import android.util.FloatMath;
 
 import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
 
-import android.util.Log;
-
 class Cave3DPowercrust
 {
+  // private static final String TAG = "Cave3D PC";
+
   int np;
   int nf; 
 
@@ -49,7 +51,7 @@ class Cave3DPowercrust
 
   Cave3DPowercrust()
   {
-    // Log.v("Cave3D", "powercrust cstr");
+    // Log.v( TAG, "powercrust cstr");
     initLog();
     resetSites( 3 );
     np = 0;
@@ -60,7 +62,7 @@ class Cave3DPowercrust
   {
     float x, y, z;
     np = nrPoles();
-    // Log.v("Cave3D", "Nr. poles " + np + " Creating vertices ...");
+    // Log.v( TAG, "Nr. poles " + np + " Creating vertices ...");
     Cave3DSite poles[] = new Cave3DSite[ np ];
     for ( int k=0; k<np; ++k ) {
       x = (float)(poleX());
@@ -98,7 +100,7 @@ class Cave3DPowercrust
         ++ large;
       }
     } while ( nextFace() != 0 );
-    // Log.v("Cave3D", "Nr. faces " + nf + " Created faces ... G " + good + " F " + fail + " S " + small + " L " + large );
+    // Log.v( TAG, "Nr. faces " + nf + " Created faces ... G " + good + " F " + fail + " S " + small + " L " + large );
     // release();
     return poles;
   }

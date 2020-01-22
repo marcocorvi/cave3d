@@ -24,11 +24,13 @@ import android.view.View.OnClickListener;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
-import android.util.Log;
+// import android.util.Log;
 
 class MyMenuAdapter extends ArrayAdapter< MyMenuItem >
                     implements OnClickListener
 {
+  // private static final String TAG = "Cave3D MENU";
+
   private ArrayList< MyMenuItem > mItems;
   private Context mContext;
   private OnItemClickListener mListener;
@@ -38,7 +40,7 @@ class MyMenuAdapter extends ArrayAdapter< MyMenuItem >
    */
   MyMenuItem get( int k )
   { 
-    // Log.v("DistoX", "MyMenuAdapter get item at " + k + " of " + mItems.size() );
+    // Log.v( TAG, "MyMenuAdapter get item at " + k + " of " + mItems.size() );
     return ( k < mItems.size() ) ? mItems.get(k) : null ;
   }
 

@@ -10,6 +10,8 @@
  */
 package com.topodroid.Cave3D;
 
+// import android.util.Log;
+
 import java.util.ArrayList;
 
 import android.os.Bundle;
@@ -29,12 +31,12 @@ import android.widget.ListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
-// import android.util.Log;
-
 public class Cave3DSurveysDialog extends Dialog 
                             implements OnItemClickListener
                             // , View.OnClickListener
 {
+  // private static final String TAG = "Cave3D SURVEY";
+
   // private Button mBtnOk;
 
   private Cave3D mCave3D;

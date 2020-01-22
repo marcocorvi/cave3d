@@ -10,11 +10,12 @@
  */
 package com.topodroid.Cave3D;
 
-import android.util.Log;
+// import android.util.Log;
 
 public class Cave3DSurvey
 {
-  private static final String TAG = "Cave3D";
+  // private static final String TAG = "Cave3D SURVEY";
+
   private static int count = 0;
   int number;
 

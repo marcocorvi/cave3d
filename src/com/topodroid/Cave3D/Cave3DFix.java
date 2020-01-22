@@ -10,11 +10,11 @@
  */
 package com.topodroid.Cave3D;
 
-import android.util.Log;
+// import android.util.Log;
 
 public class Cave3DFix
 {
-  private static final String TAG = "Cave3D";
+  // private static final String TAG = "Cave3D";
 
   /** fix station:
    * fix stations are supposed to be referred to the same coord system

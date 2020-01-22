@@ -22,6 +22,8 @@ import android.util.Log;
 
 public class Cave3DTroParser extends Cave3DParser
 {
+  private static final String TAG = "Cave3D TRO";
+
   static final int FLIP_NONE       = 0;
   static final int FLIP_HORIZONTAL = 1;
   static final int FLIP_VERTICAL   = 2;
@@ -71,7 +73,7 @@ public class Cave3DTroParser extends Cave3DParser
     if ( ! checkPath( filename ) ) return false;
 
     int linenr = 0;
-    // Log.v("Cave3D", "DAT file <" + filename + "> station " + station );
+    // Log.v( TAG, "DAT file <" + filename + "> station " + station );
     Cave3DCS cs = null;
     // int in_data = 0; // 0 none, 1 normal, 2 dimension
 
@@ -103,7 +105,7 @@ public class Cave3DTroParser extends Cave3DParser
       line = br.readLine();
       while ( line != null ) {
         line = line.trim();
-        // Log.v("Cave3D", "LINE: " + line );
+        // Log.v( TAG, "LINE: " + line );
         if ( line.startsWith("[Configuration]") ) break;
 
         int pos = line.indexOf(";");
@@ -231,7 +233,7 @@ public class Cave3DTroParser extends Cave3DParser
                     
                   }
                 } catch ( NumberFormatException e ) {
-                  Log.e("Cave3D", "ERROR " + linenr + ": " + line + " " + e.getMessage() );
+                  Log.e( TAG, "Error " + linenr + ": " + line + " " + e.getMessage() );
                 }
               }
             }
@@ -242,10 +244,10 @@ public class Cave3DTroParser extends Cave3DParser
       }
 
     } catch ( IOException e ) {
-      Log.e(TAG, "I/O ERROR " + e.getMessage() );
+      Log.e( TAG, "I/O error " + e.getMessage() );
       throw new Cave3DParserException( filename, linenr );
     }
-    // Log.v("Cave3D-VT", "shots " + shots.size() + " splays " + splays.size() );
+    // Log.v( TAG, "shots " + shots.size() + " splays " + splays.size() );
     return ( shots.size() > 0 );
   }
 
@@ -310,12 +312,12 @@ public class Cave3DTroParser extends Cave3DParser
     if ( fixes.size() == 0 ) {
       Cave3DShot sh = shots.get( 0 );
       fixes.add( new Cave3DFix( sh.from, 0.0f, 0.0f, 0.0f, null ) );
-      // Log.v( "Cave3D-VT", "shots " + shots.size() + " no fixes. starts at " + sh.from );
+      // Log.v( TAG, "shots " + shots.size() + " no fixes. starts at " + sh.from );
     }
  
     int mLoopCnt = 0;
     Cave3DFix f0 = fixes.get( 0 );
-    // Log.v( "Cave3D", "Process Shots. Fix " + f0.name + " " + f0.e + " " + f0.n + " " + f0.z );
+    // Log.v( TAG, "Process Shots. Fix " + f0.name + " " + f0.e + " " + f0.n + " " + f0.z );
 
     mCaveLength = 0.0f;
 
@@ -329,17 +331,17 @@ public class Cave3DTroParser extends Cave3DParser
         // Log.v( TAG, "found fix " + f.name );
         continue;
       }
-      // Log.v(TAG, "start station " + f.name + " N " + f.n + " E " + f.e + " Z " + f.z );
+      // Log.v( TAG, "start station " + f.name + " N " + f.n + " E " + f.e + " Z " + f.z );
       stations.add( new Cave3DStation( f.name, f.e, f.n, f.z ) );
       // sh.from_station = s0;
     
       boolean repeat = true;
       while ( repeat ) {
-        // Log.v(TAG, "scanning the shots");
+        // Log.v( TAG, "scanning the shots");
         repeat = false;
         for ( Cave3DShot sh : shots ) {
           if ( sh.used ) continue;
-          // Log.v(TAG, "check shot " + sh.from + " " + sh.to );
+          // Log.v( TAG, "check shot " + sh.from + " " + sh.to );
           // Cave3DStation sf = sh.from_station;
           // Cave3DStation st = sh.to_station;
           Cave3DStation sf = null;

@@ -10,6 +10,8 @@
  */
 package com.topodroid.Cave3D;
 
+// import android.util.Log;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.FileReader;
@@ -18,10 +20,10 @@ import java.io.StringWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-import android.util.Log;
-
 public class Cave3DLoxParser extends Cave3DParser
 {
+  // private static final String TAG = "Cave3D LOX";
+
   private static float RAD2DEG = (float)(180/Math.PI);
 
   public Cave3DLoxParser( Cave3D cave3d, String filename ) throws Cave3DParserException
@@ -43,7 +45,7 @@ public class Cave3DLoxParser extends Cave3DParser
 
     ArrayList< LoxStation > lox_stations = lox.GetStations();
     ArrayList< LoxShot > lox_shots = lox.GetShots();
-    // Log.v("Cave3D", "stations " + lox_stations.size() + " shots " + lox_shots.size() );
+    // Log.v( TAG, "stations " + lox_stations.size() + " shots " + lox_shots.size() );
 
     for ( LoxStation st : lox_stations ) {
       Cave3DStation station = new Cave3DStation( st.name, (float)st.x, (float)st.y, (float)st.z,
@@ -53,7 +55,7 @@ public class Cave3DLoxParser extends Cave3DParser
       // if ( survey != null ) survey.addStationInfo( station );
     }
     computeBoundingBox();
-    // Log.v(TAG, "E " + emin + " " + emax + " N " + nmin + " " + nmax + " Z " + zmin + " " + zmax );
+    // Log.v( TAG, "E " + emin + " " + emax + " N " + nmin + " " + nmax + " Z " + zmin + " " + zmax );
 
     for ( LoxShot sh : lox_shots ) {
       Cave3DStation f = getStation( sh.from );

@@ -10,6 +10,8 @@
  */
 package com.topodroid.Cave3D;
 
+// import android.util.Log;
+
 import android.os.Bundle;
 import android.app.Dialog;
 // import android.app.Activity;
@@ -28,11 +30,11 @@ import android.widget.CheckBox;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-import android.util.Log;
-
 public class Cave3DWallsDialog extends Dialog 
                               implements View.OnClickListener
 {
+  // private static final String TAG = "Cave3D WALLS";
+
     private Button mBtnOk;
 
     private Context mContext;

@@ -13,11 +13,11 @@ package com.topodroid.Cave3D;
 import java.util.List;
 import java.util.ArrayList;
 
-import android.util.Log;
+// import android.util.Log;
 
 public class WireFrame
 {
-  private static final String TAG = "Cave3D";
+  // private static final String TAG = "Cave3D WF";
 
   private ArrayList< Cave3DStation > mPoint;
   private ArrayList< WireSegment > mSegment;

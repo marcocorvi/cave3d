@@ -28,7 +28,7 @@ import android.util.Log;
 
 class LoxFile
 {
-  final static String TAG = "Cave3D";
+  final static String TAG = "Cave3D LOX";
 
   private class Chunk_t
   {
@@ -192,7 +192,7 @@ class LoxFile
 
   private void readChunks( String filename ) throws Cave3DParserException
   {
-    // Log.v(TAG, "read chunks " + filename );
+    // Log.v( TAG, "read chunks " + filename );
     int type;
     byte int32[] = new byte[ SIZE32 ];
     FileInputStream fis = null;
@@ -203,18 +203,18 @@ class LoxFile
         fis.read( int32, 0, SIZE32 );
         type = toIntLEndian( int32 );
         if ( type < 1 || type > 6 ) {
-          Log.e("Cave3D", "Unexpected chunk type " + type );
+          Log.e( TAG, "Unexpected chunk type " + type );
           return;
         }
         Chunk_t c = new Chunk_t( type );
         fis.read( int32, 0, SIZE32 ); c.rec_size  = toIntLEndian( int32 );
         fis.read( int32, 0, SIZE32 ); c.rec_cnt   = toIntLEndian( int32 );
         fis.read( int32, 0, SIZE32 ); c.data_size = toIntLEndian( int32 );
-        // Log.v(TAG, "Type " + c.type + " RecSize " + c.rec_size + " RecCnt " + c.rec_cnt + " DataSize " + c.data_size );
+        // Log.v( TAG, "Type " + c.type + " RecSize " + c.rec_size + " RecCnt " + c.rec_cnt + " DataSize " + c.data_size );
         if ( c.rec_size > 0 ) {
           c.records = new byte[ c.rec_size ];
           fis.read( c.records, 0, c.rec_size );
-          // Log.v(TAG, c.records[0] + " " + c.records[1] + " " + c.records[2] + " " + c.records[3] + " " + 
+          // Log.v( TAG, c.records[0] + " " + c.records[1] + " " + c.records[2] + " " + c.records[3] + " " + 
           //            c.records[4] + " " + c.records[5] + " " + c.records[6] + " " + c.records[7] );
         }
         if ( c.data_size > 0 ) {
@@ -245,10 +245,10 @@ class LoxFile
         }
       }
     } catch( FileNotFoundException e ) {
-      Log.e("Cave3D", "FILE NOT FOUND ERROR " + e.getMessage() );
+      Log.e( TAG, "File not found " + e.getMessage() );
       throw new Cave3DParserException( filename, linenr );
     } catch( IOException e ) {
-      Log.e("Cave3D", "I/O ERROR " + e.getMessage() );
+      Log.e( TAG, "I/O error " + e.getMessage() );
       throw new Cave3DParserException( filename, linenr );
     } finally {
       try {
@@ -262,7 +262,7 @@ class LoxFile
   {
     mSurveyChunk = chunk;
     int n0 = chunk.rec_cnt;
-    // Log.v("Cave3D", "Handle Survey: Nr. " + n0 );
+    // Log.v( TAG, "Handle Survey: Nr. " + n0 );
     byte[] recs = chunk.records; // as int32
     byte[] data = chunk.data;    // as char
     String name  = null;
@@ -416,7 +416,7 @@ class LoxFile
     c[3]  = toDoubleLEndian( recs, off ); off += SIZEDBL;
     c[4]  = toDoubleLEndian( recs, off ); off += SIZEDBL;
     c[5]  = toDoubleLEndian( recs, off ); off += SIZEDBL;
-    // Log.v("Cave3D", "Surface %d %dx%d Calib %.2f %.2f %.2f %.2f %.2f %.2f", id, ww, hh, c[0], c[1], c[2], c[3], c[4], c[5] );
+    // Log.v( TAG, "Surface %d %dx%d Calib %.2f %.2f %.2f %.2f %.2f %.2f", id, ww, hh, c[0], c[1], c[2], c[3], c[4], c[5] );
 
     int npts = ww * hh;
     // assert( ds == npts * sizeof(double) );

@@ -24,11 +24,13 @@ import android.view.View.OnClickListener;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
-import android.util.Log;
+// import android.util.Log;
 
 class MyFileAdapter extends ArrayAdapter< MyFileItem >
                     implements OnClickListener
 {
+  // private static final String TAG = "Cave3D FILE";
+
   private ArrayList< MyFileItem > mItems;
   private Context mContext;
   private OnItemClickListener mListener;
@@ -38,7 +40,7 @@ class MyFileAdapter extends ArrayAdapter< MyFileItem >
    */
   MyFileItem get( int k )
   { 
-    // Log.v("DistoX", "MyFileAdapter get item at " + k + " of " + mItems.size() );
+    // Log.v( TAG, "MyFileAdapter get item at " + k + " of " + mItems.size() );
     return ( k < mItems.size() ) ? mItems.get(k) : null ;
   }
 

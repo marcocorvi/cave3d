@@ -10,6 +10,8 @@
  */
 package com.topodroid.Cave3D;
 
+// import android.util.Log;
+
 import java.util.ArrayList;
 
 import android.os.Bundle;
@@ -23,8 +25,6 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.TextView;
-
-// import android.util.Log;
 
 public class Cave3DSurveyDialog extends Dialog 
                             // implements OnItemClickListener

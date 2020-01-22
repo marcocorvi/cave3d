@@ -20,5 +20,6 @@ public class ModelType
   static final int CGAL_ASCII = 4;
   static final int LAS_BINARY = 5;
   static final int DXF_ASCII  = 6;
+  static final int SHP_ASCII  = 7;
 }
 

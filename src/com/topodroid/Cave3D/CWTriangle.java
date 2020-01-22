@@ -22,6 +22,8 @@ import android.util.Log;
 
 public class CWTriangle extends CWFacet
 {
+  private static final String TAG = "Cave3D TRI";
+
   private static int cnt = 0;
   static void resetCounter() { cnt = 0; }
 
@@ -136,9 +138,9 @@ public class CWTriangle extends CWFacet
 
   void dump( )
   {
-    Log.v("Cave3D-CV", "Tri " + mCnt + " " + mType + " V " + v1.mCnt + " " + v2.mCnt + " " + v3.mCnt 
-                     + " S " + s1.mCnt + " " + s2.mCnt + " " + s3.mCnt 
-                     // + " U " + un.x + " " + un.y + " " + un.z
+    Log.v( TAG, "Tri " + mCnt + " " + mType + " V " + v1.mCnt + " " + v2.mCnt + " " + v3.mCnt 
+                + " S " + s1.mCnt + " " + s2.mCnt + " " + s3.mCnt 
+                // + " U " + un.x + " " + un.y + " " + un.z
     );
   }
   
@@ -187,12 +189,12 @@ public class CWTriangle extends CWFacet
       if ( b2 >= 0 && b2 <= 1 ) {
         a2 = alpha2( v, n );
         lp2.copy( a2, s3, this, v.plus( n.times(a2) ) );
-        // Log.v("Cave3D", "Tri " + mCnt + " b1 " + b1 + " b2 " + b2 );
+        // Log.v( TAG, "Tri " + mCnt + " b1 " + b1 + " b2 " + b2 );
         return true;
       } else if ( b3 >= 0 && b3 <= 1 ) {
         a3 = alpha3( v, n );
         lp2.copy( a3, s2, this, v.plus( n.times(a3) ) );
-        // Log.v("Cave3D", "Tri " + mCnt + " b1 " + b1 + " b3 " + b3 );
+        // Log.v( TAG, "Tri " + mCnt + " b1 " + b1 + " b3 " + b3 );
         return true;
       }
     } else if ( b2 >= 0 && b2 <= 1 ) {
@@ -201,7 +203,7 @@ public class CWTriangle extends CWFacet
       if ( b3 >= 0 && b3 <= 1 ) {
         a3 = alpha3( v, n );
         lp2.copy( a3, s2, this, v.plus( n.times(a3) ) );
-        // Log.v("Cave3D", "Tri " + mCnt + " b2 " + b2 + " b3 " + b3 );
+        // Log.v( TAG, "Tri " + mCnt + " b2 " + b2 + " b3 " + b3 );
         return true;
       }
     }

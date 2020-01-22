@@ -23,111 +23,82 @@
 
     <LinearLayout
       android:layout_width="fill_parent" 
-      android:layout_height="wrap_content"
+      android:layout_height="fill_parent"
       android:orientation="horizontal"
       android:layout_marginTop="10dp"
       >
-      <CheckBox android:id="@+id/splay"
-          android:layout_width="0dp"
-          android:layout_height="wrap_content"
-          android:layout_weight="50"
-          android:layout_marginLeft="10dp"
-          android:text="splays"
-        />
+      <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="50"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="10dp"
+        >
+        <CheckBox android:id="@+id/station"
+            android:layout_width="fill_parent" 
+            android:layout_height="wrap_content"
+            android:text="stations"
+          />
+        <CheckBox android:id="@+id/splay"
+            android:layout_width="fill_parent" 
+            android:layout_height="wrap_content"
+            android:text="splays"
+          />
+        <CheckBox android:id="@+id/walls"
+            android:layout_width="fill_parent" 
+            android:layout_height="wrap_content"
+            android:text="walls"
+          />
+        <CheckBox android:id="@+id/surface"
+            android:layout_width="fill_parent" 
+            android:layout_height="wrap_content"
+            android:text="surface"
+          />
+      </LinearLayout>
 
-      <CheckBox android:id="@+id/walls"
-          android:layout_width="0dp"
+      <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="50"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="10dp"
+        >
+        <CheckBox android:id="@+id/stl_binary"
+          android:layout_width="fill_parent"
           android:layout_height="wrap_content"
-          android:layout_weight="50"
-          android:layout_marginLeft="10dp"
-          android:text="walls"
+          android:text="STL-bin"
         />
-    </LinearLayout>
-    <LinearLayout
-      android:layout_width="fill_parent" 
-      android:layout_height="wrap_content"
-      android:orientation="horizontal"
-      android:layout_marginTop="10dp"
-      >
-      <CheckBox android:id="@+id/surface"
-          android:layout_width="0dp"
+        <CheckBox android:id="@+id/stl_ascii"
+          android:layout_width="fill_parent"
           android:layout_height="wrap_content"
-          android:layout_weight="50"
-          android:layout_marginLeft="10dp"
-          android:text="surface"
+          android:text="STL"
         />
-      <CheckBox android:id="@+id/station"
-          android:layout_width="0dp"
+        <CheckBox android:id="@+id/kml_ascii"
+          android:layout_width="fill_parent"
           android:layout_height="wrap_content"
-          android:layout_weight="50"
-          android:layout_marginLeft="10dp"
-          android:text="stations"
+          android:text="KML"
         />
-    </LinearLayout>
-
-    <LinearLayout
-      android:layout_width="fill_parent" 
-      android:layout_height="wrap_content"
-      android:orientation="horizontal"
-      android:layout_marginTop="20dp"
-      >
-      <CheckBox android:id="@+id/stl_binary"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="50"
-        android:layout_marginRight="10dp"
-        android:text="STL-bin"
-      />
-      <CheckBox android:id="@+id/stl_ascii"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="50"
-        android:layout_marginRight="10dp"
-        android:text="STL"
-      />
-    </LinearLayout>
-
-    <LinearLayout
-      android:layout_width="fill_parent" 
-      android:layout_height="wrap_content"
-      android:orientation="horizontal"
-      android:layout_marginTop="10dp"
-      >
-      <CheckBox android:id="@+id/kml_ascii"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="50"
-        android:layout_marginRight="10dp"
-        android:text="KML"
-      />
-      <CheckBox android:id="@+id/cgal_ascii"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="50"
-        android:layout_marginRight="10dp"
-        android:text="CGAL"
-      />
-    </LinearLayout>
-    <LinearLayout
-      android:layout_width="fill_parent" 
-      android:layout_height="wrap_content"
-      android:orientation="horizontal"
-      android:layout_marginTop="10dp"
-      >
-      <CheckBox android:id="@+id/dxf_ascii"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="50"
-        android:layout_marginRight="10dp"
-        android:text="DXF"
-      />
-      <CheckBox android:id="@+id/las_binary"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="50"
-        android:layout_marginRight="10dp"
-        android:text="LAS"
-      />
+        <CheckBox android:id="@+id/cgal_ascii"
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:text="CGAL"
+        />
+        <CheckBox android:id="@+id/dxf_ascii"
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:text="DXF"
+        />
+        <CheckBox android:id="@+id/shp_ascii"
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:text="SHP"
+        />
+        <CheckBox android:id="@+id/las_binary"
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:text="LAS-bin"
+        />
+      </LinearLayout>
     </LinearLayout>
 
     <LinearLayout

@@ -47,6 +47,8 @@ import java.util.Locale;
 @SuppressWarnings("SyntaxError")
 class DataHelper extends DataSetObservable
 {
+  private static final String TAG = "Cave3D DB";
+
   private static final String SURVEY_TABLE = "surveys";
   private static final String SHOT_TABLE   = "shots";
 
@@ -85,7 +87,7 @@ class DataHelper extends DataSetObservable
     try {
         myDB = openHelper.getWritableDatabase();
         if ( myDB == null ) {
-          // Log.v("TdManager", "failed get writable database" );
+          // Log.v( TAG, "failed get writable database" );
           return;
         }
 
@@ -103,12 +105,12 @@ class DataHelper extends DataSetObservable
 
   private void logError( String msg, Exception e )
   {
-    Log.e("TdManager", "DB " + msg + ": " + e.getMessage() );
+    Log.e( TAG, msg + ": " + e.getMessage() );
   }
 
   private void handleDiskIOError( SQLiteDiskIOException e )
   {
-    Log.e("TdManager", "DB disk error " + e.getMessage() );
+    Log.e( TAG, "disk error " + e.getMessage() );
   }
 
   // long getSurveyIdFromName( String name ) 
@@ -187,6 +189,28 @@ class DataHelper extends DataSetObservable
     return info;
   }
 
+  List<SurveyFixed> getSurveyFixeds( long sid )
+  {
+    if ( myDB == null ) return null;
+    List<SurveyFixed> ret = new ArrayList<SurveyFixed>();
+    Cursor cursor = myDB.query( "fixeds", // FIXED_TABLE,
+                               new String[] { "station", "longitude", "latitude", "altitude", "altimetric" }, // columns
+                               WHERE_SID, new String[] { Long.toString(sid) },
+                               null, null, null );
+    if (cursor.moveToFirst()) {
+      do {
+        SurveyFixed fixed = new SurveyFixed( cursor.getString(0) );
+        fixed.mLongitude  = cursor.getDouble(1); // longitude
+        fixed.mLatitude   = cursor.getDouble(2);
+        fixed.mAltitude   = cursor.getDouble(3);
+        fixed.mAltimetric = cursor.getDouble(4);
+        ret.add( fixed );
+      } while (cursor.moveToNext());
+    }
+    if ( /* cursor != null && */ !cursor.isClosed()) cursor.close();
+    return ret;
+  }
+
   // ----------------------------------------------------------------------
 
   @SuppressWarnings("SyntaxError")
@@ -197,7 +221,7 @@ class DataHelper extends DataSetObservable
      DistoXOpenHelper(Context context, String database_name, int db_version ) 
      {
         super(context, database_name, null, db_version ); 
-        // Log.v("DistoX", "DB NAME " + database_name );
+        // Log.v( TAG, "NAME " + database_name );
      }
 
      @Override

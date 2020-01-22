@@ -10,6 +10,8 @@
  */
 package com.topodroid.Cave3D;
 
+import android.util.Log;
+
 import java.io.File;
 import java.io.FileFilter;
 
@@ -40,12 +42,12 @@ import android.widget.CheckBox;
 // import android.widget.RadioButton;
 import android.widget.Toast;
 
-import android.util.Log;
-
 public class Cave3DExportDialog extends Dialog 
                                 implements View.OnClickListener
                                          , AdapterView.OnItemClickListener
 {
+  private static final String TAG = "Cave3D EXPORT";
+
     private Button mBtnOk;
 
     private Context mContext;
@@ -60,6 +62,7 @@ public class Cave3DExportDialog extends Dialog
     private CheckBox mCgalAscii;
     private CheckBox mLasBinary;
     private CheckBox mDxfAscii;
+    private CheckBox mShpAscii;
 
     private CheckBox mSplay;
     private CheckBox mWalls;
@@ -111,6 +114,7 @@ public class Cave3DExportDialog extends Dialog
       mCgalAscii  = (CheckBox) findViewById( R.id.cgal_ascii );
       mLasBinary  = (CheckBox) findViewById( R.id.las_binary );
       mDxfAscii   = (CheckBox) findViewById( R.id.dxf_ascii );
+      mShpAscii   = (CheckBox) findViewById( R.id.shp_ascii );
       // mDebug  = (RadioButton) findViewById( R.id.debug );
 
       mStlBinary.setOnClickListener( this );
@@ -119,9 +123,10 @@ public class Cave3DExportDialog extends Dialog
       mCgalAscii.setOnClickListener( this );
       mLasBinary.setOnClickListener( this );
       mDxfAscii.setOnClickListener( this );
+      mShpAscii.setOnClickListener( this );
       // mDebug.setOnClickListener( this );
 
-      mDxfAscii.setChecked( true );
+      mShpAscii.setChecked( true );
 
       mSplay   = (CheckBox) findViewById( R.id.splay );
       mWalls   = (CheckBox) findViewById( R.id.walls );
@@ -144,7 +149,7 @@ public class Cave3DExportDialog extends Dialog
         dirname = dirname.substring( 0, len-1 );
         -- len;
       }
-      // Log.v("Cave3D", "DIR <" + dirname + ">" );
+      // Log.v( TAG, "DIR <" + dirname + ">" );
 
       mDirname = dirname;
       len = dirname.length();
@@ -236,8 +241,11 @@ public class Cave3DExportDialog extends Dialog
         } else if ( mLasBinary.isChecked() ) {
           mRenderer.exportModel( ModelType.LAS_BINARY, pathname, splays, walls, station, overwrite );
         } else if ( mDxfAscii.isChecked() ) {
-          // Log.v("Cave3D", "export DXF" );
+          // Log.v( TAG, "export DXF" );
           mRenderer.exportModel( ModelType.DXF_ASCII, pathname, splays, walls, station, overwrite );
+        } else if ( mShpAscii.isChecked() ) {
+          // Log.v( TAG, "export DXF" );
+          mRenderer.exportModel( ModelType.SHP_ASCII, pathname, splays, walls, station, overwrite );
         } else {
           mRenderer.exportModel( ModelType.SERIAL, pathname, splays, walls, surface, overwrite );
         }
@@ -254,6 +262,7 @@ public class Cave3DExportDialog extends Dialog
           mCgalAscii.setChecked( false );
           mLasBinary.setChecked( false );
           mDxfAscii.setChecked( false );
+          mShpAscii.setChecked( false );
         }
         return;
       } else if ( v.getId() == R.id.stl_ascii ) {
@@ -263,6 +272,7 @@ public class Cave3DExportDialog extends Dialog
           mCgalAscii.setChecked( false );
           mLasBinary.setChecked( false );
           mDxfAscii.setChecked( false );
+          mShpAscii.setChecked( false );
         }
         return;
       } else if ( v.getId() == R.id.kml_ascii ) {
@@ -272,6 +282,7 @@ public class Cave3DExportDialog extends Dialog
           mCgalAscii.setChecked( false );
           mLasBinary.setChecked( false );
           mDxfAscii.setChecked( false );
+          mShpAscii.setChecked( false );
         }
         return;
       } else if ( v.getId() == R.id.cgal_ascii ) {
@@ -281,6 +292,7 @@ public class Cave3DExportDialog extends Dialog
           mKmlAscii.setChecked( false );
           mLasBinary.setChecked( false );
           mDxfAscii.setChecked( false );
+          mShpAscii.setChecked( false );
         }
         return;
       } else if ( v.getId() == R.id.las_binary ) {
@@ -290,6 +302,7 @@ public class Cave3DExportDialog extends Dialog
           mKmlAscii.setChecked( false );
           mCgalAscii.setChecked( false );
           mDxfAscii.setChecked( false );
+          mShpAscii.setChecked( false );
         }
         return;
       } else if ( v.getId() == R.id.dxf_ascii ) {
@@ -299,8 +312,18 @@ public class Cave3DExportDialog extends Dialog
           mKmlAscii.setChecked( false );
           mCgalAscii.setChecked( false );
           mLasBinary.setChecked( false );
+          mShpAscii.setChecked( false );
         }
         return;
+      } else if ( v.getId() == R.id.shp_ascii ) {
+        if ( mShpAscii.isChecked() ) {
+          mStlBinary.setChecked( false );
+          mStlAscii.setChecked( false );
+          mKmlAscii.setChecked( false );
+          mCgalAscii.setChecked( false );
+          mLasBinary.setChecked( false );
+          mDxfAscii.setChecked( false );
+        }
       }
       dismiss();
     }

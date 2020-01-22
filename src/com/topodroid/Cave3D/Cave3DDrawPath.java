@@ -18,7 +18,7 @@ import android.util.Log;
 
 public class Cave3DDrawPath // implements Renderer
 {
-  private static final String TAG = "Cave3D";
+  // private static final String TAG = "Cave3D PATH";
 
   Path path;
   Paint paint;

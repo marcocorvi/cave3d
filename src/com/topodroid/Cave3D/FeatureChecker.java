@@ -42,7 +42,7 @@ class FeatureChecker
 
   static void createPermissions( Context context, Activity activity )
   {
-    // TDLog.Log( LOG_PERM, "create permissions" );
+    // Log.v( TAG, "create permissions" );
     MustRestart = false;
     // FIXME-23
     if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.M ) return;

@@ -32,6 +32,8 @@ import android.widget.RadioButton;
 public class FractalDialog extends Dialog 
                            implements View.OnClickListener
 {
+  // private static final String TAG = "Cave3D FRACTAL";
+
   private Cave3D   mCave3d;
   private Context  mContext;
   private CheckBox mCBsplays;

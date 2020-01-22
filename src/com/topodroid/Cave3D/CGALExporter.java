@@ -11,6 +11,8 @@
  */
 package com.topodroid.Cave3D;
 
+import android.util.Log;
+
 import java.util.Locale;
 import java.util.List;
 import java.util.ArrayList;
@@ -23,10 +25,10 @@ import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import android.util.Log;
-
 public class CGALExporter
 {
+  private static final String TAG = "Cave3D CGAL";
+
   // ArrayList<CWFacet> mFacets;
   // float lat, lng, asl;
   float s_radius = 1;
@@ -38,7 +40,7 @@ public class CGALExporter
   boolean exportASCII( String filename, Cave3DParser data, boolean do_splays, boolean do_walls, boolean do_station )
   {
     // String name = "Cave3D";
-    // Log.v("DistoX", "export as CGAL " + filename );
+    // Log.v( TAG, "export as CGAL " + filename );
 
     List< Cave3DStation> stations = data.getStations();
     List< Cave3DShot>    shots    = data.getShots();
@@ -79,7 +81,7 @@ public class CGALExporter
       fw.close();
       return true;
     } catch ( IOException e ) {
-      // TDLog.Error( "Failed KML export: " + e.getMessage() );
+      // Log.e( TAG, "Failed export: " + e.getMessage() );
       return false;
     }
   }

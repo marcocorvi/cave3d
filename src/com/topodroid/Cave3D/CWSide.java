@@ -31,6 +31,8 @@ import android.util.Log;
  */
 public class CWSide
 {
+  private static final String TAG = "Cave3D SIDE";
+
   static int cnt = 0;
   static void resetCounter() { cnt = 0; }
 
@@ -131,8 +133,8 @@ public class CWSide
 
   void dump( )
   {
-    Log.v("Cave3D-CV", "Side " + mCnt + " P " + p1.mCnt + "-" + p2.mCnt 
-                     + " T " + ((t1 == null)? "-" : t1.mCnt) + " " + ((t2 == null)? "-" : t2.mCnt)
+    Log.v( TAG, "Side " + mCnt + " P " + p1.mCnt + "-" + p2.mCnt 
+                + " T " + ((t1 == null)? "-" : t1.mCnt) + " " + ((t2 == null)? "-" : t2.mCnt)
     );
   }
 

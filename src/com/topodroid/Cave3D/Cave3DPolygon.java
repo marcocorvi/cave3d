@@ -11,12 +11,12 @@
  */
 package com.topodroid.Cave3D;
 
+// import android.util.Log;
+
 import java.io.StringWriter;
 import java.io.PrintWriter;
 
 import java.util.ArrayList;
-
-import android.util.Log;
 
 class Cave3DPolygon
 {

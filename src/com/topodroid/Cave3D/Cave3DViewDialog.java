@@ -28,11 +28,13 @@ import android.widget.CheckBox;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-import android.util.Log;
+// import android.util.Log;
 
 public class Cave3DViewDialog extends Dialog 
                               implements View.OnClickListener
 {
+  // private static final Struing TAG = "Cave3D VIEW";
+
     private Button mBtnOk;
 
     private Context mContext;

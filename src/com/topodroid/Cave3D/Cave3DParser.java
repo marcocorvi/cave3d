@@ -21,11 +21,11 @@ import java.util.regex.Pattern;
 
 import android.widget.Toast;
 
-import android.util.Log;
+// import android.util.Log;
 
 public class Cave3DParser
 {
-  protected static final String TAG = "Cave3D Parser";
+  // private static final String TAG = "Cave3D Parser";
 
   boolean do_render; // whether ready to render
   Cave3D mCave3D;
@@ -216,7 +216,7 @@ public class Cave3DParser
    */
   ArrayList< Cave3DShot > getLegsAt( Cave3DStation station )
   {
-    // Log.v("Cave3D", "get legs at " + station.name );
+    // Log.v( TAG, "get legs at " + station.name );
     ArrayList< Cave3DShot > ret = new ArrayList< Cave3DShot >();
     for ( Cave3DShot shot : shots ) { // add survey legs too1
       if ( shot.from_station == station ) {
@@ -236,27 +236,27 @@ public class Cave3DParser
    */
   ArrayList< Cave3DShot > getLegsAt( Cave3DStation station, Cave3DStation other )
   {
-    // Log.v("Cave3D", "get legs at " + station.name + " other " + other.name );
+    // Log.v( TAG, "get legs at " + station.name + " other " + other.name );
     ArrayList< Cave3DShot > ret = new ArrayList< Cave3DShot >();
     for ( Cave3DShot shot : shots ) { // add survey legs too1
       if ( shot.from_station == station ) {
         if ( shot.to_station == other ) {
-          // Log.v("Cave3D", "add direct shot " + shot.from + "-" + shot.to );
+          // Log.v( TAG, "add direct shot " + shot.from + "-" + shot.to );
           ret.add( shot );
         } else {
-          // Log.v("Cave3D", "add other shot " + shot.to + "-" + shot.from );
+          // Log.v( TAG, "add other shot " + shot.to + "-" + shot.from );
           double b = shot.ber + Math.PI;
           if ( b > 2*Math.PI ) b -= 2*Math.PI;
           ret.add( new Cave3DShot( null, null, shot.len, (float)b, -shot.cln) ); // stations not important
         }
       } else if ( shot.to_station == station ) {
         if ( shot.from_station == other ) {
-          // Log.v("Cave3D", "add reversed shot " + shot.to + "-" + shot.from );
+          // Log.v( TAG, "add reversed shot " + shot.to + "-" + shot.from );
           double b = shot.ber + Math.PI;
           if ( b > 2*Math.PI ) b -= 2*Math.PI;
           ret.add( new Cave3DShot( null, null, shot.len, (float)b, -shot.cln) ); // stations not important
         } else {
-          // Log.v("Cave3D", "add other shot " + shot.from + "-" + shot.to );
+          // Log.v( TAG, "add other shot " + shot.from + "-" + shot.to );
           ret.add( shot );
         }
       }
@@ -302,7 +302,7 @@ public class Cave3DParser
     do_render = false;
     // Toast.makeText( cave3d, "Reading " + filename, Toast.LENGTH_SHORT ).show();
 
-    // Log.v("Cave3D", "parsing " + filename );
+    // Log.v( TAG, "parsing " + filename );
     int pos = filename.lastIndexOf('/');
     if ( pos > 0 ) {
       mName = filename.substring(pos+1);

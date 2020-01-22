@@ -10,11 +10,11 @@
  */
 package com.topodroid.Cave3D;
 
-import android.util.Log;
+// import android.util.Log;
 
 public class WireSegment
 {
-  private static final String TAG = "Cave3D";
+  // private static final String TAG = "Cave3D WS";
 
   Cave3DStation wp1;
   Cave3DStation wp2;

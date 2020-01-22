@@ -22,6 +22,8 @@ import android.util.Log;
 
 public class CWPoint extends Cave3DVector
 {
+  private static final String TAG = "Cave3D VECTOR";
+
   private static int cnt = 0;
   static void resetCounter() { cnt = 0; }
 
@@ -109,7 +111,7 @@ public class CWPoint extends Cave3DVector
   {
     StringBuilder sb = new StringBuilder();
     for ( CWTriangle t : mTriangle ) sb.append( "-" + t.mCnt );
-    Log.v("Cave3D-CV", "Point " + mCnt + " T" + sb.toString() + " " + x + " " + y + " " + z );
+    Log.v( TAG, "Point " + mCnt + " T" + sb.toString() + " " + x + " " + y + " " + z );
   }
   
   void serialize( PrintWriter out )

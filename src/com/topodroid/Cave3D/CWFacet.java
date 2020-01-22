@@ -16,10 +16,12 @@ import java.io.PrintWriter;
 // import java.io.PrintStream;
 // import java.io.IOException;
 
-import android.util.Log;
+// import android.util.Log;
 
 public class CWFacet
 {
+  // private static final String TAG = "Cave3D FACET";
+
   CWPoint v1, v2, v3;
   protected Cave3DVector u;  // (v2-v1)x(v3-v1): U points "inside"
   Cave3DVector un; // u normalized
@@ -236,7 +238,7 @@ public class CWFacet
 		}
 	}
 	// check
-	// Log.v("Cave3D", "t " + mCnt + " intersection with " + t.mCnt + " " 
+	// Log.v( TAG, "t " + mCnt + " intersection with " + t.mCnt + " " 
 	//    + un.dot(ret.minus(v1)) + " " + t.un.dot(ret.minus(t.v1)) );
 	return ret;
   }

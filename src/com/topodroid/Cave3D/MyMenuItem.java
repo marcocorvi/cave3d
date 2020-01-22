@@ -30,10 +30,12 @@ import android.view.View.OnClickListener;
 // import android.text.Layout;
 import android.widget.LinearLayout;
 
-import android.util.Log;
+// import android.util.Log;
 
 class MyMenuItem extends TextView
 {
+  // private static final String TAG = "Cave3D MENU";
+
   // TextView     mTextView = null;
   // LinearLayout mView;
   OnClickListener mListener;
@@ -75,7 +77,7 @@ class MyMenuItem extends TextView
         mTouch = false;
         setBackgroundColor( 0xff333333 );
       }
-      // Log.v("DistoX", "XY " + ev.getX() + " " + ev.getY() );
+      // Log.v( TAG, "XY " + ev.getX() + " " + ev.getY() );
     } else if ( action == MotionEvent.ACTION_UP ) {
       setBackgroundColor( 0xff333333 );
       if ( mTouch ) mListener.onClick( this );

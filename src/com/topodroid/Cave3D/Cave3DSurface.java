@@ -17,7 +17,7 @@ import android.util.Log;
 
 public class Cave3DSurface
 {
-  private static final String TAG = "Cave3D";
+  private static final String TAG = "Cave3D SURFACE";
 
   double mEast1, mNorth1, mEast2, mNorth2;
   double[] mZ;  // vertical (upwards)
@@ -159,10 +159,10 @@ public class Cave3DSurface
       }
     } catch ( IOException e ) {
       // TODO
-      Log.e(TAG, "exception " + e.toString() );
+      Log.e( TAG, "exception " + e.getMessage() );
       throw new Cave3DParserException( filename, linenr );
     }
-    // Log.v( "Cave3D", "surface data: rows " + y );
+    // Log.v( TAG, "surface data: rows " + y );
   }
 
   // used to set the grid data to the LoxSurface grid

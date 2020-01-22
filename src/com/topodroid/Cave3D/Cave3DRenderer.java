@@ -10,6 +10,8 @@
  */
 package com.topodroid.Cave3D;
 
+import android.util.Log;
+
 // import java.io.PrintStream;
 import java.io.File;
 import java.io.PrintWriter;
@@ -39,11 +41,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Stack;
 
-import android.util.Log;
-
 public class Cave3DRenderer // implements Renderer
 {
-  private static final String TAG = "Cave3D";
+  private static final String TAG = "Cave3D RENDER";
 
   private static float RAD2DEG = (float)(180/Math.PI);
   static float PI             = (float)(Math.PI);
@@ -696,16 +696,16 @@ public class Cave3DRenderer // implements Renderer
     try {
       resetAllPaths();
       mParser = new Cave3DThParser( cave3d, survey, base ); // survey data directly from TopoDroid database
-      // Log.v("DistoX-Cave3D", "Station " + mParser.getStationNumber() + " shot " + mParser.getShotNumber() );
+      // Log.v( TAG, "Station " + mParser.getStationNumber() + " shot " + mParser.getShotNumber() );
       mCave3D = cave3d;
       CWConvexHull.resetCounters();
       prepareModel();
     } catch ( Cave3DParserException e ) {
       // Log.v( TAG, "parser exception " + filename );
-      cave3d.toast(R.string.error_parser_error, survey + " " + e.msg() );
+      cave3d.toast(R.string.error_parser_error, survey + " " + e.msg(), true );
       mParser = null;
     }
-    // Log.v("DistoX-Cave3D", "renderer ready" );
+    // Log.v( TAG, "renderer ready" );
     return hasParser(); 
   }
 
@@ -727,7 +727,7 @@ public class Cave3DRenderer // implements Renderer
       } else {
         return false;
       }
-      // Log.v("Cave3D", "Station " + mParser.getStationNumber() + " shot " + mParser.getShotNumber() );
+      // Log.v( TAG, "Station " + mParser.getStationNumber() + " shot " + mParser.getShotNumber() );
       mCave3D = cave3d;
       CWConvexHull.resetCounters();
       prepareModel();
@@ -735,7 +735,7 @@ public class Cave3DRenderer // implements Renderer
       // computeProjection();
     } catch ( Cave3DParserException e ) {
       // Log.v( TAG, "parser exception " + filename );
-      cave3d.toast(R.string.error_parser_error, filename + " " + e.msg() );
+      cave3d.toast(R.string.error_parser_error, filename + " " + e.msg(), true );
       mParser = null;
     }
     return hasParser(); 
@@ -795,7 +795,7 @@ public class Cave3DRenderer // implements Renderer
       projs_surface_N = null;
     }
 
-    // Log.v("Cave3D", "make walls");
+    // Log.v( TAG, "make walls");
 
     // synchronized( paths_walls ) {
     //   makeConvexHull();
@@ -877,7 +877,7 @@ public class Cave3DRenderer // implements Renderer
               if ( b ) {
                 mCave3D.toast( R.string.done_convexhull );
               } else {
-                mCave3D.toast( R.string.fail_convexhull );
+                mCave3D.toast( R.string.fail_convexhull, true );
               }
             }
         }).execute();
@@ -905,7 +905,7 @@ public class Cave3DRenderer // implements Renderer
           ArrayList< Cave3DShot > legs2 = mParser.getLegsAt( st, sf );
           ArrayList< Cave3DShot > splays1 = mParser.getSplayAt( sf, false );
           ArrayList< Cave3DShot > splays2 = mParser.getSplayAt( st, false );
-          // Log.v("Cave3D", "splays at " + sf.name + " " + splays1.size() + " at " + st.name + " " + splays2.size() );
+          // Log.v( TAG, "splays at " + sf.name + " " + splays1.size() + " at " + st.name + " " + splays2.size() );
           // if ( splays1.size() > 0 && splays2.size() > 0 ) 
           {
             if ( WALL_HULL < WALL_MAX && Cave3D.mWallHull ) {
@@ -919,7 +919,7 @@ public class Cave3DRenderer // implements Renderer
         if ( h.triangles != null ) {
           for ( Cave3DTriangle t : h.triangles ) {
             triangles_hull.add( t );
-            // Log.v("Cave3D", t.toString() );
+            // Log.v( TAG, t.toString() );
           }
         }
       }
@@ -972,7 +972,7 @@ public class Cave3DRenderer // implements Renderer
               if ( b ) {
                 mCave3D.toast(  R.string.done_powercrust );
               } else {
-                mCave3D.toast( R.string.fail_powercrust );
+                mCave3D.toast( R.string.fail_powercrust, true );
               }
             }
         }).execute();
@@ -1436,7 +1436,7 @@ public class Cave3DRenderer // implements Renderer
       }
 
       mWireFrame.makeFrame( max, nn );
-      // Log.v("Cave3D", "number of wires " + mWireFrame.getSegments().size() );
+      // Log.v( TAG, "number of wires " + mWireFrame.getSegments().size() );
     }
   }
 
@@ -1779,7 +1779,7 @@ public class Cave3DRenderer // implements Renderer
     if ( do_paths_frame ) {
       do_paths_frame = false;
       synchronized( paths_frame ) {
-        // Log.v("Cave3D", "compute paths: frame ");
+        // Log.v( TAG, "compute paths: frame ");
         paths_frame.clear();
         if ( frameMode == FRAME_FRAME ) {
           // view frame
@@ -1897,7 +1897,7 @@ public class Cave3DRenderer // implements Renderer
     if ( do_paths_surface ) {
       do_paths_surface = false;
       synchronized( paths_surface ) {
-        // Log.v("Cave3D", "compute paths: surface ");
+        // Log.v( TAG, "compute paths: surface ");
         paths_surface.clear();
         if ( do_surface ) {
           int n1 = mSurface.mNr1;
@@ -1968,7 +1968,7 @@ public class Cave3DRenderer // implements Renderer
     if ( do_paths_legs ) {
       do_paths_legs = false;
       synchronized( paths_legs ) {
-        // Log.v("Cave3D", "compute paths: legs ");
+        // Log.v( TAG, "compute paths: legs ");
         paths_legs.clear();
         switch ( colorMode ) {
           case COLOR_NONE:
@@ -2030,7 +2030,7 @@ public class Cave3DRenderer // implements Renderer
     if ( do_paths_splays ) {
       do_paths_splays = false;
       synchronized( paths_splays ) {
-        // Log.v("Cave3D", "compute paths: splays ");
+        // Log.v( TAG, "compute paths: splays ");
         paths_splays.clear();
         paths_wires.clear();
         if ( do_splays == DO_SPLAY_SHOT ) {
@@ -2060,7 +2060,7 @@ public class Cave3DRenderer // implements Renderer
     if ( do_paths_stations ) {
       do_paths_stations = false;
       synchronized( paths_stations ) {
-        // Log.v("Cave3D", "compute paths: stations ");
+        // Log.v( TAG, "compute paths: stations ");
         paths_stations.clear();
         if ( do_stations ) {
           for ( Cave3DStation st : stations ) {
@@ -2073,7 +2073,7 @@ public class Cave3DRenderer // implements Renderer
     if ( do_paths_walls ) {
       do_paths_walls = false;
       synchronized( paths_walls ) {
-        // Log.v("Cave3D", "compute paths: walls ");
+        // Log.v( TAG, "compute paths: walls ");
         paths_walls.clear();
 
         if ( wall_mode == WALL_CW && convexhullcomputer != null /* && Cave3D.mWallConvexHull */ ) {
@@ -2106,7 +2106,7 @@ public class Cave3DRenderer // implements Renderer
         if ( Cave3D.mSplitTriangles ) {
           // synchronized( paths_borders )
           {
-            // Log.v("Cave3D", "compute paths: borders ");
+            // Log.v( TAG, "compute paths: borders ");
             paths_borders.clear();
             if ( wall_mode == WALL_CW && convexhullcomputer != null ) {
               for ( CWBorder cb : convexhullcomputer.getBorders() ) {
@@ -2292,9 +2292,9 @@ public class Cave3DRenderer // implements Renderer
           // TODO
         }
       } catch ( FileNotFoundException e ) { 
-        mCave3D.toast( R.string.error_file_not_found );
+        mCave3D.toast( R.string.error_file_not_found, true );
       } catch ( IOException e ) {
-        mCave3D.toast( R.string.error_io_exception );
+        mCave3D.toast( R.string.error_io_exception, true );
       } finally {
         if ( fw != null ) {
           try {
@@ -2308,6 +2308,15 @@ public class Cave3DRenderer // implements Renderer
     // }
   }
 
+  boolean checkFile( String pathname, boolean overwrite )
+  {
+    if ( (new File(pathname)).exists() && ! overwrite ) {
+      mCave3D.toast(R.string.warning_not_overwrite, pathname);
+      return false;
+    }
+    return true;
+  }
+
   void exportModel( int type, String pathname, boolean b_splays, boolean b_walls, boolean b_surface, boolean overwrite )
   { 
       
@@ -2315,10 +2324,7 @@ public class Cave3DRenderer // implements Renderer
       if ( ! pathname.endsWith(".txt") ) {
         pathname = pathname + ".txt";
       } 
-      if ( (new File(pathname)).exists() && ! overwrite ) {
-        mCave3D.toast(R.string.warning_not_overwrite, pathname);
-        return;
-      }
+      if ( ! checkFile(pathname, overwrite ) ) return;
       serializeWalls( pathname );
     } else {                          // model export 
       boolean ret = false;
@@ -2326,79 +2332,90 @@ public class Cave3DRenderer // implements Renderer
         if ( ! pathname.endsWith(".kml") ) {
           pathname = pathname + ".kml";
         } 
-        if ( (new File(pathname)).exists() && ! overwrite ) {
-          mCave3D.toast(R.string.warning_not_overwrite, pathname);
-          return;
-        }
+        if ( ! checkFile(pathname, overwrite ) ) return;
         KMLExporter kml = new KMLExporter();
-        if ( convexhullcomputer != null ) {
-          for( CWConvexHull cw : convexhullcomputer.getWalls() ) {
-            synchronized( cw ) {
-              for ( CWTriangle f : cw.mFace ) kml.add( f );
+        if ( b_walls ) {
+          if ( convexhullcomputer != null ) {
+            for( CWConvexHull cw : convexhullcomputer.getWalls() ) {
+              synchronized( cw ) {
+                for ( CWTriangle f : cw.mFace ) kml.add( f );
+              }
             }
+          } else if ( powercrustcomputer != null && powercrustcomputer.hasTriangles() ) {
+            kml.mTriangles = powercrustcomputer.getTriangles();
           }
-        } else if ( powercrustcomputer != null && powercrustcomputer.hasTriangles() ) {
-          kml.mTriangles = powercrustcomputer.getTriangles();
         }
         ret = kml.exportASCII( pathname, mParser, b_splays, b_walls, b_surface );
       } else if ( type == ModelType.CGAL_ASCII ) { // CGAL export: only stations and splay-points
         if ( ! pathname.endsWith(".cgal") ) {
           pathname = pathname + ".cgal";
         }
-        if ( (new File(pathname)).exists() && ! overwrite ) {
-          mCave3D.toast(R.string.warning_not_overwrite, pathname);
-          return;
-        }
+        if ( ! checkFile(pathname, overwrite ) ) return;
         CGALExporter cgal = new CGALExporter();
         ret = cgal.exportASCII( pathname, mParser, b_splays, b_walls, b_surface );
       } else if ( type == ModelType.LAS_BINARY ) { // LAS v. 1.2
         if ( ! pathname.endsWith(".las") ) {
 	  pathname = pathname + ".las";
         }
-        if ( (new File(pathname)).exists() && ! overwrite ) {
-          mCave3D.toast(R.string.warning_not_overwrite, pathname);
-          return;
-        }
+        if ( ! checkFile(pathname, overwrite ) ) return;
         ret = LASExporter.exportBinary( pathname, mParser, b_splays, b_walls, b_surface );
       } else if ( type == ModelType.DXF_ASCII ) { // DXF
         if ( ! pathname.endsWith(".dxf") ) {
 	  pathname = pathname + ".dxf";
         }
-        if ( (new File(pathname)).exists() && ! overwrite ) {
-          mCave3D.toast(R.string.warning_not_overwrite, pathname);
-          return;
-        }
+        if ( ! checkFile(pathname, overwrite ) ) return;
         DXFExporter dxf = new DXFExporter();
-        if ( convexhullcomputer != null ) {
-          for ( CWConvexHull cw : convexhullcomputer.getWalls() ) {
-            synchronized( cw ) {
-              for ( CWTriangle f : cw.mFace ) dxf.add( f );
+        if ( b_walls ) {
+          if ( convexhullcomputer != null ) {
+            for ( CWConvexHull cw : convexhullcomputer.getWalls() ) {
+              synchronized( cw ) {
+                for ( CWTriangle f : cw.mFace ) dxf.add( f );
+              }
             }
+          } else if ( powercrustcomputer == null || ! powercrustcomputer.hasTriangles() ) {
+            mCave3D.toast(R.string.powercrust_dxf_not_supported, pathname, true );
+            return;
           }
-          boolean b_legs = true;
-          ret = dxf.exportAscii( pathname, mParser, b_legs, b_splays, b_walls, true ); // true = version13
-        } else if ( powercrustcomputer == null || ! powercrustcomputer.hasTriangles() ) {
-          mCave3D.toast(R.string.powercrust_dxf_not_supported, pathname );
-          return;
         }
+        ret = dxf.exportAscii( pathname, mParser, true, b_splays, b_walls, true ); // true = version13
+      } else if ( type == ModelType.SHP_ASCII ) { // SHP
+        if ( ! pathname.endsWith(".shz") ) {
+	  pathname = pathname + ".shz";
+        }
+        if ( ! checkFile(pathname, overwrite ) ) return;
+        ShpExporter shp = new ShpExporter();
+        if ( b_walls ) {
+          if ( convexhullcomputer != null ) {
+            for ( CWConvexHull cw : convexhullcomputer.getWalls() ) {
+              synchronized( cw ) {
+                for ( CWTriangle f : cw.mFace ) shp.add( f );
+              }
+            }
+          } 
+          if ( powercrustcomputer != null && powercrustcomputer.hasTriangles() ) {
+            shp.mTriangles = powercrustcomputer.getTriangles();
+            shp.mVertex    = powercrustcomputer.getVertices();
+          }
+        }
+        ret = shp.exportASCII( pathname, mParser, true, b_splays, b_walls );
+
       } else {                                     // STL export ASCII or binary
         if ( ! pathname.endsWith(".stl") ) {
           pathname = pathname + ".stl";
         } 
-        if ( (new File(pathname)).exists() && ! overwrite ) {
-          mCave3D.toast(R.string.warning_not_overwrite, pathname);
-          return;
-        }
+        if ( ! checkFile(pathname, overwrite ) ) return;
         STLExporter stl = new STLExporter();
-        if ( convexhullcomputer != null ) {
-          for ( CWConvexHull cw : convexhullcomputer.getWalls() ) {
-            synchronized( cw ) {
-              for ( CWTriangle f : cw.mFace ) stl.add( f );
+        if ( b_walls ) {
+          if ( convexhullcomputer != null ) {
+            for ( CWConvexHull cw : convexhullcomputer.getWalls() ) {
+              synchronized( cw ) {
+                for ( CWTriangle f : cw.mFace ) stl.add( f );
+              }
             }
+          } else if ( powercrustcomputer != null && powercrustcomputer.hasTriangles() ) {
+            stl.mTriangles = powercrustcomputer.getTriangles();
+            stl.mVertex    = powercrustcomputer.getVertices();
           }
-        } else if ( powercrustcomputer != null && powercrustcomputer.hasTriangles() ) {
-          stl.mTriangles = powercrustcomputer.getTriangles();
-          stl.mVertex    = powercrustcomputer.getVertices();
         }
 
         if ( type == ModelType.STL_BINARY ) {
@@ -2411,7 +2428,7 @@ public class Cave3DRenderer // implements Renderer
         if ( ret ) {
           mCave3D.toast(R.string.ok_export, pathname);
         } else {
-          mCave3D.toast(R.string.error_export_failed, pathname);
+          mCave3D.toast(R.string.error_export_failed, pathname, true );
         }
       }
     }
@@ -2474,7 +2491,7 @@ public class Cave3DRenderer // implements Renderer
         // B[k] = new Cave3DPoint( dy1/d1, -dx1/d1 );
         B[k] = new Cave3DPoint( dy1, -dx1 ); // no need to normalize
       } else {
-        Log.v("Cave3D", "ERROR missing station shots at " + st.name );
+        Log.v( TAG, "ERROR missing station shots at " + st.name );
         B[k] = new Cave3DPoint( 0, 0 ); // ERROR
       }
     }
@@ -2647,7 +2664,7 @@ public class Cave3DRenderer // implements Renderer
     //   profileview = new ArrayList< Cave3DPolygon >();
     //   ArrayList< Cave3DPolygon > tmp = new ArrayList< Cave3DPolygon >();
     //   makePolygons( tmp );
-    //   // Log.v("Cave3D", "profile polygons " + tmp.size() );
+    //   // Log.v( TAG, "profile polygons " + tmp.size() );
     //   for ( Cave3DPolygon poly : tmp ) {
     //     Cave3DPolygon poly2 = new Cave3DPolygon();
     //     for ( Cave3DSite site : poly.points ) {
@@ -2713,42 +2730,42 @@ public class Cave3DRenderer // implements Renderer
     }
     planview = new ArrayList< Cave3DPolygon >();
     makePolygons( planview );
-    // Log.v("Cave3D", "plan polygons " + planview.size() );
+    // Log.v( TAG, "plan polygons " + planview.size() );
   }
 
   private void makePolygons( ArrayList< Cave3DPolygon > polygons )
   {
-    // Log.v("Cave3D", "up triangles " + nup );
+    // Log.v( TAG, "up triangles " + nup );
     int nsite = 0;
     for ( int k = 0; k<vertices_powercrust.length; ++k ) {
       Cave3DSite s0 = vertices_powercrust[k];
       if ( s0.poly != null ) continue;
       if ( s0.isOpen() ) {
-        // Log.v("Cave3D", "found at " + k + " initial polygon vertex " + s0.x + " " + s0.y );
+        // Log.v( TAG, "found at " + k + " initial polygon vertex " + s0.x + " " + s0.y );
         Cave3DPolygon polygon = new Cave3DPolygon();
         polygon.addPoint( s0 );
         s0.poly = polygon;  
         int ns = 0;
         for ( Cave3DSite s1 = s0.angle.v1; s1 != s0; s1=s1.angle.v1 ) {
           // if ( s1.poly != null ) {
-          //   Log.v("Cave3D", "site on two polygons " + s1.x + "  " + s1.y );
+          //   Log.v( TAG, "site on two polygons " + s1.x + "  " + s1.y );
           // } else {
-          //   // Log.v("Cave3D", "add site to polygon  " + s1.x + "  " + s1.y );
+          //   // Log.v( TAG, "add site to polygon  " + s1.x + "  " + s1.y );
           // }
           if ( s1 == null ) break;
           if ( polygon.addPoint( s1 ) ) break;
           s1.poly = polygon;
           // if ( ns++ > 1024 ) {
-          //   Log.v("Cave3D", "exceeded max nr polygon sites" );
+          //   Log.v( TAG, "exceeded max nr polygon sites" );
           //   break;
           // }
         }
-        // Log.v("Cave3D", "polygon size " + polygon.size() );
+        // Log.v( TAG, "polygon size " + polygon.size() );
         polygons.add( polygon );
         nsite += polygon.size();
       }
     }
-    // Log.v("Cave3D", "polygon sites " + nsite );
+    // Log.v( TAG, "polygon sites " + nsite );
   }
 */
 }

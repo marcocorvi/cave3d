@@ -11,6 +11,8 @@
  */
 package com.topodroid.Cave3D;
 
+import android.util.Log;
+
 import java.io.StringWriter;
 import java.io.PrintWriter;
 
@@ -54,8 +56,6 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.SharedPreferences.Editor;
 
 import android.util.DisplayMetrics;
-
-import android.util.Log;
 
 public class Cave3D extends Activity
                     implements OnZoomListener
@@ -119,7 +119,7 @@ public class Cave3D extends Activity
   {
     if ( k.equals( CAVE3D_BASE_PATH ) ) { 
       mAppBasePath = sp.getString( k, APP_BASE_PATH );
-      // Log.v("Cave3D", "SharedPref change: path " + mAppBasePath );
+      // Log.v( TAG, "SharedPref change: path " + mAppBasePath );
     } else if ( k.equals( CAVE3D_TEXT_SIZE ) ) {
       try {
         mTextSize = Integer.parseInt( sp.getString( k, "20" ) );
@@ -290,16 +290,26 @@ public class Cave3D extends Activity
     return getPackageManager().hasSystemFeature( PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH );
   }
 
-  void toast( int r )
+  void toast( int r, boolean loong )
   {
-    Toast.makeText( this, r, Toast.LENGTH_SHORT).show();
+    if ( loong ) {
+      Toast.makeText( this, r, Toast.LENGTH_LONG).show();
+    } else {
+      Toast.makeText( this, r, Toast.LENGTH_SHORT).show();
+    }
   }
+  void toast( int r ) { toast( r, false ); }
 
-  void toast( int r, String str )
+  void toast( int r, String str, boolean loong )
   {
     String msg = String.format( getResources().getString( r ), str );
-    Toast.makeText( this, msg, Toast.LENGTH_SHORT).show();
+    if ( loong ) {
+      Toast.makeText( this, msg, Toast.LENGTH_LONG).show();
+    } else {
+      Toast.makeText( this, msg, Toast.LENGTH_SHORT).show();
+    }
   }
+  void toast( int r, String str ) { toast( r, str, false ); }
 
   void toast( int r, int n1, int n2 )
   {
@@ -553,7 +563,7 @@ public class Cave3D extends Activity
         if ( result == Activity.RESULT_OK ) {
           String filename = data.getExtras().getString( "com.topodroid.Cave3D.filename" );
           if ( filename != null && filename.length() > 0 ) {
-            Log.v("Cave3D", "path " + mAppBasePath + " file " + filename );
+            // Log.v( TAG, "path " + mAppBasePath + " file " + filename );
             doOpenFile( mAppBasePath + "/" + filename );
           }
         }
@@ -575,7 +585,7 @@ public class Cave3D extends Activity
     mAppBasePath = base;
     mFilename = survey;
     boolean ret = mRenderer.initRendering( this, survey, base );
-    // Log.v("DistoX-Cave3D", "do open survey: " + (ret? "true" : "false" ) );
+    // Log.v( TAG, "do open survey: " + (ret? "true" : "false" ) );
     return true;
   }
 
@@ -774,32 +784,32 @@ public class Cave3D extends Activity
       Bundle extras = getIntent().getExtras();
       if ( extras != null ) {
         String name = extras.getString( "INPUT_FILE" );
-        // Log.v("Cave3D", "TopoDroid filename " + name );
+        // Log.v( TAG, "TopoDroid filename " + name );
         if ( name != null ) {
           if ( ! doOpenFile( name ) ) {
-            Log.e("Cave3D", "Cannot open input file " + name );
+            Log.e( TAG, "Cannot open input file " + name );
             finish();
           }
         } else {
           name = extras.getString( "INPUT_SURVEY" );
           String base = extras.getString( "SURVEY_BASE" );
-          // Log.v("DistoX-Cave3D", "open input survey " + name + " base " + base );
+          // Log.v( TAG, "open input survey " + name + " base " + base );
           if ( name != null ) {
             if ( ! doOpenSurvey( name, base ) ) {
-              Log.e("Cave3D", "Cannot open input survey " + name );
+              Log.e( TAG, "Cannot open input survey " + name );
               finish();
             }
           } else {
-            Log.e("Cave3D", "No input file or survey");
+            Log.e( TAG, "No input file or survey");
             finish();
           }
         }          
       } else {
-        // Log.v("Cave3D", "No filename: openfile dialog" );
+        // Log.v( TAG, "No filename: openfile dialog" );
         openFile();
       }
     } else {
-      Log.e("Cave3D", "finishing activity ... perms " + mCheckPerms );
+      Log.e( TAG, "finishing activity ... perms " + mCheckPerms );
       if ( perms_dialog != null ) perms_dialog.dismiss();
       finish();
     }
@@ -825,16 +835,16 @@ public class Cave3D extends Activity
   @Override
   public void onRequestPermissionsResult( int code, final String[] perms, int[] results )
   {
-    // TDLog.Log(TDLog.LOG_PERM, "MAIN req code " + code + " results length " + results.length );
+    // Log.v( TAG, "req code " + code + " results length " + results.length );
     if ( code == FeatureChecker.REQUEST_PERMISSIONS ) {
       if ( results.length > 0 ) {
 	for ( int k = 0; k < results.length; ++ k ) {
 	  FeatureChecker.GrantedPermission[k] = ( results[k] == PackageManager.PERMISSION_GRANTED );
-	  // Log.v("ThManager", "MAIN perm " + k + " perms " + perms[k] + " result " + results[k] );
+	  // Log.v( TAG, "perm " + k + " perms " + perms[k] + " result " + results[k] );
 	}
       }
     }
-    // Log.v("ThManager", "MAIN must restart " + FeatureChecker.MustRestart );
+    // Log.v( TAG, "must restart " + FeatureChecker.MustRestart );
     // if ( ! FeatureChecker.MustRestart ) {
     //   TopoDroidAlertDialog.makeAlert( this, getResources(), R.string.perm_required,
     //     new DialogInterface.OnClickListener() {

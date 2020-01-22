@@ -32,6 +32,8 @@ import android.widget.TextView;
 public class Cave3DStationDialog extends Dialog 
                                  implements View.OnClickListener
 {
+  // private static final String TAG = "Cave3D STATION";
+
     private Button mBtDistance;
     private Button mBtCenter;
     private TextView mTvSurface;

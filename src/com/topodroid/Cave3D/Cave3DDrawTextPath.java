@@ -24,7 +24,7 @@ import android.util.Log;
 
 public class Cave3DDrawTextPath extends Cave3DDrawPath
 {
-  private static final String TAG = "Cave3D";
+  // private static final String TAG = "Cave3D TEXT";
 
   private String text;
 

@@ -11,6 +11,8 @@
  */
 package com.topodroid.Cave3D;
 
+import android.util.Log;
+
 import java.util.Locale;
 import java.util.List;
 import java.util.ArrayList;
@@ -26,10 +28,10 @@ import java.io.IOException;
 
 import java.nio.ByteBuffer;
 
-import android.util.Log;
-
 public class LASExporter
 {
+  private static final String TAG = "Cave3D LAS";
+
   final static double FACTOR = 100;
   final static double SCALE = 1/FACTOR;
 
@@ -44,7 +46,7 @@ public class LASExporter
   { 
     float[] v = data.getSplaysEndpoints();
     int nr_pts = data.getSplayNumber();
-    // Log.v("Cave3D", "Number of points " + nr_pts );
+    // Log.v( TAG, "Number of points " + nr_pts );
     int fmt = FMT1_SIZE;
     int nr_vlr = 0;
 
@@ -245,7 +247,7 @@ public class LASExporter
     putShort( ret, (short)0 );
     putShort( ret, (short)0 );
     putLong(  ret, (long)0 );  // (24)
-    // Log.v("Cave3D", "position major/minor " + ret.position() );
+    // Log.v( TAG, "position major/minor " + ret.position() );
     ret.put( (byte)1 );  // major 1
     ret.put( (byte)2 );  // minor 2 (26)
     for ( k=0; k<5; ++k ) ret.put( (byte)sys.charAt(k) ); 
@@ -263,14 +265,14 @@ public class LASExporter
 
     putInt(   ret, (int)nr_pts );       // nr pt records by return 
     for ( k=1; k < 5; ++k ) ret.putInt( (int)0 );        // 5 ints (135)
-    // Log.v("Cave3D", "position scale " + ret.position() );
+    // Log.v( TAG, "position scale " + ret.position() );
     putDouble( ret, (double)SCALE );   // X scale
     putDouble( ret, (double)SCALE );   // Y scale
     putDouble( ret, (double)SCALE );   // Z scale
     putDouble( ret, (double)0 );      // X offset
     putDouble( ret, (double)0 );      // Y offset
     putDouble( ret, (double)0 );      // Z offset (183)
-    // Log.v("Cave3D", "position max/min " + ret.position() );
+    // Log.v( TAG, "position max/min " + ret.position() );
     putDouble( ret, (double)maxx );
     putDouble( ret, (double)minx );
     putDouble( ret, (double)maxy );
@@ -282,7 +284,7 @@ public class LASExporter
     // putLong( ret, (long)elen );     // start of EVRL (247) {v. 1.4}
     // putInt( ret, (int)0 );          // nr EVRL (251)
     // putLong( ret, (long)nr_pts );   // nr pt records (259)
-    // // Log.v("Cave3D", "position " + ret.position() );
+    // // Log.v( TAG, "position " + ret.position() );
     // // ret.put( rets2 );        // (379)
     // for ( k=0; k<15; ++k ) putLong( ret, (long)0 );
 

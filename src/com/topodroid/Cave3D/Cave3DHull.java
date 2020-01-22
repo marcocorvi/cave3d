@@ -11,12 +11,14 @@
  */
 package com.topodroid.Cave3D;
 
-import java.util.ArrayList;
-
 import android.util.Log;
+
+import java.util.ArrayList;
 
 class Cave3DHull
 {
+  private static final String TAG = "Cave3D CH";
+
   Cave3DShot    shot;    
   Cave3DStation mStationFrom;  // base station
   Cave3DStation mStationTo;
@@ -39,7 +41,7 @@ class Cave3DHull
               Cave3DStation sf,                // shot FROM station
               Cave3DStation st )               // shot TO station
   {
-    // Log.v( "Cave3D", "Hull at station " + st.name + " shot " + sh.from_station.name + "-" + sh.to_station.name );
+    // Log.v( TAG, "Hull at station " + st.name + " shot " + sh.from_station.name + "-" + sh.to_station.name );
     mStationFrom = sf;
     mStationTo   = st;
     shot    = sh;
@@ -56,14 +58,14 @@ class Cave3DHull
   {
     int s1 = projs1.size();
     int s2 = projs2.size();
-    Log.v( "Cave3D-CH", "Hull at station " + mStationFrom.name + " size " + s1 + " " + mStationTo.name + " " + s2 );
+    Log.v( TAG, "at station " + mStationFrom.name + " size " + s1 + " " + mStationTo.name + " " + s2 );
     // for (int k=0; k<s1; ++k ) {
     //   Cave3DProjection p = projs1.get(k);
-    //   Log.v( "Cave3D", k + ": " + p.angle + " - " + p.proj.x + " " + p.proj.y + " " + p.proj.z );
+    //   Log.v( TAG, k + ": " + p.angle + " - " + p.proj.x + " " + p.proj.y + " " + p.proj.z );
     // }
     // for (int k=0; k<s2; ++k ) {
     //   Cave3DProjection p = projs2.get(k);
-    //   Log.v( "Cave3D", k + ": " + p.angle + " - " + p.proj.x + " " + p.proj.y + " " + p.proj.z );
+    //   Log.v( TAG, k + ": " + p.angle + " - " + p.proj.x + " " + p.proj.y + " " + p.proj.z );
     // }
   }
 
@@ -118,7 +120,7 @@ class Cave3DHull
     triangles = new ArrayList< Cave3DTriangle >();
     int s1 = projs1.size();
     if ( s1 < 2 ) return;
-    // Log.v( "Cave3D", "Triangles at " + mStationFrom.name + " with vertex. Nr triangles " + s1 );
+    // Log.v( TAG, "Triangles at " + mStationFrom.name + " with vertex. Nr triangles " + s1 );
     for ( int k=0; k<s1; ++k ) {
       Cave3DProjection p1 = projs1.get(k);
       Cave3DProjection p2 = projs1.get((k+1)%s1);
@@ -131,11 +133,11 @@ class Cave3DHull
 
   private void computeHull()
   {
-    // Log.v( "Cave3D", "compute Hull : splays " + rays1.size() + " " + rays2.size() );
+    // Log.v( TAG, "compute Hull : splays " + rays1.size() + " " + rays2.size() );
 
     computeHullProjs( rays1, projs1, mStationFrom );
     computeHullProjs( rays2, projs2, mStationTo );
-    // Log.v( "Cave3D", "compute Hull [1]: projs " + projs1.size() + " " + projs2.size() );
+    // Log.v( TAG, "compute Hull [1]: projs " + projs1.size() + " " + projs2.size() );
 
     Cave3DVector p0 = null;
     if ( projs1.size() > 1 ) {
@@ -149,14 +151,14 @@ class Cave3DHull
 
     computeAnglesAndSort( p0, projs1 );
     computeAnglesAndSort( p0, projs2 );
-    // Log.v( "Cave3D", "compute Hull [2]: projs " + projs1.size() + " " + projs2.size() );
+    // Log.v( TAG, "compute Hull [2]: projs " + projs1.size() + " " + projs2.size() );
 
     removeInsideProjs( projs1 );
     removeInsideProjs( projs2 );
 
     makeTriangles();
 
-    // Log.v( "Cave3D", "compute Hull [3]: projs " + projs1.size() + " " + projs2.size() );
+    // Log.v( TAG, "compute Hull [3]: projs " + projs1.size() + " " + projs2.size() );
   }
 
 

@@ -10,11 +10,11 @@
  */
 package com.topodroid.Cave3D;
 
-import android.util.Log;
+// import android.util.Log;
 
 public class Cave3DShot
 {
-  private static final String TAG = "Cave3D";
+  // private static final String TAG = "Cave3D SHOT";
 
   private static final float DEG2RAD = (float)(Math.PI/180);
   String from;

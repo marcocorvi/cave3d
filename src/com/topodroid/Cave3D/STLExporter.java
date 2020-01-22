@@ -11,6 +11,8 @@
  */
 package com.topodroid.Cave3D;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -22,10 +24,10 @@ import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import android.util.Log;
-
 public class STLExporter
 {
+  private static final String TAG = "Cave3D STL";
+
   ArrayList<CWFacet> mFacets;
 
   ArrayList< Cave3DTriangle > mTriangles; // powercrust triangles
@@ -119,10 +121,10 @@ public class STLExporter
       }
       pw.format(Locale.US, "endsolid %s\n", name );
     } catch ( FileNotFoundException e ) { 
-      Log.e("Cave3D", "ERROR " + e.getMessage() );
+      Log.e( TAG, "error " + e.getMessage() );
       ret = false;
     } catch( IOException e ) {
-      Log.e("Cave3D", "I/O ERROR " + e.getMessage() );
+      Log.e( TAG, "I/O error " + e.getMessage() );
       ret = false;
     } finally {
       try {
@@ -219,10 +221,10 @@ public class STLExporter
         }
       }
     } catch ( FileNotFoundException e ) { 
-      Log.e("Cave3D", "ERROR " + e.getMessage() );
+      Log.e( TAG, "error " + e.getMessage() );
       ret = false;
     } catch( IOException e ) {
-      Log.e("Cave3D", "I/O ERROR " + e.getMessage() );
+      Log.e( TAG, "I/O error " + e.getMessage() );
       ret = false;
     } finally {
       try {

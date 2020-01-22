@@ -17,6 +17,8 @@ import java.util.ArrayList;
 
 class PowercrustComputer
 {
+  private static final String TAG = "Cave3D PC";
+
   Cave3DParser mParser;
   List<Cave3DStation> mStations;
   List<Cave3DShot>    mShots;
@@ -52,7 +54,7 @@ class PowercrustComputer
       powercrust.resetSites( 3 );
       double x, y, z, v;
       int ntot = mStations.size();
-      Log.v("Cave3D PC", "... add sites (stations " + ntot + ")" );
+      // Log.v( TAG, "... add sites (stations " + ntot + ")" );
 
       /* average angular distance
       double da = 0;
@@ -83,7 +85,7 @@ class PowercrustComputer
         } 
       }
       da = (1.0 - da/na);
-      Log.v("Cave3D", "average splay angle " + da );
+      // Log.v( TAG, "average splay angle " + da );
       */
 
       for ( int n0 = 0; n0 < ntot; ++n0 ) {
@@ -95,7 +97,7 @@ class PowercrustComputer
         ArrayList< Cave3DShot > station_splays = mParser.getSplayAt( st, false );
         int ns = station_splays.size();
         if ( ns > 1 ) {
-          // Log.v("Cave3D", "station " + n0 + ": splays " + ns ); 
+          // Log.v( TAG, "station " + n0 + ": splays " + ns ); 
           double len_prev = station_splays.get( 0 ).len;
     
           for ( int n=0; n<ns; ++n ) {
@@ -132,29 +134,29 @@ class PowercrustComputer
           }
         }
         long nsites = powercrust.nrSites();
-        Log.v("Cave3D PC", "after station " + n0 + "/" + ns + " sites " + nsites );
+        // Log.v( TAG, "after station " + n0 + "/" + ns + " sites " + nsites );
       }
       // long nsites = powercrust.nrSites();
-      Log.v("Cave3D PC", "total sites " + powercrust.nrSites() + " ... compute" );
+      // Log.v( TAG, "total sites " + powercrust.nrSites() + " ... compute" );
       int ok = powercrust.compute( );
       if ( ok == 1 ) {
-        Log.v("Cave3D PC", "... insert triangles" );
+        // Log.v( TAG, "... insert triangles" );
         mTriangles = new ArrayList<Cave3DTriangle>();
         mVertices = powercrust.insertTrianglesIn( mTriangles );
       }
-      Log.v("Cave3D", "... release powercrust NP " + powercrust.np + " NF " + powercrust.nf );
+      // Log.v( TAG, "... release powercrust NP " + powercrust.np + " NF " + powercrust.nf );
       powercrust.release();
-      Log.v("Cave3D PC", "powercrust done" );
+      // Log.v( TAG, "powercrust done" );
       if ( ok != 1 ) return false;
       if ( mTriangles != null && mVertices != null ) {
         computePowercrustPlanView( );
         computePowercrustProfileView( );
       }
     } catch ( Exception e ) {
-      Log.v("Cave3D", "ERROR: " + e.getMessage() );
+      Log.e( TAG, "Error: " + e.getMessage() );
       return false;
     }
-    Log.v("Cave3D", "Powercrust V " + mVertices.length + " F " + mTriangles.size() );
+    // Log.v( TAG, "Powercrust V " + mVertices.length + " F " + mTriangles.size() );
     return true;
   }
 
@@ -188,38 +190,38 @@ class PowercrustComputer
   private ArrayList<Cave3DPolygon> makePolygons( Cave3DSite[] vertices )
   {
     ArrayList<Cave3DPolygon> polygons = new ArrayList< Cave3DPolygon >();
-    // Log.v("Cave3D", "up triangles " + nup );
+    // Log.v( TAG, "up triangles " + nup );
     int nsite = 0;
     for ( int k = 0; k<vertices.length; ++k ) {
       Cave3DSite s0 = vertices[k];
       if ( s0.poly != null ) continue;
       if ( s0.isOpen() ) {
-        // Log.v("Cave3D", "found at " + k + " initial polygon vertex " + s0.x + " " + s0.y );
+        // Log.v( TAG, "found at " + k + " initial polygon vertex " + s0.x + " " + s0.y );
         Cave3DPolygon polygon = new Cave3DPolygon();
         polygon.addPoint( s0 );
         s0.poly = polygon;  
         int ns = 0;
         for ( Cave3DSite s1 = s0.angle.v1; s1 != s0; s1=s1.angle.v1 ) {
           // if ( s1.poly != null ) {
-          //   Log.v("Cave3D", "site on two polygons " + s1.x + "  " + s1.y );
+          //   Log.v( TAG, "site on two polygons " + s1.x + "  " + s1.y );
           // } else {
-          //   // Log.v("Cave3D", "add site to polygon  " + s1.x + "  " + s1.y );
+          //   // Log.v( TAG, "add site to polygon  " + s1.x + "  " + s1.y );
           // }
           if ( s1 == null ) break;
           if ( polygon.addPoint( s1 ) ) break;
           s1.poly = polygon;
           // if ( ns++ > 1024 ) {
-          //   Log.v("Cave3D", "exceeded max nr polygon sites" );
+          //   Log.v( TAG, "exceeded max nr polygon sites" );
           //   break;
           // }
         }
-        // Log.v("Cave3D", "polygon size " + polygon.size() );
+        // Log.v( TAG, "polygon size " + polygon.size() );
         polygons.add( polygon );
         nsite += polygon.size();
       }
     }
-    // Log.v("Cave3D", "polygon sites " + nsite );
-    // Log.v("Cave3D", "plan polygons " + polygons.size() );
+    // Log.v( TAG, "polygon sites " + nsite );
+    // Log.v( TAG, "plan polygons " + polygons.size() );
     return polygons;
   }
 
@@ -278,7 +280,7 @@ class PowercrustComputer
         // B[k] = new Cave3DPoint( dy1/d1, -dx1/d1 );
         B[k] = new Cave3DPoint( dy1, -dx1 ); // no need to normalize
       } else {
-        Log.v("Cave3D", "ERROR missing station shots at " + st.name );
+        Log.e( TAG, "Error: missing station shots at " + st.name );
         B[k] = new Cave3DPoint( 0, 0 ); // ERROR
       }
     }
@@ -451,7 +453,7 @@ class PowercrustComputer
     //   profileview = new ArrayList< Cave3DPolygon >();
     //   ArrayList< Cave3DPolygon > tmp = new ArrayList< Cave3DPolygon >();
     //   makePolygons( tmp );
-    //   // Log.v("Cave3D", "profile polygons " + tmp.size() );
+    //   // Log.v( TAG, "profile polygons " + tmp.size() );
     //   for ( Cave3DPolygon poly : tmp ) {
     //     Cave3DPolygon poly2 = new Cave3DPolygon();
     //     for ( Cave3DSite site : poly.points ) {

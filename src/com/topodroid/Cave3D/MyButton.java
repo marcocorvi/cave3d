@@ -21,10 +21,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 
-import android.util.Log;
+// import android.util.Log;
 
 public class MyButton extends Button
 {
+  // private static final String TAG = "Cave3D BTN";
+
   Context mContext;
   BitmapDrawable mBitmap;
   BitmapDrawable mBitmap2;
@@ -54,7 +56,7 @@ public class MyButton extends Button
       // mX = ev.getX();
       // mY = ev.getY();
       // setBackgroundDrawable( mBitmap2 );
-      // Log.v("Cave3D", "Touch DOWN");
+      // Log.v( TAG, "Touch DOWN");
       return true;
     } else if ( action == MotionEvent.ACTION_UP ) {
       // setBackgroundDrawable( mBitmap );

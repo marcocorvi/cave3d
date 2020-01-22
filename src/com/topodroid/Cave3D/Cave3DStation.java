@@ -10,11 +10,11 @@
  */
 package com.topodroid.Cave3D;
 
-import android.util.Log;
+// import android.util.Log;
 
 public class Cave3DStation
 {
-  private static final String TAG = "Cave3D";
+  // private static final String TAG = "Cave3D STATION";
 
   int vertex;     // index of vertex (coords) in the array of vertices 
                   // to get the coords use 3*vertex+0, 3*vertex+1, 3*vertex+2

@@ -33,6 +33,8 @@ import java.io.BufferedWriter;
 
 public class DXFExporter
 {
+  private static final String TAG = "Cave3D DXF";
+
   ArrayList<CWFacet> mFacets;
 
   ArrayList< Cave3DTriangle > mTriangles; // powercrust triangles
@@ -75,15 +77,15 @@ public class DXFExporter
       facet.v2.minMax( mMin, mMax );
       facet.v3.minMax( mMin, mMax );
     }
-    // Log.v("Cave3D", "facets: " + mFacets.size() );
+    // Log.v( TAG, "facets: " + mFacets.size() );
     if ( mVertex != null ) {
       int len = mVertex.length;
       for ( int k=0; k<len; ++k ) {
         mVertex[k].minMax( mMin, mMax );
       }
     }
-    // Log.v("Cave3D", "min " + mMin.x + " " + mMin.y + " " + mMin.z );
-    // Log.v("Cave3D", "max " + mMax.x + " " + mMax.y + " " + mMax.z );
+    // Log.v( TAG, "min " + mMin.x + " " + mMin.y + " " + mMin.z );
+    // Log.v( TAG, "max " + mMax.x + " " + mMax.y + " " + mMax.z );
     xoff = - mMin.x;
     yoff = - mMin.y;
     zoff = - mMin.z;
@@ -415,7 +417,7 @@ public class DXFExporter
 
     int p_style = 0;
 
-    // Log.v("DistoX", "DXF X " + xmin + " " + xmax + " Y " + ymin + " " + ymax );
+    // Log.v( TAG, "DXF X " + xmin + " " + xmax + " Y " + ymin + " " + ymax );
     try {
 
       fw = new FileWriter( filename );
@@ -906,7 +908,7 @@ public class DXFExporter
       out.flush();
     } catch ( IOException e ) {
       // FIXME
-      Log.e("Cave3D", "DXF io-exception " + e.toString() );
+      Log.w( TAG, "I/O error " + e.toString() );
       return false;
     }
     return true;

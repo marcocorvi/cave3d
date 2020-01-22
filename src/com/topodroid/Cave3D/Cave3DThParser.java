@@ -10,6 +10,8 @@
  */
 package com.topodroid.Cave3D;
 
+import android.util.Log;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.FileReader;
@@ -20,12 +22,12 @@ import java.util.ArrayList;
 
 import java.util.List;
 
-import android.util.Log;
-
 import android.widget.Toast;
 
 public class Cave3DThParser extends Cave3DParser
 {
+  private static final String TAG = "Cave3D TH";
+
   static final int TOPODROID_DB_VERSION = 42; // must agree with TopoDroid
 
   static final int FLIP_NONE       = 0;
@@ -39,6 +41,8 @@ public class Cave3DThParser extends Cave3DParser
   ArrayList< String > mMarks;
 
   DataHelper mData;
+
+  Cave3DFix mOrigin = null;
 
   static int parseFlip( String flip )
   {
@@ -82,7 +86,7 @@ public class Cave3DThParser extends Cave3DParser
     mMarks = new ArrayList< String >();
 
     String path = base + "distox14.sqlite";
-    // Log.v("DistoX-Cave3D", "DB " + path );
+    // Log.v( TAG, "DB " + path );
     mData = new DataHelper( cave3d, path, TOPODROID_DB_VERSION ); // FIXME DB VERSION
 
     if ( readSurvey( survey, "", false, 0 ) ) {
@@ -91,7 +95,7 @@ public class Cave3DThParser extends Cave3DParser
       setSplaySurveys();
       setStationDepths();
       processMarks();
-      // Log.v("DistoX-Cave3D", "read survey" );
+      // Log.v( TAG, "read survey" );
     }
   }
 
@@ -99,12 +103,12 @@ public class Cave3DThParser extends Cave3DParser
   {
     super( cave3d, filename );
 
-    // Log.v("Cave3D-FILE", "Th parser " + filename );
+    // Log.v( TAG, "Th parser " + filename );
     mMarks = new ArrayList< String >();
     int pos = filename.indexOf("thconfig");
     if ( pos >= 0 ) {
       String path = filename.substring(0, pos) + "distox14.sqlite";
-      // Log.v("Cave3D", "DB " + path );
+      // Log.v( TAG, "DB " + path );
       mData = new DataHelper( cave3d, path, TOPODROID_DB_VERSION ); // FIXME DB VERSION
     } else {
       mData = null;
@@ -128,7 +132,7 @@ public class Cave3DThParser extends Cave3DParser
       // Log.v( TAG, "       E: " + emin + " " + emax );
       // Log.v( TAG, "       Z: " + zmin + " " + zmax );
       // for ( Cave3DFix f : fixes ) {
-      //   Log.v("Cave3D", "FIX " + f.name + " " + f.e + " " + f.n );
+      //   Log.v( TAG, "FIX " + f.name + " " + f.e + " " + f.n );
       // }
 
     } else {
@@ -192,6 +196,38 @@ public class Cave3DThParser extends Cave3DParser
         splays.add( new Cave3DShot( to, null, blk.mLength, ber, -blk.mClino ) );
       }
     }
+
+    List<SurveyFixed> fixeds = mData.getSurveyFixeds( sid );
+    if ( fixeds != null && fixeds.size() > 0 ) {
+      Cave3DCS cs = new Cave3DCS("WGS-84");
+      float PI_180 = (float)(Math.PI / 180);
+      for ( SurveyFixed fx : fixeds ) {
+        String name = makeName( fx.station, path );
+        float alat = (float)fx.mLatitude;
+        if ( alat < 0 ) alat = -alat;
+
+        float s_radius = ((90 - alat) * KMLExporter.EARTH_RADIUS1 + alat * KMLExporter.EARTH_RADIUS2)/90;
+        float e_radius = s_radius * (float)Math.cos( alat * PI_180 );
+        s_radius *= PI_180;
+        e_radius *= PI_180;
+
+        float x = (float)fx.mLongitude * e_radius;
+        float y = (float)fx.mLatitude * s_radius;
+        float z = (float)fx.mAltitude;
+        if ( mOrigin == null ) {
+          // Log.v( TAG, "Fix origin " + name + " " + x + " " + y + " " + z );
+          mOrigin = new Cave3DFix( name, x, y, z, cs );
+	  fixes.add( new Cave3DFix( name, 0, 0, 0, cs ) );
+        } else {
+          x -= mOrigin.e;
+          y -= mOrigin.n;
+          z -= mOrigin.z;
+          // Log.v( TAG, "Fix relative " + name + " " + x + " " + y + " " + z );
+	  fixes.add( new Cave3DFix( name, x, y, z, cs ) );
+        }
+      }
+    }
+    
     return true;
   }
   
@@ -213,8 +249,8 @@ public class Cave3DThParser extends Cave3DParser
 
     String path = basepath;
     int linenr = 0;
-    // Log.v("Cave3D", "basepath <" + basepath + ">");
-    // Log.v("Cave3D", "filename <" + filename + ">");
+    // Log.v( TAG, "basepath <" + basepath + ">");
+    // Log.v( TAG, "filename <" + filename + ">");
     Cave3DCS cs = null;
     int in_data = 0; // 0 none, 1 normal, 2 dimension
 
@@ -253,8 +289,8 @@ public class Cave3DThParser extends Cave3DParser
         }
         if ( line.length() > 0 ) {
           String[] vals = splitLine( line );
-          // Log.v("Cave3D-FILE", "[" + vals.length + "] >>" + line + "<<" );
-          // for (int j=0; j<vals.length; ++j ) Log.v("Cave3D-FILE", "    " + vals[j] );
+          // Log.v( TAG, "[" + vals.length + "] >>" + line + "<<" );
+          // for (int j=0; j<vals.length; ++j ) Log.v( TAG, "    " + vals[j] );
 
           if ( vals.length > 0 ) {
             int idx = nextIndex( vals, -1 );
@@ -264,7 +300,7 @@ public class Cave3DThParser extends Cave3DParser
               if ( idx < vals.length ) {
                 survey_pos[ks] = path.length();
                 path = path + "." + vals[idx];
-                // Log.v( "Cave3D", "SURVEY " + path );
+                // Log.v( TAG, "SURVEY " + path );
                 ++ks;
                 in_survey = true;
               }
@@ -294,7 +330,7 @@ public class Cave3DThParser extends Cave3DParser
                     use_centerline_declination = true;
                     centerline_declination = decl;
                   } catch ( NumberFormatException e ) {
-                    Log.e( "Cave3D", "NUMBER ERROR centerline declination number format exception" );
+                    Log.e( TAG, "Number error: centerline declination number format exception" );
                   }
                 }
               } else if ( cmd.equals("station") ) {
@@ -343,7 +379,7 @@ public class Cave3DThParser extends Cave3DParser
                       try {
                         factor = Float.parseFloat( vals[idx] );
                       } catch ( NumberFormatException e ) { 
-                        Log.e("Cave3D", "NUMBER FORMAT ERROR " + e.getMessage() );
+                        Log.e( TAG, "Number error " + e.getMessage() );
                       }
                     }
                   } 
@@ -372,12 +408,12 @@ public class Cave3DThParser extends Cave3DParser
                         if ( idx < vals.length ) {
                           float z = Float.parseFloat( vals[idx] );
 	                  fixes.add( new Cave3DFix( name, x, y, z, cs ) );
-                          // Log.v( "Cave3D", " adding fix " + x + " " + y + " " + z );
+                          // Log.v( TAG, " adding fix " + x + " " + y + " " + z );
                         }
                       }
                     }
                   } catch ( NumberFormatException e ) {
-                    Log.e("Cave3D", "NUMBER ERROR fix station number format exception");
+                    Log.e( TAG, "Fix station error: " + e.getMessage() );
                   }
                 }
               } else if ( vals.length >= 5 ) {
@@ -413,14 +449,14 @@ public class Cave3DThParser extends Cave3DParser
                               // StringWriter sw = new StringWriter();
                               // PrintWriter pw = new PrintWriter( sw );
                               // pw.format(Locale.US, "%s %s %.2f %.1f %.1f", from, to, len, ber, cln );
-                              // Log.v("Cave3D", sw.getBuffer().toString() );
+                              // Log.v(TAG, sw.getBuffer().toString() );
                               shots.add( new Cave3DShot( from, to, len, ber, cln ) );
                             }
                           }
                         }
                       }
                     } catch ( NumberFormatException e ) {
-                      Log.e("Cave3D", "NUMBER ERROR shot data number format exception");
+                      Log.e(TAG, "Shot data error: " + e.getMessage() );
                     }
                   }
                 } else if ( in_data == DATA_DIMENSION ) {
@@ -468,7 +504,7 @@ public class Cave3DThParser extends Cave3DParser
                     }
                   }
                 } catch ( NumberFormatException e ) {
-                  Log.e("Cave3D", "NUMBER ERROR surface grid metadata number format exception");
+                  Log.e( TAG, "surface grid metadata " + e.getMessage() );
                 }
                 // and read grid data
                 if ( mSurface != null ) {
@@ -493,7 +529,7 @@ public class Cave3DThParser extends Cave3DParser
                     }
                   }
                 } catch ( NumberFormatException e ) {
-                  Log.e("Cave3D", "NUMBER ERROR surface grid units number format exception");
+                  Log.e( TAG, "surface grid units " + e.getMessage() );
                 }
               }
             } else if ( cmd.equals("declination") ) {
@@ -504,13 +540,13 @@ public class Cave3DThParser extends Cave3DParser
                   survey_declination = Float.parseFloat( vals[idx] );
                 }
               } catch ( NumberFormatException e ) {
-                Log.e("Cave3D", "NUMBER ERROR survey declination number format exception");
+                Log.e( TAG, "survey declination " + e.getMessage() );
               }
             } else if ( cmd.equals("input") ) {
               idx = nextIndex( vals, idx );
               if ( idx < vals.length ) {
                 filename = vals[idx];
-                // Log.v( "Cave3D", "FILE " + filename );
+                // Log.v( TAG, "FILE " + filename );
                 if ( filename.endsWith( ".th" ) ) {
                   if ( ! readFile( dirname + '/' + filename, 
                                    path,
@@ -519,14 +555,14 @@ public class Cave3DThParser extends Cave3DParser
                     return false;
                   }
                 } else {
-                  Log.e(TAG, "Input file <" + filename + "> has no .th extension");
+                  Log.e( TAG, "Input file <" + filename + "> has no .th extension");
                 }
               }
             } else if ( cmd.equals("load") ) {
               idx = nextIndex( vals, idx );
               if ( idx < vals.length ) {
                 filename = vals[idx]; // survey name
-                // Log.v( "Cave3D-FILE", "SURVEY " + filename );
+                // Log.v( TAG, "survey " + filename );
                 if ( mData == null ) {
                   String base = null;
                   if ( dirname.endsWith( "tdconfig/" ) ) {
@@ -537,13 +573,13 @@ public class Cave3DThParser extends Cave3DParser
                     base = dirname;
                   }
                   String db_path = base + "distox14.sqlite";
-                  // Log.v("Cave3D-FILE", "DB " + db_path );
+                  // Log.v( TAG, "DB " + db_path );
                   if ( (new File(db_path)).exists() ) {
                     mData = new DataHelper( mCave3D, db_path, TOPODROID_DB_VERSION );
                   }
                 }
                 if ( ! readSurvey( filename, path, use_survey_declination, survey_declination ) ) {
-                  Log.e("Cave3D", "read survey " + filename + " failed");
+                  Log.e( TAG, "read survey " + filename + " failed");
                   return false;
                 }
               }
@@ -558,8 +594,8 @@ public class Cave3DThParser extends Cave3DParser
                     // StringWriter sw = new StringWriter();
                     // PrintWriter pw = new PrintWriter( sw );
                     // pw.format(Locale.US, "EQUATE %s %s 0.00 0.0 0.0", from, to );
-                    // Log.v("Cave3D", sw.getBuffer().toString() );
-                    // Log.v(TAG, "Equate " + from + " " + to );
+                    // Log.v( TAG, sw.getBuffer().toString() );
+                    // Log.v( TAG, "Equate " + from + " " + to );
                     shots.add( new Cave3DShot( from, to, 0.0f, 0.0f, 0.0f ) );
                   }
                 }
@@ -576,7 +612,7 @@ public class Cave3DThParser extends Cave3DParser
                 Log.e( TAG, filename + ":" + linenr + " negative survey level" );
               } else {
                 path = path.substring(0, survey_pos[ks]); // return to previous survey_pos in path
-                // Log.v("Cave3D", "endsurvey PATH " + path );
+                // Log.v( TAG, "endsurvey PATH " + path );
                 in_survey = ( ks > 0 );
               }
             }
@@ -584,13 +620,13 @@ public class Cave3DThParser extends Cave3DParser
         }
         ++linenr;
         line = br.readLine();
-        // Log.v(TAG, linenr + ":" + line );
+        // Log.v( TAG, linenr + ":" + line );
       }
     } catch ( IOException e ) {
-      Log.e(TAG, "I/O ERROR " + e.getMessage() );
+      Log.e( TAG, "I/O error " + e.getMessage() );
       throw new Cave3DParserException( filename, linenr );
     }
-    // Log.v(TAG, "done readFile " + filename );
+    // Log.v( TAG, "done readFile " + filename );
 
     return ( shots.size() > 0 );
   }
@@ -652,6 +688,7 @@ public class Cave3DThParser extends Cave3DParser
   {
     if ( shots.size() == 0 ) return;
     // Log.v( TAG, "shots " + shots.size() + " fixes " + fixes.size() );
+
     if ( fixes.size() == 0 ) {
       Cave3DShot sh = shots.get( 0 );
       fixes.add( new Cave3DFix( sh.from, 0.0f, 0.0f, 0.0f, null ) );
@@ -659,10 +696,10 @@ public class Cave3DThParser extends Cave3DParser
  
     int mLoopCnt = 0;
     Cave3DFix f0 = fixes.get( 0 );
-    // Log.v( "Cave3D", "Process Shots. Fix " + f0.name + " " + f0.e + " " + f0.n + " " + f0.z );
+    // Log.v( TAG, "Process Shots. Fix " + f0.name + " " + f0.e + " " + f0.n + " " + f0.z );
 
     mCaveLength = 0.0f;
-    // Log.v("Cave3D", "shots " + shots.size() + " splays " + splays.size() + " fixes " + fixes.size() );
+    // Log.v( TAG, "shots " + shots.size() + " splays " + splays.size() + " fixes " + fixes.size() );
 
     int used_cnt = 0; // number of used shots
     for ( Cave3DFix f : fixes ) {
@@ -675,18 +712,18 @@ public class Cave3DThParser extends Cave3DParser
         // Log.v( TAG, "found fix " + f.name );
         continue;
       }
-      // Log.v(TAG, "start station " + f.name + " N " + f.n + " E " + f.e + " Z " + f.z );
+      // Log.v( TAG, "start station " + f.name + " N " + f.n + " E " + f.e + " Z " + f.z );
       stations.add( new Cave3DStation( f.name, f.e, f.n, f.z ) );
       // sh.from_station = s0;
     
 
       boolean repeat = true;
       while ( repeat ) {
-        // Log.v(TAG, "scanning the shots");
+        // Log.v( TAG, "scanning the shots");
         repeat = false;
         for ( Cave3DShot sh : shots ) {
           if ( sh.used ) continue;
-          // Log.v(TAG, "check shot " + sh.from + " " + sh.to );
+          // Log.v( TAG, "check shot " + sh.from + " " + sh.to );
           // Cave3DStation sf = sh.from_station;
           // Cave3DStation st = sh.to_station;
           Cave3DStation sf = null;
@@ -695,12 +732,12 @@ public class Cave3DThParser extends Cave3DParser
             if ( sh.from.equals(s.name) ) {
               sf = s;
               if (  sh.from_station == null ) sh.from_station = s;
-              else if ( sh.from_station != s ) Log.e( TAG, "shot " + sh.from + " " + sh.to + " from-station mismatch ");
+              else if ( sh.from_station != s ) Log.e( "Cave3D TH", "shot " + sh.from + " " + sh.to + " from-station mismatch ");
             } 
             if ( sh.to.equals(s.name) )   {
               st = s;
               if (  sh.to_station == null ) sh.to_station = s;
-              else if ( sh.to_station != s ) Log.e( TAG, "shot " + sh.from + " " + sh.to + " to-station mismatch ");
+              else if ( sh.to_station != s ) Log.e( "Cave3D TH", "shot " + sh.from + " " + sh.to + " to-station mismatch ");
             }
             if ( sf != null && st != null ) break;
           }
@@ -721,7 +758,7 @@ public class Cave3DThParser extends Cave3DParser
             Cave3DStation s = sh.getStationFromStation( sf );
             stations.add( s );
             sh.to_station = s;
-            // Log.v(TAG, "add station TO " + sh.from + " " + sh.to + " " + sh.to_station.name );
+            // Log.v( TAG, "add station TO " + sh.from + " " + sh.to + " " + sh.to_station.name );
             sh.used = true;
 	    ++ used_cnt;
             mCaveLength += sh.len;
@@ -731,7 +768,7 @@ public class Cave3DThParser extends Cave3DParser
             Cave3DStation s = sh.getStationFromStation( st );
             stations.add( s );
             sh.from_station = s;
-            // Log.v(TAG, "add station FR " + sh.from + " " + sh.to + " " + sh.from_station.name  );
+            // Log.v( TAG, "add station FR " + sh.from + " " + sh.to + " " + sh.from_station.name  );
             sh.used = true;
 	    ++ used_cnt;
             mCaveLength += sh.len;
@@ -745,13 +782,13 @@ public class Cave3DThParser extends Cave3DParser
     // Log.v( TAG, "used shot " + used_cnt + " loops " + mLoopCnt );
     // StringBuilder sb = new StringBuilder();
     // for ( Cave3DStation st : stations ) { sb.append(" "); sb.append( st.name ); }
-    // Log.v("Cave3D", sb.toString() );
+    // Log.v( TAG, sb.toString() );
 
     // 3D splay shots
     for ( Cave3DShot sh : splays ) {
       if ( sh.used ) continue;
       if (  sh.from_station != null ) continue;
-      // Log.v(TAG, "check shot " + sh.from + " " + sh.to );
+      // Log.v( TAG, "check shot " + sh.from + " " + sh.to );
       for ( Cave3DStation s : stations ) {
         if ( sh.from.equals(s.name) ) {
           sh.from_station = s;

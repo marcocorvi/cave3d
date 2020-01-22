@@ -14,6 +14,8 @@ import android.util.Log;
 
 class Cave3DSite extends Cave3DVector
 {
+  private static final String TAG = "Cave3D SITE";
+
   Angle angle;
   Cave3DPolygon poly;
 
@@ -86,7 +88,7 @@ class Cave3DSite extends Cave3DVector
   {
     if ( angle == null ) return false;
     if ( angle.next != null ) {
-      Log.v("Cave3D", "site with more than one angle");
+      Log.e( TAG, "site with more than one angle");
       Angle n = angle.next;
       while ( n.next != null ) n = n.next;
       return n.v2 != angle.v1;

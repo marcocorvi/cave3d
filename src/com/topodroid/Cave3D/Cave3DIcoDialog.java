@@ -10,6 +10,8 @@
  */
 package com.topodroid.Cave3D;
 
+// import android.util.Log;
+
 // import java.util.List;
 import java.util.Locale;
 
@@ -38,12 +40,13 @@ import android.view.View.OnTouchListener;
 import android.view.View;
 import android.view.MotionEvent;
 
-// import android.util.Log;
 import android.util.DisplayMetrics;
 
 public class Cave3DIcoDialog extends Dialog
                              implements OnTouchListener
 {
+  // private static final String TAG = "Cave3D ICON";
+
   private static int SIDE  = 180;
   private static int CX = SIDE/2;
   private static int CY = SIDE/2;
@@ -134,7 +137,7 @@ public class Cave3DIcoDialog extends Dialog
       diagram.add( shot.len, shot.ber, shot.cln, eps ); // angles in radians
     }
     mMax = diagram.maxValue();
-    // Log.v( "Cave3D", "eps " + eps + " max " + mMax );
+    // Log.v( TAG, "eps " + eps + " max " + mMax );
   }
 
   private void evalIcoDiagram( Canvas canvas )
@@ -149,7 +152,7 @@ public class Cave3DIcoDialog extends Dialog
       float dx = (float)(  v * RADIUS * x);
       float dy = (float)(- v * RADIUS * y);
       int col = (int)(0xff * v);
-      // Log.v( "Cave3D", " path to " + dx + " " + dy );
+      // Log.v( TAG, " path to " + dx + " " + dy );
       Path path = new Path();
       path.moveTo( CX, CY );
       path.lineTo( CX + dx + dy/20, CY + dy - dx/20 );
