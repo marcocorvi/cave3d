@@ -41,6 +41,7 @@ public class CGALExporter
   {
     // String name = "Cave3D";
     // Log.v( TAG, "export as CGAL " + filename );
+    if ( data == null ) return false;
 
     List< Cave3DStation> stations = data.getStations();
     List< Cave3DShot>    shots    = data.getShots();

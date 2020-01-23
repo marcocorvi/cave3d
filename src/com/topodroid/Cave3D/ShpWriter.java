@@ -24,6 +24,7 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;   
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -45,8 +46,7 @@ class ShpObject
   final static byte BYTEN  = (byte)'N';
   final static short SHORT0 = (short)0;
 
-
-  int geomType; // geom type
+  int mGeomType; // geom type
   int nr;   // nuber of objects
   String path; // file path 
   int year, month, day;
@@ -71,7 +71,7 @@ class ShpObject
   // @param dd day [1..31]
   ShpObject( int typ, String pth, List<File> files ) // throws IOException
   { 
-    geomType  = typ;
+    mGeomType  = typ;
     nr    = 0;
     path  = pth;
     mFiles = files;
@@ -416,9 +416,11 @@ class ShpObject
 
 class ShpPointz extends ShpObject
 {
+  private static int mShpType = SHP_POINTZ;
+
   ShpPointz( String path, List<File> files ) // throws IOException
   {
-    super( SHP_POINTZ, path, files );
+    super( mShpType, path, files );
   }
 
   // write headers for POINTZ
@@ -450,8 +452,8 @@ class ShpPointz extends ShpObject
     open();
     resetChannels( 2*shpLength+8, 2*shxLength+8, dbfLength );
 
-    shpBuffer = writeShapeHeader( shpBuffer, SHP_POINTZ, shpLength );
-    shxBuffer = writeShapeHeader( shxBuffer, SHP_POINTZ, shxLength );
+    shpBuffer = writeShapeHeader( shpBuffer, mShpType, shpLength );
+    shxBuffer = writeShapeHeader( shxBuffer, mShpType, shxLength );
     writeDBaseHeader( n_pts, dbfRecLen, n_fld, fields, ftypes, flens );
     // Log.v( TAG, "POINTZ done headers");
 
@@ -460,7 +462,7 @@ class ShpPointz extends ShpObject
       int offset = 50 + cnt * shpRecLen; 
       writeShpRecordHeader( cnt, shpRecLen );
       shpBuffer.order(ByteOrder.LITTLE_ENDIAN);   
-      shpBuffer.putInt( SHP_POINTZ );
+      shpBuffer.putInt( mShpType );
       // Log.v( TAG, "POINTZ " + cnt + ": " + pt.e + " " + pt.s + " " + pt.v + " offset " + offset );
       shpBuffer.putDouble( pt.e );
       shpBuffer.putDouble( pt.n );
@@ -498,9 +500,11 @@ class ShpPointz extends ShpObject
 
 class ShpPolylinez extends ShpObject
 {
+  static final int mShpType = SHP_POLYLINEZ;
+
   ShpPolylinez( String path, List<File> files ) // throws IOException
   {
-    super( SHP_POLYLINEZ, path, files );
+    super( mShpType, path, files );
   }
 
   boolean writeShots( List< Cave3DShot > lns, String name ) throws IOException
@@ -535,8 +539,8 @@ class ShpPolylinez extends ShpObject
     open();
     resetChannels( 2*shpLength, 2*shxLength, dbfLength );
 
-    shpBuffer = writeShapeHeader( shpBuffer, SHP_POLYLINEZ, shpLength );
-    shxBuffer = writeShapeHeader( shxBuffer, SHP_POLYLINEZ, shxLength );
+    shpBuffer = writeShapeHeader( shpBuffer, mShpType, shpLength );
+    shxBuffer = writeShapeHeader( shxBuffer, mShpType, shxLength );
     writeDBaseHeader( nr, dbfRecLen, n_fld, fields, ftypes, flens );
     // Log.v( TAG, "shots done headers" );
 
@@ -566,7 +570,7 @@ class ShpPolylinez extends ShpObject
   {
     writeShpRecordHeader( cnt, len );
     shpBuffer.order(ByteOrder.LITTLE_ENDIAN);   
-    shpBuffer.putInt( SHP_POLYLINEZ );
+    shpBuffer.putInt( mShpType );
     double x1 = p1.e; double x2 = p2.e; if ( x1 > x2 ) { x1=p2.e; x2=p1.e; }
     double y1 = p1.n; double y2 = p2.n; if ( y1 > y2 ) { y1=p2.n; y2=p1.n; }
     double z1 = p1.z; double z2 = p2.z; if ( z1 > z2 ) { z1=p2.z; z2=p1.z; }
@@ -646,17 +650,37 @@ class ShpPolygonz extends ShpObject
 
   @Override protected int getShpRecordLength( ) { return 108; } // POLIGONZ 76 + 4*8/2 + 4*8/2
 
+  private double area( CWPoint p1, CWPoint p2, CWPoint p3 ) 
+  {
+    double x2 = p2.x - p1.x; // V1
+    double y2 = p2.y - p1.y;
+    double z2 = p2.z - p1.z;
+    double x3 = p3.x - p1.x; // V2
+    double y3 = p3.y - p1.y;
+    double z3 = p3.z - p1.z;
+    double nx = y2 * z3 - z2 * y3; // N = V1 ^ V2
+    double ny = z2 * x3 - x2 * z3;
+    double nz = x2 * y3 - y2 * x3;
+    double nn = Math.sqrt( nx*nx + ny*ny + nz*nz );
+    double vx = ny * z2 - nz * y2; // N ^ V1
+    double vy = nz * x2 - nx * z2;
+    double vz = nx * y2 - ny * x2;
+    double area = ( vx * x3 + vy * y3 + vz * z3 ) / nn; // N ^ V1 * V2
+    return area / 2;
+  }
 
   boolean writeFacets( List< CWFacet > lns ) throws IOException
   {
     int nr = ( lns != null )? lns.size() : 0;
     if ( nr == 0 ) return false;
 
-    int n_fld = 1; // type from to // flag comment
+    int n_fld = 3; // type from to // flag comment
     String[] fields = new String[ n_fld ];
     fields[0] = "type";
-    byte[]   ftypes = { BYTEC };
-    int[]    flens  = { 8 };
+    fields[1] = "area";
+    fields[2] = "Z";
+    byte[]   ftypes = { BYTEC, BYTEC, BYTEC };
+    int[]    flens  = { 8, 16, 8 };
 
     int shpRecLen = getShpRecordLength( );
     int shxRecLen = getShxRecordLength( );
@@ -685,6 +709,12 @@ class ShpPolygonz extends ShpObject
       CWPoint p1 = ln.v1;
       CWPoint p2 = ln.v2;
       CWPoint p3 = ln.v3;
+
+      String zz = "+1";
+      double a = area( p1, p2, p3 );
+      if ( a > 0 ) { CWPoint p = p2; p2 = p3; p3 = p; } // points must be counterclockwise
+      else         { a = -a; zz = "-1"; }
+
       int offset = 50 + cnt * shpRecLen; 
       ++cnt;
 
@@ -693,6 +723,8 @@ class ShpPolygonz extends ShpObject
       writeShpRecord( cnt, shpRecLen, p1, p2, p3 );
       writeShxRecord( offset, shpRecLen );
       fields[0] = "facet";
+      fields[1] = String.format(Locale.US, "%.2f", a );
+      fields[0] = zz;
       writeDBaseRecord( n_fld, fields, flens );
     }
     // Log.v( TAG, "shots done " + cnt + " records" );
@@ -704,7 +736,7 @@ class ShpPolygonz extends ShpObject
   {
     writeShpRecordHeader( cnt, len );
     shpBuffer.order(ByteOrder.LITTLE_ENDIAN);   
-    shpBuffer.putInt( SHP_POLYLINEZ );
+    shpBuffer.putInt( mShpType );
     double x1 = p1.x; double x2 = p2.x; if ( x1 > x2 ) { x1=p2.x; x2=p1.x; } if ( x1 > p3.x ) { x1 = p3.x; } else if ( x2 < p3.x ) { x2 = p3.x; }
     double y1 = p1.y; double y2 = p2.y; if ( y1 > y2 ) { y1=p2.y; y2=p1.y; } if ( y1 > p3.y ) { y1 = p3.y; } else if ( y2 < p3.y ) { y2 = p3.y; }
     double z1 = p1.z; double z2 = p2.z; if ( z1 > z2 ) { z1=p2.z; z2=p1.z; } if ( z1 > p3.z ) { z1 = p3.z; } else if ( z2 < p3.z ) { z2 = p3.z; }
@@ -760,16 +792,37 @@ class ShpPolygonz extends ShpObject
     }
   }
 
+  private double area( Cave3DVector p1, Cave3DVector p2, Cave3DVector p3 ) 
+  {
+    double x2 = p2.x - p1.x; // V1
+    double y2 = p2.y - p1.y;
+    double z2 = p2.z - p1.z;
+    double x3 = p3.x - p1.x; // V2
+    double y3 = p3.y - p1.y;
+    double z3 = p3.z - p1.z;
+    double nx = y2 * z3 - z2 * y3; // N = V1 ^ V2
+    double ny = z2 * x3 - x2 * z3;
+    double nz = x2 * y3 - y2 * x3;
+    double nn = Math.sqrt( nx*nx + ny*ny + nz*nz );
+    double vx = ny * z2 - nz * y2; // N ^ V1
+    double vy = nz * x2 - nx * z2;
+    double vz = nx * y2 - ny * x2;
+    double area = ( vx * x3 + vy * y3 + vz * z3 ) / nn; // N ^ V1 * V2
+    return area / 2;
+  }
+
   boolean writeTriangles( List< Cave3DTriangle > lns ) throws IOException
   {
     int nr = ( lns != null )? lns.size() : 0;
     if ( nr == 0 ) return false;
 
-    int n_fld = 1; // type from to // flag comment
+    int n_fld = 3; // type from to // flag comment
     String[] fields = new String[ n_fld ];
     fields[0] = "type";
-    byte[]   ftypes = { BYTEC };
-    int[]    flens  = { 8 };
+    fields[1] = "area";
+    fields[2] = "Z";
+    byte[]   ftypes = { BYTEC, BYTEC, BYTEC };
+    int[]    flens  = { 8, 16, 8 };
 
     int shpRecLen = getShpRecordLength( );
     int shxRecLen = getShxRecordLength( );
@@ -801,9 +854,16 @@ class ShpPolygonz extends ShpObject
       int offset = 50 + cnt * shpRecLen; 
       ++cnt;
 
+      String zz = "+1";
+      double a = area( p1, p2, p3 );
+      if ( a > 0 ) { Cave3DVector p = p2; p2 = p3; p3 = p; }
+      else         { a = -a; zz = "-1"; }
+
       writeShpRecord( cnt, shpRecLen, p1, p2, p3 );
       writeShxRecord( offset, shpRecLen );
       fields[0] = "tri";
+      fields[1] = String.format( Locale.US, "%.2f", a );
+      fields[2] = zz;
       writeDBaseRecord( n_fld, fields, flens );
     }
     // Log.v( TAG, "shots done records" );
@@ -815,7 +875,7 @@ class ShpPolygonz extends ShpObject
   {
     writeShpRecordHeader( cnt, len );
     shpBuffer.order(ByteOrder.LITTLE_ENDIAN);   
-    shpBuffer.putInt( SHP_POLYLINEZ );
+    shpBuffer.putInt( mShpType );
     double x1 = p1.x; double x2 = p2.x; if ( x1 > x2 ) { x1=p2.x; x2=p1.x; } if ( x1 > p3.x ) { x1 = p3.x; } else if ( x2 < p3.x ) { x2 = p3.x; }
     double y1 = p1.y; double y2 = p2.y; if ( y1 > y2 ) { y1=p2.y; y2=p1.y; } if ( y1 > p3.y ) { y1 = p3.y; } else if ( y2 < p3.y ) { y2 = p3.y; }
     double z1 = p1.z; double z2 = p2.z; if ( z1 > z2 ) { z1=p2.z; z2=p1.z; } if ( z1 > p3.z ) { z1 = p3.z; } else if ( z2 < p3.z ) { z2 = p3.z; }

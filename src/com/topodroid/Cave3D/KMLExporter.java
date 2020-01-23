@@ -96,6 +96,7 @@ public class KMLExporter
   {
     String name = "Cave3D";
     boolean ret = true;
+    if ( data == null ) return false;
 
     // Log.v( TAG, "export as KML " + filename );
     if ( ! getGeolocalizedData( data, 0.0f, 1.0f ) ) { // FIXME declination 0.0f

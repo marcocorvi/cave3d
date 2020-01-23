@@ -142,7 +142,7 @@ public class CWSide
   {
     Cave3DVector dp = p2.minus(p1);
     out.format(Locale.US, "S %d %d %d %d %d %.3f %.3f %.3f\n", mCnt, p1.mCnt, p2.mCnt,
-                ((t1 == null)? "-1" : t1.mCnt), ((t2 == null)? "-1" : t2.mCnt), dp.x, dp.y, dp.z );
+                ((t1 == null)? -1 : t1.mCnt), ((t2 == null)? -1 : t2.mCnt), dp.x, dp.y, dp.z );
   }
 }
 

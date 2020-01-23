@@ -64,6 +64,7 @@ public class ShpExporter
   // filepath    filename with no ending '/'
   boolean exportASCII( String filename, Cave3DParser data, boolean b_legs, boolean b_splays, boolean b_walls )
   {
+    if ( data == null ) return false;
 
     boolean ret = true;
     ArrayList<File> files = new ArrayList<File>();
@@ -71,17 +72,16 @@ public class ShpExporter
     String filepath = filename.replace(".shz", "" );
 
     File path = new File(filepath);
-    if ( path.exists() ) {
-      Log.w( TAG, "Export error: file exists" );
-      return false;
+    if ( ! path.exists() ) {
+      path.mkdirs();
     }
-    path.mkdirs();
-    if ( true )     ret &= exportStations( filepath, files, data.getStations() );
-    if ( b_legs )   ret &= exportShots( filepath, files, data.getShots(), "leg" );
-    if ( b_splays ) ret &= exportShots( filepath, files, data.getSplays(), "splay" );
-    if ( b_walls ) {
+
+    if ( ret )             ret &= exportStations( filepath, files, data.getStations() );
+    if ( ret && b_legs )   ret &= exportShots( filepath, files, data.getShots(), "leg" );
+    if ( ret && b_splays ) ret &= exportShots( filepath, files, data.getSplays(), "splay" );
+    if ( ret && b_walls ) {
       ret &= exportFacets( filepath, files, mFacets );
-      if ( mTriangles != null ) ret &= exportTriangles( filepath, files, mTriangles );
+      if ( ret && mTriangles != null ) ret &= exportTriangles( filepath, files, mTriangles );
     }
 
     if ( ret ) {

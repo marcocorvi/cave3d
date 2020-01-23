@@ -44,6 +44,8 @@ public class LASExporter
   
   static boolean exportBinary( String filename, Cave3DParser data, boolean do_splays, boolean do_walls, boolean do_station )
   { 
+    if ( data == null ) return false;
+
     float[] v = data.getSplaysEndpoints();
     int nr_pts = data.getSplayNumber();
     // Log.v( TAG, "Number of points " + nr_pts );

@@ -357,7 +357,7 @@ public class Cave3DRenderer // implements Renderer
     if ( powercrustcomputer != null && powercrustcomputer.hasPlanview() ) {
       do_planview = ( do_planview + 1 ) % 4;
       do_paths_planview = true;
-    } else {
+    } else if ( mCave3D != null ) {
       mCave3D.toast( R.string.no_planview );
     }
   }
@@ -383,7 +383,7 @@ public class Cave3DRenderer // implements Renderer
     if ( mSurface != null ) {
       do_surface = ! do_surface;
       do_paths_surface = true; 
-    } else {
+    } else if ( mCave3D != null ) {
       mCave3D.toast( R.string.no_surface );
     }
   }
@@ -787,7 +787,7 @@ public class Cave3DRenderer // implements Renderer
     
     mSurface = mParser.getSurface();
     if ( mSurface != null ) {
-      mCave3D.setButtonSurface();
+      if ( mCave3D != null ) mCave3D.setButtonSurface();
       projs_surface_E = new float[ mSurface.mNr1 * mSurface.mNr2 ];
       projs_surface_N = new float[ mSurface.mNr1 * mSurface.mNr2 ];
     } else {
@@ -874,21 +874,21 @@ public class Cave3DRenderer // implements Renderer
 
             public void onPostExecute( Boolean b )
             {
-              if ( b ) {
-                mCave3D.toast( R.string.done_convexhull );
-              } else {
-                mCave3D.toast( R.string.fail_convexhull, true );
+              if ( mCave3D != null ) {
+                if ( b ) {
+                  mCave3D.toast( R.string.done_convexhull );
+                } else {
+                  mCave3D.toast( R.string.fail_convexhull, true );
+                }
               }
             }
         }).execute();
 
 
       }
-      // mCave3D.toast( "computing convex hull walls" );
+      // if ( mCave3D != null ) mCave3D.toast( "computing convex hull walls" );
     }
-    if ( mCave3D != null ) { // CRASH here - this should not be necessary
-      mCave3D.setButtonWall();
-    }
+    if ( mCave3D != null ) mCave3D.setButtonWall();
   }
 
 /* // FIXME skip WALL_HULL triangles
@@ -969,19 +969,19 @@ public class Cave3DRenderer // implements Renderer
 
             public void onPostExecute( Boolean b )
             {
-              if ( b ) {
-                mCave3D.toast(  R.string.done_powercrust );
-              } else {
-                mCave3D.toast( R.string.fail_powercrust, true );
+              if ( mCave3D != null ) {
+                if ( b ) {
+                  mCave3D.toast(  R.string.done_powercrust );
+                } else {
+                  mCave3D.toast( R.string.fail_powercrust, true );
+                }
               }
             }
         }).execute();
 
       }
     }
-    if ( mCave3D != null ) { // CRASH here - this should not be necessary
-      mCave3D.setButtonWall();
-    }
+    if ( mCave3D != null ) mCave3D.setButtonWall();
   }
 
   // -------------------------------------------------------------------------------------------
@@ -2292,9 +2292,9 @@ public class Cave3DRenderer // implements Renderer
           // TODO
         }
       } catch ( FileNotFoundException e ) { 
-        mCave3D.toast( R.string.error_file_not_found, true );
+        if ( mCave3D != null ) mCave3D.toast( R.string.error_file_not_found, true );
       } catch ( IOException e ) {
-        mCave3D.toast( R.string.error_io_exception, true );
+        if ( mCave3D != null ) mCave3D.toast( R.string.error_io_exception, true );
       } finally {
         if ( fw != null ) {
           try {
@@ -2304,14 +2304,15 @@ public class Cave3DRenderer // implements Renderer
         }
       }
     // } else  {
-    //   mCave3D.toast( "ConvexHull walls are disabled" );
+    //   if ( mCave3D != null ) mCave3D.toast( "ConvexHull walls are disabled" );
     // }
   }
 
   boolean checkFile( String pathname, boolean overwrite )
   {
+    Log.v( TAG, "Check file " + pathname + " overwrite " + overwrite );
     if ( (new File(pathname)).exists() && ! overwrite ) {
-      mCave3D.toast(R.string.warning_not_overwrite, pathname);
+      if ( mCave3D != null ) mCave3D.toast(R.string.warning_not_overwrite, pathname);
       return false;
     }
     return true;
@@ -2373,7 +2374,7 @@ public class Cave3DRenderer // implements Renderer
               }
             }
           } else if ( powercrustcomputer == null || ! powercrustcomputer.hasTriangles() ) {
-            mCave3D.toast(R.string.powercrust_dxf_not_supported, pathname, true );
+            if ( mCave3D != null ) mCave3D.toast(R.string.powercrust_dxf_not_supported, pathname, true );
             return;
           }
         }
