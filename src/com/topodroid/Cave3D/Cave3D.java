@@ -574,7 +574,8 @@ public class Cave3D extends Activity
   void showTitle( double clino, double phi )
   {
     if ( mFilename != null ) {
-      setTitle( String.format( getResources().getString(R.string.title), mFilename, clino, phi ) );
+      double p = ( phi <= 180 )? 180-phi : 540-phi;
+      setTitle( String.format( getResources().getString(R.string.title), mFilename, clino, p ) );
     } else {
       setTitle( "C A V E _ 3 D ");
     }
@@ -784,7 +785,7 @@ public class Cave3D extends Activity
       Bundle extras = getIntent().getExtras();
       if ( extras != null ) {
         String name = extras.getString( "INPUT_FILE" );
-        // Log.v( TAG, "TopoDroid filename " + name );
+        Log.v( "Cave3D-EXTRA", "TopoDroid filename " + name );
         if ( name != null ) {
           if ( ! doOpenFile( name ) ) {
             Log.e( TAG, "Cannot open input file " + name );
@@ -793,7 +794,7 @@ public class Cave3D extends Activity
         } else {
           name = extras.getString( "INPUT_SURVEY" );
           String base = extras.getString( "SURVEY_BASE" );
-          // Log.v( TAG, "open input survey " + name + " base " + base );
+          Log.v( "Cave3D-EXTRA", "open input survey " + name + " base " + base );
           if ( name != null ) {
             if ( ! doOpenSurvey( name, base ) ) {
               Log.e( TAG, "Cannot open input survey " + name );
@@ -805,11 +806,11 @@ public class Cave3D extends Activity
           }
         }          
       } else {
-        // Log.v( TAG, "No filename: openfile dialog" );
+        Log.v( "Cave3D-EXTRA", "No filename: openfile dialog" );
         openFile();
       }
     } else {
-      Log.e( TAG, "finishing activity ... perms " + mCheckPerms );
+      Log.e( "Cave3D-PARM", "finishing activity ... perms " + mCheckPerms );
       if ( perms_dialog != null ) perms_dialog.dismiss();
       finish();
     }
@@ -822,12 +823,14 @@ public class Cave3D extends Activity
   { 
     if ( mIsNotMultitouch ) mZoomBtnsCtrl.setVisible(false);
     // mZoomBtnsCtrl.setVisible(false);
+    Log.v("Cave3D", "on pause" );
     super.onPause();
   }
 
   @Override
   protected void onResume() {
     super.onResume();
+    Log.v("Cave3D", "on resume" );
   }
 
 
@@ -835,16 +838,16 @@ public class Cave3D extends Activity
   @Override
   public void onRequestPermissionsResult( int code, final String[] perms, int[] results )
   {
-    // Log.v( TAG, "req code " + code + " results length " + results.length );
+    Log.v( "Cave3D-PERM", "req code " + code + " results length " + results.length );
     if ( code == FeatureChecker.REQUEST_PERMISSIONS ) {
       if ( results.length > 0 ) {
 	for ( int k = 0; k < results.length; ++ k ) {
 	  FeatureChecker.GrantedPermission[k] = ( results[k] == PackageManager.PERMISSION_GRANTED );
-	  // Log.v( TAG, "perm " + k + " perms " + perms[k] + " result " + results[k] );
+	  Log.v( "Cave3D-PERM", "perm " + k + " perms " + perms[k] + " result " + results[k] );
 	}
       }
     }
-    // Log.v( TAG, "must restart " + FeatureChecker.MustRestart );
+    // Log.v( "Cave3D-PERM", "must restart " + FeatureChecker.MustRestart );
     // if ( ! FeatureChecker.MustRestart ) {
     //   TopoDroidAlertDialog.makeAlert( this, getResources(), R.string.perm_required,
     //     new DialogInterface.OnClickListener() {

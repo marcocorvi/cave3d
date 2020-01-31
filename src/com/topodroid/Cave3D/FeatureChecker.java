@@ -11,14 +11,14 @@
  */
 package com.topodroid.Cave3D;
 
+import android.util.Log;
+
 import android.os.Build;
 // import android.os.Build.VERSION_CODES;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 // import android.content.pm.FeatureInfo;
-
-// import android.util.Log;
 
 class FeatureChecker
 {
@@ -42,7 +42,7 @@ class FeatureChecker
 
   static void createPermissions( Context context, Activity activity )
   {
-    // Log.v( TAG, "create permissions" );
+    Log.v( "Cave3D-PERM", "create permissions" );
     MustRestart = false;
     // FIXME-23
     if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.M ) return;
@@ -52,11 +52,11 @@ class FeatureChecker
       // FIXME-23
       GrantedPermission[k] = ( context.checkSelfPermission( perms[k] ) == PackageManager.PERMISSION_GRANTED );
       // FIXME-16 GrantedPermission[k] = true;
-      // Log.v("DistoXX", "FC perm " + k + " granted " + GrantedPermission[k] );
+      Log.v("Cave3D-PERM", "FC perm " + k + " granted " + GrantedPermission[k] );
       if ( ! GrantedPermission[k] ) MustRestart = true;
     }
-    // Log.v("DistoXX", "FC must restart " + MustRestart );
     if ( MustRestart ) { // if a permission has not been granted request it
+      Log.v("Cave3D-PERM", "FC must restart now");
       /* FIXME-23 */
       activity.requestPermissions( perms, REQUEST_PERMISSIONS );
       android.os.Process.killProcess( android.os.Process.myPid() );
@@ -72,12 +72,12 @@ class FeatureChecker
    */
   static int checkPermissions( Context context )
   {
-    // TDLog.Log( LOG_PERM, "check permissions" );
     int k;
     for ( k=0; k<NR_PERMS_D; ++k ) {
       int res = context.checkCallingOrSelfPermission( perms[k] );
       if ( res != PackageManager.PERMISSION_GRANTED ) {
         // TDToast.make( mActivity, "TopoDroid must have " + perms[k] );
+        Log.v( "Cave3D-PERM", "check permission: not granted" );
 	return -1;
       }
     }
@@ -91,18 +91,19 @@ class FeatureChecker
       }
       flag *= 2;
     }
+    Log.v( "Cave3D-PERM", "check permission: return " + ret );
     return ret;
   }
 
   // static boolean checkMultitouch( Context context )
   // {
-  //   // TDLog.Log( LOG_PERM, "check multitouch" );
+  //   // Log.v( Cave3D-PERM, "check multitouch" );
   //   return context.getPackageManager().hasSystemFeature( PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH );
   // }
 
   // static boolean checkInternet( Context context )
   // {
-  //   // TDLog.Log( LOG_PERM, "check internet" );
+  //   // Log.v( Cave3D-PERM, "check internet" );
   //   return ( context.checkCallingOrSelfPermission( android.Manifest.permission.INTERNET ) == PackageManager.PERMISSION_GRANTED );
   // }
 }
