@@ -3,7 +3,7 @@
  * @author marco corvi
  * @date 
  *
- * @brief TopoDroid drawing
+ * @brief Menu item (as in TopoDroid)
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.

@@ -5,7 +5,7 @@
  *
  * @date nov 2013
  *
- * @brief TopoDroid button bar
+ * @brief button bar (from TopoDroid)
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.

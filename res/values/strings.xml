@@ -113,7 +113,7 @@
 
     <string name="pref_base_path_title">Base path</string>
     <string name="pref_base_path_summary">App base path</string>
-    <string name="pref_base_path_message">Directory containing the Therion files</string>
+    <string name="pref_base_path_message">Directory containing the survey files</string>
     <string name="pref_text_size_title">Text size</string>
     <string name="pref_text_size_summary">Station label size</string>
     <string name="pref_text_size_message">Station label text size</string>
@@ -163,7 +163,8 @@
     <string name="welcome_title">Cave3D %1$s</string>
 
     <string name="help">Cave3D Help\n
-Cave3D is a 3d viewer for Therion, Loch, Compass, and VisualTopo.\n
+Cave3D is the 3d viewer of TopoDroid.\n
+It can load also other file formats: Therion, Loch, Compass, and VisualTopo.\n
 The model is shown with a reference grid (blue north, green east) or triplet (pink upward).\n\n
 
 BUTTONS\n
@@ -177,7 +178,7 @@ Color: button will change color-coding of centreline from all grey to survey and
 Grid: button will switch between underlying grid or X, Y, Z axis.\n\n
 
 MENU\n
-Open file: opens a dialogue to select a .th file from th subfolder in TopoDroid working directory.\n
+Open file: opens a dialogue to select a survey file from the working directory.\n
 Export: opens the export dialogue.\n
 Info: will display survey statistics.\n
 Ico diagram: displays ICO diagram.\n
@@ -189,7 +190,7 @@ Options\n
 Help\n\n
 
 OPTIONS\n
-Base path: Directory containing the Therion/Loch files\n
+Base path: Directory containing the survey files\n
 Text size: Station label text size\n
 Buttons size: Buttons size\n
 Selection radius: Radius of selection\n
@@ -201,14 +202,15 @@ Randomize points: Add a small random vector to splays\n
 Stretch walls: Shift wall points by a small quantity along the leg\n\n
 
 EXPORTS\n
-Model can be exported into Therion, KML, STL or STL-bin formats, CGAL and LAS.
+Model can be exported into DXF, KML, STL or STL-binary, CGAL, LAS-binary, and shapefile.
 There are options to include splays, walls, stations and surface in export. The model can be also serialized in a text file.\n\n
 
 Walls\n
 The wall envelope is not computed automatically when the file is opened, but it must be
 requested by the user thru the "wall" menu.
 There are two models: pseudo conevx-hull, and powercrust. The first is good when the splay are not dense. The second is for dense splays.
-After the wall has been computed it can be displayed with the "wall" button.\n\n
+The computation is done in backgroiund.
+When it is done the wall can be displayed with the "wall" button.\n\n
 
 Station actions\n
 When the stations are displayed, they can be selected tapping on the station.

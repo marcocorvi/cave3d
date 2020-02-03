@@ -3,7 +3,7 @@
  * @author marco corvi
  * @date may 2018
  *
- * @brief TopoDroid permission dialog
+ * @brief Cave3D permission dialog
  *
  * --------------------------------------------------------
  *  Copyright This software is distributed under GPL-3.0 or later

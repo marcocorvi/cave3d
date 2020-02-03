@@ -3,7 +3,7 @@
  * @author marco corvi
  * @date nov 2011
  *
- * @brief TopoDroid DistoX survey data
+ * @brief DistoX survey data as from TopoDroid database
  * --------------------------------------------------------
  *  Copyright This software is distributed under GPL-3.0 or later
  *  See the file COPYING.

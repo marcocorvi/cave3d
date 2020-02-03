@@ -3,7 +3,7 @@
  * @author marco corvi
  * @date nov 2019
  *
- * @brief Interface to TopoDroid surveu database
+ * @brief Interface to TopoDroid survey database
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.

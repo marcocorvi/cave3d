@@ -70,7 +70,7 @@ public class Cave3D extends Activity
   private static final int REQUEST_OPEN_FILE = 1;
   static boolean mUseSplayVector = true;
 
-  static String APP_BASE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/TopoDroid/th/";
+  static String APP_BASE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
   static String mAppBasePath  = APP_BASE_PATH;
 
   static int mCheckPerms = -1;
@@ -195,14 +195,17 @@ public class Cave3D extends Activity
     try {
       mTextSize = Integer.parseInt( sp.getString( CAVE3D_TEXT_SIZE, "20" ) );
     } catch ( NumberFormatException e ) {
+      mTextSize = 20;
     }
     try {
       mButtonSize = Integer.parseInt( sp.getString( CAVE3D_BUTTON_SIZE, "1" ) );
     } catch ( NumberFormatException e ) {
+      mButtonSize = 1;
     }
     try {
       mSelectionRadius = Integer.parseInt( sp.getString( CAVE3D_SELECTION_RADIUS, "20" ) );
     } catch ( NumberFormatException e ) {
+      mSelectionRadius = 20;
     }
     mGridAbove      = sp.getBoolean( CAVE3D_GRID_ABOVE, false );
     mMinClino       = sp.getBoolean( CAVE3D_NEG_CLINO, false ) ? - Cave3DRenderer.PIOVERTWO : 0;
@@ -224,7 +227,10 @@ public class Cave3D extends Activity
         mSplitStretchDelta = r;
         mSplitStretch = true;
       }
-    } catch ( NumberFormatException e ) { }
+    } catch ( NumberFormatException e ) {
+      mSplitStretchDelta = 0.1f;
+      mSplitStretch = true;
+    }
     // mWallConvexHull = sp.getBoolean( CAVE3D_CONVEX_HULL, true );
     // mWallPowercrust = sp.getBoolean( CAVE3D_POWERCRUST,  false );
     // mWallDelaunay   = sp.getBoolean( CAVE3D_DELAUNAY,    false );
@@ -782,31 +788,33 @@ public class Cave3D extends Activity
     }
 
     if ( mCheckPerms >= 0 ) {
+      boolean file_dialog = true;
       Bundle extras = getIntent().getExtras();
       if ( extras != null ) {
         String name = extras.getString( "INPUT_FILE" );
         Log.v( "Cave3D-EXTRA", "TopoDroid filename " + name );
         if ( name != null ) {
-          if ( ! doOpenFile( name ) ) {
+          if ( doOpenFile( name ) ) {
+            file_dialog = false;
+          } else {
             Log.e( TAG, "Cannot open input file " + name );
-            finish();
           }
         } else {
           name = extras.getString( "INPUT_SURVEY" );
           String base = extras.getString( "SURVEY_BASE" );
           Log.v( "Cave3D-EXTRA", "open input survey " + name + " base " + base );
           if ( name != null ) {
-            if ( ! doOpenSurvey( name, base ) ) {
+            if ( doOpenSurvey( name, base ) ) {
+              file_dialog = false;
+            } else {
               Log.e( TAG, "Cannot open input survey " + name );
-              finish();
             }
           } else {
             Log.e( TAG, "No input file or survey");
-            finish();
           }
         }          
-      } else {
-        Log.v( "Cave3D-EXTRA", "No filename: openfile dialog" );
+      }
+      if ( file_dialog ) { 
         openFile();
       }
     } else {
@@ -849,7 +857,7 @@ public class Cave3D extends Activity
     }
     // Log.v( "Cave3D-PERM", "must restart " + FeatureChecker.MustRestart );
     // if ( ! FeatureChecker.MustRestart ) {
-    //   TopoDroidAlertDialog.makeAlert( this, getResources(), R.string.perm_required,
+    //   Cave3DAlertDialog.makeAlert( this, getResources(), R.string.perm_required,
     //     new DialogInterface.OnClickListener() {
     //       @Override public void onClick( DialogInterface dialog, int btn ) { finish(); }
     //     }

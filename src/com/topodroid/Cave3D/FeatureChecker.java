@@ -3,7 +3,7 @@
  * @author marco corvi
  * @date june 2017
  *
- * @brief TopoDroid feature checker
+ * @brief Cave3D feature checker
  * --------------------------------------------------------
  *  Copyright This software is distributed under GPL-3.0 or later
  *  See the file COPYING.
@@ -76,7 +76,7 @@ class FeatureChecker
     for ( k=0; k<NR_PERMS_D; ++k ) {
       int res = context.checkCallingOrSelfPermission( perms[k] );
       if ( res != PackageManager.PERMISSION_GRANTED ) {
-        // TDToast.make( mActivity, "TopoDroid must have " + perms[k] );
+        // TDToast.make( mActivity, "Cave3D must have " + perms[k] );
         Log.v( "Cave3D-PERM", "check permission: not granted" );
 	return -1;
       }
@@ -86,7 +86,7 @@ class FeatureChecker
     for ( ; k<NR_PERMS; ++k ) {
       int res = context.checkCallingOrSelfPermission( perms[k] );
       if ( res != PackageManager.PERMISSION_GRANTED ) {
-        // TDToast.make( mActivity, "TopoDroid may need " + perms[k] );
+        // TDToast.make( mActivity, "Cave3D may need " + perms[k] );
 	ret += flag;
       }
       flag *= 2;

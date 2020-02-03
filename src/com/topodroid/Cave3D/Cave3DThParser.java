@@ -28,7 +28,7 @@ public class Cave3DThParser extends Cave3DParser
 {
   private static final String TAG = "Cave3D TH";
 
-  static final int TOPODROID_DB_VERSION = 42; // must agree with TopoDroid
+  static final int TOPODROID_DB_VERSION = 42; // must agree with TopoDroid database version
 
   static final int FLIP_NONE       = 0;
   static final int FLIP_HORIZONTAL = 1;
