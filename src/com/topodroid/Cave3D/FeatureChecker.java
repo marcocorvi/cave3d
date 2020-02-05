@@ -42,7 +42,7 @@ class FeatureChecker
 
   static void createPermissions( Context context, Activity activity )
   {
-    Log.v( "Cave3D-PERM", "create permissions" );
+    // Log.v( "Cave3D-PERM", "create permissions" );
     MustRestart = false;
     // FIXME-23
     if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.M ) return;
@@ -52,11 +52,11 @@ class FeatureChecker
       // FIXME-23
       GrantedPermission[k] = ( context.checkSelfPermission( perms[k] ) == PackageManager.PERMISSION_GRANTED );
       // FIXME-16 GrantedPermission[k] = true;
-      Log.v("Cave3D-PERM", "FC perm " + k + " granted " + GrantedPermission[k] );
+      // Log.v("Cave3D-PERM", "FC perm " + k + " granted " + GrantedPermission[k] );
       if ( ! GrantedPermission[k] ) MustRestart = true;
     }
     if ( MustRestart ) { // if a permission has not been granted request it
-      Log.v("Cave3D-PERM", "FC must restart now");
+      // Log.v("Cave3D-PERM", "FC must restart now");
       /* FIXME-23 */
       activity.requestPermissions( perms, REQUEST_PERMISSIONS );
       android.os.Process.killProcess( android.os.Process.myPid() );
@@ -77,7 +77,7 @@ class FeatureChecker
       int res = context.checkCallingOrSelfPermission( perms[k] );
       if ( res != PackageManager.PERMISSION_GRANTED ) {
         // TDToast.make( mActivity, "Cave3D must have " + perms[k] );
-        Log.v( "Cave3D-PERM", "check permission: not granted" );
+        // Log.v( "Cave3D-PERM", "check permission: not granted" );
 	return -1;
       }
     }
@@ -91,7 +91,7 @@ class FeatureChecker
       }
       flag *= 2;
     }
-    Log.v( "Cave3D-PERM", "check permission: return " + ret );
+    // Log.v( "Cave3D-PERM", "check permission: return " + ret );
     return ret;
   }
 

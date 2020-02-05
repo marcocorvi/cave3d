@@ -383,7 +383,7 @@ public class CWConvexHull
     // boolean cs = checkSideConsistency();
     // boolean cv = checkVertexConsistency();
     // if ( ! cs || ! cv )
-    //   Log.v( TAG, "consistency before: V " + mVertex.size() + " S " + mSide.size() + " T " + mFace.size()
+    //   Log.v( "Cave3D-CH", "consistency before: V " + mVertex.size() + " S " + mSide.size() + " T " + mFace.size()
     //     + " S-check " + cs + " V-check " + cv );
    
     // int nv = mVertex.nv();

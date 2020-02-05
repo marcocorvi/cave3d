@@ -16,6 +16,7 @@
     <string name="menu_open">Open file</string>
     <string name="menu_options">Options</string>
     <string name="menu_reset">Reset</string>
+
     <string name="menu_viewpoint">Viewpoint</string>
     <string name="menu_files">Surveys</string>
     <string name="menu_export">Export</string>
@@ -84,10 +85,10 @@
     <string name="powercrust_few_splays">Powercrust: too few splays</string>
     <string name="powercrust_failed">Powercrust failed</string>
     <string name="powercrust_successful">Powercrust successful: %1$d / %2$d</string>
+    <string name="powercrust_dxf_not_supported">powercrust dxf export not supported</string>
 
     <string name="ok_export">OK. Exported %1$s</string>
 
-    <string name="powercrust_dxf_not_supported">powercrust dxf export not supported</string>
     <string name="no_planview">No plan view</string>
     <string name="no_surface">No surface DEM</string>
 
@@ -110,6 +111,11 @@
     <string name="fail_convexhull">Failed convex-hull walls</string>
     <string name="done_powercrust">Done powercrust walls</string>
     <string name="fail_powercrust">Failed powercrust walls</string>
+
+    <string name="no_database">No database\n</string>
+    <string name="no_survey">No survey %1$s\n</string>
+    <string name="no_file">No file %1$s\n</string>
+    <string name="empty_survey">Empty survey %1$s\n</string>
 
     <string name="pref_base_path_title">Base path</string>
     <string name="pref_base_path_summary">App base path</string>
@@ -164,7 +170,7 @@
 
     <string name="help">Cave3D Help\n
 Cave3D is the 3d viewer of TopoDroid.\n
-It can load also other file formats: Therion, Loch, Compass, and VisualTopo.\n
+It can load also other file formats: Therion (th, thconfig), Loch, Compass (dat, mak), and VisualTopo.\n
 The model is shown with a reference grid (blue north, green east) or triplet (pink upward).\n\n
 
 BUTTONS\n

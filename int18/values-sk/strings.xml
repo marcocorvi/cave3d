@@ -4,6 +4,7 @@
 
     <!-- TODO string name="btn_ok">OK</string -->
     <!-- TODO string name="btn_cancel">Cancel</string -->
+    <!-- TODO string name="btn_compute">Compute</string -->
 
     <string name="btn_move">Posun</string>
     <string name="btn_rotate">Otáčanie</string>
@@ -82,8 +83,12 @@
     <string name="powercrust_few_splays">Powercrust: príliš málo pomocných zámer</string>
     <string name="powercrust_failed">Powercrust zlyhanie</string>
     <string name="powercrust_successful">Powercrust úspešný: %1$d / %2$d</string>
+    <!-- TODO string name="powercrust_dxf_not_supported">powercrust dxf export not supported</string -->
 
     <string name="ok_export">OK. Export dokončený %1$s</string>
+
+    <!-- TODO string name="no_planview">No plan view</string -->
+    <!-- TODO string name="no_surface">No surface DEM</string -->
 
     <string name="error_file_not_found">Error: súbor nenájdený</string>
     <string name="error_file_not_readable">Error: súbor nečitateľný</string>
@@ -98,6 +103,17 @@
     <!-- UNUSED string name="warning_not_cgal">Warning: not CGAL text file %1$s</string -->
     <!-- UNUSED string name="warning_not_stl">Warning: not stl file %1$s</string -->
     <string name="warning_no_cwd">Varovanie: Chybná cesta k adresáru</string>
+
+    <!-- TODO string name="done_fractals">Done fractals dims</string -->
+    <!-- TODO string name="done_convexhull">Done convex-hull walls</string -->
+    <!-- TODO string name="fail_convexhull">Failed convex-hull walls</string -->
+    <!-- TODO string name="done_powercrust">Done powercrust walls</string -->
+    <!-- TODO string name="fail_powercrust">Failed powercrust walls</string -->
+
+    <!-- TODO string name="no_database">No database\n</string -->
+    <!-- TODO string name="no_survey">No survey %1$s\n</string -->
+    <!-- TODO string name="no_file">No file %1$s\n</string -->
+    <!-- TODO string name="empty_survey">Empty survey %1$s\n</string -->
 
     <string name="pref_base_path_title">Základný adresár</string>
     <string name="pref_base_path_summary">Základný adresár/cesta k súborom</string>
@@ -144,5 +160,10 @@
     <string name="pref_hull_title">Hull</string>
     <string name="pref_hull_summary">Hull walls</string>
 -->
+
+    <!-- TODO string name="Cave3DPerms">Permissions</string -->
+    <!-- TODO string name="perms_mandatory">Cave3D cannot run without these permissions:</string -->
+    <!-- TODO string name="perms_optional">Cave3D may fail without these permissions:</string -->
+    <!-- TODO string name="welcome_title">Cave3D %1$s</string -->
 
 </resources>

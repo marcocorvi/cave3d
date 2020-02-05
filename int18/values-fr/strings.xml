@@ -4,6 +4,7 @@
 
     <!-- TODO string name="btn_ok">OK</string -->
     <!-- TODO string name="btn_cancel">Cancel</string -->
+    <!-- TODO string name="btn_compute">Compute</string -->
 
     <string name="btn_move">Déplacer</string>
     <string name="btn_rotate">Tourner</string>
@@ -24,6 +25,10 @@
     <string name="menu_ico">Diagramme icone</string>
     <string name="menu_rose">Diagramme rosace</string>
     <string name="menu_wall">Menu parois</string>
+    <!-- TODO string name="menu_fractal">Fractal counts</string -->
+    <!-- TODO string name="menu_help">Help</string -->
+
+    <!-- TODO string name="fractal_title">Fractal counts</string -->
 
     <string name="info_title">Information</string>
     <string name="info_axes">Axes: bleu Nord, vert Est</string>
@@ -79,8 +84,12 @@
     <string name="powercrust_few_splays">Enveloppe Powercrust : très peu de visées latérales</string>
     <string name="powercrust_failed">Enveloppe Powercrust en échec</string>
     <string name="powercrust_successful">Enveloppe Powercrust appliquée avec succès : %1$d / %2$d</string>
+    <!-- TODO string name="powercrust_dxf_not_supported">powercrust dxf export not supported</string -->
 
     <string name="ok_export">OK. Exporté %1$s</string>
+
+    <!-- TODO string name="no_planview">No plan view</string -->
+    <!-- TODO string name="no_surface">No surface DEM</string -->
 
     <string name="error_file_not_found">Erreur : archive  non trouvée</string>
     <!-- TODO string name="error_file_not_readable">Erreur : fichier illisible</string -->
@@ -95,6 +104,18 @@
     <!-- UNUSED string name="warning_not_cgal">Avertissement : pas d'archive de texte CGAL %1$s</string -->
     <!-- UNUSED string name="warning_not_stl">Avertissement : pas d'archive stl %1$s</string -->
     <string name="warning_no_cwd">Avertissement : répertoire initial absent</string>
+
+    <!-- TODO string name="done_fractals">Done fractals dims</string -->
+    <!-- TODO string name="done_convexhull">Done convex-hull walls</string -->
+    <!-- TODO string name="fail_convexhull">Failed convex-hull walls</string -->
+    <!-- TODO string name="done_powercrust">Done powercrust walls</string -->
+    <!-- TODO string name="fail_powercrust">Failed powercrust walls</string -->
+
+    <!-- TODO string name="no_database">No database\n</string -->
+    <!-- TODO string name="no_survey">No survey %1$s\n</string -->
+    <!-- TODO string name="no_file">No file %1$s\n</string -->
+    <!-- TODO string name="empty_survey">Empty survey %1$s\n</string -->
+
     <string name="pref_base_path_title">Dossier de la base de données</string>
     <string name="pref_base_path_summary">Dossier Therion</string>
     <string name="pref_base_path_message">Dossier qui contient les archives Therion</string>
@@ -139,6 +160,11 @@
     <string name="pref_hull_title">Enveloppe</string>
     <string name="pref_hull_summary">Enveloppe parois</string>
 -->
+
+    <!-- TODO string name="Cave3DPerms">Permissions</string -->
+    <!-- TODO string name="perms_mandatory">Cave3D cannot run without these permissions:</string -->
+    <!-- TODO string name="perms_optional">Cave3D may fail without these permissions:</string -->
+    <!-- TODO string name="welcome_title">Cave3D %1$s</string -->
 
 </resources>
 

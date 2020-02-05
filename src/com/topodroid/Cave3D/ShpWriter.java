@@ -30,8 +30,6 @@ import java.util.GregorianCalendar;
 
 class ShpObject
 {
-  protected static final String TAG = "Cave3D SHP";
-
   final static int SHP_MAGIC = 9994;
   final static int SHP_VERSION = 1000;
   final static int SHP_POINT     =  1;
@@ -93,7 +91,7 @@ class ShpObject
         mFiles.add( new File( path + ".dbf" ) );
       }
     } catch ( IOException e ) {
-      Log.w( TAG, "output streams " + e.getMessage() );
+      Log.e( "Cave3D-SHP", "output streams " + e.getMessage() );
       throw e;
     }
   }
@@ -117,7 +115,7 @@ class ShpObject
       shxChannel.position(0);   
       dbfChannel.position(0);   
     } catch ( IOException e ) {
-      Log.w( TAG, "position 0 buffers " + e.getMessage() );
+      Log.e( "Cave3D-SHP", "position 0 buffers " + e.getMessage() );
       throw e;
     } 
   }
@@ -146,20 +144,20 @@ class ShpObject
 
   private void drain( ByteBuffer buffer, FileChannel channel )  throws IOException
   {  
-    // Log.v( TAG, "drain buffer pos " + buffer.position() );
+    // Log.v( "Cave3D-SHP", "drain buffer pos " + buffer.position() );
     try { 
       buffer.flip();  // set limit to current-pos and pos to 0
       while (buffer.remaining() > 0) channel.write(buffer);   
       buffer.flip().limit(buffer.capacity()); // set limit to capacity and pos to 0
     } catch ( IOException e ) {
-      Log.w( TAG, "drain buffers " + e.getMessage() );
+      Log.e( "Cave3D-SHP", "drain buffers " + e.getMessage() );
       throw e;
     }
   }
 
   protected void close() throws IOException
   {
-    // Log.v( TAG, "drain and close" );
+    // Log.v( "Cave3D-SHP", "drain and close" );
     shpBuffer.putInt( 0 );
     shpBuffer.putInt( 0 );
     shxBuffer.putInt( 0 );
@@ -171,21 +169,21 @@ class ShpObject
       if (shpChannel != null && shpChannel.isOpen()) shpChannel.close();
       shpFos.close();
     } catch ( IOException e ) {
-      Log.w( TAG, "close shp buffer " + e.getMessage() );
+      Log.e( "Cave3D-SHP", "close shp buffer " + e.getMessage() );
       throw e;
     }
     try {   
       if (shxChannel != null && shxChannel.isOpen()) shxChannel.close();   
       shxFos.close();
     } catch ( IOException e ) {
-      Log.w( TAG, "close shx buffer " + e.getMessage() );
+      Log.e( "Cave3D-SHP", "close shx buffer " + e.getMessage() );
       throw e;
     }
     try {   
       if (dbfChannel != null && dbfChannel.isOpen()) dbfChannel.close();   
       dbfFos.close();
     } catch ( IOException e ) {
-      Log.w( TAG, "close dbf buffer " + e.getMessage() );
+      Log.e( "Cave3D-SHP", "close dbf buffer " + e.getMessage() );
       throw e;
     }
     shpChannel = null;   
@@ -197,7 +195,7 @@ class ShpObject
     shpBuffer = null;   
     shxBuffer = null;   
     dbfBuffer = null;   
-    // Log.v( TAG, "drain and close DONE" );
+    // Log.v( "Cave3D-SHP", "drain and close DONE" );
   }
 
   // Write the headers for this shapefile including the bounds, shape type,
@@ -445,9 +443,9 @@ class ShpPointz extends ShpObject
     int dbfLength = 33 + n_fld * 32 + n_pts * dbfRecLen; // [Bytes]
 
     setBoundsStations( pts );
-    Log.v( TAG, "Pts X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
-    // Log.v( TAG, "POINTZ " + pts.size() + " len " + shpLength + " / " + shxLength + " / " + dbfLength );
-    // Log.v( TAG, "bbox X " + xmin + " " + xmax );
+    // Log.v( "Cave3D-SHP", "Pts X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
+    // Log.v( "Cave3D-SHP", "POINTZ " + pts.size() + " len " + shpLength + " / " + shxLength + " / " + dbfLength );
+    // Log.v( "Cave3D-SHP", "bbox X " + xmin + " " + xmax );
 
     open();
     resetChannels( 2*shpLength+8, 2*shxLength+8, dbfLength );
@@ -455,7 +453,7 @@ class ShpPointz extends ShpObject
     shpBuffer = writeShapeHeader( shpBuffer, mShpType, shpLength );
     shxBuffer = writeShapeHeader( shxBuffer, mShpType, shxLength );
     writeDBaseHeader( n_pts, dbfRecLen, n_fld, fields, ftypes, flens );
-    // Log.v( TAG, "POINTZ done headers");
+    // Log.v( "Cave3D-SHP", "POINTZ done headers");
 
     int cnt = 0;
     for ( Cave3DStation pt : pts ) {
@@ -463,7 +461,7 @@ class ShpPointz extends ShpObject
       writeShpRecordHeader( cnt, shpRecLen );
       shpBuffer.order(ByteOrder.LITTLE_ENDIAN);   
       shpBuffer.putInt( mShpType );
-      // Log.v( TAG, "POINTZ " + cnt + ": " + pt.e + " " + pt.s + " " + pt.v + " offset " + offset );
+      // Log.v( "Cave3D-SHP", "POINTZ " + cnt + ": " + pt.e + " " + pt.s + " " + pt.v + " offset " + offset );
       shpBuffer.putDouble( pt.e );
       shpBuffer.putDouble( pt.n );
       shpBuffer.putDouble( pt.z );
@@ -474,7 +472,7 @@ class ShpPointz extends ShpObject
       writeDBaseRecord( n_fld, fields, flens );
       ++cnt;
     }
-    // Log.v( TAG, "POINTZ done records");
+    // Log.v( "Cave3D-SHP", "POINTZ done records");
     close();
     return true;
   }
@@ -532,9 +530,9 @@ class ShpPolylinez extends ShpObject
     int dbfLength = 33 + n_fld * 32 + nr * dbfRecLen; // Bytes, 3 fields
 
     setBoundsShots( lns );
-    Log.v( TAG, "Lines X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
-    // Log.v( TAG, "POLYLINEZ shots " + lns.size() + " len " + shpLength + " / " + shxLength + " / " + dbfLength );
-    // Log.v( TAG, "bbox X " + xmin + " " + xmax );
+    // Log.v( "Cave3D-SHP", "Lines X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
+    // Log.v( "Cave3D-SHP", "POLYLINEZ shots " + lns.size() + " len " + shpLength + " / " + shxLength + " / " + dbfLength );
+    // Log.v( "Cave3D-SHP", "bbox X " + xmin + " " + xmax );
 
     open();
     resetChannels( 2*shpLength, 2*shxLength, dbfLength );
@@ -542,7 +540,7 @@ class ShpPolylinez extends ShpObject
     shpBuffer = writeShapeHeader( shpBuffer, mShpType, shpLength );
     shxBuffer = writeShapeHeader( shxBuffer, mShpType, shxLength );
     writeDBaseHeader( nr, dbfRecLen, n_fld, fields, ftypes, flens );
-    // Log.v( TAG, "shots done headers" );
+    // Log.v( "Cave3D-SHP", "shots done headers" );
 
     int cnt = 0;
     for ( Cave3DShot ln : lns ) {
@@ -561,7 +559,7 @@ class ShpPolylinez extends ShpObject
       writeDBaseRecord( n_fld, fields, flens );
     }
     
-    // Log.v( TAG, "shots done records" );
+    // Log.v( "Cave3D-SHP", "shots done records" );
     close();
     return true;
   }
@@ -692,9 +690,9 @@ class ShpPolygonz extends ShpObject
     int dbfLength = 33 + n_fld * 32 + nr * dbfRecLen; // Bytes, 3 fields
 
     setBoundsFacets( lns );
-    Log.v( TAG, "Facets X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
-    // Log.v( TAG, "POLYGONZ facets " + lns.size() + " len " + shpLength + " / " + shxLength + " / " + dbfLength );
-    // Log.v( TAG, "bbox X " + xmin + " " + xmax );
+    // Log.v( "Cave3D-SHP", "Facets X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
+    // Log.v( "Cave3D-SHP", "POLYGONZ facets " + lns.size() + " len " + shpLength + " / " + shxLength + " / " + dbfLength );
+    // Log.v( "Cave3D-SHP", "bbox X " + xmin + " " + xmax );
 
     open();
     resetChannels( 2*shpLength, 2*shxLength, dbfLength );
@@ -702,7 +700,7 @@ class ShpPolygonz extends ShpObject
     shpBuffer = writeShapeHeader( shpBuffer, mShpType, shpLength );
     shxBuffer = writeShapeHeader( shxBuffer, mShpType, shxLength );
     writeDBaseHeader( nr, dbfRecLen, n_fld, fields, ftypes, flens );
-    // Log.v( TAG, "facets done headers" );
+    // Log.v( "Cave3D-SHP", "facets done headers" );
 
     int cnt = 0;
     for ( CWFacet ln : lns ) {
@@ -718,7 +716,7 @@ class ShpPolygonz extends ShpObject
       int offset = 50 + cnt * shpRecLen; 
       ++cnt;
 
-      // Log.v( TAG, "Face " + p1.x + " " + p2.x + " " + p3.x );
+      // Log.v( "Cave3D-SHP", "Face " + p1.x + " " + p2.x + " " + p3.x );
 
       writeShpRecord( cnt, shpRecLen, p1, p2, p3 );
       writeShxRecord( offset, shpRecLen );
@@ -727,7 +725,7 @@ class ShpPolygonz extends ShpObject
       fields[0] = zz;
       writeDBaseRecord( n_fld, fields, flens );
     }
-    // Log.v( TAG, "shots done " + cnt + " records" );
+    // Log.v( "Cave3D-SHP", "shots done " + cnt + " records" );
     close();
     return true;
   }
@@ -834,9 +832,9 @@ class ShpPolygonz extends ShpObject
     int dbfLength = 33 + n_fld * 32 + nr * dbfRecLen; // Bytes, 3 fields
 
     setBoundsTriangles( lns );
-    Log.v( TAG, "Tris X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
-    // Log.v( TAG, "POLYLINEZ shots " + lns.size() + " len " + shpLength + " / " + shxLength + " / " + dbfLength );
-    // Log.v( TAG, "bbox X " + xmin + " " + xmax );
+    // Log.v( "Cave3D-SHP", "Tris X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
+    // Log.v( "Cave3D-SHP", "POLYLINEZ shots " + lns.size() + " len " + shpLength + " / " + shxLength + " / " + dbfLength );
+    // Log.v( "Cave3D-SHP", "bbox X " + xmin + " " + xmax );
 
     open();
     resetChannels( 2*shpLength, 2*shxLength, dbfLength );
@@ -844,7 +842,7 @@ class ShpPolygonz extends ShpObject
     shpBuffer = writeShapeHeader( shpBuffer, mShpType, shpLength );
     shxBuffer = writeShapeHeader( shxBuffer, mShpType, shxLength );
     writeDBaseHeader( nr, dbfRecLen, n_fld, fields, ftypes, flens );
-    // Log.v( TAG, "shots done headers" );
+    // Log.v( "Cave3D-SHP", "shots done headers" );
 
     int cnt = 0;
     for ( Cave3DTriangle ln : lns ) {
@@ -866,7 +864,7 @@ class ShpPolygonz extends ShpObject
       fields[2] = zz;
       writeDBaseRecord( n_fld, fields, flens );
     }
-    // Log.v( TAG, "shots done records" );
+    // Log.v( "Cave3D-SHP", "shots done records" );
     close();
     return true;
   }
