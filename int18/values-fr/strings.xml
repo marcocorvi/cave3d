@@ -104,6 +104,7 @@
     <!-- UNUSED string name="warning_not_cgal">Avertissement : pas d'archive de texte CGAL %1$s</string -->
     <!-- UNUSED string name="warning_not_stl">Avertissement : pas d'archive stl %1$s</string -->
     <string name="warning_no_cwd">Avertissement : répertoire initial absent</string>
+    <!-- TODO string name="warning_no_parent">Warning: cannot go to parent folder</string -->
 
     <!-- TODO string name="done_fractals">Done fractals dims</string -->
     <!-- TODO string name="done_convexhull">Done convex-hull walls</string -->

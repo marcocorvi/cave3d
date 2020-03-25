@@ -602,19 +602,34 @@ class ShpPolylinez extends ShpObject
     //   xmin = xmax = ymin = ymax = zmin = zmax = 0.0;
     //   return;
     // }
+    int k = 0;
     if ( nrs > 0 ) {
-      Cave3DShot ln = lns.get(0);
-      Cave3DStation pt = ln.from_station;
-      initBBox( pt.e, pt.n, pt.z );
-    } else {
-      return;
+      // init BBox - break on first line with a endpoint
+      for ( k=0; k<nrs; ++k ) {
+        Cave3DShot ln = lns.get(k);
+        Cave3DStation pt = ln.from_station;
+        if ( pt != null ) {
+          initBBox( pt.e, pt.n, pt.z );
+          pt = ln.to_station;
+          if ( pt != null ) updateBBox( pt.e, pt.n, pt.z );
+          break;
+        } 
+        pt = ln.to_station;
+        if ( pt != null ) {
+          initBBox( pt.e, pt.n, pt.z );
+          break;
+        }
+      }
     }
-    for ( int k=0; k<nrs; ++k ) {
+    if ( k >= nrs ) return; // not really necessary
+    
+    // update BBox with other lines
+    for ( ++k; k<nrs; ++k ) {
       Cave3DShot ln = lns.get(k);
       Cave3DStation pt = ln.from_station;
-      updateBBox( pt.e, pt.n, pt.z );
+      if ( pt != null ) updateBBox( pt.e, pt.n, pt.z );
       pt = ln.to_station;
-      updateBBox( pt.e, pt.n, pt.z );
+      if ( pt != null ) updateBBox( pt.e, pt.n, pt.z );
     }
   }
 

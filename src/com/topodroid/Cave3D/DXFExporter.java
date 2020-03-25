@@ -395,6 +395,7 @@ public class DXFExporter
 
   boolean exportAscii( String filename, Cave3DParser data, boolean b_legs, boolean b_splays, boolean b_walls, boolean version13 )
   {
+    if ( data == null ) return false;
     List< Cave3DStation> stations = data.getStations();
     List< Cave3DShot>    legs     = data.getShots();
     List< Cave3DShot>    splays   = data.getSplays();

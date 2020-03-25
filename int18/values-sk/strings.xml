@@ -103,6 +103,7 @@
     <!-- UNUSED string name="warning_not_cgal">Warning: not CGAL text file %1$s</string -->
     <!-- UNUSED string name="warning_not_stl">Warning: not stl file %1$s</string -->
     <string name="warning_no_cwd">Varovanie: Chybná cesta k adresáru</string>
+    <!-- TODO string name="warning_no_parent">Warning: cannot go to parent folder</string -->
 
     <!-- TODO string name="done_fractals">Done fractals dims</string -->
     <!-- TODO string name="done_convexhull">Done convex-hull walls</string -->

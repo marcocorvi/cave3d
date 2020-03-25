@@ -22,6 +22,7 @@ import android.os.Environment;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.os.Bundle;
+import android.os.Build;
 
 import android.content.Intent;
 import android.content.Context;
@@ -57,6 +58,8 @@ import android.content.SharedPreferences.Editor;
 
 import android.util.DisplayMetrics;
 
+import android.net.Uri;
+
 public class Cave3D extends Activity
                     implements OnZoomListener
                     , OnClickListener
@@ -64,13 +67,17 @@ public class Cave3D extends Activity
                     // , View.OnTouchListener
                     , OnSharedPreferenceChangeListener
 {
+  final static boolean ANDROID_10 = ( Build.VERSION.SDK_INT <= Build.VERSION_CODES.P );
+
   private static final String TAG = "Cave3D";
   static String VERSION = "";
 
   private static final int REQUEST_OPEN_FILE = 1;
   static boolean mUseSplayVector = true;
 
-  static String APP_BASE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
+  final static String APP_BASE_PATH = 
+    ANDROID_10 ? Environment.getExternalStorageDirectory().getAbsolutePath()
+               : Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
   static String mAppBasePath  = APP_BASE_PATH;
 
   static int mCheckPerms = -1;
@@ -120,6 +127,7 @@ public class Cave3D extends Activity
     if ( k.equals( CAVE3D_BASE_PATH ) ) { 
       mAppBasePath = sp.getString( k, APP_BASE_PATH );
       // Log.v( TAG, "SharedPref change: path " + mAppBasePath );
+      if ( mAppBasePath == null ) mAppBasePath = APP_BASE_PATH;
     } else if ( k.equals( CAVE3D_TEXT_SIZE ) ) {
       try {
         mTextSize = Integer.parseInt( sp.getString( k, "20" ) );
@@ -192,6 +200,7 @@ public class Cave3D extends Activity
   {
     float r;
     mAppBasePath = sp.getString( CAVE3D_BASE_PATH, APP_BASE_PATH );
+    if ( mAppBasePath == null ) mAppBasePath = APP_BASE_PATH;
     try {
       mTextSize = Integer.parseInt( sp.getString( CAVE3D_TEXT_SIZE, "20" ) );
     } catch ( NumberFormatException e ) {
@@ -790,6 +799,11 @@ public class Cave3D extends Activity
       boolean file_dialog = true;
       Bundle extras = getIntent().getExtras();
       if ( extras != null ) {
+        // the uri string is the absolute basepath
+        // String uri_str = extras.getString( "BASE_URI" );
+        // Uri uri = Uri.parse( uri_str );
+        // Log.v("DistoX-URI", "Cave3D " + uri.toString() );
+
         String name = extras.getString( "INPUT_FILE" );
         // Log.v( "Cave3D-EXTRA", "TopoDroid filename " + name );
         if ( name != null ) {

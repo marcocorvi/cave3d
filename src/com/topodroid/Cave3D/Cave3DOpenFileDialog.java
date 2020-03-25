@@ -88,6 +88,7 @@ public class  Cave3DOpenFileDialog extends Activity
 
   private void updateList( String basedir )
   {
+    if ( basedir == null ) return;
     File dir = new File( basedir );
     if ( dir.exists() ) {
       String[] dirs  = dir.list( new MyDirnameFilter() );
@@ -120,8 +121,13 @@ public class  Cave3DOpenFileDialog extends Activity
     }
     if ( name.equals("..") ) {
       File dir = new File( Cave3D.mAppBasePath );
-      Cave3D.mAppBasePath = dir.getParent();
-      updateList( Cave3D.mAppBasePath );
+      String parent_dir = dir.getParent();
+      if ( parent_dir != null ) {
+        Cave3D.mAppBasePath = parent_dir;
+        updateList( Cave3D.mAppBasePath );
+      } else {
+        Toast.makeText( this, R.string.warning_no_parent, Toast.LENGTH_LONG ).show();
+      }
       return;
     }
     File file = new File( Cave3D.mAppBasePath, name );

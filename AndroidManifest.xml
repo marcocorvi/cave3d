@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.topodroid.Cave3D"
-      android:versionCode="302009"
-      android:versionName="3.2.9">
+      android:versionCode="302015"
+      android:versionName="3.2.15">
     <uses-sdk
        android:minSdkVersion="14"
-       android:targetSdkVersion="28"
+       android:targetSdkVersion="29"
     />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />  
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />  
@@ -13,6 +13,7 @@
       android:label="@string/app_name"
       android:screenOrientation="portrait"
       android:icon="@mipmap/ic_launcher"
+      android:requestLegacyExternalStorage="true"
       >
       <!-- 
       android:debuggable="true"

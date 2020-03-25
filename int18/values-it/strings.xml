@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cave3D</string>
+
+    <string name="btn_ok">OK</string>
+    <string name="btn_cancel">Ignora</string>
+    <string name="btn_compute">Calcola</string>
+
+    <string name="btn_move">Muovi</string>
+    <string name="btn_rotate">Ruota</string>
+    <string name="btn_station">Caposaldo</string>
+    <string name="btn_splay">Splay</string>
+    <string name="btn_zoom_in">Zoom +</string>
+    <string name="btn_zoom_out">Zoom -</string>
+
+    <string name="menu_open">Apri file</string>
+    <string name="menu_options">Impostazioni</string>
+    <string name="menu_reset">Reset</string>
+
+    <string name="menu_viewpoint">Punto di vista</string>
+    <string name="menu_files">Rilievi</string>
+    <string name="menu_export">Esportazione</string>
+    <string name="menu_frame">Riferimento</string>
+    <string name="menu_color">Colori</string>
+    <string name="menu_info">Informazioni</string>
+    <string name="menu_ico">Ico-diagramma</string>
+    <string name="menu_rose">Diagramma a rosa</string>
+    <string name="menu_wall">Modello pareti</string>
+    <string name="menu_fractal">Dim. frattale</string>
+    <string name="menu_help">Aiuto</string>
+
+    <string name="fractal_title">Computo frattale</string>
+    <string name="info_title">INFO</string>
+    <string name="info_axes">Assi: blu Nord, verde Est</string>
+    <string name="info_grid">Griglia [m]</string>
+    <string name="info_view">Punto di vista</string>
+    <string name="info_surveys">Rilievi</string>
+    <string name="info_shots">Battute</string>
+    <string name="info_stations">Capisaldi</string>
+    <string name="info_length">Sviluppo</string>
+    <string name="info_depth">Profondità</string>
+    <string name="info_volume">Volume</string>
+
+    <string name="query" formatted="false">Rilievi: %d Battute: %d Capisaldi: %d\nSviluppo: %d Profondità: %d</string>
+    <string name="no_files">Nessun file</string>
+    <string name="clear">Pulisci</string>
+
+    <string name="title">%1$s  Clino: %2$.0f  Azimut: %3$.0f</string>
+    <string name="title_clino"> Clino: </string>
+    <string name="title_azimuth"> Azimut: </string>
+
+    <string name="survey_legs"> Battute: </string>
+    <string name="survey_legs_length"> Lunghezza battute: </string>
+    <string name="survey_splays"> Splays: </string>
+    <string name="survey_splays_length"> Lunghezza splays: </string>
+    <string name="cave_distance"> 3D distanza: %1$.2f</string>
+    <string name="cave_length"> Sviluppo totale: %1$.2f</string>
+
+    <string name="SURVEYS">R I L I E V I</string>
+    <string name="INFO">I N F O</string>
+    <string name="EXPORT">E S P O R T A Z I O N E</string>
+    <string name="STATION">C A P I S A L D I</string>
+    <string name="STATIONS_DISTANCE">DISTANZA CAPISALDI</string>
+    <string name="DISTANCE">DISTANZA</string>
+    <string name="CENTER">CENTRA</string>
+    <string name="select_file">Cave3D - Seleziona un file:</string>
+    <string name="Wall">Pareti</string>
+    <string name="Surface">Modello DEM</string>
+
+    <string name="view_title">PUNTI DI VISTA</string>
+    <string name="view_top">Sopra</string>
+    <string name="view_east">Est</string>
+    <string name="view_north">Nord</string>
+    <string name="view_west">Ovest</string>
+    <string name="view_south">Sud</string>
+    <string name="view_point">Punto di vista</string>
+    <string name="view_zoom">Zoom 1</string>
+
+    <string name="walls_title">PARETI</string>
+    <string name="walls_convexhull">Inviluppo Convesso</string>
+    <string name="walls_powercrust">Powercrust</string>
+    <string name="walls_hull">Inviluppo</string>
+    <string name="walls_delaunay">Delaunay</string>
+
+    <string name="powercrust_few_splays">Powercrust: pochi splay</string>
+    <string name="powercrust_failed">Powercrust fallito</string>
+    <string name="powercrust_successful">Powercrust ok: %1$d / %2$d</string>
+    <string name="powercrust_dxf_not_supported">Powercrust: esportazione DXF non implementata</string>
+
+    <string name="ok_export">OK. Esportato %1$s</string>
+
+    <string name="no_planview">Nessuna vista in pianta</string>
+    <string name="no_surface">Nessun modello DEM</string>
+
+    <string name="error_file_not_found">Errore: file non trovato</string>
+    <string name="error_file_not_readable">Errore: file non leggibile</string>
+    <string name="error_io_exception">Errore: errore di I/O</string>
+    <string name="error_parser_error">Errore: errore di lettura %1$s</string>
+    <string name="error_export_failed">Errore: fallita esportazione %1$s</string>
+
+    <string name="warning_not_overwrite">Attenzione: file %1$s non sovrascritto</string>
+    <!-- UNUSED string name="warning_not_txt">Attenzione: file %1$s non testuale</string -->
+    <!-- UNUSED string name="warning_not_kml">Attenzione: file %1$s non KML</string -->
+    <!-- UNUSED string name="warning_not_las">Attenzione: file %1$s non LAS</string -->
+    <!-- UNUSED string name="warning_not_cgal">Attenzione: file %1$s non CGAL</string -->
+    <!-- UNUSED string name="warning_not_stl">Attenzione: file %1$s non STL</string -->
+    <string name="warning_no_cwd">Attenzione: folder di base non esistente</string>
+    <string name="warning_no_parent">Attenzione: non possibile salire di folder</string>
+
+    <string name="done_fractals">Dimensione frattale calcolata</string>
+    <string name="done_convexhull">Inviluppo-convesso calcolato</string>
+    <string name="fail_convexhull">Calcolo inviluppo-convesso fallito</string>
+    <string name="done_powercrust">Powercrust calcolato</string>
+    <string name="fail_powercrust">Powercrust fallito</string>
+
+    <string name="no_database">Database non trovato\n</string>
+    <string name="no_survey">Rilievo %1$s non trovato\n</string>
+    <string name="no_file">File %1$s non trovato\n</string>
+    <string name="empty_survey">Rilievo %1$s vuoto\n</string>
+
+    <string name="pref_base_path_title">Folder di base</string>
+    <string name="pref_base_path_summary">Folder di base dell\'app</string>
+    <string name="pref_base_path_message">Folder con i file dei rilievi</string>
+    <string name="pref_text_size_title">Dimensione testi</string>
+    <string name="pref_text_size_summary">Dimensione capisaldi</string>
+    <string name="pref_text_size_message">Dimensione dei nomi dei capisaldi</string>
+    <string name="pref_size_buttons_title">Dimensione bottoni</string>
+    <string name="pref_size_buttons_summary">Dimensione bottoni</string>
+    <string name="pref_selection_radius_title">Raggio di selezione</string>
+    <string name="pref_selection_radius_summary">Raggio di selezione</string>
+    <string name="pref_selection_radius_message">Raggio di selezione</string>
+    <string name="pref_grid_above_title">Griglia superiore</string>
+    <string name="pref_grid_above_summary">Griglia superiore</string>
+    <string name="pref_grid_above_message">Griglie sopra la poligonale</string>
+    <string name="pref_neg_clino_title">Viste sotto l\'orizzonte</string>
+    <string name="pref_neg_clino_summary">Permette punti di vista sotto l\'orizzonte</string>
+    <string name="pref_neg_clino_message">Permette punti di vista sotto l\'orizzonte</string>
+    <string name="pref_all_splay_title">Splay per pareti</string>
+    <string name="pref_all_splay_summary">Usa tutti gli splay per le pareti</string>
+    <string name="pref_all_splay_message">Usa tutti gli splay per le pareti</string>
+    <string name="pref_preprojection_title">Pre-projezioni</string>
+    <string name="pref_preprojection_summary">Precalcola le projezioni</string>
+    <string name="pref_preprojection_message">Precalcola le projezioni</string>
+
+    <string name="pref_split_triangles_title">Triangoli di parete</string>
+    <string name="pref_split_triangles_summary">Dividi i triangoli di parete</string>
+    <string name="pref_split_triangles_message">Dividi i triangoli di parete intersecantesi</string>
+    <string name="pref_split_random_title">Punti random</string>
+    <string name="pref_split_random_summary">Punti-parete randomizzati</string>
+    <string name="pref_split_random_message">Sposta un poco i punti splay in modo random</string>
+    <string name="pref_split_stretch_title">Sposta punti-parete</string>
+    <string name="pref_split_stretch_summary">Sposta i punti parete lungo la battuta</string>
+    <string name="pref_split_stretch_message">Sposta un poco i punti parete nella direzione della battuta</string>
+
+    <string name="pref_powercrust_delta_title">Powercrust Delta</string>
+    <string name="pref_powercrust_delta_summary">Filtro splay</string>
+    <string name="pref_powercrust_delta_message">Filtra gli splay che differiscono troppo dal precedente o successivo</string>
+<!--
+    <string name="pref_convex_hull_title">Convex hull</string>
+    <string name="pref_convex_hull_summary">Convex hull walls</string>
+    <string name="pref_delaunay_title">Delaunay</string>
+    <string name="pref_delaunay_summary">Delaunay walls</string>
+    <string name="pref_hull_title">Hull</string>
+    <string name="pref_hull_summary">Hull walls</string>
+-->
+
+    <string name="Cave3DPerms">Permessi</string>
+    <string name="perms_mandatory">Cave3D può non funzionare senza questi permessi:</string>
+    <string name="perms_optional">Cave3D può non funzionare senza questi permessi:</string>
+    <string name="welcome_title">Cave3D %1$s</string>
+
+    <string name="help">Cave3D Aiuto\n
+Cave3D è in visualizzatore 3D di TopoDroid.\n
+Può aprire anche file in formato Therion (th e thconfig), Loch, Compass (dat e mak) e VisualTopo.\n
+Il modello 3D è visualizzato con una grigla orizzintale di riferimento (blu: Nord, verde: Est) oppure
+con la triade di assi (viola in sú).\n
+\n
+BOTTONI\n
+Muovi/Ruota: la freccia verde commuta fra spostamento e rotazione del modello.\n
+Splay: visualizza o nascode gli splay\n
+Pareti: visualizza o nascode le pareti, se calcolate.\n
+Projezione: mostra la vista in pianta calcolata dal modello 3D delle pareti, projettata sulla griglia piana, oppure 
+la cortina del profilo.\n
+Superficie: visualizza il modello DEM. Solo se i dati sono specificati nei formati Therion o Loch.\n
+Colore: commuta fra tre colorazioni della poligonale - grigio, per rilievo, per profondità.\n
+Griglia: commuta fra griglia o solo assi\n
+\n
+MENU\n
+Apri file: dialogo per selezionare un file di rilievo.\n
+Esporta: dialogo di esportazione modello.\n
+Info: statistiche\n
+Ico: diagramma a rosa 3D delle direzioni\n
+Rose: diagramma a rosa 2D delle direzioni\n
+Punto di vista: seleziona il punto di vista\n
+Reset: centra il modello 3D in vista da sopra e riscala per farlo stare nello schermo\n
+Pareti: dialogo per il calcolo della ricostruzione 3D delle pareti.\n
+Impostazioni\n
+Aiuto\n
+\n
+IMPOSTAZIONI\n
+Folder di base: folder con i file dei rilievi\n
+Dimensione nomi: dimensione nomi capisaldi\n
+Dimensione bottoni\n
+Raggio di selezione\n
+Posizione griglia: sopra o sotto il modello\n
+Projezione: se usare il pre-calcolo delle projezioni\n
+Splay: se usare tutti gli splay per le pareti\n
+Punti random: se spostare un poco in modo random i punti\n
+Stiramento pareti: se spostare un poco i punti perete nella direzione della battua\n
+\n
+ESPORTAZIONE\n
+Il modello può esser esportati nei formati DXF, KML, STL (ascii o binario) CGAL, LAS (binario) e shapefile.
+Ci sono opzioni per includere nelle esportazioni splay, pareti, capisaldi, e superficie.
+Il modello può anche esser serializzato in formato testuale.\n
+\n
+PARETI\n
+Laricostruzione delle pareti non è calcolata automaticamente quando viene aperto il file, ma
+deve esser richiesta attraverso in menu "pareti".
+Ci sono due modelli di calcolo: inviluppo pseudo-convesso e powercrust.
+Il primo è idoneo nel caso in cui non si abbiano molti splay. 
+Il secondo richiede che gli splay riempino lo spazio abbastanza densamente.
+Il calcolo della ricostruzione e` abbastanza oneroso e viene eseguito in background.
+Quando è completato si può visualizzare la ricostruzione col bottone "pareti".\n
+\n
+CAPISALDI\n
+I capisaldi possono esser selezionati quando sono visualizzati.
+La visualizzazione del modello può esser ricentrata sul caposaldo selezionato.
+È possibile anche misurare la distanza fra il caposaldo selezionato ed un altro
+caposaldo.\n
+  </string>
+</resources>
