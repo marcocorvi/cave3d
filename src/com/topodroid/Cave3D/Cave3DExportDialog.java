@@ -26,7 +26,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 
-import android.graphics.*;
+// import android.graphics.*;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.View.OnClickListener;

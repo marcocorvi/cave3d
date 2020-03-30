@@ -39,5 +39,11 @@ public class Cave3DDrawPath // implements Renderer
     canvas.drawPath( path, paint );
   }
 
+  // alpha must be in [0..255]
+  void setAlpha( int alpha )
+  {
+    paint.setAlpha( alpha );
+  }
+
 }
 

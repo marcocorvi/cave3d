@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:layout_width="fill_parent" 
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="6dip"
+    android:paddingRight="6dip"
+    android:paddingBottom="3dip">
+   					  
+    <!-- EditText android:id="@+id/alpha"
+      android:layout_width="fill_parent" 
+      android:layout_height="wrap_content" 
+      android:gravity="left"
+      / -->
+    <SeekBar android:id="@+id/alpha"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="10dp"
+      android:padding="10dp"
+      android:max="255"
+      android:background="#666666"
+    />
+
+    <RadioGroup 
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="10dp"
+      >
+
+      <RadioButton android:id="@+id/stroke"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/style_stroke"
+        />
+      <RadioButton android:id="@+id/stroke_fill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/style_stroke_fill"
+        />
+      <RadioButton android:id="@+id/fill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/style_fill"
+        />
+     </RadioGroup>
+
+    <CheckBox android:id="@+id/projection"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_margin="10dp"
+      android:text="@string/surface_projection"
+      />
+   					  
+    <LinearLayout
+      android:layout_width="fill_parent" 
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:layout_marginTop="10dp"
+      >
+      <Button android:id="@+id/button_ok"
+        style="@style/button_default"
+        android:layout_width="0dp" 
+        android:layout_height="wrap_content"
+        android:layout_weight="50"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:text="@string/btn_ok"
+        />
+     </LinearLayout>
+
+</LinearLayout>

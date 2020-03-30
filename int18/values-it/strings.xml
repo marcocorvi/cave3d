@@ -17,6 +17,7 @@
     <string name="menu_options">Impostazioni</string>
     <string name="menu_reset">Reset</string>
 
+    <string name="menu_alpha">Trasparenza DEM</string>
     <string name="menu_viewpoint">Punto di vista</string>
     <string name="menu_files">Rilievi</string>
     <string name="menu_export">Esportazione</string>
@@ -45,9 +46,14 @@
     <string name="no_files">Nessun file</string>
     <string name="clear">Pulisci</string>
 
+    <string name="style_stroke">Tratto</string>
+    <string name="style_stroke_fill">Tratto &amp; area</string>
+    <string name="style_fill">Area</string>
+
     <string name="title">%1$s  Clino: %2$.0f  Azimut: %3$.0f</string>
     <string name="title_clino"> Clino: </string>
     <string name="title_azimuth"> Azimut: </string>
+    <string name="title_surface_alpha">Trasparenza DEM</string>
 
     <string name="survey_legs"> Battute: </string>
     <string name="survey_legs_length"> Lunghezza battute: </string>
@@ -227,5 +233,6 @@ I capisaldi possono esser selezionati quando sono visualizzati.
 La visualizzazione del modello può esser ricentrata sul caposaldo selezionato.
 È possibile anche misurare la distanza fra il caposaldo selezionato ed un altro
 caposaldo.\n
+Se il modello include un DEM il dialogo mostra la profondità del caposaldo sotto la superficie.\n
   </string>
 </resources>

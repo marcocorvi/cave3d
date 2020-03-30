@@ -347,6 +347,7 @@ public class Cave3D extends Activity
     R.string.menu_ico,
     R.string.menu_rose,
     R.string.menu_viewpoint,  // 5
+    R.string.menu_alpha,
     R.string.menu_reset,
     R.string.menu_wall,       // 7
     R.string.menu_options,
@@ -394,6 +395,8 @@ public class Cave3D extends Activity
       if ( mFilename != null ) {
         new Cave3DViewDialog( this, this, mRenderer ).show();
       }
+    } else if ( p++ == pos ) { // SURFACE ALPHA
+      (new Cave3DSurfaceAlphaDialog( this, this )).show();
     } else if ( p++ == pos ) { // RESET
       if ( mFilename != null ) mRenderer.resetGeometry();
     } else if ( p++ == pos ) { // DO_WALLS
@@ -878,5 +881,8 @@ public class Cave3D extends Activity
     // }
   }
   /* */
+
+  boolean getSurfaceLegs() { return mRenderer.getSurfaceLegs(); }
+  void    setSurfaceLegs( boolean show ) { mRenderer.toggleSurfaceLegs( show ); }
 
 }

@@ -17,6 +17,7 @@
     <string name="menu_options">Options</string>
     <string name="menu_reset">Reset</string>
 
+    <string name="menu_alpha">DEM opacity</string>
     <string name="menu_viewpoint">Viewpoint</string>
     <string name="menu_files">Surveys</string>
     <string name="menu_export">Export</string>
@@ -45,9 +46,15 @@
     <string name="no_files">No files</string>
     <string name="clear">Clear</string>
 
+    <string name="style_stroke">Stroke</string>
+    <string name="style_stroke_fill">Fill &amp; Stroke</string>
+    <string name="style_fill">Fill</string>
+    <string name="surface_projection">Projection on DEM</string>
+
     <string name="title">%1$s  Clino: %2$.0f  Azimuth: %3$.0f</string>
     <string name="title_clino"> Clino: </string>
     <string name="title_azimuth"> Azimuth: </string>
+    <string name="title_surface_alpha">Surface opacity</string>
 
     <string name="survey_legs"> Legs: </string>
     <string name="survey_legs_length"> Legs length: </string>
@@ -181,7 +188,7 @@ Splays: button will display and hide splay shots. Splays are shown as lines or a
 Walls: button will display or hide wall models if there is any.\n
 Projections: display the plan view built from the wall 3D reconstruction, projected on the grid plane, and/or the profile curtain.\n
 Surface: button will display surface.  Works only if ASCII surface data is specified in .th file.\n
-Color: button will change color-coding of centreline from all grey to survey and depth.\n
+Color: button will change color-coding of centreline from all grey to survey and depth. Toggle projection on DEM (blue).\n
 Grid: button will switch between underlying grid or X, Y, Z axis.\n\n
 
 MENU\n
@@ -191,6 +198,7 @@ Info: will display survey statistics.\n
 Ico diagram: displays ICO diagram.\n
 Rose diagram: displays azimuth rose diagram.\n
 Viewpoint: will let you select a point of view.\n
+DEM stylei and centreline projection on surface.\n
 Reset: center the 3D model in top-view and zoom to fit it in the screen\n
 Wall models: create or clear a wall 3D reconstruction.\n
 Options\n
@@ -219,9 +227,17 @@ There are two models: pseudo conevx-hull, and powercrust. The first is good when
 The computation is done in backgroiund.
 When it is done the wall can be displayed with the "wall" button.\n\n
 
+Surface\n
+If the (Therion or Loch) model contains surface data, a Digital Elevation Model grid, the surface can be dislayed either are grid, or in
+transparency, or both.\n
+The opacity of the surface is adjustable.\n
+The projection of the survey centerline on the surface is displayed in blue.\n\n
+
 Station actions\n
 When the stations are displayed, they can be selected tapping on the station.
-The selected station can be set as origin of the model ("center"), or the distance from 
-another station can be measured.\n
-  </string>
+The distance from the selected station to another station can be measured.\n
+The selected station can be set as origin of the model ("center"). The model remains centered at the station when
+the stations display is turned off. To clear the origin turn the stations display on again.\n
+If the model has a DEM, the depth of the station below the surface is displayed.\n
+</string>
 </resources>

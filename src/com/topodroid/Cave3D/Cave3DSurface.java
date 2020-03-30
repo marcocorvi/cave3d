@@ -17,7 +17,7 @@ import android.util.Log;
 
 public class Cave3DSurface
 {
-  private static final String TAG = "Cave3D SURFACE";
+  private static final String TAG = "Cave3D-SURFACE";
 
   double mEast1, mNorth1, mEast2, mNorth2;
   double[] mZ;  // vertical (upwards)
@@ -52,23 +52,24 @@ public class Cave3DSurface
     mDim1 = (e2-e1)/(d1-1);
     mDim2 = (n2-n1)/(d2-1);
     mZ = new double[ d1*d2 ]; 
+    // Log.v("Cave3D-SURFACE", "E " + mEast1 + " " + mEast2 + " " + mNr1 + " N " + mNorth1 + " " + mNorth2 + " " + mNr2 );
   }
 
-  double computeZ( double e, double n )
+  float computeZ( float e, float n )
   {
-    if ( e < mEast1 || n < mNorth1 || e > mEast2 || n > mNorth2 ) return -9999.0;
+    if ( e < mEast1 || n < mNorth1 || e > mEast2 || n > mNorth2 ) return -9999.0f;
     int i1 = (int)((e-mEast1)/mDim1);
     int j1 = (int)((n-mNorth1)/mDim2);
-    double dx2 = e - ( mEast1 + i1 * mDim1 );
+    double dx2 = (e - ( mEast1 + i1 * mDim1 ))/mDim1;
     double dx1 = 1.0 - dx2;
-    double dy2 = n - ( mNorth1 + j1 * mDim2 );
+    double dy2 = (n - ( mNorth1 + j1 * mDim2 ))/mDim2;
     double dy1 = 1.0 - dy2;
     int i2 = i1 + 1;
     int j2 = j1 + 1;
-    return ( j2 < mNr2 ) ?
-        ( (i2 < mNr1 )? mZ[j1*mNr1+i1] * dx1 + mZ[j1*mNr1+i2] * dx2 : mZ[j1*mNr1+i1] ) * dy1 
-      + ( (i2 < mNr1 )? mZ[j2*mNr1+i1] * dx1 + mZ[j2*mNr1+i2] * dx2 : mZ[j2*mNr1+i1] ) * dy2
-      : ( (i2 < mNr1 )? mZ[j1*mNr1+i1] * dx1 + mZ[j1*mNr1+i2] * dx2 : mZ[j1*mNr1+i1] ) ;
+    return (float)( ( j2 < mNr2 ) ?
+        ( (i2 < mNr1 )? mZ[j1*mNr1+i1] * dx1 + mZ[j1*mNr1+i2] * dx2 : mZ[j1*mNr1+i1] ) * dy1 + ( (i2 < mNr1 )? mZ[j2*mNr1+i1] * dx1 + mZ[j2*mNr1+i2] * dx2 : mZ[j2*mNr1+i1] ) * dy2
+      : ( (i2 < mNr1 )? mZ[j1*mNr1+i1] * dx1 + mZ[j1*mNr1+i2] * dx2 : mZ[j1*mNr1+i1] ) );
+    // Log.v("Cave3D-SURFACE", "i " + i1 + " j " + j2 + " z " + ret );
   }
  
 
@@ -106,6 +107,10 @@ public class Cave3DSurface
     x = x1;
     y = y1;
 
+    // Log.v("Cave3D-SURFACE", "read grid data - units " + units );
+    // Log.v("Cave3D-SURFACE", "x " + x + " x1 " + x1 + " x2 " + x2 + " dx " + dx + " Nr1 " + mNr1 ); 
+    // Log.v("Cave3D-SURFACE", "y " + y + " y1 " + y1 + " y2 " + y2 + " dy " + dy + " Nr2 " + mNr2 ); 
+
     try {
       while ( y != y2 ) {
         ++linenr;
@@ -141,6 +146,8 @@ public class Cave3DSurface
               x = x1;
               y = y1;
             } 
+            // Log.v("Cave3D-SURFACE", "flip x " + x + " x1 " + x1 + " x2 " + x2 + " dx " + dx + " Nr1 " + mNr1 ); 
+            // Log.v("Cave3D-SURFACE", "flip y " + y + " y1 " + y1 + " y2 " + y2 + " dy " + dy + " Nr2 " + mNr2 ); 
           } else if ( vals[idx].equals( "grid-units" ) ) {
             // FIXME TODO units not parsed yet
           } else { // data
@@ -166,7 +173,15 @@ public class Cave3DSurface
   }
 
   // used to set the grid data to the LoxSurface grid
-  void setGridData( double[] grid ) { mZ = grid; }
+  void setGridData( double[] grid )
+  { 
+    mZ = grid; 
+    // for ( int j=0; j<mNr2; ++j ) {
+    //   StringBuilder sb = new StringBuilder();
+    //   for ( int i=0; i<mNr1; ++i ) { sb.append( " " + Double.toString( mZ[j*mNr1+i] ) ); }
+    //   Log.v("Cave3D-SURFACE", sb.toString() );
+    // }
+  }
 
 }
 

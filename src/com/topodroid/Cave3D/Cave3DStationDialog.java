@@ -27,7 +27,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.TextView;
 
-// import android.util.Log;
+import android.util.Log;
 
 public class Cave3DStationDialog extends Dialog 
                                  implements View.OnClickListener
@@ -86,6 +86,7 @@ public class Cave3DStationDialog extends Dialog
         mTvSurface  = (TextView) findViewById( R.id.st_surface );
         if ( mSurface != null ) {
           double zs = mSurface.computeZ( mStation.e, mStation.n );
+          // Log.v("Cave3D-SURFACE", "Station " + mStation.z + " surface " + zs );
           StringWriter sw = new StringWriter();
           PrintWriter pw = new PrintWriter( sw );
           pw.format(Locale.US, "Depth %.1f", zs - mStation.z );

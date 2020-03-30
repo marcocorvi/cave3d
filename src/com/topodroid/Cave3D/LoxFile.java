@@ -416,7 +416,7 @@ class LoxFile
     c[3]  = toDoubleLEndian( recs, off ); off += SIZEDBL;
     c[4]  = toDoubleLEndian( recs, off ); off += SIZEDBL;
     c[5]  = toDoubleLEndian( recs, off ); off += SIZEDBL;
-    // Log.v( TAG, "Surface %d %dx%d Calib %.2f %.2f %.2f %.2f %.2f %.2f", id, ww, hh, c[0], c[1], c[2], c[3], c[4], c[5] );
+    // Log.v( "Cave3D-SURFACE", "id " + id + " " + ww + "X" + hh + " " + c[0] + " " + c[1] + " " + c[2] + " " + c[3] + " " + c[4] + " " + c[5] );
 
     int npts = ww * hh;
     // assert( ds == npts * sizeof(double) );

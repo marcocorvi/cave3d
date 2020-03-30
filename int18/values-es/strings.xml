@@ -17,6 +17,9 @@
     <string name="menu_options">Opciones</string>
     <string name="menu_reset">Resetear</string>
     <!-- UNUSED string name="menu_zoom_one">Zoom 1</string -->
+
+    <!-- TODO string name="menu_alpha">DEM opacity</string -->
+    <!-- TODO string name="menu_viewpoint">Viewpoint</string -->
     <string name="menu_files">Proyecto</string>
     <string name="menu_export">Exportar</string>
     <string name="menu_frame">Encuadre</string>
@@ -44,9 +47,14 @@
     <string name="no_files">No hay archivos</string>
     <string name="clear">Limpiar</string>
 
+    <!-- TODO string name="style_stroke">Stroke</string -->
+    <!-- TODO string name="style_stroke_fill">Fill &amp; Stroke</string -->
+    <!-- TODO string name="style_fill">Fill</string -->
+
     <string name="title">%1$s  Clino: %2$.0f  Rumbo: %3$.0f</string>
     <string name="title_clino"> Clino: </string>
     <string name="title_azimuth"> Rumbo: </string>
+    <!-- TODO string name="title_surface_alpha">Surface opacity</string -->
 
     <string name="survey_legs"> Visual: </string>
     <string name="survey_legs_length"> Longitud toma: </string>

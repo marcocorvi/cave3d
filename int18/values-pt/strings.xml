@@ -16,6 +16,8 @@
     <string name="menu_open">Abrir arquivo</string>
     <string name="menu_options">Opções</string>
     <string name="menu_reset">Reiniciar</string>
+
+    <!-- TODO string name="menu_alpha">DEM opacity</string -->
     <string name="menu_viewpoint">Ponto de vista</string>
     <string name="menu_files">Topos</string>
     <string name="menu_export">Exportar</string>
@@ -45,9 +47,14 @@
     <string name="no_files">Nenhum arquivo</string>
     <!-- TODO string name="clear">Clear</string -->
 
+    <!-- TODO string name="style_stroke">Stroke</string -->
+    <!-- TODO string name="style_stroke_fill">Fill &amp; Stroke</string -->
+    <!-- TODO string name="style_fill">Fill</string -->
+
     <string name="title">%1$s  inclinação: %2$.0f  Azimute: %3$.0f</string>
     <string name="title_clino"> Inclinação: </string>
     <string name="title_azimuth"> Azimute: </string>
+    <!-- TODO string name="title_surface_alpha">Surface opacity</string -->
 
     <string name="survey_legs"> Visadas: </string>
     <string name="survey_legs_length"> Comprimento das visadas: </string>
