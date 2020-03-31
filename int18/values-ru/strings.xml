@@ -18,7 +18,7 @@
     <string name="menu_reset">Сброс</string>
 	<!-- UNUSED string name="menu_zoom_one">Зум 1</string -->
 
-    <!-- TODO string name="menu_alpha">DEM opacity</string -->
+    <string name="menu_alpha">Прозрачность DEM</string>
     <string name="menu_viewpoint">Точка просмотра</string>
     <string name="menu_files">Съёмки</string>
     <string name="menu_export">Экспорт</string>
@@ -47,14 +47,14 @@
     <string name="no_files">Нет файлов</string>
     <string name="clear">Очистить</string>
 
-    <!-- TODO string name="style_stroke">Stroke</string -->
-    <!-- TODO string name="style_stroke_fill">Fill &amp; Stroke</string -->
-    <!-- TODO string name="style_fill">Fill</string -->
+    <string name="style_stroke">Линия</string>
+    <string name="style_stroke_fill">Заливка &amp; Линии</string>
+    <string name="style_fill">Заливка</string>
 
     <string name="title">%1$s  Наклон: %2$.0f  Азимут: %3$.0f</string>
     <string name="title_clino"> Наклон: </string>
     <string name="title_azimuth"> Азимут: </string>
-    <!-- TODO string name="title_surface_alpha">Surface opacity</string -->
+    <string name="title_surface_alpha">Прозрачность поверхности</string>
 
     <string name="survey_legs"> Замеры: </string>
     <string name="survey_legs_length"> Длинна замеров: </string>
