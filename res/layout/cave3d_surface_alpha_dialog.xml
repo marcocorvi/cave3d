@@ -6,12 +6,26 @@
     android:paddingLeft="6dip"
     android:paddingRight="6dip"
     android:paddingBottom="3dip">
-   					  
-    <!-- EditText android:id="@+id/alpha"
-      android:layout_width="fill_parent" 
-      android:layout_height="wrap_content" 
-      android:gravity="left"
-      / -->
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="10dp"
+      android:orientation="horizontal"
+      >
+      <EditText android:id="@+id/dem_file"
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content" 
+        android:gravity="left"
+        />
+      <Button android:id="@+id/dem_load"
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content" 
+        android:gravity="right"
+        android:text="@string/dem_load"
+        />
+    </LinearLayout>
+
     <SeekBar android:id="@+id/alpha"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"

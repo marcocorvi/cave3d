@@ -24,6 +24,7 @@ public class Cave3DSurface
   int mNr1;     // number of centers in East 
   int mNr2;     // number of centers in North
   double mDim1, mDim2; // spacing between grid centers
+  float mNormal[];
 
   /**
    *        ^
@@ -51,9 +52,12 @@ public class Cave3DSurface
     mNr2  = d2;
     mDim1 = (e2-e1)/(d1-1);
     mDim2 = (n2-n1)/(d2-1);
-    mZ = new double[ d1*d2 ]; 
+    mZ      = new double[ d1*d2 ]; 
+    mNormal = new float[ 3*d1*d2 ];
     // Log.v("Cave3D-SURFACE", "E " + mEast1 + " " + mEast2 + " " + mNr1 + " N " + mNorth1 + " " + mNorth2 + " " + mNr2 );
   }
+  
+  protected Cave3DSurface( ) { }
 
   float computeZ( float e, float n )
   {
@@ -71,7 +75,23 @@ public class Cave3DSurface
       : ( (i2 < mNr1 )? mZ[j1*mNr1+i1] * dx1 + mZ[j1*mNr1+i2] * dx2 : mZ[j1*mNr1+i1] ) );
     // Log.v("Cave3D-SURFACE", "i " + i1 + " j " + j2 + " z " + ret );
   }
- 
+
+  void initNormal()
+  { 
+    for ( int j=0; j<mNr2-1; ++j ) {
+      int j0 = j*mNr1;
+      for ( int i=0; i<mNr1-1; ++i ) {
+        float x = (float)( (mZ[j0] - mZ[j0+1])/mDim1 );
+        float y = (float)( (mZ[j0] - mZ[j0+mNr1])/mDim2 );
+        float m = (float)Math.sqrt( 1 + x*x + y*y );
+        mNormal[ 3*j0     ] = x / m;
+        mNormal[ 3*j0 + 1 ] = y / m;
+        mNormal[ 3*j0 + 2 ] = 1 / m;
+        ++ j0;
+      }
+    }
+  }
+
 
   // the DEM is stored as
   //    (e1,n1)   (e1+1,n1)   ... (e2,n1) 
@@ -169,6 +189,7 @@ public class Cave3DSurface
       Log.e( TAG, "exception " + e.getMessage() );
       throw new Cave3DParserException( filename, linenr );
     }
+    initNormal();
     // Log.v( TAG, "surface data: rows " + y );
   }
 
@@ -176,6 +197,7 @@ public class Cave3DSurface
   void setGridData( double[] grid )
   { 
     mZ = grid; 
+    initNormal();
     // for ( int j=0; j<mNr2; ++j ) {
     //   StringBuilder sb = new StringBuilder();
     //   for ( int i=0; i<mNr1; ++i ) { sb.append( " " + Double.toString( mZ[j*mNr1+i] ) ); }

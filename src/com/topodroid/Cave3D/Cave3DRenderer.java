@@ -75,12 +75,12 @@ public class Cave3DRenderer // implements Renderer
 
   private float ZOOM = 100;
 
-  float xmin;
-  float xmax;
-  float ymin;
-  float ymax;
-  float zmin;
-  float zmax;
+  float xmin;  // bounding box ( from the parser ) West
+  float xmax;  // East
+  float ymin;  // South
+  float ymax;  // North
+  float zmin;  // Down
+  float zmax;  // Up
 
   float shift_factor;
   private static final float rotation_factor = 0.002f;
@@ -117,7 +117,7 @@ public class Cave3DRenderer // implements Renderer
 
   static void setStationPaintTextSize( int size )
   {
-    stationPaint.setTextSize( size );
+    if ( stationPaint != null ) stationPaint.setTextSize( size );
   }
 
   private static final int COLOR_NONE = 0;
@@ -787,7 +787,19 @@ public class Cave3DRenderer // implements Renderer
     d = s2.getPathlength();
     return ( d < 999999 )? d : -1;
   }
-    
+  
+  void setSurface( Cave3DSurface surface )
+  {
+    mSurface = surface;
+    if ( mSurface != null ) {
+      if ( mCave3D != null ) mCave3D.setButtonSurface();
+      projs_surface_E = new float[ mSurface.mNr1 * mSurface.mNr2 ];
+      projs_surface_N = new float[ mSurface.mNr1 * mSurface.mNr2 ];
+    } else {
+      projs_surface_E = null;
+      projs_surface_N = null;
+    }
+  }
 
   // called only by initRendering
   private void prepareModel()
@@ -807,15 +819,7 @@ public class Cave3DRenderer // implements Renderer
     mWireFrame = null;
     computeWireFrame( 8.0, 0.01, 4 ); //  max 2 m,   coincide 0.01 m
     
-    mSurface = mParser.getSurface();
-    if ( mSurface != null ) {
-      if ( mCave3D != null ) mCave3D.setButtonSurface();
-      projs_surface_E = new float[ mSurface.mNr1 * mSurface.mNr2 ];
-      projs_surface_N = new float[ mSurface.mNr1 * mSurface.mNr2 ];
-    } else {
-      projs_surface_E = null;
-      projs_surface_N = null;
-    }
+    setSurface( mParser.getSurface() );
 
     // Log.v( TAG, "make walls");
 
@@ -1232,7 +1236,7 @@ public class Cave3DRenderer // implements Renderer
     do_paths_walls    = ( wall_mode != WALL_NONE );
     // do_paths_borders  = ( wall_mode != WALL_NONE );
     do_paths_surface      = ( mSurface != null );
-    do_paths_surface_legs = (mSurface != null );
+    do_paths_surface_legs = ( mSurface != null );
   }
 
   void clearDoPaths()
@@ -1992,10 +1996,21 @@ public class Cave3DRenderer // implements Renderer
 
     if ( do_paths_surface ) {
       do_paths_surface = false;
+      float ee = xc - x0;
+      float nn = yc - y0;
+      float lightZ = (float)Math.sqrt( 0.5 );
+      float lightE = (-ee - nn);
+      float lightN = (-ee + nn);
+      float d = (float)Math.sqrt(lightE*lightE + lightN*lightN)*2;
+      lightE /= d;
+      lightN /= d;
+
+      float[] normal = mSurface.mNormal;
       synchronized( paths_surface ) {
         // Log.v( TAG, "compute paths: surface ");
         paths_surface.clear();
         if ( do_surface ) {
+          int alpha = surfacePaint.getAlpha();
           int n1 = mSurface.mNr1;
           int n2 = mSurface.mNr2;
           int cnti = 0;
@@ -2019,7 +2034,14 @@ public class Cave3DRenderer // implements Renderer
               float x10 = projs_surface_E[ ji1 ]; // (i,j+1)
               float y10 = projs_surface_N[ ji1 ];
               if ( x10 < 0 || x10 > ww || y10 < 0 || y10 > hh ) continue;
-              pp = new Cave3DDrawPath( surfacePaint );
+              Paint paint = new Paint( surfacePaint );
+
+              int ji03 = ji0 * 3;
+              float light = (1 + lightE * normal[ ji03 ] + lightN * normal[ ji03+1 ] + lightZ * normal[ ji03+2 ] )/2;
+              Paint paint0 = new Paint( surfacePaint );
+              paint0.setAlpha( (int)(light*alpha) );
+
+              pp = new Cave3DDrawPath( paint0 );
               pp.path.moveTo( x00, y00 );
               pp.path.lineTo( x01, y01 );
               pp.path.lineTo( x11, y11 );

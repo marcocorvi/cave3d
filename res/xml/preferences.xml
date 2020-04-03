@@ -49,6 +49,14 @@
        android:dialogTitle="@string/pref_neg_clino_title"
        />
 
+  <android.preference.EditTextPreference
+       android:key="CAVE3D_DEM_BUFFER"
+       android:title="@string/pref_dem_buffer_title"
+       android:summary="@string/pref_dem_buffer_summary"
+       android:dialogTitle="@string/pref_dem_buffer_title"
+       android:dialogMessage="@string/pref_dem_buffer_message"
+       />
+
   <android.preference.CheckBoxPreference
        android:key="CAVE3D_PREPROJECTION"
        android:title="@string/pref_preprojection_title"

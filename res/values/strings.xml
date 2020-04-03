@@ -17,7 +17,7 @@
     <string name="menu_options">Options</string>
     <string name="menu_reset">Reset</string>
 
-    <string name="menu_alpha">DEM opacity</string>
+    <string name="menu_alpha">DEM</string>
     <string name="menu_viewpoint">Viewpoint</string>
     <string name="menu_files">Surveys</string>
     <string name="menu_export">Export</string>
@@ -50,6 +50,8 @@
     <string name="style_stroke_fill">Fill &amp; Stroke</string>
     <string name="style_fill">Fill</string>
     <string name="surface_projection">Projection on DEM</string>
+    <string name="dem_file">DEM %1$s</string>
+    <string name="dem_load">load</string>
 
     <string name="title">%1$s  Clino: %2$.0f  Azimuth: %3$.0f</string>
     <string name="title_clino"> Clino: </string>
@@ -71,6 +73,7 @@
     <string name="DISTANCE">DISTANCE</string>
     <string name="CENTER">CENTER</string>
     <string name="select_file">Cave3D - Select a file:</string>
+    <string name="select_dem_file">Select a DEM file:</string>
     <string name="Wall">Walls</string>
     <string name="Surface">Surface</string>
 
@@ -142,6 +145,9 @@
     <string name="pref_neg_clino_title">Below-horizon views</string>
     <string name="pref_neg_clino_summary">Allow below-horizon viewpoints</string>
     <string name="pref_neg_clino_message">Allow views from below the horizon</string>
+    <string name="pref_dem_buffer_title">DEM buffer</string>
+    <string name="pref_dem_buffer_summary">DEM extent around survey</string>
+    <string name="pref_dem_buffer_message">Extension of the DEM around the survey</string>
     <string name="pref_all_splay_title">All splays</string>
     <string name="pref_all_splay_summary">All the splays for walls</string>
     <string name="pref_all_splay_message">Whether to use all the splays for the walls</string>
@@ -210,6 +216,7 @@ Text size: Station label text size\n
 Buttons size: Buttons size\n
 Selection radius: Radius of selection\n
 Top grid: Show the grid on the top\n
+DEM buffer: Extent of DEM area around the survey\n
 Projections: Whether to use precompute projections\n
 All splay: Whether to use all the splays for the walls\n
 Split triangles: Whether to split intersecting wall triangles\n
@@ -231,7 +238,10 @@ Surface\n
 If the (Therion or Loch) model contains surface data, a Digital Elevation Model grid, the surface can be dislayed either are grid, or in
 transparency, or both.\n
 The opacity of the surface is adjustable.\n
-The projection of the survey centerline on the surface is displayed in blue.\n\n
+The projection of the survey centerline on the surface is displayed in blue.\n
+It is possible to load a DEM from a file. The supported formats are ascii (.asc) and Therion grid (.grid). 
+The survey and the DEM data must be in the same Cartographic Coordinate Reference System.
+The surface is initialized to cover an area with an extent of the DEM-buffer around the survey.\n\n 
 
 Station actions\n
 When the stations are displayed, they can be selected tapping on the station.

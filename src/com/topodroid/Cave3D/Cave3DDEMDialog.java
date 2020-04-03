@@ -1,4 +1,4 @@
-/* @file Cave3DOpenFileDialog.java
+/* @file Cave3DDEMDialog.java
  *
  * @author marco corvi
  * @date nov 2011
@@ -17,9 +17,9 @@ import java.io.FilenameFilter;
 
 import java.util.ArrayList;
 
-import android.app.Activity;
+import android.content.Context;
+import android.app.Dialog;
 import android.os.Bundle;
-import android.content.Intent;
 
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -30,14 +30,16 @@ import android.widget.TextView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+
 import android.widget.Toast;
 
-public class  Cave3DOpenFileDialog extends Activity
-                            implements OnItemClickListener
+public class Cave3DDEMDialog extends Dialog
+                             implements OnItemClickListener
 {
-  // private static final String TAG = "Cave3D FILE";
+  private Context mContext;
+  private Cave3D  mCave3D;
+  private String  mBaseDir;
 
-  // private ArrayAdapter<String> mArrayAdapter;
   private ArrayList< MyFileItem > mItems;
   private MyFileAdapter mArrayAdapter;
   private ListView mList;
@@ -45,14 +47,8 @@ public class  Cave3DOpenFileDialog extends Activity
   class MyFilenameFilter implements FilenameFilter
   {
     public boolean accept( File dir, String name ) {
-      if ( name.endsWith( ".th" ) ) return true;
-      if ( name.endsWith( "thconfig" ) ) return true;
-      if ( name.endsWith( "tdconfig" ) ) return true;
-      if ( name.endsWith( ".lox" ) ) return true;
-      if ( name.endsWith( ".mak" ) ) return true;
-      if ( name.endsWith( ".dat" ) ) return true;
-      if ( name.endsWith( ".tro" ) ) return true;
-      // if ( name.endsWith( ".srv" ) ) return true; // not implemented yet
+      if ( name.endsWith( ".grid" ) ) return true; // therion grid file
+      if ( name.endsWith( ".asc" ) ) return true;  // DEM ascii file
       return false;
     }
   }
@@ -66,6 +62,14 @@ public class  Cave3DOpenFileDialog extends Activity
     }
   }
 
+  Cave3DDEMDialog( Context ctx, Cave3D cave3d )
+  {
+    super( ctx );
+    mContext = ctx;
+    mCave3D  = cave3d;
+    mBaseDir = mCave3D.mAppBasePath;
+  } 
+
   @Override
   public void onCreate( Bundle savedInstanceState )
   {
@@ -74,7 +78,7 @@ public class  Cave3DOpenFileDialog extends Activity
     setContentView(R.layout.openfile);
     getWindow().setLayout( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
 
-    setTitle( R.string.select_file );
+    setTitle( R.string.select_dem_file );
     mList = (ListView) findViewById( R.id.list );
 
     // mArrayAdapter = new ArrayAdapter<String>( this, R.layout.message );
@@ -82,8 +86,8 @@ public class  Cave3DOpenFileDialog extends Activity
     mList.setDividerHeight( 2 );
  
     mItems = new ArrayList< MyFileItem >();
-    mArrayAdapter = new MyFileAdapter( this, this, mList, R.layout.message, mItems );
-    updateList( Cave3D.mAppBasePath );
+    mArrayAdapter = new MyFileAdapter( mContext, this, mList, R.layout.message, mItems );
+    updateList( mBaseDir );
     mList.setAdapter( mArrayAdapter );
   }
 
@@ -108,7 +112,7 @@ public class  Cave3DOpenFileDialog extends Activity
       }
     } else {
       // should never comes here
-      Toast.makeText( this, R.string.warning_no_cwd, Toast.LENGTH_LONG ).show();
+      Toast.makeText( mContext, R.string.warning_no_cwd, Toast.LENGTH_LONG ).show();
     }
   }
 
@@ -121,31 +125,24 @@ public class  Cave3DOpenFileDialog extends Activity
       name = name.substring( 2 );
     }
     if ( name.equals("..") ) {
-      File dir = new File( Cave3D.mAppBasePath );
+      File dir = new File( mBaseDir );
       String parent_dir = dir.getParent();
       if ( parent_dir != null ) {
-        Cave3D.mAppBasePath = parent_dir;
-        updateList( Cave3D.mAppBasePath );
+        mBaseDir = parent_dir;
+        updateList( mBaseDir );
       } else {
-        Toast.makeText( this, R.string.warning_no_parent, Toast.LENGTH_LONG ).show();
+        Toast.makeText( mContext, R.string.warning_no_parent, Toast.LENGTH_LONG ).show();
       }
       return;
     }
-    File file = new File( Cave3D.mAppBasePath, name );
+    File file = new File( mBaseDir, name );
     if ( file.isDirectory() ) {
-      Cave3D.mAppBasePath += "/" + name;
-      updateList( Cave3D.mAppBasePath );
+      mBaseDir += "/" + name;
+      updateList( mBaseDir );
       return;
     }
-    // Log.v( TAG, "FILE " + name );
-    Intent intent = new Intent();
-    intent.putExtra( "com.topodroid.Cave3D.filename", name );
-    setResult( Activity.RESULT_OK, intent );
-    // } else {
-    //   setResult( RESULT_CANCELED );
-    // }
-    finish();
+    mCave3D.openDEM( mBaseDir + "/" + name );
+    dismiss();
   }
-    
 
 }

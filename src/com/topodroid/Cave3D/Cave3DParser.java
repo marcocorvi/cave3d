@@ -35,7 +35,7 @@ public class Cave3DParser
   protected ArrayList< Cave3DStation > stations;
   protected ArrayList< Cave3DShot > shots;   // centerline shots
   protected ArrayList< Cave3DShot > splays;  // splay shots
-  public float emin, emax, nmin, nmax, zmin, zmax;
+  public float emin, emax, nmin, nmax, zmin, zmax; // survey bounds
   protected Cave3DSurface mSurface;
   protected float mCaveLength;
   String mName; // file base name

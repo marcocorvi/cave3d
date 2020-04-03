@@ -82,6 +82,7 @@ public class Cave3D extends Activity
 
   static int mCheckPerms = -1;
 
+
   // -----------------------------------------------------
   // PREFERENCES
 
@@ -100,6 +101,7 @@ public class Cave3D extends Activity
   static float mSplitRandomizeDelta = 0.1f; // meters
   static float mSplitStretchDelta   = 0.1f;
   static float mPowercrustDelta     = 0.1f; // meters
+  static float mDEMbuffer = 200;
   // static boolean mWallConvexHull = false;
   // static boolean mWallPowercrust = false;
   // static boolean mWallDelaunay   = false;
@@ -112,6 +114,7 @@ public class Cave3D extends Activity
   static final String CAVE3D_GRID_ABOVE       = "CAVE3D_GRID_ABOVE";
   static final String CAVE3D_NEG_CLINO        = "CAVE3D_NEG_CLINO";
   static final String CAVE3D_ALL_SPLAY        = "CAVE3D_ALL_SPLAY";
+  static final String CAVE3D_DEM_BUFFER       = "CAVE3D_DEM_BUFFER";
   static final String CAVE3D_PREPROJECTION    = "CAVE3D_PREPROJECTION";
   static final String CAVE3D_SPLIT_TRIANGLES  = "CAVE3D_SPLIT_TRIANGLES";
   static final String CAVE3D_SPLIT_RANDOM     = "CAVE3D_SPLIT_RANDOM";
@@ -130,21 +133,21 @@ public class Cave3D extends Activity
       if ( mAppBasePath == null ) mAppBasePath = APP_BASE_PATH;
     } else if ( k.equals( CAVE3D_TEXT_SIZE ) ) {
       try {
-        mTextSize = Integer.parseInt( sp.getString( k, "20" ) );
-        Cave3DRenderer.setStationPaintTextSize( mTextSize );
-      } catch ( NumberFormatException e ) {
-      }
+        int size = Integer.parseInt( sp.getString( k, "20" ) );
+        if ( size > 0 ) mTextSize = size;
+      } catch ( NumberFormatException e ) { }
+      Cave3DRenderer.setStationPaintTextSize( mTextSize );
     } else if ( k.equals( CAVE3D_BUTTON_SIZE ) ) {
       try {
-        mButtonSize = Integer.parseInt( sp.getString( k, "1" ) );
-        resetButtonBar();
-      } catch ( NumberFormatException e ) {
-      }
+        int size = Integer.parseInt( sp.getString( k, "1" ) );
+        if ( size > 0 ) mButtonSize = size;
+      } catch ( NumberFormatException e ) { }
+      resetButtonBar();
     } else if ( k.equals( CAVE3D_SELECTION_RADIUS ) ) { 
       try {
-        mSelectionRadius = Integer.parseInt( sp.getString( k, "20" ) );
-      } catch ( NumberFormatException e ) {
-      }
+        int radius = Integer.parseInt( sp.getString( k, "20" ) );
+        if ( radius > 10 ) mSelectionRadius = radius;
+      } catch ( NumberFormatException e ) { }
     } else if ( k.equals( CAVE3D_GRID_ABOVE ) ) { 
       boolean b = sp.getBoolean( k, false );
       if ( b != mGridAbove ) {
@@ -155,6 +158,12 @@ public class Cave3D extends Activity
       mMinClino = sp.getBoolean( k, false ) ? - Cave3DRenderer.PIOVERTWO : 0;
     } else if ( k.equals( CAVE3D_ALL_SPLAY ) ) { 
       mAllSplay = sp.getBoolean( k, true );
+    } else if ( k.equals( CAVE3D_DEM_BUFFER ) ) { 
+      try {
+        float buffer = Float.parseFloat( sp.getString( k, "200" ) );
+        if ( buffer >= 0 ) mDEMbuffer = buffer;
+      } catch ( NumberFormatException e ) { }
+
     } else if ( k.equals( CAVE3D_PREPROJECTION ) ) { 
       mPreprojection = sp.getBoolean( k, true );
     } else if ( k.equals( CAVE3D_SPLIT_TRIANGLES ) ) { 
@@ -181,7 +190,8 @@ public class Cave3D extends Activity
       } catch ( NumberFormatException e ) { }
     } else if ( k.equals( CAVE3D_POWERCRUST_DELTA ) ) { 
       try {
-        mPowercrustDelta = Float.parseFloat( sp.getString( k, "0.1" ) );
+        float delta = Float.parseFloat( sp.getString( k, "0.1" ) );
+        if ( delta > 0 ) mPowercrustDelta = delta;
       } catch ( NumberFormatException e ) { }
       
     // } else if ( k.equals( CAVE3D_CONVEX_HULL ) ) { 
@@ -202,23 +212,31 @@ public class Cave3D extends Activity
     mAppBasePath = sp.getString( CAVE3D_BASE_PATH, APP_BASE_PATH );
     if ( mAppBasePath == null ) mAppBasePath = APP_BASE_PATH;
     try {
-      mTextSize = Integer.parseInt( sp.getString( CAVE3D_TEXT_SIZE, "20" ) );
-    } catch ( NumberFormatException e ) {
-      mTextSize = 20;
-    }
+      int size = Integer.parseInt( sp.getString( CAVE3D_TEXT_SIZE, "20" ) );
+      if ( size > 10 ) {
+        mTextSize = size;
+        Cave3DRenderer.setStationPaintTextSize( mTextSize );
+      }
+    } catch ( NumberFormatException e ) { }
     try {
-      mButtonSize = Integer.parseInt( sp.getString( CAVE3D_BUTTON_SIZE, "1" ) );
-    } catch ( NumberFormatException e ) {
-      mButtonSize = 1;
-    }
+      int size = Integer.parseInt( sp.getString( CAVE3D_BUTTON_SIZE, "1" ) );
+      if ( size > 0 ) {
+        mButtonSize = size;
+        resetButtonBar();
+      }
+    } catch ( NumberFormatException e ) { }
     try {
-      mSelectionRadius = Integer.parseInt( sp.getString( CAVE3D_SELECTION_RADIUS, "20" ) );
-    } catch ( NumberFormatException e ) {
-      mSelectionRadius = 20;
-    }
+      int radius = Integer.parseInt( sp.getString( CAVE3D_SELECTION_RADIUS, "20" ) );
+      if ( radius > 10 ) mSelectionRadius = radius;
+    } catch ( NumberFormatException e ) { }
     mGridAbove      = sp.getBoolean( CAVE3D_GRID_ABOVE, false );
     mMinClino       = sp.getBoolean( CAVE3D_NEG_CLINO, false ) ? - Cave3DRenderer.PIOVERTWO : 0;
     mAllSplay       = sp.getBoolean( CAVE3D_ALL_SPLAY, true );
+    try {
+      float buffer = Float.parseFloat( sp.getString( CAVE3D_DEM_BUFFER, "200" ) );
+      if ( buffer >= 0 ) mDEMbuffer = buffer;
+    } catch ( NumberFormatException e ) { }
+
     mPreprojection  = sp.getBoolean( CAVE3D_PREPROJECTION, true );
     mSplitTriangles = sp.getBoolean( CAVE3D_SPLIT_TRIANGLES, true );
     mSplitRandomize = false;
@@ -277,33 +295,37 @@ public class Cave3D extends Activity
   // public void zoomOut() { mRenderer.zoomOut(); }
   public void zoomOne() { mRenderer.zoomOne(); }
 
+  String mDEMname = null;
+
   // ---------------------------------------------------------
   // DIMENSIONS
 
-  static int setListViewHeight( Context context, HorizontalListView listView )
+  private static int setListViewHeight( Context context, HorizontalListView listView )
   {
     int size = getScaledSize( context );
-    LayoutParams params = listView.getLayoutParams();
-    params.height = size + 10;
-    listView.setLayoutParams( params );
+    if ( listView != null ) {
+      LayoutParams params = listView.getLayoutParams();
+      params.height = size + 10;
+      listView.setLayoutParams( params );
+    }
     return size;
   }
 
   // default button size
-  static int getScaledSize( Context context )
+  private static int getScaledSize( Context context )
   {
     return (int)( 42 * mButtonSize * context.getResources().getSystem().getDisplayMetrics().density );
   }
 
-  static int getDefaultSize( Context context )
-  {
-    return (int)( 42 * context.getResources().getSystem().getDisplayMetrics().density );
-  }
+  // private static int getDefaultSize( Context context )
+  // {
+  //   return (int)( 42 * context.getResources().getSystem().getDisplayMetrics().density );
+  // }
 
-  boolean isMultitouch()
-  {
-    return getPackageManager().hasSystemFeature( PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH );
-  }
+  // private boolean isMultitouch()
+  // {
+  //   return getPackageManager().hasSystemFeature( PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH );
+  // }
 
   void toast( int r, boolean loong )
   {
@@ -421,7 +443,7 @@ public class Cave3D extends Activity
   // ---------------------------------------------------------
   // BUTTONS
 
-  HorizontalListView mListView;
+  HorizontalListView mListView = null;
   HorizontalButtonView mButtonView1;
   MyButton mButton1[];
   static int mNrButton1 = 8;
@@ -459,6 +481,7 @@ public class Cave3D extends Activity
 
   private void resetButtonBar()
   {
+    if ( mListView == null ) return;
     int size = setListViewHeight( this, mListView );
     mButton1 = new MyButton[ mNrButton1 ];
     mButton1[0] = new MyButton( this, this, size, izons[0], 0 );
@@ -884,5 +907,31 @@ public class Cave3D extends Activity
 
   boolean getSurfaceLegs() { return mRenderer.getSurfaceLegs(); }
   void    setSurfaceLegs( boolean show ) { mRenderer.toggleSurfaceLegs( show ); }
+
+  void openDEM( String filename ) 
+  {
+    Log.v("Cave3D-DEM", filename );
+    DEMparser dem = null;
+    if ( filename.endsWith( ".grid" ) ) {
+      dem = new DEMgridParser( filename );
+    } else if ( filename.endsWith( ".asc" ) ) {
+      dem = new DEMasciiParser( filename );
+    } else { 
+      return;
+    }
+    if ( dem.valid() ) {
+      // TODO read data
+      int buffer = 200;
+      Log.v("Cave3D-DEM", "BBox X " + mRenderer.xmin + " " + mRenderer.xmax + " Y " + mRenderer.ymin + " " + mRenderer.ymax + " Z " + mRenderer.zmin + " " + mRenderer.zmax );
+      dem.readData( mRenderer.xmin - buffer, mRenderer.xmax + buffer, mRenderer.ymin - buffer, mRenderer.ymax + buffer );
+    }
+    if ( dem.valid() ) {
+      // TODO save dem in memory
+      mRenderer.setSurface( dem );
+      int from = filename.lastIndexOf( '/' ) + 1; if ( from < 0 ) from = 0;
+      int to   = filename.lastIndexOf( '.' );     if ( to < 0 ) to = filename.length();
+      mDEMname = filename.substring( from, to );
+    }
+  }
 
 }
