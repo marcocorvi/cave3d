@@ -48,6 +48,9 @@
     <!-- TODO string name="style_stroke">Stroke</string -->
     <!-- TODO string name="style_stroke_fill">Fill &amp; Stroke</string -->
     <!-- TODO string name="style_fill">Fill</string -->
+    <!-- TODO string name="surface_projection">Projection on DEM</string -->
+    <!-- TODO string name="dem_file">DEM %1$s</string -->
+    <!-- TODO string name="dem_load">load</string -->
 
     <string name="title">%1$s  Uhol: %2$.0f  Azimut: %3$.0f</string>
     <string name="title_clino"> Uhol: </string>
@@ -69,6 +72,7 @@
     <string name="DISTANCE">VZDIALENOSŤ</string>
     <string name="CENTER">CENTROVANIE</string>
     <string name="select_file">Cave3D - Vybrať súbor:</string>
+    <!-- TODO string name="select_dem_file">Select a DEM file:</string -->
     <string name="Wall">Steny</string>
     <string name="Surface">Povrch</string>
 
@@ -140,6 +144,9 @@
     <string name="pref_neg_clino_title">Pohľady spod horizontu</string>
     <string name="pref_neg_clino_summary">Dovoliť pohľady aj spod horizontu</string>
     <string name="pref_neg_clino_message">Dovoliť pohľady aj spod horizontu</string>
+    <!-- TODO string name="pref_dem_buffer_title">DEM buffer</string -->
+    <!-- TODO string name="pref_dem_buffer_summary">DEM extent around survey</string -->
+    <!-- TODO string name="pref_dem_buffer_message">Extension of the DEM around the survey</string -->
     <string name="pref_all_splay_title">Všetky pomocné zámery</string>
     <string name="pref_all_splay_summary">Použiť všetky pomocné zámery pre zobrazenie stien</string>
     <string name="pref_all_splay_message">Použiť všetky pomocné zámery pre zobrazenie stien</string>

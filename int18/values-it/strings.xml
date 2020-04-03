@@ -49,6 +49,9 @@
     <string name="style_stroke">Tratto</string>
     <string name="style_stroke_fill">Tratto &amp; area</string>
     <string name="style_fill">Area</string>
+    <!-- TODO string name="surface_projection">Projection on DEM</string -->
+    <!-- TODO string name="dem_file">DEM %1$s</string -->
+    <!-- TODO string name="dem_load">load</string -->
 
     <string name="title">%1$s  Clino: %2$.0f  Azimut: %3$.0f</string>
     <string name="title_clino"> Clino: </string>
@@ -70,6 +73,7 @@
     <string name="DISTANCE">DISTANZA</string>
     <string name="CENTER">CENTRA</string>
     <string name="select_file">Cave3D - Seleziona un file:</string>
+    <!-- TODO string name="select_dem_file">Select a DEM file:</string -->
     <string name="Wall">Pareti</string>
     <string name="Surface">Modello DEM</string>
 
@@ -141,6 +145,9 @@
     <string name="pref_neg_clino_title">Viste sotto l\'orizzonte</string>
     <string name="pref_neg_clino_summary">Permette punti di vista sotto l\'orizzonte</string>
     <string name="pref_neg_clino_message">Permette punti di vista sotto l\'orizzonte</string>
+    <!-- TODO string name="pref_dem_buffer_title">DEM buffer</string -->
+    <!-- TODO string name="pref_dem_buffer_summary">DEM extent around survey</string -->
+    <!-- TODO string name="pref_dem_buffer_message">Extension of the DEM around the survey</string -->
     <string name="pref_all_splay_title">Splay per pareti</string>
     <string name="pref_all_splay_summary">Usa tutti gli splay per le pareti</string>
     <string name="pref_all_splay_message">Usa tutti gli splay per le pareti</string>

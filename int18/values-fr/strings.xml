@@ -51,6 +51,9 @@
     <!-- TODO string name="style_stroke">Stroke</string -->
     <!-- TODO string name="style_stroke_fill">Fill &amp; Stroke</string -->
     <!-- TODO string name="style_fill">Fill</string -->
+    <!-- TODO string name="surface_projection">Projection on DEM</string -->
+    <!-- TODO string name="dem_file">DEM %1$s</string -->
+    <!-- TODO string name="dem_load">load</string -->
 
     <string name="title">%1$s  Pente: %2$.0f  Azimut: %3$.0f</string>
     <string name="title_clino"> Pente : </string>
@@ -71,6 +74,7 @@
     <string name="STATIONS_DISTANCE">Distance station</string>
     <string name="DISTANCE">Distance</string>
     <string name="select_file">Cave3D - Selectionner archive :</string>
+    <!-- TODO string name="select_dem_file">Select a DEM file:</string -->
     <string name="Wall">Parois</string>
     <string name="Surface">Superficie</string>
 
@@ -142,6 +146,9 @@
     <string name="pref_neg_clino_title">Vue sous l\'horizon</string>
     <string name="pref_neg_clino_summary">Permettre point de vue sous horizon</string>
     <string name="pref_neg_clino_message">Permettre d\'avoir un point de vue sous l\'horizon</string>
+    <!-- TODO string name="pref_dem_buffer_title">DEM buffer</string -->
+    <!-- TODO string name="pref_dem_buffer_summary">DEM extent around survey</string -->
+    <!-- TODO string name="pref_dem_buffer_message">Extension of the DEM around the survey</string -->
     <string name="pref_all_splay_title">Toutes visées latérales</string>
     <string name="pref_all_splay_summary">Toutes visées latérales pour parois</string>
     <string name="pref_all_splay_message">Utiliser la totalité des visées latérales pour tracer les parois</string>

@@ -50,6 +50,9 @@
     <!-- TODO string name="style_stroke">Stroke</string -->
     <!-- TODO string name="style_stroke_fill">Fill &amp; Stroke</string -->
     <!-- TODO string name="style_fill">Fill</string -->
+    <!-- TODO string name="surface_projection">Projection on DEM</string -->
+    <!-- TODO string name="dem_file">DEM %1$s</string -->
+    <!-- TODO string name="dem_load">load</string -->
 
     <string name="title">%1$s  inclinação: %2$.0f  Azimute: %3$.0f</string>
     <string name="title_clino"> Inclinação: </string>
@@ -70,6 +73,7 @@
     <string name="STATIONS_DISTANCE">DISTÂNCIA BASES</string>
     <string name="DISTANCE">DISTÂNCIA</string>
     <string name="select_file">Cave3D - Escolha um arquivo:</string>
+    <!-- TODO string name="select_dem_file">Select a DEM file:</string -->
     <string name="Wall">Paredes</string>
     <string name="Surface">Superfície</string>
 
@@ -141,6 +145,9 @@
     <!-- TODO string name="pref_neg_clino_title">Below-horizon views</string -->
     <!-- TODO string name="pref_neg_clino_summary">Allow below-horizon viewpoints</string -->
     <!-- TODO string name="pref_neg_clino_message">Allow views from below the horizon</string -->
+    <!-- TODO string name="pref_dem_buffer_title">DEM buffer</string -->
+    <!-- TODO string name="pref_dem_buffer_summary">DEM extent around survey</string -->
+    <!-- TODO string name="pref_dem_buffer_message">Extension of the DEM around the survey</string -->
     <string name="pref_all_splay_title">Todas medidas auxiliares</string>
     <string name="pref_all_splay_summary">Todas as medidas auxialires</string>
     <string name="pref_all_splay_message">Usar todas as medidas auxiliares para as paredes</string>
