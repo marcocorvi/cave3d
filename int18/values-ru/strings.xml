@@ -50,9 +50,9 @@
     <string name="style_stroke">Линия</string>
     <string name="style_stroke_fill">Заливка &amp; Линии</string>
     <string name="style_fill">Заливка</string>
-    <!-- TODO string name="surface_projection">Projection on DEM</string -->
-    <!-- TODO string name="dem_file">DEM %1$s</string -->
-    <!-- TODO string name="dem_load">load</string -->
+    <string name="surface_projection">Проекция на DEM</string>
+    <string name="dem_file">DEM %1$s</string>
+    <string name="dem_load">загрузить</string>
 
     <string name="title">%1$s  Наклон: %2$.0f  Азимут: %3$.0f</string>
     <string name="title_clino"> Наклон: </string>
@@ -74,7 +74,7 @@
     <string name="DISTANCE">РАССТОЯНИЕ</string>
     <string name="CENTER">ЦЕНТР</string>
     <string name="select_file">Cave3D - Выберите файл:</string>
-    <!-- TODO string name="select_dem_file">Select a DEM file:</string -->
+    <string name="select_dem_file">Выбрать файл DEM:</string>
     <string name="Wall">Стены</string>
     <string name="Surface">Поверхность</string>
 
@@ -146,9 +146,9 @@
     <string name="pref_neg_clino_title">Обзор снизу вверх</string>
     <string name="pref_neg_clino_summary">Разрешить точки обзора ниже горизонта</string>
     <string name="pref_neg_clino_message">Разрешить обзор из под горизонта</string>
-    <!-- TODO string name="pref_dem_buffer_title">DEM buffer</string -->
-    <!-- TODO string name="pref_dem_buffer_summary">DEM extent around survey</string -->
-    <!-- TODO string name="pref_dem_buffer_message">Extension of the DEM around the survey</string -->
+    <string name="pref_dem_buffer_title">Буфер DEM</string>
+    <string name="pref_dem_buffer_summary">Область DEM вокруг съёмки</string>
+    <string name="pref_dem_buffer_message">Размеры области отображения DEM вокруг нитки хода</string>
     <string name="pref_all_splay_title">Все сплеи</string>
     <string name="pref_all_splay_summary">Все сплеи для стен</string>
     <string name="pref_all_splay_message">Использовать все сплеи для построения стен</string>
