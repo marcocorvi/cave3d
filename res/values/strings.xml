@@ -52,6 +52,7 @@
     <string name="surface_projection">Projection on DEM</string>
     <string name="dem_file">DEM %1$s</string>
     <string name="dem_load">load</string>
+    <string name="dem_failed">Failed DEM loading</string>
 
     <string name="title">%1$s  Clino: %2$.0f  Azimuth: %3$.0f</string>
     <string name="title_clino"> Clino: </string>

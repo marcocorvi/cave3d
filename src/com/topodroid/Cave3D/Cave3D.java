@@ -910,7 +910,7 @@ public class Cave3D extends Activity
 
   void openDEM( String filename ) 
   {
-    Log.v("Cave3D-DEM", filename );
+    // Log.v("Cave3D-DEM", filename );
     DEMparser dem = null;
     if ( filename.endsWith( ".grid" ) ) {
       dem = new DEMgridParser( filename );
@@ -922,7 +922,7 @@ public class Cave3D extends Activity
     if ( dem.valid() ) {
       // TODO read data
       int buffer = 200;
-      Log.v("Cave3D-DEM", "BBox X " + mRenderer.xmin + " " + mRenderer.xmax + " Y " + mRenderer.ymin + " " + mRenderer.ymax + " Z " + mRenderer.zmin + " " + mRenderer.zmax );
+      // Log.v("Cave3D-DEM", "BBox X " + mRenderer.xmin + " " + mRenderer.xmax + " Y " + mRenderer.ymin + " " + mRenderer.ymax + " Z " + mRenderer.zmin + " " + mRenderer.zmax );
       dem.readData( mRenderer.xmin - buffer, mRenderer.xmax + buffer, mRenderer.ymin - buffer, mRenderer.ymax + buffer );
     }
     if ( dem.valid() ) {
@@ -931,6 +931,10 @@ public class Cave3D extends Activity
       int from = filename.lastIndexOf( '/' ) + 1; if ( from < 0 ) from = 0;
       int to   = filename.lastIndexOf( '.' );     if ( to < 0 ) to = filename.length();
       mDEMname = filename.substring( from, to );
+      String msg = "DEM " + dem.dimX() + " " + dem.dimY();
+      Toast.makeText( this, msg, Toast.LENGTH_LONG ).show();
+    } else {
+      Toast.makeText( this, R.string.dem_failed, Toast.LENGTH_LONG ).show();
     }
   }
 

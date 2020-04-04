@@ -194,7 +194,7 @@ class DataHelper extends DataSetObservable
     if ( myDB == null ) return null;
     List<SurveyFixed> ret = new ArrayList<SurveyFixed>();
     Cursor cursor = myDB.query( "fixeds", // FIXED_TABLE,
-                               new String[] { "station", "longitude", "latitude", "altitude", "altimetric" }, // columns
+                               new String[] { "station", "longitude", "latitude", "altitude", "altimetric", "cs_name", "cs_longitude", "cs_latitude", "cs_altitude" }, // columns
                                WHERE_SID, new String[] { Long.toString(sid) },
                                null, null, null );
     if (cursor.moveToFirst()) {
@@ -204,6 +204,10 @@ class DataHelper extends DataSetObservable
         fixed.mLatitude   = cursor.getDouble(2);
         fixed.mAltitude   = cursor.getDouble(3);
         fixed.mAltimetric = cursor.getDouble(4);
+        fixed.mCsName     = cursor.getString(5);
+        fixed.mCsLongitude = cursor.getDouble(6);
+        fixed.mCsLatitude  = cursor.getDouble(7);
+        fixed.mCsAltitude  = cursor.getDouble(8);
         ret.add( fixed );
       } while (cursor.moveToNext());
     }

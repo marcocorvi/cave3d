@@ -46,7 +46,7 @@ public class Cave3DThParser extends Cave3DParser
 
   DataHelper mData;
 
-  Cave3DFix mOrigin = null;
+  private Cave3DFix mOrigin = null; // coordinates of the origin station
 
   static int parseFlip( String flip )
   {
@@ -178,8 +178,8 @@ public class Cave3DThParser extends Cave3DParser
       pw.printf( String.format( mCave3D.getResources().getString( R.string.no_survey ), surveyname ) );
       return ERR_NO_SURVEY;
     }
-
     long sid = info.id;
+
     List< DBlock > blks = mData.getSurveyShots( sid, 0 );
     if ( blks.size() == 0 ) {
       pw.printf( String.format( mCave3D.getResources().getString( R.string.empty_survey ), surveyname ) );
@@ -222,11 +222,16 @@ public class Cave3DThParser extends Cave3DParser
     }
 
     List<SurveyFixed> fixeds = mData.getSurveyFixeds( sid );
+    // Log.v("Cave3D-DEM", "fixed points " + fixeds.size() );
     if ( fixeds != null && fixeds.size() > 0 ) {
-      Cave3DCS cs = new Cave3DCS("WGS-84");
+      Cave3DCS cs0 = new Cave3DCS("WGS-84");
+      Cave3DCS cs1 = null;
       float PI_180 = (float)(Math.PI / 180);
       for ( SurveyFixed fx : fixeds ) {
         String name = makeName( fx.station, path );
+        float x0=0, y0=0, z0=0; // long-lat
+        float x1=0, y1=0, z1=0; // long-lat
+
         float alat = (float)fx.mLatitude;
         if ( alat < 0 ) alat = -alat;
 
@@ -235,23 +240,37 @@ public class Cave3DThParser extends Cave3DParser
         s_radius *= PI_180;
         e_radius *= PI_180;
 
-        float x = (float)fx.mLongitude * e_radius;
-        float y = (float)fx.mLatitude * s_radius;
-        float z = (float)fx.mAltitude;
+        x0 = (float)fx.mLongitude * e_radius;
+        y0 = (float)fx.mLatitude * s_radius;
+        z0 = (float)fx.mAltitude;
+        // Log.v( "Cave3D-DEM", "Long-Lat " + x0 + " " + y0 + " " + z0 );
         if ( mOrigin == null ) {
-          // Log.v( "Cave3D-TH", "Fix origin " + name + " " + x + " " + y + " " + z );
-          mOrigin = new Cave3DFix( name, x, y, z, cs );
-	  fixes.add( new Cave3DFix( name, 0, 0, 0, cs ) );
+          // Log.v( "Cave3D-DEM", "Fix origin " + name + " " + x0 + " " + y0 + " " + z0 );
+          mOrigin = new Cave3DFix( name, x0, y0, z0, cs0 );
+          if ( fx.mCsName != null ) {
+            cs1 = new Cave3DCS( fx.mCsName );
+            x1 = (float)fx.mCsLongitude;
+            y1 = (float)fx.mCsLatitude;
+            z1 = (float)fx.mCsAltitude;
+            // Log.v( "Cave3D-DEM", "CS " + fx.mCsName + " " + x1 + " " + y1 + " " + z1 );
+	    fixes.add( new Cave3DFix( name, x1, y1, z1, cs1 ) );
+          } else {
+	    fixes.add( new Cave3DFix( name, x0, y0, z0, cs0 ) );
+          }
         } else {
-          x -= mOrigin.e;
-          y -= mOrigin.n;
-          z -= mOrigin.z;
           // Log.v( "Cave3D-TH", "Fix relative " + name + " " + x + " " + y + " " + z );
-	  fixes.add( new Cave3DFix( name, x, y, z, cs ) );
+          if ( cs1 == null ) {
+	    fixes.add( new Cave3DFix( name, x0, y0, z0, cs0 ) );
+          } else {
+            x0 -= mOrigin.e; // displacement of fix (using CS0)
+            y0 -= mOrigin.n;
+            z0 -= mOrigin.z;
+	    fixes.add( new Cave3DFix( name, x1+x0, y1+y0, z1+z0, cs1 ) );
+          }
         }
       }
     }
-    
+
     return SUCCESS;
   }
   

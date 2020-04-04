@@ -77,8 +77,8 @@ class DEMasciiParser extends DEMparser
     } finally {
       if ( fr != null ) try { fr.close(); } catch ( IOException e ) {}
     }
-    Log.v("Cave3D-DEM", "W " + mEast1 + " E " + mEast2 + " S " + mNorth1 + " N " + mNorth2 );
-    Log.v("Cave3D-DEM", "size " + mNr1 + " " + mNr2 );
+    // Log.v("Cave3D-DEM", "W " + mEast1 + " E " + mEast2 + " S " + mNorth1 + " N " + mNorth2 );
+    // Log.v("Cave3D-DEM", "size " + mNr1 + " " + mNr2 );
     makeNormal();
     return mValid;
   }
@@ -114,7 +114,7 @@ class DEMasciiParser extends DEMparser
     } catch ( NumberFormatException e2 ) {
       return false;
     }
-    Log.v("Cave3D-DEM", "cell " + mDim1 + " X " + xll + " Y " + yll + " Nx " + cols + " Ny " + rows );
+    // Log.v("Cave3D-DEM", "cell " + mDim1 + " X " + xll + " Y " + yll + " Nx " + cols + " Ny " + rows );
     return true;
   }
 

@@ -20,6 +20,10 @@ class SurveyFixed
   double mLatitude;
   double mAltitude;
   double mAltimetric;
+  String mCsName = null;
+  double mCsLongitude;
+  double mCsLatitude;
+  double mCsAltitude;
 
   SurveyFixed( String name )
   {

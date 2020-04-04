@@ -135,7 +135,7 @@ class DEMgridParser extends DEMparser
     } catch ( NumberFormatException e2 ) {
       return false;
     }
-    Log.v("Cave3D-DEM", "cell " + mDim1 + " " + mDim2 + " X " + xll + " Y " + yll + " Nx " + cols + " Ny " + rows );
+    // Log.v("Cave3D-DEM", "cell " + mDim1 + " " + mDim2 + " X " + xll + " Y " + yll + " Nx " + cols + " Ny " + rows );
     return true;
   }
 
