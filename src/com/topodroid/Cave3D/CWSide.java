@@ -4,10 +4,10 @@
  * @date nov 2011
  *
  * @brief face side
- *
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
+ * --------------------------------------------------------
  */
 package com.topodroid.Cave3D;
 
@@ -31,14 +31,12 @@ import android.util.Log;
  */
 public class CWSide
 {
-  private static final String TAG = "Cave3D SIDE";
-
   static int cnt = 0;
   static void resetCounter() { cnt = 0; }
 
   int mCnt;
   CWPoint p1, p2;
-  Cave3DVector u12;
+  Vector3D u12;
   CWTriangle t1; // oriented opposite to the side: points are p2-p1 in t1
   CWTriangle t2; // oriented as the side: points are p1-p2 in t2
 
@@ -65,7 +63,7 @@ public class CWSide
 
   void computeU12()
   {
-    u12 = p2.minus(p1);
+    u12 = p2.difference(p1);
     u12.normalized();
   }
 
@@ -124,23 +122,23 @@ public class CWSide
   CWPoint otherPoint( CWPoint p ) { return ( p == p1 )? p2 : ( p == p2)? p1 : null; }
 
   // sine of the angle (p2-p1)^(v-p1) [with sign]
-  float cross( Cave3DVector v )
+  double cross( Vector3D v )
   {
-    Cave3DVector vp1 = v.minus( p1 );
+    Vector3D vp1 = v.difference( p1 );
     vp1.normalized();
-    return u12.cross( vp1 ).length();
+    return u12.crossProduct( vp1 ).length();
   }
 
-  void dump( )
-  {
-    Log.v( TAG, "Side " + mCnt + " P " + p1.mCnt + "-" + p2.mCnt 
-                + " T " + ((t1 == null)? "-" : t1.mCnt) + " " + ((t2 == null)? "-" : t2.mCnt)
-    );
-  }
+  // void dump( )
+  // {
+  //   Log.v( "TopoGL", "Side " + mCnt + " P " + p1.mCnt + "-" + p2.mCnt 
+  //               + " T " + ((t1 == null)? "-" : t1.mCnt) + " " + ((t2 == null)? "-" : t2.mCnt)
+  //   );
+  // }
 
   void serialize( PrintWriter out )
   {
-    Cave3DVector dp = p2.minus(p1);
+    Vector3D dp = p2.difference(p1);
     out.format(Locale.US, "S %d %d %d %d %d %.3f %.3f %.3f\n", mCnt, p1.mCnt, p2.mCnt,
                 ((t1 == null)? -1 : t1.mCnt), ((t2 == null)? -1 : t2.mCnt), dp.x, dp.y, dp.z );
   }

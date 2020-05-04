@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Cave3D</string>
-
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Ignora</string>
     <string name="btn_compute">Calcola</string>
@@ -36,8 +34,6 @@
     <string name="info_grid">Griglia [m]</string>
     <string name="info_view">Punto di vista</string>
     <string name="info_surveys">Rilievi</string>
-    <string name="info_shots">Battute</string>
-    <string name="info_stations">Capisaldi</string>
     <string name="info_length">Sviluppo</string>
     <string name="info_depth">Profondità</string>
     <string name="info_volume">Volume</string>
@@ -151,9 +147,6 @@
     <string name="pref_all_splay_title">Splay per pareti</string>
     <string name="pref_all_splay_summary">Usa tutti gli splay per le pareti</string>
     <string name="pref_all_splay_message">Usa tutti gli splay per le pareti</string>
-    <string name="pref_preprojection_title">Pre-projezioni</string>
-    <string name="pref_preprojection_summary">Precalcola le projezioni</string>
-    <string name="pref_preprojection_message">Precalcola le projezioni</string>
 
     <string name="pref_split_triangles_title">Triangoli di parete</string>
     <string name="pref_split_triangles_summary">Dividi i triangoli di parete</string>
@@ -177,69 +170,9 @@
     <string name="pref_hull_summary">Hull walls</string>
 -->
 
-    <string name="Cave3DPerms">Permessi</string>
+    <string name="TopoGLPerms">Permessi</string>
     <string name="perms_mandatory">Cave3D può non funzionare senza questi permessi:</string>
     <string name="perms_optional">Cave3D può non funzionare senza questi permessi:</string>
     <string name="welcome_title">Cave3D %1$s</string>
 
-    <string name="help">Cave3D Aiuto\n
-Cave3D è in visualizzatore 3D di TopoDroid.\n
-Può aprire anche file in formato Therion (th e thconfig), Loch, Compass (dat e mak) e VisualTopo.\n
-Il modello 3D è visualizzato con una grigla orizzintale di riferimento (blu: Nord, verde: Est) oppure
-con la triade di assi (viola in sú).\n
-\n
-BOTTONI\n
-Muovi/Ruota: la freccia verde commuta fra spostamento e rotazione del modello.\n
-Splay: visualizza o nascode gli splay\n
-Pareti: visualizza o nascode le pareti, se calcolate.\n
-Projezione: mostra la vista in pianta calcolata dal modello 3D delle pareti, projettata sulla griglia piana, oppure 
-la cortina del profilo.\n
-Superficie: visualizza il modello DEM. Solo se i dati sono specificati nei formati Therion o Loch.\n
-Colore: commuta fra tre colorazioni della poligonale - grigio, per rilievo, per profondità.\n
-Griglia: commuta fra griglia o solo assi\n
-\n
-MENU\n
-Apri file: dialogo per selezionare un file di rilievo.\n
-Esporta: dialogo di esportazione modello.\n
-Info: statistiche\n
-Ico: diagramma a rosa 3D delle direzioni\n
-Rose: diagramma a rosa 2D delle direzioni\n
-Punto di vista: seleziona il punto di vista\n
-Reset: centra il modello 3D in vista da sopra e riscala per farlo stare nello schermo\n
-Pareti: dialogo per il calcolo della ricostruzione 3D delle pareti.\n
-Impostazioni\n
-Aiuto\n
-\n
-IMPOSTAZIONI\n
-Folder di base: folder con i file dei rilievi\n
-Dimensione nomi: dimensione nomi capisaldi\n
-Dimensione bottoni\n
-Raggio di selezione\n
-Posizione griglia: sopra o sotto il modello\n
-Projezione: se usare il pre-calcolo delle projezioni\n
-Splay: se usare tutti gli splay per le pareti\n
-Punti random: se spostare un poco in modo random i punti\n
-Stiramento pareti: se spostare un poco i punti perete nella direzione della battua\n
-\n
-ESPORTAZIONE\n
-Il modello può esser esportati nei formati DXF, KML, STL (ascii o binario) CGAL, LAS (binario) e shapefile.
-Ci sono opzioni per includere nelle esportazioni splay, pareti, capisaldi, e superficie.
-Il modello può anche esser serializzato in formato testuale.\n
-\n
-PARETI\n
-Laricostruzione delle pareti non è calcolata automaticamente quando viene aperto il file, ma
-deve esser richiesta attraverso in menu "pareti".
-Ci sono due modelli di calcolo: inviluppo pseudo-convesso e powercrust.
-Il primo è idoneo nel caso in cui non si abbiano molti splay. 
-Il secondo richiede che gli splay riempino lo spazio abbastanza densamente.
-Il calcolo della ricostruzione e` abbastanza oneroso e viene eseguito in background.
-Quando è completato si può visualizzare la ricostruzione col bottone "pareti".\n
-\n
-CAPISALDI\n
-I capisaldi possono esser selezionati quando sono visualizzati.
-La visualizzazione del modello può esser ricentrata sul caposaldo selezionato.
-È possibile anche misurare la distanza fra il caposaldo selezionato ed un altro
-caposaldo.\n
-Se il modello include un DEM il dialogo mostra la profondità del caposaldo sotto la superficie.\n
-  </string>
 </resources>

@@ -3,10 +3,11 @@
  * @author marco corvi
  * @date nov 2011
  *
- * @brief Cave3D loch file parser
+ * @brief loch file parser
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
+ * --------------------------------------------------------
  */
 package com.topodroid.Cave3D;
 
@@ -28,8 +29,6 @@ import android.util.Log;
 
 class LoxFile
 {
-  final static String TAG = "Cave3D LOX";
-
   private class Chunk_t
   {
     int type;
@@ -68,7 +67,7 @@ class LoxFile
 
   private int linenr = 0; // chunk number
 
-  LoxFile( String filename ) throws Cave3DParserException
+  LoxFile( String filename ) throws ParserException
   {
     mSurface = null;
     mBitmap  = null;
@@ -83,7 +82,7 @@ class LoxFile
     if ( file.exists() ) {
       readChunks( filename );
     } else {
-      throw new Cave3DParserException( filename, linenr );
+      throw new ParserException( filename, linenr );
     }
   }
 
@@ -131,7 +130,7 @@ class LoxFile
 // #else
   int toIntLEndian( byte val[] ) 
   {
-    // Log.v(TAG, "toInt " + val[0] + " " + val[1] + " " + val[2] + " " + val[3] );
+    // Log.v( "TopoGL-LOX", "toInt " + val[0] + " " + val[1] + " " + val[2] + " " + val[3] );
     int r0 = ( val[0] < 0 )? 256+val[0] : val[0];
     int r1 = ( val[1] < 0 )? 256+val[1] : val[1];
     int r2 = ( val[2] < 0 )? 256+val[2] : val[2];
@@ -190,38 +189,44 @@ class LoxFile
   //        tmp = val[off+3]; val[off+3] = val[off+4]; val[off+4] = tmp;
   // }
 
-  private void readChunks( String filename ) throws Cave3DParserException
+  private void readChunks( String filename ) throws ParserException
   {
-    // Log.v( TAG, "read chunks " + filename );
+    // Log.v(  "TopoGL-LOX", "read chunks " + filename );
     int type;
     byte int32[] = new byte[ SIZE32 ];
     FileInputStream fis = null;
     try {
       fis = new FileInputStream( filename );
-      while ( true ) {
+      boolean done = false;
+      while ( ! done ) {
 	++linenr;
-        fis.read( int32, 0, SIZE32 );
+        int len = fis.read( int32, 0, SIZE32 );
+        if ( len == -1 ) { // end of file
+          done = true;
+          continue;
+        }
         type = toIntLEndian( int32 );
         if ( type < 1 || type > 6 ) {
-          Log.e( TAG, "Unexpected chunk type " + type );
-          return;
+          Log.w(  "TopoGL-LOX", "Unexpected chunk type " + type );
+          done = true;
+          continue;
         }
         Chunk_t c = new Chunk_t( type );
         fis.read( int32, 0, SIZE32 ); c.rec_size  = toIntLEndian( int32 );
         fis.read( int32, 0, SIZE32 ); c.rec_cnt   = toIntLEndian( int32 );
         fis.read( int32, 0, SIZE32 ); c.data_size = toIntLEndian( int32 );
-        // Log.v( TAG, "Type " + c.type + " RecSize " + c.rec_size + " RecCnt " + c.rec_cnt + " DataSize " + c.data_size );
+        // Log.v(  "TopoGL-LOX", "Type " + c.type + " RecSize " + c.rec_size + " RecCnt " + c.rec_cnt + " DataSize " + c.data_size );
         if ( c.rec_size > 0 ) {
           c.records = new byte[ c.rec_size ];
           fis.read( c.records, 0, c.rec_size );
-          // Log.v( TAG, c.records[0] + " " + c.records[1] + " " + c.records[2] + " " + c.records[3] + " " + 
+          // Log.v(  "TopoGL-LOX", c.records[0] + " " + c.records[1] + " " + c.records[2] + " " + c.records[3] + " " + 
           //            c.records[4] + " " + c.records[5] + " " + c.records[6] + " " + c.records[7] );
         }
         if ( c.data_size > 0 ) {
           c.data = new byte[ c.data_size ];
           fis.read( c.data, 0, c.data_size );
         }
-        // Log.v(TAG, "Read: bytes " + (4 * SIZE32 + c.rec_size + c.data_size) );
+        // Log.v( "TopoGL-LOX", "Read: bytes " + (4 * SIZE32 + c.rec_size + c.data_size) );
         switch ( type ) {
           case 1: // SURVEY
             HandleSurvey( c );
@@ -245,11 +250,11 @@ class LoxFile
         }
       }
     } catch( FileNotFoundException e ) {
-      Log.e( TAG, "File not found " + e.getMessage() );
-      throw new Cave3DParserException( filename, linenr );
+      Log.e(  "TopoGL-LOX", "File not found " + e.getMessage() );
+      throw new ParserException( filename, linenr );
     } catch( IOException e ) {
-      Log.e( TAG, "I/O error " + e.getMessage() );
-      throw new Cave3DParserException( filename, linenr );
+      Log.e(  "TopoGL-LOX", "I/O error " + e.getMessage() );
+      throw new ParserException( filename, linenr );
     } finally {
       try {
         if ( fis != null ) fis.close();
@@ -262,7 +267,7 @@ class LoxFile
   {
     mSurveyChunk = chunk;
     int n0 = chunk.rec_cnt;
-    // Log.v( TAG, "Handle Survey: Nr. " + n0 );
+    // Log.v(  "TopoGL-LOX", "Handle Survey: Nr. " + n0 );
     byte[] recs = chunk.records; // as int32
     byte[] data = chunk.data;    // as char
     String name  = null;
@@ -276,10 +281,10 @@ class LoxFile
       int ts = toIntLEndian( recs, 4*(6*i + 5) );
       name  = getString( data, np, ns );
       title = getString( data, tp, ts );
-      // Log.v(TAG, i + "/" + n0 + ": Survey " + id + " (parent "+ pnt + ") Name " + name + " Title " + title );
+      // Log.v( "TopoGL-LOX", i + "/" + n0 + ": Survey " + id + " (parent "+ pnt + ") Name " + name + " Title " + title );
       mSurveys.add( new LoxSurvey( id, pnt, name, title ) );
     }
-    // Log.v(TAG, "Handle Survey done");
+    // Log.v( "TopoGL-LOX", "Handle Survey done");
   }
 
   private String getString( byte[] data, int np, int ns )
@@ -314,7 +319,7 @@ class LoxFile
       comment = getString( data, tp, ts );
       mStations.add( new LoxStation( id, sid, name, comment, fl, c0, c1, c2 ) );
       // if ( i < 3 ) {
-      //   Log.v(TAG, "station " + id + " / " + sid + " <" + name + "> " + np + "-" + ns + " flag " + fl + " " + c0 + " " + c1 + " " + c2 );
+      //   Log.v( "TopoGL-LOX", "station " + id + " / " + sid + " <" + name + "> " + np + "-" + ns + " flag " + fl + " " + c0 + " " + c1 + " " + c2 );
       // }
     }
   }
@@ -353,7 +358,7 @@ class LoxFile
   
       mShots.add( new LoxShot( fr, to, sid, fl, ty, tr, f0, f1, f2, f3, t0, t1, t2, t3 ) );
       // if ( i < 3 ) {
-      //   Log.v(TAG, "Shot " + fr + " " + to + " (" + sid + ") flag " + fl + " type " + ty );
+      //   Log.v( "TopoGL-LOX", "Shot " + fr + " " + to + " (" + sid + ") flag " + fl + " type " + ty );
       // }
     }
   }
@@ -408,15 +413,15 @@ class LoxFile
     int ww = toIntLEndian( recs, off ); off += SIZE32;
     int hh = toIntLEndian( recs, off ); off += SIZE32;
     int dp = toIntLEndian( recs, off ); off += SIZE32;
-    int ds = toIntLEndian( recs, off ); off += SIZE32;
+    int ds = toIntLEndian( recs, off ); off += SIZE32;  // size in bytes = ww * hh * 8 (8 bytes/double)
     double c[] = new double[6];
-    c[0]  = toDoubleLEndian( recs, off ); off += SIZEDBL;
-    c[1]  = toDoubleLEndian( recs, off ); off += SIZEDBL;
-    c[2]  = toDoubleLEndian( recs, off ); off += SIZEDBL;
+    c[0]  = toDoubleLEndian( recs, off ); off += SIZEDBL; // e0
+    c[1]  = toDoubleLEndian( recs, off ); off += SIZEDBL; // n0
+    c[2]  = toDoubleLEndian( recs, off ); off += SIZEDBL; // e = e0 + C2 * i + C3 * j // not sure abot c3/c4
     c[3]  = toDoubleLEndian( recs, off ); off += SIZEDBL;
-    c[4]  = toDoubleLEndian( recs, off ); off += SIZEDBL;
+    c[4]  = toDoubleLEndian( recs, off ); off += SIZEDBL; // n = n0 + C4 * i + C5 * j
     c[5]  = toDoubleLEndian( recs, off ); off += SIZEDBL;
-    // Log.v( "Cave3D-SURFACE", "id " + id + " " + ww + "X" + hh + " " + c[0] + " " + c[1] + " " + c[2] + " " + c[3] + " " + c[4] + " " + c[5] );
+    // Log.v( "TopoGL-SURFACE", "id " + id + " " + ww + "x" + hh + " dp " + dp + " ds " + ds + " cal " + c[0] + " " + c[1] + " " + c[2] + " " + c[3] + " " + c[4] + " " + c[5] );
 
     int npts = ww * hh;
     // assert( ds == npts * sizeof(double) );
@@ -446,8 +451,7 @@ class LoxFile
     c[3] = toDoubleLEndian( recs, off ); off += SIZEDBL;
     c[4] = toDoubleLEndian( recs, off ); off += SIZEDBL;
     c[5] = toDoubleLEndian( recs, off ); off += SIZEDBL;
-    // LOGI("Bitmap %d Type %d Calib %.2f %.2f %.2f %.2f %.2f %.2f File off %d size %d",
-    //   id, tp, c[0], c[1], c[2], c[3], c[4], c[5], dp, ds );
+    // Log.v("TopoGL-LOX", String.format("Bitmap %d Type %d Calib %.2f %.2f %.6f %.6f %.6f %.6f File off %d size %d", id, tp, c[0], c[1], c[2], c[3], c[4], c[5], dp, ds ) );
     // image file binary data
     // unsigned char * img = data + dp;
     mBitmap = new LoxBitmap( id, tp, ds, c, data, dp );

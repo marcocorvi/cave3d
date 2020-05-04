@@ -25,8 +25,6 @@ import android.graphics.drawable.BitmapDrawable;
 
 public class MyButton extends Button
 {
-  // private static final String TAG = "Cave3D BTN";
-
   Context mContext;
   BitmapDrawable mBitmap;
   BitmapDrawable mBitmap2;

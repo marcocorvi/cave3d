@@ -10,6 +10,7 @@
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
+ * --------------------------------------------------------
  */
 package com.topodroid.Cave3D;
 
@@ -22,8 +23,6 @@ import android.util.Log;
 
 public class CWIntersection
 {
-  private static final String TAG = "Cave3D INTERSECTION";
-
   static int cnt = 0;
   static void resetCounter() { cnt = 0; }
 
@@ -31,8 +30,8 @@ public class CWIntersection
   int mType;         // 1 one endpoint fron each triangle, 2 both endpoints from one triangle
   CWTriangle mTriA;    
   CWTriangle mTriB;
-  Cave3DVector mV;       // base-point of intersection line
-  Cave3DVector mN;       // direction of intersection line
+  Vector3D mV;       // base-point of intersection line
+  Vector3D mN;       // direction of intersection line
   CWLinePoint mV1;
   CWLinePoint mV2;
   int[] mSign;      // signature
@@ -40,7 +39,7 @@ public class CWIntersection
   private CWPoint mPB1;      // points for CW of triangle B
   private CWIntersection mNext;
   
-  public CWIntersection( int type, CWTriangle ta, CWTriangle tb, Cave3DVector v, Cave3DVector n )
+  public CWIntersection( int type, CWTriangle ta, CWTriangle tb, Vector3D v, Vector3D n )
   {
     mCnt = cnt++;
     mType = type;
@@ -135,12 +134,12 @@ public class CWIntersection
   //   CWTriangle t2 = mV2.mSide.otherTriangle( mV2.mTri );
   //     
   //   if ( j == 1 ) { // first 1 then 2
-  //     Log.v( TAG, mCnt + " " + mType + ": " + mTriA.mCnt + "-" + mTriB.mCnt 
+  //     Log.v( "TopoGL", mCnt + " " + mType + ": " + mTriA.mCnt + "-" + mTriB.mCnt 
   //       + " " + t1.mCnt + "/" + mV1.mSide.mCnt + "/" + mV1.mTri.mCnt
   //       + " " + mV2.mTri.mCnt + "/" + mV2.mSide.mCnt + "/" + t2.mCnt
   //     );
   //   } else { // first 2 then 1
-  //     Log.v( TAG, mCnt + " " + mType + ": " + mTriA.mCnt + "-" + mTriB.mCnt 
+  //     Log.v( "TopoGL", mCnt + " " + mType + ": " + mTriA.mCnt + "-" + mTriB.mCnt 
   //         + " " + mV2.mTri.mCnt + "/" + mV2.mSide.mCnt + "/" + t2.mCnt
   //         + " " + mV1.mTri.mCnt + "/" + mV1.mSide.mCnt + "/" + t1.mCnt
   //     );
@@ -153,7 +152,7 @@ public class CWIntersection
   {
     CWTriangle t1 = mV1.mSide.otherTriangle( mV1.mTri );
     CWTriangle t2 = mV2.mSide.otherTriangle( mV2.mTri );
-    Log.v( TAG, "I " + mCnt + " [" + mType + ": tri " + mTriA.mCnt + " " + mTriB.mCnt
+    Log.v( "TopoGL", "I " + mCnt + " [" + mType + ": tri " + mTriA.mCnt + " " + mTriB.mCnt
                    + " ] " + t1.mCnt + "/" + mV1.mSide.mCnt + "/" + mV1.mTri.mCnt
                    + " -- " + mV2.mTri.mCnt + "/" + mV2.mSide.mCnt + "/" + t2.mCnt 
                    + " next " + ( (mNext != null)? mNext.mCnt : -1 ) );

@@ -8,7 +8,6 @@
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
  * --------------------------------------------------------
- *
  */
 package com.topodroid.Cave3D;
 
@@ -47,7 +46,7 @@ import java.util.Locale;
 @SuppressWarnings("SyntaxError")
 class DataHelper extends DataSetObservable
 {
-  private static final String TAG = "Cave3D DB";
+  private static final String TAG = "TopoGL DB";
 
   private static final String SURVEY_TABLE = "surveys";
   private static final String SHOT_TABLE   = "shots";

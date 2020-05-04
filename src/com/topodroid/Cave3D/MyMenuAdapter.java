@@ -29,8 +29,6 @@ import android.widget.AdapterView.OnItemClickListener;
 class MyMenuAdapter extends ArrayAdapter< MyMenuItem >
                     implements OnClickListener
 {
-  // private static final String TAG = "Cave3D MENU";
-
   private ArrayList< MyMenuItem > mItems;
   private Context mContext;
   private OnItemClickListener mListener;

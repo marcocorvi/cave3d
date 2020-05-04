@@ -34,8 +34,6 @@ import android.widget.LinearLayout;
 
 class MyMenuItem extends TextView
 {
-  // private static final String TAG = "Cave3D MENU";
-
   // TextView     mTextView = null;
   // LinearLayout mView;
   OnClickListener mListener;

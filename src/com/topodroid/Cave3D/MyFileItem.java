@@ -35,8 +35,6 @@ import android.widget.LinearLayout;
 
 class MyFileItem extends TextView
 {
-  // private static final String TAG = "Cave3D FILE";
-
   // TextView     mTextView = null;
   // LinearLayout mView;
   OnClickListener mListener;

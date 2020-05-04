@@ -7,6 +7,7 @@
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
+ * --------------------------------------------------------
  */
 package com.topodroid.Cave3D;
 
@@ -17,14 +18,12 @@ import java.util.ArrayList;
 
 class ConvexHullComputer
 {
-  private static final String TAG = "Cave3D CH";
-
-  Cave3DParser mParser;
+  TglParser mParser;
   List<Cave3DShot> mShots;
   ArrayList<CWConvexHull> mWalls;
   ArrayList<CWBorder> mBorders;
 
-  ConvexHullComputer( Cave3DParser parser, List<Cave3DShot> shots )
+  ConvexHullComputer( TglParser parser, List<Cave3DShot> shots )
   {
     mParser  = parser;
     mShots   = shots;
@@ -48,28 +47,28 @@ class ConvexHullComputer
         ArrayList< Cave3DShot > legs2   = mParser.getLegsAt( st, sf );
         ArrayList< Cave3DShot > splays1 = mParser.getSplayAt( sf, false );
         ArrayList< Cave3DShot > splays2 = mParser.getSplayAt( st, false );
-        // Log.v( TAG, "splays at " + sf.name + " " + splays1.size() + " at " + st.name + " " + splays2.size() );
+        // Log.v( "TopoGL", "splays at " + sf.name + " " + splays1.size() + " at " + st.name + " " + splays2.size() );
         // if ( splays1.size() > 0 && splays2.size() > 0 ) 
         {
           try {
             CWConvexHull cw = new CWConvexHull( );
-            cw.create( legs1, legs2, splays1, splays2, sf, st, Cave3D.mAllSplay );
+            cw.create( legs1, legs2, splays1, splays2, sf, st, GlModel.mAllSplay );
             // TODO make convex-concave hull
             mWalls.add( cw );
           } catch ( RuntimeException e ) { 
-            Log.e( TAG, "create runtime exception [2] " + e.getMessage() );
+            Log.e( "TopoGL", "create runtime exception [2] " + e.getMessage() );
             return false;
           }
         }
       }
     }
-    // Log.v( TAG, "convex hulls done. split triangles " + Cave3D.mSplitTriangles );
+    // Log.v( "TopoGL", "convex hulls done. split triangles " + GlModel.mSplitTriangles );
 
     // for ( CWConvexHull cv : mWalls ) cv.randomizePoints( 0.1f );
-    if ( Cave3D.mSplitTriangles ) {
+    if ( GlModel.mSplitTriangles ) {
       // synchronized( paths_borders ) 
       {
-        // Log.v( TAG, "convex hulls borders. nr walls " + mWalls.size() );
+        // Log.v( "TopoGL", "convex hulls borders. nr walls " + mWalls.size() );
         for ( int k1 = 0; k1 < mWalls.size(); ++ k1 ) {
           CWConvexHull cv1 = mWalls.get( k1 );
           for ( int k2 = k1+1; k2 < mWalls.size(); ++ k2 ) {
@@ -83,7 +82,7 @@ class ConvexHullComputer
             }
           }
         }
-        // Log.v( TAG, "convex hulls borders done, nr borders " + mBorders.size() );
+        // Log.v( "TopoGL", "convex hulls borders done, nr borders " + mBorders.size() );
       }
     }
     return true;

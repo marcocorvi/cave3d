@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Cave3D</string>
-
     <!-- TODO string name="btn_ok">OK</string -->
     <!-- TODO string name="btn_cancel">Cancel</string -->
     <!-- TODO string name="btn_compute">Compute</string -->
@@ -35,8 +33,6 @@
     <string name="info_grid">Rám mriežky [m]</string>
     <string name="info_view">Pohľad z</string>
     <string name="info_surveys">Jaskyne</string>
-    <string name="info_shots">Zámery</string>
-    <string name="info_stations">Staničenia</string>
     <string name="info_length">Dĺžka</string>
     <string name="info_depth">Hĺbka</string>
     <string name="info_volume">Objem</string>
@@ -150,9 +146,6 @@
     <string name="pref_all_splay_title">Všetky pomocné zámery</string>
     <string name="pref_all_splay_summary">Použiť všetky pomocné zámery pre zobrazenie stien</string>
     <string name="pref_all_splay_message">Použiť všetky pomocné zámery pre zobrazenie stien</string>
-    <string name="pref_preprojection_title">Preprojekcie</string>
-    <string name="pref_preprojection_summary">Použiť Prepočítané projekcie</string>
-    <string name="pref_preprojection_message">Použiť Prepočítané projekcie</string>
 
     <string name="pref_split_triangles_title">Rozdeliť trojuholníky</string>
     <string name="pref_split_triangles_summary">Rozdeliť pretínajúce sa stenové trojuholníky</string>
@@ -176,7 +169,7 @@
     <string name="pref_hull_summary">Hull walls</string>
 -->
 
-    <!-- TODO string name="Cave3DPerms">Permissions</string -->
+    <!-- TODO string name="TopoGLPerms">Permissions</string -->
     <!-- TODO string name="perms_mandatory">Cave3D cannot run without these permissions:</string -->
     <!-- TODO string name="perms_optional">Cave3D may fail without these permissions:</string -->
     <!-- TODO string name="welcome_title">Cave3D %1$s</string -->

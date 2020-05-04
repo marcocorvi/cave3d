@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Cave3D</string>
+    <string name="app_name" translatable="false">Cave3D</string>
 
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Cancel</string>
@@ -17,14 +17,14 @@
     <string name="menu_options">Options</string>
     <string name="menu_reset">Reset</string>
 
-    <string name="menu_alpha">DEM</string>
+    <string name="menu_alpha">Surface</string>
     <string name="menu_viewpoint">Viewpoint</string>
     <string name="menu_files">Surveys</string>
     <string name="menu_export">Export</string>
     <string name="menu_frame">Frame</string>
     <string name="menu_color">Color</string>
     <string name="menu_info">Info</string>
-    <string name="menu_ico">Ico diagram</string>
+    <string name="menu_ico">3D-Rose diagram</string>
     <string name="menu_rose">Rose diagram</string>
     <string name="menu_wall">Wall models</string>
     <string name="menu_fractal">Fractal counts</string>
@@ -32,32 +32,56 @@
 
     <string name="fractal_title">Fractal counts</string>
     <string name="info_title">INFO</string>
+    <string name="info_surveys">SURVEYS</string>
     <string name="info_axes">Axes: blue North, green East</string>
-    <string name="info_grid">Frame grid [m]</string>
+    <string name="info_grid">Grid cell</string>
     <string name="info_view">Viewpoint</string>
-    <string name="info_surveys">Surveys</string>
-    <string name="info_shots">Shots</string>
-    <string name="info_stations">Stations</string>
+    <string name="info_survey">Surveys</string>
+    <string name="info_shot">Shots</string>
+    <string name="info_station">Stations</string>
     <string name="info_length">Length</string>
     <string name="info_depth">Depth</string>
     <string name="info_volume">Volume</string>
+    <string name="info_east">East</string>
+    <string name="info_north">North</string>
+    <string name="info_z">Altitude</string>
+    <string name="info_grid_value">%1$.0f m</string>
+    <string name="info_view_value">A. %1$.0f C. %2$.0f</string>
+    <string name="info_survey_value">%1$d</string>
+    <string name="info_shot_value">Legs %1$d, Splays %2$d</string>
+    <string name="info_station_value">%1$d</string>
+    <string name="info_length_value">%1$.1f m</string>
+    <string name="info_depth_value">%1$.1f m</string>
+    <!-- string name="info_volume_value">P. %1$.0f m&#00b3; C. %2$.0f m&#00b3;</string -->
+    <string name="info_volume_value">P. %1$.0f m³ C. %2$.0f m³</string>
+    <string name="info_east_value">W %1$.1f E %2$.1f</string>
+    <string name="info_north_value">S %1$.1f N %2$.1f</string>
+    <string name="info_z_value">%1$.1f  %2$.1f</string>
+
 
     <string name="query" formatted="false">Surveys: %d Shots: %d Stations: %d\nLength: %d Depth: %d</string>
     <string name="no_files">No files</string>
+    <string name="reading_file">Reading file %1$s</string>
     <string name="clear">Clear</string>
+    <string name="plan_proj">Plan</string>
+    <string name="profile_proj">Profile</string>
+    <string name="dist_no_path">%1$s %2$s: D %3$.1f (%4$.1f %5$.1f %6$.1f)</string>
+    <string name="dist_path">%1$s %2$s: D %3$.1f (%4$.1f %5$.1f %6$.1f) Cave %7$.1f</string>
 
     <string name="style_stroke">Stroke</string>
     <string name="style_stroke_fill">Fill &amp; Stroke</string>
     <string name="style_fill">Fill</string>
-    <string name="surface_projection">Projection on DEM</string>
-    <string name="dem_file">DEM %1$s</string>
+    <string name="surface_projection">Projection on surface</string>
+    <string name="surface_texture">Surface texture</string>
+    <string name="dem_file">File %1$s</string>
     <string name="dem_load">load</string>
     <string name="dem_failed">Failed DEM loading</string>
+    <string name="dem_ok">Read DEM data</string>
 
     <string name="title">%1$s  Clino: %2$.0f  Azimuth: %3$.0f</string>
     <string name="title_clino"> Clino: </string>
     <string name="title_azimuth"> Azimuth: </string>
-    <string name="title_surface_alpha">Surface opacity</string>
+    <string name="title_surface_alpha">Surface transparency</string>
 
     <string name="survey_legs"> Legs: </string>
     <string name="survey_legs_length"> Legs length: </string>
@@ -99,6 +123,7 @@
     <string name="powercrust_dxf_not_supported">powercrust dxf export not supported</string>
 
     <string name="ok_export">OK. Exported %1$s</string>
+    <string name="double_back">Click BACK again to exit</string>
 
     <string name="no_planview">No plan view</string>
     <string name="no_surface">No surface DEM</string>
@@ -129,45 +154,59 @@
     <string name="no_file">No file %1$s\n</string>
     <string name="empty_survey">Empty survey %1$s\n</string>
 
+    <string name="category_surface">SURFACE</string>
+    <string name="category_walls">WALLS</string>
+
     <string name="pref_base_path_title">Base path</string>
     <string name="pref_base_path_summary">App base path</string>
     <string name="pref_base_path_message">Directory containing the survey files</string>
     <string name="pref_text_size_title">Text size</string>
-    <string name="pref_text_size_summary">Station label size</string>
+    <string name="pref_text_size_summary">Station label size [20]</string>
     <string name="pref_text_size_message">Station label text size</string>
     <string name="pref_size_buttons_title">Buttons size</string>
     <string name="pref_size_buttons_summary">Buttons size</string>
     <string name="pref_selection_radius_title">Selection radius</string>
-    <string name="pref_selection_radius_summary">Radius of selection</string>
+    <string name="pref_selection_radius_summary">Radius of selection [1.0]</string>
     <string name="pref_selection_radius_message">Radius of selection</string>
+    <string name="pref_station_toast_title">Station dialog</string>
+    <string name="pref_station_toast_summary">Show station data in a dialog [n]</string>
+    <string name="pref_station_toast_message">Show station data in a dialog</string>
+    <string name="pref_station_points_title">Station points</string>
+    <string name="pref_station_points_summary">Display stations always [n]</string>
+    <string name="pref_station_points_message">Show station points</string>
     <string name="pref_grid_above_title">Top grid</string>
-    <string name="pref_grid_above_summary">Grid on the top</string>
+    <string name="pref_grid_above_summary">Grid on the top [n]</string>
     <string name="pref_grid_above_message">Show the grid on the top</string>
+    <string name="pref_grid_extent_title">Grid extent</string>
+    <string name="pref_grid_extent_summary">Grid extent around the survey</string>
+    <string name="pref_grid_extent_message">Grid extent around the survey plan projection</string>
     <string name="pref_neg_clino_title">Below-horizon views</string>
-    <string name="pref_neg_clino_summary">Allow below-horizon viewpoints</string>
+    <string name="pref_neg_clino_summary">Allow below-horizon viewpoints [n]</string>
     <string name="pref_neg_clino_message">Allow views from below the horizon</string>
     <string name="pref_dem_buffer_title">DEM buffer</string>
-    <string name="pref_dem_buffer_summary">DEM extent around survey</string>
+    <string name="pref_dem_buffer_summary">DEM extent around survey [200]</string>
     <string name="pref_dem_buffer_message">Extension of the DEM around the survey</string>
+    <string name="pref_dem_maxsize_title">DEM max size</string>
+    <string name="pref_dem_maxsize_summary">Maximum DEM size[400]</string>
+    <string name="pref_dem_maxsize_message">Maximum number of the DEM cells in each dimension</string>
+    <string name="pref_dem_reduce_title">DEM reduce</string>
+    <string name="pref_dem_reduce_summary">DEM reducing mode [shrink]</string>
     <string name="pref_all_splay_title">All splays</string>
     <string name="pref_all_splay_summary">All the splays for walls</string>
     <string name="pref_all_splay_message">Whether to use all the splays for the walls</string>
-    <string name="pref_preprojection_title">Preprojections</string>
-    <string name="pref_preprojection_summary">Precompute projections</string>
-    <string name="pref_preprojection_message">Whether to use precompute projections</string>
 
     <string name="pref_split_triangles_title">Split triangles</string>
-    <string name="pref_split_triangles_summary">Split wall triangles</string>
+    <string name="pref_split_triangles_summary">Split wall triangles [y]</string>
     <string name="pref_split_triangles_message">Whether to split intersecting wall triangles</string>
     <string name="pref_split_random_title">Randomize points</string>
-    <string name="pref_split_random_summary">Randomize wall points</string>
+    <string name="pref_split_random_summary">Randomize wall points [0.1]</string>
     <string name="pref_split_random_message">Add a small random vector to splays</string>
     <string name="pref_split_stretch_title">Stretch walls</string>
-    <string name="pref_split_stretch_summary">Stretch wall points along the leg</string>
+    <string name="pref_split_stretch_summary">Stretch wall points along the leg [0.1]</string>
     <string name="pref_split_stretch_message">Shift wall points by a small quantity along the leg</string>
 
     <string name="pref_powercrust_delta_title">Powercrust Delta</string>
-    <string name="pref_powercrust_delta_summary">Splay filtering</string>
+    <string name="pref_powercrust_delta_summary">Splay filtering [0.1]</string>
     <string name="pref_powercrust_delta_message">Filter out splays differing from previous and next ones too much</string>
 <!--
     <string name="pref_convex_hull_title">Convex hull</string>
@@ -178,77 +217,10 @@
     <string name="pref_hull_summary">Hull walls</string>
 -->
 
-    <string name="Cave3DPerms">Permissions</string>
+    <string name="TopoGLPerms">Permissions</string>
     <string name="perms_mandatory">Cave3D cannot run without these permissions:</string>
     <string name="perms_optional">Cave3D may fail without these permissions:</string>
     <string name="welcome_title">Cave3D %1$s</string>
+    <string name="help_title">Cave3D %1$s Help</string>
 
-    <string name="help">Cave3D Help\n
-Cave3D is the 3d viewer of TopoDroid.\n
-It can load also other file formats: Therion (th, thconfig), Loch, Compass (dat, mak), and VisualTopo.\n
-The model is shown with a reference grid (blue north, green east) or triplet (pink upward).\n\n
-
-BUTTONS\n
-Tilt - Move: green arrow switches the view between rotation and move modes.\n
-Stations: button displays and hides station numbers.\n
-Splays: button will display and hide splay shots. Splays are shown as lines or as endpoints.\n
-Walls: button will display or hide wall models if there is any.\n
-Projections: display the plan view built from the wall 3D reconstruction, projected on the grid plane, and/or the profile curtain.\n
-Surface: button will display surface.  Works only if ASCII surface data is specified in .th file.\n
-Color: button will change color-coding of centreline from all grey to survey and depth. Toggle projection on DEM (blue).\n
-Grid: button will switch between underlying grid or X, Y, Z axis.\n\n
-
-MENU\n
-Open file: opens a dialogue to select a survey file from the working directory.\n
-Export: opens the export dialogue.\n
-Info: will display survey statistics.\n
-Ico diagram: displays ICO diagram.\n
-Rose diagram: displays azimuth rose diagram.\n
-Viewpoint: will let you select a point of view.\n
-DEM stylei and centreline projection on surface.\n
-Reset: center the 3D model in top-view and zoom to fit it in the screen\n
-Wall models: create or clear a wall 3D reconstruction.\n
-Options\n
-Help\n\n
-
-OPTIONS\n
-Base path: Directory containing the survey files\n
-Text size: Station label text size\n
-Buttons size: Buttons size\n
-Selection radius: Radius of selection\n
-Top grid: Show the grid on the top\n
-DEM buffer: Extent of DEM area around the survey\n
-Projections: Whether to use precompute projections\n
-All splay: Whether to use all the splays for the walls\n
-Split triangles: Whether to split intersecting wall triangles\n
-Randomize points: Add a small random vector to splays\n
-Stretch walls: Shift wall points by a small quantity along the leg\n\n
-
-EXPORTS\n
-Model can be exported into DXF, KML, STL or STL-binary, CGAL, LAS-binary, and shapefile.
-There are options to include splays, walls, stations and surface in export. The model can be also serialized in a text file.\n\n
-
-Walls\n
-The wall envelope is not computed automatically when the file is opened, but it must be
-requested by the user thru the "wall" menu.
-There are two models: pseudo conevx-hull, and powercrust. The first is good when the splay are not dense. The second is for dense splays.
-The computation is done in backgroiund.
-When it is done the wall can be displayed with the "wall" button.\n\n
-
-Surface\n
-If the (Therion or Loch) model contains surface data, a Digital Elevation Model grid, the surface can be dislayed either are grid, or in
-transparency, or both.\n
-The opacity of the surface is adjustable.\n
-The projection of the survey centerline on the surface is displayed in blue.\n
-It is possible to load a DEM from a file. The supported formats are ascii (.asc) and Therion grid (.grid). 
-The survey and the DEM data must be in the same Cartographic Coordinate Reference System.
-The surface is initialized to cover an area with an extent of the DEM-buffer around the survey.\n\n 
-
-Station actions\n
-When the stations are displayed, they can be selected tapping on the station.
-The distance from the selected station to another station can be measured.\n
-The selected station can be set as origin of the model ("center"). The model remains centered at the station when
-the stations display is turned off. To clear the origin turn the stations display on again.\n
-If the model has a DEM, the depth of the station below the surface is displayed.\n
-</string>
 </resources>

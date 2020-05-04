@@ -4,10 +4,10 @@
  * @date may 2017
  *
  * @brief 3D segment list
- *
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
+ * --------------------------------------------------------
  */
 package com.topodroid.Cave3D;
 

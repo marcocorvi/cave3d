@@ -4,10 +4,10 @@
  * @date nov 2011
  *
  * @brief CW triangles intersection line-point
- *
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
+ * --------------------------------------------------------
  */
 package com.topodroid.Cave3D;
 
@@ -16,7 +16,7 @@ import java.io.PrintWriter;
 
 import java.util.Locale;
 
-public class CWLinePoint extends Cave3DVector 
+public class CWLinePoint extends Vector3D 
 {
   float mAlpha;  // line abscissa
   CWSide mSide;    // side to which the point belongs
@@ -38,7 +38,7 @@ public class CWLinePoint extends Cave3DVector
     mTri  = t;
   }
   
-  CWLinePoint( float a, CWSide s, CWTriangle t, Cave3DVector v )
+  CWLinePoint( float a, CWSide s, CWTriangle t, Vector3D v )
   {
     super(v.x, v.y, v.z );
     mAlpha = a;
@@ -46,7 +46,7 @@ public class CWLinePoint extends Cave3DVector
     mTri  = t;
   }
   
-  void copy( float a, CWSide s, CWTriangle t, Cave3DVector v )
+  void copy( float a, CWSide s, CWTriangle t, Vector3D v )
   {
     mAlpha = a;
     mSide = s;
@@ -57,7 +57,7 @@ public class CWLinePoint extends Cave3DVector
   // void dump( PrintStream out )
   // {
   //   CWTriangle t = mSide.otherTriangle( mTri );
-  //   Log.v("Cave3D", "LP " + mTri.mCnt + "/" + mSide.mCnt + "/" + t.mCnt );
+  //   Log.v("TopoGL", "LP " + mTri.mCnt + "/" + mSide.mCnt + "/" + t.mCnt );
   // }
 
   void serialize( PrintWriter out )

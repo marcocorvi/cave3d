@@ -4,10 +4,10 @@
  * @date nov 2011
  *
  * @brief face triangle
- *
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
+ * --------------------------------------------------------
  */
 package com.topodroid.Cave3D;
 
@@ -22,8 +22,6 @@ import android.util.Log;
 
 public class CWTriangle extends CWFacet
 {
-  private static final String TAG = "Cave3D TRI";
-
   private static int cnt = 0;
   static void resetCounter() { cnt = 0; }
 
@@ -35,7 +33,7 @@ public class CWTriangle extends CWFacet
   final static int TRIANGLE_SPLIT  = 2;
   int mType;
   
-  // private Cave3DVector mVolume;
+  // private Vector3D mVolume;
   // private float mVolumeOffset;
 
   private boolean mOutside; // work variable
@@ -128,7 +126,7 @@ public class CWTriangle extends CWFacet
     this.v1.addTriangle( this );
     this.v2.addTriangle( this );
     this.v3.addTriangle( this );
-    // mVolume = new Cave3DVector(
+    // mVolume = new Vector3D(
     //   ( v1.y * v2.z + v3.y * v1.z + v2.y * v3.z - v1.y * v3.z - v3.y * v2.z - v2.y * v1.z ),
     //   ( v1.x * v3.z + v3.x * v2.z + v2.x * v1.z - v1.x * v2.z - v3.x * v1.z - v2.x * v3.z ),
     //   ( v1.x * v2.y + v3.x * v1.y + v2.x * v3.y - v1.x * v3.y - v3.x * v2.y - v2.x * v1.y ) );
@@ -136,13 +134,13 @@ public class CWTriangle extends CWFacet
 
   }
 
-  void dump( )
-  {
-    Log.v( TAG, "Tri " + mCnt + " " + mType + " V " + v1.mCnt + " " + v2.mCnt + " " + v3.mCnt 
-                + " S " + s1.mCnt + " " + s2.mCnt + " " + s3.mCnt 
-                // + " U " + un.x + " " + un.y + " " + un.z
-    );
-  }
+  // void dump( )
+  // {
+  //   Log.v( "TopoGL", "Tri " + mCnt + " " + mType + " V " + v1.mCnt + " " + v2.mCnt + " " + v3.mCnt 
+  //               + " S " + s1.mCnt + " " + s2.mCnt + " " + s3.mCnt 
+  //               // + " U " + un.x + " " + un.y + " " + un.z
+  //   );
+  // }
   
   void serialize( PrintWriter out )
   {
@@ -155,7 +153,7 @@ public class CWTriangle extends CWFacet
    * P is outside if the volume of the tetrahedron of P and the triangle is negative
    * because the normal U of the triangle points "inside" the convex hull
    */
-  boolean setOutside( Cave3DVector p )
+  boolean setOutside( Vector3D p )
   {
     mOutside = ( volume(p) < 0.0f );
     return mOutside;
@@ -176,7 +174,7 @@ public class CWTriangle extends CWFacet
            u2     `-.|
            s3        + beta1: v2 + b1 u1   alpha1, s1
    */
-  boolean intersectionPoints( Cave3DVector v, Cave3DVector n, CWLinePoint lp1, CWLinePoint lp2 )
+  boolean intersectionPoints( Vector3D v, Vector3D n, CWLinePoint lp1, CWLinePoint lp2 )
   {
     // round beta to three decimal digits
     float b2 = ((int)(beta2( v, n )*1000.1))/1000.0f;
@@ -185,25 +183,25 @@ public class CWTriangle extends CWFacet
     float a1, a2, a3;
     if ( b1 >= 0 && b1 <= 1 ) {
       a1 = alpha1( v, n );
-      lp1.copy( a1, s1, this, v.plus( n.times(a1) ) );
+      lp1.copy( a1, s1, this, v.sum( n.scaledBy(a1) ) );
       if ( b2 >= 0 && b2 <= 1 ) {
         a2 = alpha2( v, n );
-        lp2.copy( a2, s3, this, v.plus( n.times(a2) ) );
-        // Log.v( TAG, "Tri " + mCnt + " b1 " + b1 + " b2 " + b2 );
+        lp2.copy( a2, s3, this, v.sum( n.scaledBy(a2) ) );
+        // Log.v( "TopoGL", "Tri " + mCnt + " b1 " + b1 + " b2 " + b2 );
         return true;
       } else if ( b3 >= 0 && b3 <= 1 ) {
         a3 = alpha3( v, n );
-        lp2.copy( a3, s2, this, v.plus( n.times(a3) ) );
-        // Log.v( TAG, "Tri " + mCnt + " b1 " + b1 + " b3 " + b3 );
+        lp2.copy( a3, s2, this, v.sum( n.scaledBy(a3) ) );
+        // Log.v( "TopoGL", "Tri " + mCnt + " b1 " + b1 + " b3 " + b3 );
         return true;
       }
     } else if ( b2 >= 0 && b2 <= 1 ) {
       a2 = alpha2( v, n );
-      lp1.copy( a2, s3, this, v.plus( n.times(a2) ) );
+      lp1.copy( a2, s3, this, v.sum( n.scaledBy(a2) ) );
       if ( b3 >= 0 && b3 <= 1 ) {
         a3 = alpha3( v, n );
-        lp2.copy( a3, s2, this, v.plus( n.times(a3) ) );
-        // Log.v( TAG, "Tri " + mCnt + " b2 " + b2 + " b3 " + b3 );
+        lp2.copy( a3, s2, this, v.sum( n.scaledBy(a3) ) );
+        // Log.v( "TopoGL", "Tri " + mCnt + " b2 " + b2 + " b3 " + b3 );
         return true;
       }
     }

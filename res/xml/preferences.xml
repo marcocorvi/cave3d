@@ -3,53 +3,79 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
   <android.preference.EditTextPreference
-       android:key="CAVE3D_BASE_PATH"
-       android:title="@string/pref_base_path_title"
-       android:summary="@string/pref_base_path_summary"
-       android:dialogTitle="@string/pref_base_path_title"
-       android:dialogMessage="@string/pref_base_path_message"
-       />
+    android:key="CAVE3D_BASE_PATH"
+    android:title="@string/pref_base_path_title"
+    android:summary="@string/pref_base_path_summary"
+    android:dialogTitle="@string/pref_base_path_title"
+    android:dialogMessage="@string/pref_base_path_message"
+    />
 
   <android.preference.EditTextPreference
-       android:key="CAVE3D_TEXT_SIZE"
-       android:title="@string/pref_text_size_title"
-       android:summary="@string/pref_text_size_summary"
-       android:dialogTitle="@string/pref_text_size_title"
-       android:dialogMessage="@string/pref_text_size_message"
-       />
+    android:key="CAVE3D_TEXT_SIZE"
+    android:title="@string/pref_text_size_title"
+    android:summary="@string/pref_text_size_summary"
+    android:dialogTitle="@string/pref_text_size_title"
+    android:dialogMessage="@string/pref_text_size_message"
+    />
 
   <com.topodroid.Cave3D.MyListPreference
-       android:key="CAVE3D_BUTTON_SIZE"
-       android:title="@string/pref_size_buttons_title"
-       android:summary="@string/pref_size_buttons_summary"
-       android:defaultValue="1"
-       android:entries="@array/sizeButtons"
-       android:entryValues="@array/sizeButtonsValue"
-       />
+    android:key="CAVE3D_BUTTON_SIZE"
+    android:title="@string/pref_size_buttons_title"
+    android:summary="@string/pref_size_buttons_summary"
+    android:defaultValue="1"
+    android:entries="@array/sizeButtons"
+    android:entryValues="@array/sizeButtonsValue"
+    />
 
   <android.preference.EditTextPreference
-       android:key="CAVE3D_SELECTION_RADIUS"
-       android:title="@string/pref_selection_radius_title"
-       android:summary="@string/pref_selection_radius_summary"
-       android:dialogTitle="@string/pref_selection_radius_title"
-       android:dialogMessage="@string/pref_selection_radius_message"
-       />
+    android:key="CAVE3D_SELECTION_RADIUS"
+    android:title="@string/pref_selection_radius_title"
+    android:summary="@string/pref_selection_radius_summary"
+    android:dialogTitle="@string/pref_selection_radius_title"
+    android:dialogMessage="@string/pref_selection_radius_message"
+    />
 
   <android.preference.CheckBoxPreference
-       android:key="CAVE3D_GRID_ABOVE"
-       android:title="@string/pref_grid_above_title"
-       android:summary="@string/pref_grid_above_summary"
-       android:dialogTitle="@string/pref_grid_above_title"
-       />
+    android:key="CAVE3D_STATION_TOAST"
+    android:title="@string/pref_station_toast_title"
+    android:summary="@string/pref_station_toast_summary"
+    android:dialogTitle="@string/pref_station_toast_title"
+    />
 
   <android.preference.CheckBoxPreference
-       android:key="CAVE3D_NEG_CLINO"
-       android:title="@string/pref_neg_clino_title"
-       android:summary="@string/pref_neg_clino_summary"
-       android:dialogTitle="@string/pref_neg_clino_title"
-       />
+    android:key="CAVE3D_STATION_POINTS"
+    android:title="@string/pref_station_points_title"
+    android:summary="@string/pref_station_points_summary"
+    android:dialogTitle="@string/pref_station_points_title"
+    />
+
+  <android.preference.CheckBoxPreference
+    android:key="CAVE3D_GRID_ABOVE"
+    android:title="@string/pref_grid_above_title"
+    android:summary="@string/pref_grid_above_summary"
+    android:dialogTitle="@string/pref_grid_above_title"
+    />
 
   <android.preference.EditTextPreference
+    android:key="CAVE3D_GRID_EXTENT"
+    android:title="@string/pref_grid_extent_title"
+    android:summary="@string/pref_grid_extent_summary"
+    android:dialogTitle="@string/pref_grid_extent_title"
+    android:dialogMessage="@string/pref_grid_extent_message"
+    />
+
+  <android.preference.CheckBoxPreference
+    android:key="CAVE3D_NEG_CLINO"
+    android:title="@string/pref_neg_clino_title"
+    android:summary="@string/pref_neg_clino_summary"
+    android:dialogTitle="@string/pref_neg_clino_title"
+    />
+
+  <android.preference.PreferenceCategory
+    android:title="@string/category_surface"
+    >
+
+    <android.preference.EditTextPreference
        android:key="CAVE3D_DEM_BUFFER"
        android:title="@string/pref_dem_buffer_title"
        android:summary="@string/pref_dem_buffer_summary"
@@ -57,16 +83,27 @@
        android:dialogMessage="@string/pref_dem_buffer_message"
        />
 
-  <android.preference.CheckBoxPreference
-       android:key="CAVE3D_PREPROJECTION"
-       android:title="@string/pref_preprojection_title"
-       android:summary="@string/pref_preprojection_summary"
-       android:dialogTitle="@string/pref_preprojection_title"
+    <android.preference.EditTextPreference
+       android:key="CAVE3D_DEM_MAXSIZE"
+       android:title="@string/pref_dem_maxsize_title"
+       android:summary="@string/pref_dem_maxsize_summary"
+       android:dialogTitle="@string/pref_dem_maxsize_title"
+       android:dialogMessage="@string/pref_dem_maxsize_message"
        />
 
+    <com.topodroid.Cave3D.MyListPreference
+       android:key="CAVE3D_DEM_REDICE"
+       android:title="@string/pref_dem_reduce_title"
+       android:summary="@string/pref_dem_reduce_summary"
+       android:defaultValue="1"
+       android:entries="@array/demReduce"
+       android:entryValues="@array/demReduceValue"
+       />
+  </android.preference.PreferenceCategory>
+
   <android.preference.PreferenceCategory
-       android:title="WALLS"
-       >
+    android:title="@string/category_walls"
+    >
 
     <android.preference.CheckBoxPreference
        android:key="CAVE3D_ALL_SPLAY"
@@ -109,7 +146,7 @@
        android:inputType="numberDecimal"
        />
 
-   </android.preference.PreferenceCategory>
+  </android.preference.PreferenceCategory>
 
 <!--
    <android.preference.CheckBoxPreference

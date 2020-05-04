@@ -4,10 +4,10 @@
  * @date nov 2011
  *
  * @brief CW intersection border
- *
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
+ * --------------------------------------------------------
  */
 package com.topodroid.Cave3D;
 
@@ -23,8 +23,6 @@ import java.io.PrintWriter;
 
 public class CWBorder 
 {
-  // private static final String TAG = "Cave3D BORDER";
-
   static int cnt = 0;
   static void resetCounter() { cnt = 0; }
 
@@ -138,10 +136,10 @@ public class CWBorder
     return ( ints.size() == 0 );
   }
 
-  private Cave3DVector getCenter()
+  private Vector3D getCenter()
   {
     if ( mInts.size() == 0 ) return null;
-    Cave3DVector ret = new Cave3DVector();
+    Vector3D ret = new Vector3D();
     for ( CWIntersection ii : mInts ) {
       ret.x += ii.mV1.x + ii.mV2.x;
       ret.y += ii.mV1.y + ii.mV2.y;
@@ -154,12 +152,12 @@ public class CWBorder
     return ret;
   }
   
-  static private float volume( Cave3DVector v0, Cave3DVector v1, Cave3DVector v2, Cave3DVector v3 )
+  static private float volume( Vector3D v0, Vector3D v1, Vector3D v2, Vector3D v3 )
   {
-    Cave3DVector u1 = v1.minus(v0);
-    Cave3DVector u2 = v2.minus(v0);
-    Cave3DVector u3 = v3.minus(v0);
-    return (float)Math.abs( u1.cross(u2).dot(u3) );
+    Vector3D u1 = v1.difference(v0);
+    Vector3D u2 = v2.difference(v0);
+    Vector3D u3 = v3.difference(v0);
+    return (float)Math.abs( u1.crossProduct(u2).dotProduct(u3) );
   }
 
   /** Compute the volume (*6) of the triangles than enter the first CW
@@ -168,7 +166,7 @@ public class CWBorder
    * @param p21  points of the second CW inside the first
    * @return volume (*6)
    */
-  private float computeVolumeOf( List<CWTriangle> t21, List<CWPoint> p21, Cave3DVector cc )
+  private float computeVolumeOf( List<CWTriangle> t21, List<CWPoint> p21, Vector3D cc )
   {
     float vol =0;
     CWPoint pts[] = new CWPoint[3];
@@ -208,7 +206,7 @@ public class CWBorder
    */
   private float computeVolume( float eps )
   {
-    Cave3DVector cc = getCenter();
+    Vector3D cc = getCenter();
     if ( cc == null ) return 0;
     
     List<CWPoint> pts2in1 = mCV1.computeInsidePoints( mCV2, eps ); // points of cv2 inside cv1

@@ -4,10 +4,10 @@
  * @date nov 2011
  *
  * @brief triangular facet (STL)
- *
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
+ * --------------------------------------------------------
  */
 package com.topodroid.Cave3D;
 
@@ -20,15 +20,13 @@ import java.io.PrintWriter;
 
 public class CWFacet
 {
-  // private static final String TAG = "Cave3D FACET";
-
   CWPoint v1, v2, v3;
-  protected Cave3DVector u;  // (v2-v1)x(v3-v1): U points "inside"
-  Cave3DVector un; // u normalized
+  protected Vector3D u;  // (v2-v1)x(v3-v1): U points "inside"
+  Vector3D un; // u normalized
   protected float u22, u23, u33; // u2*u2 / det, ... etc
-  Cave3DVector u2; // v2-v1 
-  Cave3DVector u3; // v3-v1
-  Cave3DVector u1; // v3-v2
+  Vector3D u2; // v2-v1 
+  Vector3D u3; // v3-v1
+  Vector3D u1; // v3-v2
   
   // points are ordered v1--v2--v3 (looking at the triangle from "inside"
   CWPoint nextOf( CWPoint p )
@@ -47,7 +45,7 @@ public class CWFacet
     return null;
   }
 
-  float distance( Cave3DVector p ) { return (float)Math.abs( un.dot(p) ); } 
+  double distance( Vector3D p ) { return Math.abs( un.dotProduct(p) ); } 
   
   public CWFacet( CWPoint v1, CWPoint v2, CWPoint v3 )
   {
@@ -69,16 +67,16 @@ public class CWFacet
 
   void computeVectors()
   {
-    u2 = v2.minus(v1); // side s3
-    u3 = v3.minus(v1); // side s2
-    u1 = v3.minus(v2); // side s1
+    u2 = v2.difference(v1); // side s3
+    u3 = v3.difference(v1); // side s2
+    u1 = v3.difference(v2); // side s1
     
-    u = u2.cross(u3);
-    un = new Cave3DVector( u );
+    u = u2.crossProduct(u3);
+    un = new Vector3D( u );
     un.normalized();
-    u22 = u2.dot(u2);
-    u23 = u2.dot(u3);
-    u33 = u3.dot(u3);
+    u22 = u2.dotProduct(u2);
+    u23 = u2.dotProduct(u3);
+    u33 = u3.dotProduct(u3);
     float udet = u22 * u33 - u23 * u23;
     u22 /= udet;
     u23 /= udet;
@@ -96,25 +94,25 @@ public class CWFacet
    */
   boolean contains( CWPoint p ) { return p == v1 || p == v2 || p == v3; } 
   
-  boolean hasPointAbove( Cave3DVector v ) { return isProjectionInside( v.minus(v1) ); }
+  boolean hasPointAbove( Vector3D v ) { return isProjectionInside( v.difference(v1) ); }
   
-  float maxAngleOfPoint( Cave3DVector p )
+  double maxAngleOfPoint( Vector3D p )
   {
-	  Cave3DVector pp = p.minus(v1);
-	  float c1 = un.dot( pp ) / pp.length();
-	  pp = p.minus(v2);
-	  float c2 = un.dot( pp ) / pp.length();
-	  pp = p.minus(v3);
-	  float c3 = un.dot( pp ) / pp.length();
+	  Vector3D pp = p.difference(v1);
+	  double c1 = un.dotProduct( pp ) / pp.length();
+	  pp = p.difference(v2);
+	  double c2 = un.dotProduct( pp ) / pp.length();
+	  pp = p.difference(v3);
+	  double c3 = un.dotProduct( pp ) / pp.length();
 	  if ( c2 > c1 ) c1 = c2;
 	  if ( c3 > c1 ) c1 = c3;
-	  return (float)Math.acos(c1);
+	  return Math.acos(c1);
   }
   
   /** compute the area of the facet
    * @return area
    */
-  float area() { return (float)(Math.abs( u2.cross(u3).length() )); }
+  double area() { return Math.abs( u2.crossProduct(u3).length() ); }
 
   /** compute the volume of the tetrahedrom of this triangle and the point P0
    * @param p0    point "external" to the triangle
@@ -122,18 +120,18 @@ public class CWFacet
    * @note the volume has sign: since the triangle is directed towards the inside of the CW the volume is
    *       positive if the point is on-the-"inside" the CW 
    */
-  float volume( Cave3DVector p0 ) { return u.dot( p0.minus(v1) ); }
+  double volume( Vector3D p0 ) { return u.dotProduct( p0.difference(v1) ); }
   
   /** solid angle of the triangle as seen from a point
    * A. van Oosterom, J. Strackee "A solid angle of a plane traiangle" IEEE Trans. Biomed. Eng. 30:2 1983 125-126
    */
-  double solidAngle( Cave3DVector p )
+  double solidAngle( Vector3D p )
   {
-    Cave3DVector p1 = v1.minus(p);  p1.normalized();
-    Cave3DVector p2 = v2.minus(p);  p2.normalized();
-    Cave3DVector p3 = v3.minus(p);  p3.normalized();
-    float s = p1.cross(p3).dot(p2);
-    float c = 1 + p1.dot(p2) + p2.dot(p3) + p3.dot(p1);
+    Vector3D p1 = v1.difference(p);  p1.normalized();
+    Vector3D p2 = v2.difference(p);  p2.normalized();
+    Vector3D p3 = v3.difference(p);  p3.normalized();
+    double s = p1.crossProduct(p3).dotProduct(p2);
+    double c = 1 + p1.dotProduct(p2) + p2.dotProduct(p3) + p3.dotProduct(p1);
     return 2 * Math.atan2( s, c );
   }
   
@@ -141,10 +139,10 @@ public class CWFacet
    * - the vector P is on the surface of the triangle (eps = 0.001)
    * - and it projects inside the triangle
    */
-  boolean isPointInside( Cave3DVector p, float eps )
+  boolean isPointInside( Vector3D p, double eps )
   {
-    Cave3DVector v0 = p.minus(v1);
-    if ( Math.abs( u.dot(v0) ) > eps ) return false;
+    Vector3D v0 = p.difference(v1);
+    if ( Math.abs( u.dotProduct(v0) ) > eps ) return false;
     return isProjectionInside( v0 );
   }
   
@@ -178,10 +176,10 @@ public class CWFacet
    * @note v0 already reduced to v1.
    * @return true if the projection of v0 falls inside the triangle
    */
-  protected boolean isProjectionInside( Cave3DVector v0 )
+  protected boolean isProjectionInside( Vector3D v0 )
   {
-    float v02 = v0.dot( u2 );
-    float v03 = v0.dot( u3 );
+    float v02 = v0.dotProduct( u2 );
+    float v03 = v0.dotProduct( u3 );
     float a = u33 * v02 - u23 * v03;
     float b = u22 * v03 - u23 * v02;
     return ( a >= 0 && b >= 0 && (a+b) <= 1 );
@@ -194,17 +192,17 @@ public class CWFacet
    * @param p2  second segment endpoint (outside)
    * @return intersection point or null
    */
-  Cave3DVector intersection( Cave3DVector p1, Cave3DVector p2, Float res )
+  Vector3D intersection( Vector3D p1, Vector3D p2, Float res )
   {
-	  Cave3DVector dp = new Cave3DVector( p2.x-p1.x, p2.y-p1.y, p2.z-p1.z);
+	  Vector3D dp = new Vector3D( p2.x-p1.x, p2.y-p1.y, p2.z-p1.z);
 	  float dpu = u.x * dp.x + u.y * dp.y + u.z * dp.z;
 	  // if ( Math.abs(dpu) < 0.001 ) return null;
-	  Cave3DVector vp = new Cave3DVector( v1.x-p1.x, v1.y-p1.y, v1.z-p1.z);
+	  Vector3D vp = new Vector3D( v1.x-p1.x, v1.y-p1.y, v1.z-p1.z);
 	  float s = (u.x * vp.x + u.y * vp.y + u.z * vp.z)/dpu;
 	  res = s;
 	  if ( s < 0.0 || s > 1.0 ) return null;
-	  Cave3DVector j = new Cave3DVector( p1.x+s*dp.x, p1.y+s*dp.y, p1.z+s*dp.z); // intersection point
-	  Cave3DVector j0 = j.minus(v1);
+	  Vector3D j = new Vector3D( p1.x+s*dp.x, p1.y+s*dp.y, p1.z+s*dp.z); // intersection point
+	  Vector3D j0 = j.difference(v1);
 	  if ( isProjectionInside(j0) ) return j;
 	  return null;
   }
@@ -214,12 +212,12 @@ public class CWFacet
    * @param t the other triangle
    * @return an intersection point 
    */
-  Cave3DVector intersectionBasepoint( CWFacet t )
+  Vector3D intersectionBasepoint( CWFacet t )
   {
-	Cave3DVector ret = new Cave3DVector();
-	Cave3DVector n = un.cross( t.un );
-	float vn1 = v1.dot(un);
-	float vn2 = t.v1.dot(t.un);
+	Vector3D ret = new Vector3D();
+	Vector3D n = un.crossProduct( t.un );
+	float vn1 = v1.dotProduct(un);
+	float vn2 = t.v1.dotProduct(t.un);
 	if ( Math.abs(n.x) > Math.abs(n.y) ) {
 		if ( Math.abs(n.x) > Math.abs(n.z) ) { // solve Y-Z for X=0
 			ret.y = (   t.un.z * vn1 - un.z * vn2 ) / n.x;
@@ -239,19 +237,19 @@ public class CWFacet
 	}
 	// check
 	// Log.v( TAG, "t " + mCnt + " intersection with " + t.mCnt + " " 
-	//    + un.dot(ret.minus(v1)) + " " + t.un.dot(ret.minus(t.v1)) );
+	//    + un.dotProduct(ret.difference(v1)) + " " + t.un.dotProduct(ret.difference(t.v1)) );
 	return ret;
   }
   
-  Cave3DVector intersectionDirection( CWFacet t ) { return un.cross( t.un ); }
+  Vector3D intersectionDirection( CWFacet t ) { return un.crossProduct( t.un ); }
   
-  protected float beta1 ( Cave3DVector v, Cave3DVector n ) { return beta( n, u1, v2.minus(v) ); }
-  protected float beta2 ( Cave3DVector v, Cave3DVector n ) { return beta( n, u2, v1.minus(v) ); }
-  protected float beta3 ( Cave3DVector v, Cave3DVector n ) { return beta( n, u3, v1.minus(v) ); }
+  protected float beta1 ( Vector3D v, Vector3D n ) { return beta( n, u1, v2.difference(v) ); }
+  protected float beta2 ( Vector3D v, Vector3D n ) { return beta( n, u2, v1.difference(v) ); }
+  protected float beta3 ( Vector3D v, Vector3D n ) { return beta( n, u3, v1.difference(v) ); }
   
-  protected float alpha1 ( Cave3DVector v, Cave3DVector n ) { return alpha( n, u1, v2.minus(v) ); }
-  protected float alpha2 ( Cave3DVector v, Cave3DVector n ) { return alpha( n, u2, v1.minus(v) ); }
-  protected float alpha3 ( Cave3DVector v, Cave3DVector n ) { return alpha( n, u3, v1.minus(v) ); }
+  protected float alpha1 ( Vector3D v, Vector3D n ) { return alpha( n, u1, v2.difference(v) ); }
+  protected float alpha2 ( Vector3D v, Vector3D n ) { return alpha( n, u2, v1.difference(v) ); }
+  protected float alpha3 ( Vector3D v, Vector3D n ) { return alpha( n, u3, v1.difference(v) ); }
   
   /** compute line param for the intersection point of
    * V + alpha N and VV + beta U
@@ -267,23 +265,23 @@ public class CWFacet
    * @param vv
    * @return value of beta (if in [0,1] the intersection point is on the triangle side] 
    */
-  private float beta( Cave3DVector n, Cave3DVector u, Cave3DVector vv )
+  private float beta( Vector3D n, Vector3D u, Vector3D vv )
   {
-    float nu = n.dot(u);
-    float nn = n.dot(n);
-    float uu = u.dot(u);
-    float nv = n.dot( vv );
-    float uv = u.dot( vv );
+    float nu = n.dotProduct(u);
+    float nn = n.dotProduct(n);
+    float uu = u.dotProduct(u);
+    float nv = n.dotProduct( vv );
+    float uv = u.dotProduct( vv );
     return ( nu * nv - nn * uv ) / ( nn * uu - nu * nu );
   }
   
-  private float alpha( Cave3DVector n, Cave3DVector u, Cave3DVector vv )
+  private float alpha( Vector3D n, Vector3D u, Vector3D vv )
   {
-    float nu = n.dot(u);
-    float nn = n.dot(n);
-    float uu = u.dot(u);
-    float nv = n.dot( vv );
-    float uv = u.dot( vv );
+    float nu = n.dotProduct(u);
+    float nn = n.dotProduct(n);
+    float uu = u.dotProduct(u);
+    float nv = n.dotProduct( vv );
+    float uv = u.dotProduct( vv );
     return ( uu * nv - nu * uv ) / ( nn * uu - nu * nu );
   }
   

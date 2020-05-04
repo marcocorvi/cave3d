@@ -1,5 +1,13 @@
 /** @file RoseDiagram.java
  *
+ * @author marco corvi
+ * @date may 2020
+ *
+ * @brief 2D rose direction diagram
+ * --------------------------------------------------------
+ *  Copyright This sowftare is distributed under GPL-3.0 or later
+ *  See the file COPYING.
+ * --------------------------------------------------------
  */
 package com.topodroid.Cave3D;
 

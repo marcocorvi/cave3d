@@ -3,10 +3,11 @@
  * @author marco corvi
  * @date nov 2011
  *
- * @brief Cave3D loch Shot
+ * @brief loch Shot
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
+ * --------------------------------------------------------
  */
 package com.topodroid.Cave3D;
 

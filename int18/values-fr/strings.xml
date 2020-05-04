@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Cave3D</string>
-
     <!-- TODO string name="btn_ok">OK</string -->
     <!-- TODO string name="btn_cancel">Cancel</string -->
     <!-- TODO string name="btn_compute">Compute</string -->
@@ -38,8 +36,6 @@
     <string name="info_grid">Grille quadrillage (m)</string>
     <string name="info_view">Point de vue</string>
     <string name="info_surveys">Topographie</string>
-    <string name="info_shots">Visées</string>
-    <string name="info_stations">Stations</string>
     <string name="info_length">Longueur</string>
     <string name="info_depth">Profondeur</string>
     <string name="info_volume">Volume</string>
@@ -152,9 +148,6 @@
     <string name="pref_all_splay_title">Toutes visées latérales</string>
     <string name="pref_all_splay_summary">Toutes visées latérales pour parois</string>
     <string name="pref_all_splay_message">Utiliser la totalité des visées latérales pour tracer les parois</string>
-    <string name="pref_preprojection_title">Pré-projections</string>
-    <string name="pref_preprojection_summary">Calculer les pré-projections</string>
-    <string name="pref_preprojection_message">Utiliser les projections pré-calculées</string>
 
     <string name="pref_split_triangles_title">Diviser triangles</string>
     <string name="pref_split_triangles_summary">Diviser les parois en triangles</string>
@@ -177,7 +170,7 @@
     <string name="pref_hull_summary">Enveloppe parois</string>
 -->
 
-    <!-- TODO string name="Cave3DPerms">Permissions</string -->
+    <!-- TODO string name="TopoGLPerms">Permissions</string -->
     <!-- TODO string name="perms_mandatory">Cave3D cannot run without these permissions:</string -->
     <!-- TODO string name="perms_optional">Cave3D may fail without these permissions:</string -->
     <!-- TODO string name="welcome_title">Cave3D %1$s</string -->

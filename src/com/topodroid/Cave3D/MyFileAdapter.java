@@ -29,8 +29,6 @@ import android.widget.AdapterView.OnItemClickListener;
 class MyFileAdapter extends ArrayAdapter< MyFileItem >
                     implements OnClickListener
 {
-  // private static final String TAG = "Cave3D FILE";
-
   private ArrayList< MyFileItem > mItems;
   private Context mContext;
   private OnItemClickListener mListener;

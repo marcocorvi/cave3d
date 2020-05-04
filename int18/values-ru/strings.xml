@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Cave3D</string>
-
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Отмена</string>
     <string name="btn_compute">Расчитать</string>
@@ -37,8 +35,6 @@
     <string name="info_grid">Сетка рамки [м]</string>
     <string name="info_view">Точка просмотра</string>
     <string name="info_surveys">Съёмки</string>
-    <string name="info_shots">Замеры</string>
-    <string name="info_stations">Пикеты</string>
     <string name="info_length">Длинна</string>
     <string name="info_depth">Глубина</string>
     <string name="info_volume">Объём</string>
@@ -152,9 +148,6 @@
     <string name="pref_all_splay_title">Все сплеи</string>
     <string name="pref_all_splay_summary">Все сплеи для стен</string>
     <string name="pref_all_splay_message">Использовать все сплеи для построения стен</string>
-    <string name="pref_preprojection_title">Проекции</string>
-    <string name="pref_preprojection_summary">Расчитывать проекции</string>
-    <string name="pref_preprojection_message">Предварительный расчет проекций</string>
 
     <string name="pref_split_triangles_title">Разделить треугольники</string>
     <string name="pref_split_triangles_summary">Разделить треугольники стен</string>
@@ -177,7 +170,7 @@
     <string name="pref_hull_summary">Hull walls</string>
 -->
 
-    <string name="Cave3DPerms">Разрешения</string>
+    <string name="TopoGLPerms">Разрешения</string>
     <string name="perms_mandatory">Cave3D не может работать без этих разрешений:</string>
     <string name="perms_optional">В Cave3D может произойти сбой без этих разрешений:</string>
     <string name="welcome_title">Cave3D %1$s</string>

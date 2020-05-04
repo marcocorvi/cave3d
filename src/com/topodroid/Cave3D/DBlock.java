@@ -20,8 +20,6 @@ import java.util.Locale;
 
 class DBlock
 {
-  private static final String TAG = "Cave3D BLK";
-
   long   mId;
   long   mTime;
   long   mSurveyId;
@@ -65,7 +63,7 @@ class DBlock
   void setBlockName( String from, String to )
   {
     if ( from == null || to == null ) {
-      Log.e( TAG, "Error DBlock::setName() either from or to is null");
+      Log.e( "TopoGL", "Error DBlock::setName() either from or to is null");
       return;
     }
     mFrom = from.trim();

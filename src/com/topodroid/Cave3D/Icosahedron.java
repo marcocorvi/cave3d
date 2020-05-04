@@ -1,5 +1,14 @@
 /** @file Icosahedron.java
  *
+ * @author marco corvi
+ * @date june 2012
+ *
+ * @brief solid of 3D rose direction diagram
+ * --------------------------------------------------------
+ *  Copyright This software is distributed under GPL-3.0 or later
+ *  See the file COPYING.
+ * --------------------------------------------------------
+ *
  */
 package com.topodroid.Cave3D;
 
@@ -12,8 +21,6 @@ import java.io.PrintWriter;
 
 class Icosahedron
 {
-  // private static final String TAG = "Cave3D ICO";
-
   int mN;
   int mPointNr;
   IcoPoint[] mPoint;
@@ -43,7 +50,7 @@ class Icosahedron
     //   for (int k2=0; k2<12; ++k2 ) {
     //     pw.format(Locale.US, "%1d ", mNghb[ k1*12 + k2 ] );
     //   }
-    //   Log.v( TAG, sw.getBuffer().toString() );
+    //   Log.v( "TopoGL-ICO", sw.getBuffer().toString() );
     // }
   }
 
@@ -77,33 +84,33 @@ class Icosahedron
     }
     mN = n;
     mPointNr = 12 + ns * (n-1) + nf * (n-1)*(n-2) / 2;
-    // Log.v( TAG, "expected nr. points " + mPointNr );
+    // Log.v( "TopoGL-ICO", "expected nr. points " + mPointNr );
     mPoint = new IcoPoint[ mPointNr ];
     int np = 0;
     for (int k=0; k<12; ++k ) {
       mPoint[np] = mVertex[k];
-      // Log.v( TAG, "V-Point " + np + ": " + mPoint[np].x + " " + mPoint[np].y + " " + mPoint[np].z );
+      // Log.v( "TopoGL-ICO", "V-Point " + np + ": " + mPoint[np].x + " " + mPoint[np].y + " " + mPoint[np].z );
       ++ np;
     }
     for (int k=0; k<ns; ++k ) {
       IcoSide side = mSide[k];
       for ( int i=1; i<n; ++i ) {
-        // Log.v( TAG, "side " + k + " index " + i + " point " + np );
+        // Log.v( "TopoGL-ICO", "side " + k + " index " + i + " point " + np );
         mPoint[np] = side.interpolate( i, n );
-        // Log.v( TAG, "S-Point " + np + ": " + mPoint[np].x + " " + mPoint[np].y + " " + mPoint[np].z );
+        // Log.v( "TopoGL-ICO", "S-Point " + np + ": " + mPoint[np].x + " " + mPoint[np].y + " " + mPoint[np].z );
         ++ np;
       }
     }
     for (int k=0; k<nf; ++k ) {
       IcoFace face = mFace[k];
       for ( int i=1; i<n; ++i ) for ( int j = 1; j < n-i; ++j ) {
-        // Log.v( TAG, "face " + k + " index " + i + "/" + j + " point " + np );
+        // Log.v( "TopoGL-ICO", "face " + k + " index " + i + "/" + j + " point " + np );
         mPoint[np] = face.interpolate( i, j, n );
-        // Log.v( TAG, "F-Point " + np + ": " + mPoint[np].x + " " + mPoint[np].y + " " + mPoint[np].z );
+        // Log.v( "TopoGL-ICO", "F-Point " + np + ": " + mPoint[np].x + " " + mPoint[np].y + " " + mPoint[np].z );
         ++ np;
       }
     }
-    // Log.v( TAG, "ico points " + np + " " + mPointNr );
+    // Log.v( "TopoGL-ICO", "ico points " + np + " " + mPointNr );
   }
 }
        

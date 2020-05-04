@@ -4,10 +4,10 @@
  * @date nov 2011
  *
  * @brief CW point
- *
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
+ * --------------------------------------------------------
  */
 package com.topodroid.Cave3D;
 
@@ -20,10 +20,8 @@ import java.io.IOException;
 
 import android.util.Log;
 
-public class CWPoint extends Cave3DVector
+public class CWPoint extends Vector3D
 {
-  private static final String TAG = "Cave3D VECTOR";
-
   private static int cnt = 0;
   static void resetCounter() { cnt = 0; }
 
@@ -107,12 +105,12 @@ public class CWPoint extends Cave3DVector
     return true;
   }
 
-  void dump( )
-  {
-    StringBuilder sb = new StringBuilder();
-    for ( CWTriangle t : mTriangle ) sb.append( "-" + t.mCnt );
-    Log.v( TAG, "Point " + mCnt + " T" + sb.toString() + " " + x + " " + y + " " + z );
-  }
+  //void dump( )
+  //{
+  //  StringBuilder sb = new StringBuilder();
+  //  for ( CWTriangle t : mTriangle ) sb.append( "-" + t.mCnt );
+  //  Log.v( "TopoGL", "Point " + mCnt + " T" + sb.toString() + " " + x + " " + y + " " + z );
+  //}
   
   void serialize( PrintWriter out )
   {

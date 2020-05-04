@@ -3,10 +3,11 @@
  * @author marco corvi
  * @date nov 2011
  *
- * @brief Cave3D loch Station 
+ * @brief loch Station 
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
+ * --------------------------------------------------------
  */
 package com.topodroid.Cave3D;
 
@@ -39,9 +40,9 @@ class LoxStation
     z = _z;
   }
     
-  int Id()  { return id; }
-  int Survey()  { return sid; }
-  int Flag()  { return flag; }
+  int Id()     { return id; }
+  int Survey() { return sid; }
+  int Flag()   { return flag; }
 
   String NameStr() { return name; }
   String Name()    { return name; }

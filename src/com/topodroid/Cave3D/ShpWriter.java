@@ -3,7 +3,7 @@
  * @author marco corvi
  * @date mar 2019
  *
- * @brief Cave3D shapefile export writer
+ * @brief shapefile export writer
  * --------------------------------------------------------
  *  Copyright This software is distributed under GPL-3.0 or later
  *  See the file COPYING.
@@ -91,7 +91,7 @@ class ShpObject
         mFiles.add( new File( path + ".dbf" ) );
       }
     } catch ( IOException e ) {
-      Log.e( "Cave3D-SHP", "output streams " + e.getMessage() );
+      Log.e( "TopoGL-SHP", "output streams " + e.getMessage() );
       throw e;
     }
   }
@@ -115,7 +115,7 @@ class ShpObject
       shxChannel.position(0);   
       dbfChannel.position(0);   
     } catch ( IOException e ) {
-      Log.e( "Cave3D-SHP", "position 0 buffers " + e.getMessage() );
+      Log.e( "TopoGL-SHP", "position 0 buffers " + e.getMessage() );
       throw e;
     } 
   }
@@ -144,20 +144,20 @@ class ShpObject
 
   private void drain( ByteBuffer buffer, FileChannel channel )  throws IOException
   {  
-    // Log.v( "Cave3D-SHP", "drain buffer pos " + buffer.position() );
+    // Log.v( "TopoGL-SHP", "drain buffer pos " + buffer.position() );
     try { 
       buffer.flip();  // set limit to current-pos and pos to 0
       while (buffer.remaining() > 0) channel.write(buffer);   
       buffer.flip().limit(buffer.capacity()); // set limit to capacity and pos to 0
     } catch ( IOException e ) {
-      Log.e( "Cave3D-SHP", "drain buffers " + e.getMessage() );
+      Log.e( "TopoGL-SHP", "drain buffers " + e.getMessage() );
       throw e;
     }
   }
 
   protected void close() throws IOException
   {
-    // Log.v( "Cave3D-SHP", "drain and close" );
+    // Log.v( "TopoGL-SHP", "drain and close" );
     shpBuffer.putInt( 0 );
     shpBuffer.putInt( 0 );
     shxBuffer.putInt( 0 );
@@ -169,21 +169,21 @@ class ShpObject
       if (shpChannel != null && shpChannel.isOpen()) shpChannel.close();
       shpFos.close();
     } catch ( IOException e ) {
-      Log.e( "Cave3D-SHP", "close shp buffer " + e.getMessage() );
+      Log.e( "TopoGL-SHP", "close shp buffer " + e.getMessage() );
       throw e;
     }
     try {   
       if (shxChannel != null && shxChannel.isOpen()) shxChannel.close();   
       shxFos.close();
     } catch ( IOException e ) {
-      Log.e( "Cave3D-SHP", "close shx buffer " + e.getMessage() );
+      Log.e( "TopoGL-SHP", "close shx buffer " + e.getMessage() );
       throw e;
     }
     try {   
       if (dbfChannel != null && dbfChannel.isOpen()) dbfChannel.close();   
       dbfFos.close();
     } catch ( IOException e ) {
-      Log.e( "Cave3D-SHP", "close dbf buffer " + e.getMessage() );
+      Log.e( "TopoGL-SHP", "close dbf buffer " + e.getMessage() );
       throw e;
     }
     shpChannel = null;   
@@ -195,7 +195,7 @@ class ShpObject
     shpBuffer = null;   
     shxBuffer = null;   
     dbfBuffer = null;   
-    // Log.v( "Cave3D-SHP", "drain and close DONE" );
+    // Log.v( "TopoGL-SHP", "drain and close DONE" );
   }
 
   // Write the headers for this shapefile including the bounds, shape type,
@@ -381,27 +381,41 @@ class ShpObject
   }
 
 
-  protected void initBBox( double x, double y, double z )
+  // protected void initBBox( double x, double y, double z )
+  // {
+  //   xmin = xmax = x;
+  //   ymin = ymax = y;
+  //   zmin = zmax = z;
+  // }
+  protected void initBBox( Vector3D v )
   {
-    xmin = xmax = x;
-    ymin = ymax = y;
-    zmin = zmax = z;
+    xmin = xmax = v.x;
+    ymin = ymax = v.y;
+    zmin = zmax = v.z;
   }
 
-  protected void initBBox( double x, double y ) { initBBox( x, y, 0 ); }
+  // protected void initBBox( double x, double y ) { initBBox( x, y, 0 ); }
 
-  protected void updateBBox( double x, double y, double z )
+  // protected void updateBBox( double x, double y, double z )
+  // {
+  //   if ( x < xmin ) { xmin = x; } else if ( x > xmax ) { xmax = x; }
+  //   if ( y < ymin ) { ymin = y; } else if ( y > ymax ) { ymax = y; }
+  //   if ( z < zmin ) { zmin = z; } else if ( z > zmax ) { zmax = z; }
+  // }
+
+  protected void updateBBox( Vector3D v )
   {
-    if ( x < xmin ) { xmin = x; } else if ( x > xmax ) { xmax = x; }
-    if ( y < ymin ) { ymin = y; } else if ( y > ymax ) { ymax = y; }
-    if ( z < zmin ) { zmin = z; } else if ( z > zmax ) { zmax = z; }
+    if ( v == null ) return;
+    if ( v.x < xmin ) { xmin = v.x; } else if ( v.x > xmax ) { xmax = v.x; }
+    if ( v.y < ymin ) { ymin = v.y; } else if ( v.y > ymax ) { ymax = v.y; }
+    if ( v.z < zmin ) { zmin = v.z; } else if ( v.z > zmax ) { zmax = v.z; }
   }
 
-  protected void updateBBox( double x, double y )
-  {
-    if ( x < xmin ) { xmin = x; } else if ( x > xmax ) { xmax = x; }
-    if ( y < ymin ) { ymin = y; } else if ( y > ymax ) { ymax = y; }
-  }
+  // protected void updateBBox( double x, double y )
+  // {
+  //   if ( x < xmin ) { xmin = x; } else if ( x > xmax ) { xmax = x; }
+  //   if ( y < ymin ) { ymin = y; } else if ( y > ymax ) { ymax = y; }
+  // }
 
   // protected void updateBBoxScene( double x, double y )
   // {
@@ -443,9 +457,9 @@ class ShpPointz extends ShpObject
     int dbfLength = 33 + n_fld * 32 + n_pts * dbfRecLen; // [Bytes]
 
     setBoundsStations( pts );
-    // Log.v( "Cave3D-SHP", "Pts X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
-    // Log.v( "Cave3D-SHP", "POINTZ " + pts.size() + " len " + shpLength + " / " + shxLength + " / " + dbfLength );
-    // Log.v( "Cave3D-SHP", "bbox X " + xmin + " " + xmax );
+    // Log.v( "TopoGL-SHP", "Pts X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
+    // Log.v( "TopoGL-SHP", "POINTZ " + pts.size() + " len " + shpLength + " / " + shxLength + " / " + dbfLength );
+    // Log.v( "TopoGL-SHP", "bbox X " + xmin + " " + xmax );
 
     open();
     resetChannels( 2*shpLength+8, 2*shxLength+8, dbfLength );
@@ -453,7 +467,7 @@ class ShpPointz extends ShpObject
     shpBuffer = writeShapeHeader( shpBuffer, mShpType, shpLength );
     shxBuffer = writeShapeHeader( shxBuffer, mShpType, shxLength );
     writeDBaseHeader( n_pts, dbfRecLen, n_fld, fields, ftypes, flens );
-    // Log.v( "Cave3D-SHP", "POINTZ done headers");
+    // Log.v( "TopoGL-SHP", "POINTZ done headers");
 
     int cnt = 0;
     for ( Cave3DStation pt : pts ) {
@@ -461,9 +475,9 @@ class ShpPointz extends ShpObject
       writeShpRecordHeader( cnt, shpRecLen );
       shpBuffer.order(ByteOrder.LITTLE_ENDIAN);   
       shpBuffer.putInt( mShpType );
-      // Log.v( "Cave3D-SHP", "POINTZ " + cnt + ": " + pt.e + " " + pt.s + " " + pt.v + " offset " + offset );
-      shpBuffer.putDouble( pt.e );
-      shpBuffer.putDouble( pt.n );
+      // Log.v( "TopoGL-SHP", "POINTZ " + cnt + ": " + pt.e + " " + pt.s + " " + pt.v + " offset " + offset );
+      shpBuffer.putDouble( pt.x );
+      shpBuffer.putDouble( pt.y );
       shpBuffer.putDouble( pt.z );
       shpBuffer.putDouble( 0.0 );
 
@@ -472,7 +486,7 @@ class ShpPointz extends ShpObject
       writeDBaseRecord( n_fld, fields, flens );
       ++cnt;
     }
-    // Log.v( "Cave3D-SHP", "POINTZ done records");
+    // Log.v( "TopoGL-SHP", "POINTZ done records");
     close();
     return true;
   }
@@ -487,11 +501,9 @@ class ShpPointz extends ShpObject
       xmin = xmax = ymin = ymax = zmin = zmax = 0.0;
       return;
     }
-    Cave3DStation pt = pts.get(0);
-    initBBox( pt.e, pt.n, pt.z );
+    initBBox( pts.get(0) );
     for ( int k=pts.size() - 1; k>0; --k ) {
-      pt = pts.get(k);
-      updateBBox( pt.e, pt.n, pt.z );
+      updateBBox( pts.get(k) );
     }
   }
 }
@@ -530,9 +542,9 @@ class ShpPolylinez extends ShpObject
     int dbfLength = 33 + n_fld * 32 + nr * dbfRecLen; // Bytes, 3 fields
 
     setBoundsShots( lns );
-    // Log.v( "Cave3D-SHP", "Lines X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
-    // Log.v( "Cave3D-SHP", "POLYLINEZ shots " + lns.size() + " len " + shpLength + " / " + shxLength + " / " + dbfLength );
-    // Log.v( "Cave3D-SHP", "bbox X " + xmin + " " + xmax );
+    // Log.v( "TopoGL-SHP", "Lines X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
+    // Log.v( "TopoGL-SHP", "POLYLINEZ shots " + lns.size() + " len " + shpLength + " / " + shxLength + " / " + dbfLength );
+    // Log.v( "TopoGL-SHP", "bbox X " + xmin + " " + xmax );
 
     open();
     resetChannels( 2*shpLength, 2*shxLength, dbfLength );
@@ -540,7 +552,7 @@ class ShpPolylinez extends ShpObject
     shpBuffer = writeShapeHeader( shpBuffer, mShpType, shpLength );
     shxBuffer = writeShapeHeader( shxBuffer, mShpType, shxLength );
     writeDBaseHeader( nr, dbfRecLen, n_fld, fields, ftypes, flens );
-    // Log.v( "Cave3D-SHP", "shots done headers" );
+    // Log.v( "TopoGL-SHP", "shots done headers" );
 
     int cnt = 0;
     for ( Cave3DShot ln : lns ) {
@@ -559,7 +571,7 @@ class ShpPolylinez extends ShpObject
       writeDBaseRecord( n_fld, fields, flens );
     }
     
-    // Log.v( "Cave3D-SHP", "shots done records" );
+    // Log.v( "TopoGL-SHP", "shots done records" );
     close();
     return true;
   }
@@ -569,8 +581,8 @@ class ShpPolylinez extends ShpObject
     writeShpRecordHeader( cnt, len );
     shpBuffer.order(ByteOrder.LITTLE_ENDIAN);   
     shpBuffer.putInt( mShpType );
-    double x1 = p1.e; double x2 = p2.e; if ( x1 > x2 ) { x1=p2.e; x2=p1.e; }
-    double y1 = p1.n; double y2 = p2.n; if ( y1 > y2 ) { y1=p2.n; y2=p1.n; }
+    double x1 = p1.x; double x2 = p2.x; if ( x1 > x2 ) { x1=p2.x; x2=p1.x; }
+    double y1 = p1.y; double y2 = p2.y; if ( y1 > y2 ) { y1=p2.y; y2=p1.y; }
     double z1 = p1.z; double z2 = p2.z; if ( z1 > z2 ) { z1=p2.z; z2=p1.z; }
     shpBuffer.putDouble( x1 );
     shpBuffer.putDouble( y1 );
@@ -579,10 +591,10 @@ class ShpPolylinez extends ShpObject
     shpBuffer.putInt( 1 ); // one part: number of parts
     shpBuffer.putInt( 2 ); // two points: total number of points
     shpBuffer.putInt( 0 ); // part 0 starts with point 0 (and ends with point 1)
-    shpBuffer.putDouble( p1.e );
-    shpBuffer.putDouble( p1.n );
-    shpBuffer.putDouble( p2.e );
-    shpBuffer.putDouble( p2.n );
+    shpBuffer.putDouble( p1.x );
+    shpBuffer.putDouble( p1.y );
+    shpBuffer.putDouble( p2.x );
+    shpBuffer.putDouble( p2.y );
     shpBuffer.putDouble( z1 );
     shpBuffer.putDouble( z2 );
     shpBuffer.putDouble( p1.z );
@@ -609,14 +621,13 @@ class ShpPolylinez extends ShpObject
         Cave3DShot ln = lns.get(k);
         Cave3DStation pt = ln.from_station;
         if ( pt != null ) {
-          initBBox( pt.e, pt.n, pt.z );
-          pt = ln.to_station;
-          if ( pt != null ) updateBBox( pt.e, pt.n, pt.z );
+          initBBox( pt );
+          updateBBox( ln.to_station );
           break;
         } 
         pt = ln.to_station;
         if ( pt != null ) {
-          initBBox( pt.e, pt.n, pt.z );
+          initBBox( pt );
           break;
         }
       }
@@ -626,10 +637,8 @@ class ShpPolylinez extends ShpObject
     // update BBox with other lines
     for ( ++k; k<nrs; ++k ) {
       Cave3DShot ln = lns.get(k);
-      Cave3DStation pt = ln.from_station;
-      if ( pt != null ) updateBBox( pt.e, pt.n, pt.z );
-      pt = ln.to_station;
-      if ( pt != null ) updateBBox( pt.e, pt.n, pt.z );
+      updateBBox( ln.from_station );
+      updateBBox( ln.to_station );
     }
   }
 
@@ -705,9 +714,9 @@ class ShpPolygonz extends ShpObject
     int dbfLength = 33 + n_fld * 32 + nr * dbfRecLen; // Bytes, 3 fields
 
     setBoundsFacets( lns );
-    // Log.v( "Cave3D-SHP", "Facets X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
-    // Log.v( "Cave3D-SHP", "POLYGONZ facets " + lns.size() + " len " + shpLength + " / " + shxLength + " / " + dbfLength );
-    // Log.v( "Cave3D-SHP", "bbox X " + xmin + " " + xmax );
+    // Log.v( "TopoGL-SHP", "Facets X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
+    // Log.v( "TopoGL-SHP", "POLYGONZ facets " + lns.size() + " len " + shpLength + " / " + shxLength + " / " + dbfLength );
+    // Log.v( "TopoGL-SHP", "bbox X " + xmin + " " + xmax );
 
     open();
     resetChannels( 2*shpLength, 2*shxLength, dbfLength );
@@ -715,7 +724,7 @@ class ShpPolygonz extends ShpObject
     shpBuffer = writeShapeHeader( shpBuffer, mShpType, shpLength );
     shxBuffer = writeShapeHeader( shxBuffer, mShpType, shxLength );
     writeDBaseHeader( nr, dbfRecLen, n_fld, fields, ftypes, flens );
-    // Log.v( "Cave3D-SHP", "facets done headers" );
+    // Log.v( "TopoGL-SHP", "facets done headers" );
 
     int cnt = 0;
     for ( CWFacet ln : lns ) {
@@ -731,7 +740,7 @@ class ShpPolygonz extends ShpObject
       int offset = 50 + cnt * shpRecLen; 
       ++cnt;
 
-      // Log.v( "Cave3D-SHP", "Face " + p1.x + " " + p2.x + " " + p3.x );
+      // Log.v( "TopoGL-SHP", "Face " + p1.x + " " + p2.x + " " + p3.x );
 
       writeShpRecord( cnt, shpRecLen, p1, p2, p3 );
       writeShxRecord( offset, shpRecLen );
@@ -740,7 +749,7 @@ class ShpPolygonz extends ShpObject
       fields[0] = zz;
       writeDBaseRecord( n_fld, fields, flens );
     }
-    // Log.v( "Cave3D-SHP", "shots done " + cnt + " records" );
+    // Log.v( "TopoGL-SHP", "shots done " + cnt + " records" );
     close();
     return true;
   }
@@ -787,25 +796,19 @@ class ShpPolygonz extends ShpObject
     int nrs = ( lns != null )? lns.size() : 0;
     if ( nrs > 0 ) {
       CWFacet ln = lns.get(0);
-      CWPoint pt = ln.v1;
-      initBBox( pt.x, pt.y, pt.z );
-      pt = ln.v2;
-      updateBBox( pt.x, pt.y, pt.z );
-      pt = ln.v3;
-      updateBBox( pt.x, pt.y, pt.z );
+      initBBox( ln.v1 );
+      updateBBox( ln.v2 );
+      updateBBox( ln.v3 );
       for ( int k=1; k<nrs; ++k ) {
         ln = lns.get(k);
-        pt = ln.v1;
-        updateBBox( pt.x, pt.y, pt.z );
-        pt = ln.v2;
-        updateBBox( pt.x, pt.y, pt.z );
-        pt = ln.v3;
-        updateBBox( pt.x, pt.y, pt.z );
+        updateBBox( ln.v1 );
+        updateBBox( ln.v2 );
+        updateBBox( ln.v3 );
       }
     }
   }
 
-  private double area( Cave3DVector p1, Cave3DVector p2, Cave3DVector p3 ) 
+  private double area( Vector3D p1, Vector3D p2, Vector3D p3 ) 
   {
     double x2 = p2.x - p1.x; // V1
     double y2 = p2.y - p1.y;
@@ -824,7 +827,7 @@ class ShpPolygonz extends ShpObject
     return area / 2;
   }
 
-  boolean writeTriangles( List< Cave3DTriangle > lns ) throws IOException
+  boolean writeTriangles( List< Triangle3D > lns ) throws IOException
   {
     int nr = ( lns != null )? lns.size() : 0;
     if ( nr == 0 ) return false;
@@ -847,9 +850,9 @@ class ShpPolygonz extends ShpObject
     int dbfLength = 33 + n_fld * 32 + nr * dbfRecLen; // Bytes, 3 fields
 
     setBoundsTriangles( lns );
-    // Log.v( "Cave3D-SHP", "Tris X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
-    // Log.v( "Cave3D-SHP", "POLYLINEZ shots " + lns.size() + " len " + shpLength + " / " + shxLength + " / " + dbfLength );
-    // Log.v( "Cave3D-SHP", "bbox X " + xmin + " " + xmax );
+    // Log.v( "TopoGL-SHP", "Tris X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
+    // Log.v( "TopoGL-SHP", "POLYLINEZ shots " + lns.size() + " len " + shpLength + " / " + shxLength + " / " + dbfLength );
+    // Log.v( "TopoGL-SHP", "bbox X " + xmin + " " + xmax );
 
     open();
     resetChannels( 2*shpLength, 2*shxLength, dbfLength );
@@ -857,19 +860,19 @@ class ShpPolygonz extends ShpObject
     shpBuffer = writeShapeHeader( shpBuffer, mShpType, shpLength );
     shxBuffer = writeShapeHeader( shxBuffer, mShpType, shxLength );
     writeDBaseHeader( nr, dbfRecLen, n_fld, fields, ftypes, flens );
-    // Log.v( "Cave3D-SHP", "shots done headers" );
+    // Log.v( "TopoGL-SHP", "shots done headers" );
 
     int cnt = 0;
-    for ( Cave3DTriangle ln : lns ) {
-      Cave3DVector p1 = ln.vertex[0];
-      Cave3DVector p2 = ln.vertex[1];
-      Cave3DVector p3 = ln.vertex[2];
+    for ( Triangle3D ln : lns ) {
+      Vector3D p1 = ln.vertex[0];
+      Vector3D p2 = ln.vertex[1];
+      Vector3D p3 = ln.vertex[2];
       int offset = 50 + cnt * shpRecLen; 
       ++cnt;
 
       String zz = "+1";
       double a = area( p1, p2, p3 );
-      if ( a > 0 ) { Cave3DVector p = p2; p2 = p3; p3 = p; }
+      if ( a > 0 ) { Vector3D p = p2; p2 = p3; p3 = p; }
       else         { a = -a; zz = "-1"; }
 
       writeShpRecord( cnt, shpRecLen, p1, p2, p3 );
@@ -879,12 +882,12 @@ class ShpPolygonz extends ShpObject
       fields[2] = zz;
       writeDBaseRecord( n_fld, fields, flens );
     }
-    // Log.v( "Cave3D-SHP", "shots done records" );
+    // Log.v( "TopoGL-SHP", "shots done records" );
     close();
     return true;
   }
 
-  private void writeShpRecord( int cnt, int len, Cave3DVector p1, Cave3DVector p2, Cave3DVector p3 )
+  private void writeShpRecord( int cnt, int len, Vector3D p1, Vector3D p2, Vector3D p3 )
   {
     writeShpRecordHeader( cnt, len );
     shpBuffer.order(ByteOrder.LITTLE_ENDIAN);   
@@ -921,25 +924,19 @@ class ShpPolygonz extends ShpObject
     shpBuffer.putDouble( 0.0 );
   }
 
-  private void setBoundsTriangles( List< Cave3DTriangle > lns )
+  private void setBoundsTriangles( List< Triangle3D > lns )
   {
     int nrs = ( lns != null )? lns.size() : 0;
     if ( nrs > 0 ) {
-      Cave3DTriangle ln = lns.get(0);
-      Cave3DVector pt = ln.vertex[0];
-      initBBox( pt.x, pt.y, pt.z );
-      pt = ln.vertex[1];
-      updateBBox( pt.x, pt.y, pt.z );
-      pt = ln.vertex[2];
-      updateBBox( pt.x, pt.y, pt.z );
+      Triangle3D ln = lns.get(0);
+      initBBox( ln.vertex[0] );
+      updateBBox( ln.vertex[1] );
+      updateBBox( ln.vertex[2] );
       for ( int k=1; k<nrs; ++k ) {
         ln = lns.get(k);
-        pt = ln.vertex[0];
-        updateBBox( pt.x, pt.y, pt.z );
-        pt = ln.vertex[1];
-        updateBBox( pt.x, pt.y, pt.z );
-        pt = ln.vertex[2];
-        updateBBox( pt.x, pt.y, pt.z );
+        updateBBox( ln.vertex[0] );
+        updateBBox( ln.vertex[1] );
+        updateBBox( ln.vertex[2] );
       }
     }
   }

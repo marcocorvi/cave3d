@@ -3,23 +3,24 @@
  * @author marco corvi
  * @date nov 2011
  *
- * @brief Cave3D loch Surface 
+ * @brief loch Surface 
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
+ * --------------------------------------------------------
  */
 package com.topodroid.Cave3D;
 
 class LoxSurface
 {
   int id;
-  int ww;
-  int hh;
-  double calib[];
-  double[] grid;
+  private int ww;
+  private int hh;
+  private double calib[];
+  private double[] grid;
 
   float East1()    { return (float)(calib[0]); }
-  float North1()   { return (float)(calib[1]); }
+  float North1()   { return (float)(calib[1]); } // loch data are written north-to-south
   int NrEast()     { return ww; }
   int NrNorth()    { return hh; }
   float DimEast()  { return (float)(calib[2]); }

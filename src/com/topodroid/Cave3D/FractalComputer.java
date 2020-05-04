@@ -87,7 +87,7 @@ class FractalComputer
       return ( x >= x0 && y >= y0 && z >= z0 && x <= x1 && y <= y1 && z <= z1 );
     }
   
-    boolean contains( Cave3DStation p ) { return contains( p.e, p.n, p.z); }
+    boolean contains( Cave3DStation p ) { return contains( p.x, p.y, p.z); }
   
     boolean intersects( Box b ) 
     {
@@ -111,12 +111,12 @@ class FractalComputer
       shot = sh;
       p0 = sh.from_station;
       p1 = sh.to_station;
-      float x0 = p0.e;
-      float x1 = p1.e;
-      if ( x0 > x1 ) { x0 = p1.e; x1 = p0.e; }
-      float y0 = p0.n;
-      float y1 = p1.n;
-      if ( y0 > y1 ) { y0 = p1.n; y1 = p0.n; }
+      float x0 = p0.x;
+      float x1 = p1.x;
+      if ( x0 > x1 ) { x0 = p1.x; x1 = p0.x; }
+      float y0 = p0.y;
+      float y1 = p1.y;
+      if ( y0 > y1 ) { y0 = p1.y; y1 = p0.y; }
       float z0 = p0.z;
       float z1 = p1.z;
       if ( z0 > z1 ) { z0 = p1.z; z1 = p0.z; }
@@ -130,12 +130,12 @@ class FractalComputer
     {
       double t;
       if ( dx != 0 ) {
-	t = (b.x0 - p0.e)/dx; if ( t >= 0 && t <= 1) return true;
-	t = (b.x1 - p0.e)/dx; if ( t >= 0 && t <= 1) return true;
+	t = (b.x0 - p0.x)/dx; if ( t >= 0 && t <= 1) return true;
+	t = (b.x1 - p0.x)/dx; if ( t >= 0 && t <= 1) return true;
       }
       if ( dy != 0 ) {
-	t = (b.y0 - p0.n)/dy; if ( t >= 0 && t <= 1) return true;
-	t = (b.y1 - p0.n)/dy; if ( t >= 0 && t <= 1) return true;
+	t = (b.y0 - p0.y)/dy; if ( t >= 0 && t <= 1) return true;
+	t = (b.y1 - p0.y)/dy; if ( t >= 0 && t <= 1) return true;
       }
       if ( dz != 0 ) {
 	t = (b.z0 - p0.z)/dz; if ( t >= 0 && t <= 1) return true;

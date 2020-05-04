@@ -21,17 +21,17 @@ import android.graphics.Bitmap;
 class FractalResult
 {
   static FractalComputer computer = null;
-  static Cave3D  mCave3d = null;
+  static TopoGL  mApp = null;
   static Context mContext;
 
   static float[] mCount = new float[ FractalComputer.SIZE ];
 
-  static int compute( Context context, Cave3D cave3d, final Cave3DRenderer r, boolean do_splays, int cell, int mode )
+  static int compute( Context context, TopoGL app, final TglParser r, boolean do_splays, int cell, int mode )
   {
     if ( computer != null ) return -1;
     mContext = context;
-    mCave3d  = cave3d;
-    computer = new FractalComputer( r.xmin, r.xmax, r.ymax, r.ymin, r.zmin, r.zmax, do_splays, cell, mode );
+    mApp  = app;
+    computer = new FractalComputer( r.emin, r.emax, r.nmin, r.nmax, r.zmin, r.zmax, do_splays, cell, mode );
     (new AsyncTask<Void, Void, Void>() {
 	public Void doInBackground( Void ... v ) {
           computer.computeFractalCounts( r.getShots(), r.getSplays() );
@@ -49,8 +49,8 @@ class FractalResult
   static void releaseComputer()
   {
     computer = null;
-    if ( mCave3d != null ) {
-      mCave3d.runOnUiThread( new Runnable() {
+    if ( mApp != null ) {
+      mApp.runOnUiThread( new Runnable() {
         public void run() {
           Toast.makeText( mContext, "Fractal compute finished", Toast.LENGTH_SHORT ).show();
         }

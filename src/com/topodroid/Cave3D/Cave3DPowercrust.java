@@ -3,14 +3,15 @@
  * @author marco corvi
  * @date may 2017
  *
- * @brief Cave3D Powercrust triangulation
+ * @brief Powercrust triangulation
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
+ * --------------------------------------------------------
  */
 package com.topodroid.Cave3D;
 
-// import android.util.Log;
+import android.util.Log;
 
 //  import android.util.FloatMath;
 
@@ -20,8 +21,6 @@ import java.util.ArrayList;
 
 class Cave3DPowercrust
 {
-  // private static final String TAG = "Cave3D PC";
-
   int np;
   int nf; 
 
@@ -51,18 +50,18 @@ class Cave3DPowercrust
 
   Cave3DPowercrust()
   {
-    // Log.v( TAG, "powercrust cstr");
+    // Log.v( "TopoGL-POWERCRUST", "powercrust cstr");
     initLog();
     resetSites( 3 );
     np = 0;
     nf = 0;
   }
 
-  Cave3DSite[] insertTrianglesIn( ArrayList< Cave3DTriangle > triangles )
+  Cave3DSite[] insertTrianglesIn( ArrayList< Triangle3D > triangles )
   {
     float x, y, z;
     np = nrPoles();
-    // Log.v( TAG, "Nr. poles " + np + " Creating vertices ...");
+    // Log.v( "TopoGL-POWERCRUST", "Nr. poles " + np + " Creating vertices ...");
     Cave3DSite poles[] = new Cave3DSite[ np ];
     for ( int k=0; k<np; ++k ) {
       x = (float)(poleX());
@@ -81,7 +80,7 @@ class Cave3DPowercrust
       int nn = faceSize();
       if ( nn > 2 && nn < 32 ) { // FIXME hard upper bound to the size of a face
         boolean ok = true;
-        Cave3DTriangle tri = new Cave3DTriangle( nn );
+        Triangle3D tri = new Triangle3D( nn );
         for ( int k = 0; k < nn; ++k ) {
           int idx = faceVertex( k );
           if ( idx < 0 || idx >= np ) { ok = false; break; }
@@ -100,7 +99,7 @@ class Cave3DPowercrust
         ++ large;
       }
     } while ( nextFace() != 0 );
-    // Log.v( TAG, "Nr. faces " + nf + " Created faces ... G " + good + " F " + fail + " S " + small + " L " + large );
+    // Log.v( "TopoGL-POWERCRUST", "Nr. faces " + nf + " Created faces ... G " + good + " F " + fail + " S " + small + " L " + large );
     // release();
     return poles;
   }

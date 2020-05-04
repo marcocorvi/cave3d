@@ -1,5 +1,14 @@
 /** @file IcoSide.java
  *
+ * @author marco corvi
+ * @date june 2012
+ *
+ * @brief side of 3D rose direction diagram
+ * --------------------------------------------------------
+ *  Copyright This software is distributed under GPL-3.0 or later
+ *  See the file COPYING.
+ * --------------------------------------------------------
+ *
  */
 package com.topodroid.Cave3D;
 

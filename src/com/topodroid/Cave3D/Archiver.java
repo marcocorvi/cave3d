@@ -30,7 +30,7 @@ import java.util.List;
 
 class Archiver
 {
-  private static final String TAG = "Cave3D ZIP";
+  private static final String TAG = "TopoGL ZIP";
 
   static final int BUF_SIZE = 4096;
   byte[] data; 

@@ -3,7 +3,7 @@
  * @author marco corvi
  * @date june 2017
  *
- * @brief Cave3D feature checker
+ * @brief feature checker
  * --------------------------------------------------------
  *  Copyright This software is distributed under GPL-3.0 or later
  *  See the file COPYING.
@@ -42,7 +42,7 @@ class FeatureChecker
 
   static void createPermissions( Context context, Activity activity )
   {
-    // Log.v( "Cave3D-PERM", "create permissions" );
+    // Log.v( "TopoGL-PERM", "create permissions" );
     MustRestart = false;
     // FIXME-23
     if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.M ) return;
@@ -52,11 +52,11 @@ class FeatureChecker
       // FIXME-23
       GrantedPermission[k] = ( context.checkSelfPermission( perms[k] ) == PackageManager.PERMISSION_GRANTED );
       // FIXME-16 GrantedPermission[k] = true;
-      // Log.v("Cave3D-PERM", "FC perm " + k + " granted " + GrantedPermission[k] );
+      // Log.v("TopoGL-PERM", "FC perm " + k + " granted " + GrantedPermission[k] );
       if ( ! GrantedPermission[k] ) MustRestart = true;
     }
     if ( MustRestart ) { // if a permission has not been granted request it
-      // Log.v("Cave3D-PERM", "FC must restart now");
+      // Log.v("TopoGL-PERM", "FC must restart now");
       /* FIXME-23 */
       activity.requestPermissions( perms, REQUEST_PERMISSIONS );
       android.os.Process.killProcess( android.os.Process.myPid() );
@@ -76,8 +76,8 @@ class FeatureChecker
     for ( k=0; k<NR_PERMS_D; ++k ) {
       int res = context.checkCallingOrSelfPermission( perms[k] );
       if ( res != PackageManager.PERMISSION_GRANTED ) {
-        // TDToast.make( mActivity, "Cave3D must have " + perms[k] );
-        // Log.v( "Cave3D-PERM", "check permission: not granted" );
+        // TDToast.make( mActivity, "TopoGL must have " + perms[k] );
+        // Log.v( "TopoGL-PERM", "check permission: not granted - return -1" );
 	return -1;
       }
     }
@@ -86,24 +86,24 @@ class FeatureChecker
     for ( ; k<NR_PERMS; ++k ) {
       int res = context.checkCallingOrSelfPermission( perms[k] );
       if ( res != PackageManager.PERMISSION_GRANTED ) {
-        // TDToast.make( mActivity, "Cave3D may need " + perms[k] );
+        // TDToast.make( mActivity, "TopoGL may need " + perms[k] );
 	ret += flag;
       }
       flag *= 2;
     }
-    // Log.v( "Cave3D-PERM", "check permission: return " + ret );
+    // Log.v( "TopoGL-PERM", "check permission: return " + ret );
     return ret;
   }
 
   // static boolean checkMultitouch( Context context )
   // {
-  //   // Log.v( Cave3D-PERM, "check multitouch" );
+  //   // Log.v( TopoGL-PERM, "check multitouch" );
   //   return context.getPackageManager().hasSystemFeature( PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH );
   // }
 
   // static boolean checkInternet( Context context )
   // {
-  //   // Log.v( Cave3D-PERM, "check internet" );
+  //   // Log.v( TopoGL-PERM, "check internet" );
   //   return ( context.checkCallingOrSelfPermission( android.Manifest.permission.INTERNET ) == PackageManager.PERMISSION_GRANTED );
   // }
 }
