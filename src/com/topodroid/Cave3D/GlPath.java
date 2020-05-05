@@ -28,7 +28,7 @@ class GlPath extends GlShape
   final static int COORDS_PER_VERTEX = 3;
 
   final static int STRIDE = 3; // COORDS_PER_VERTEX + COORDS_PER_COLOR;
-  final static int BYTE_STRIDE = 12; // STRIDE * BYTES_PER_FLOAT;
+  final static int BYTE_STRIDE = 12; // STRIDE * Float.BYTES;
 
   final static int OFFSET_VERTEX = 0;
 

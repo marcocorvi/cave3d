@@ -3,7 +3,7 @@
  * @author marco corvi
  * @date may 2020
  *
- * @brief Cave3D therion file parser and model
+ * @brief Cave3D file parser 
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
@@ -139,7 +139,7 @@ public class TglParser
     for ( Cave3DStation st : stations ) st.setPathlength( Float.MAX_VALUE, null );
   }
 
-  String computeCavePathlength( Cave3DStation s2 )
+  TglMeasure computeCavePathlength( Cave3DStation s2 )
   { 
     Cave3DStation s1 = mStartStation;
     if ( s1 == null ) return null;
@@ -168,16 +168,7 @@ public class TglParser
     } else { 
       d = 0;
     }
-    float de = s2.x - s1.x;
-    float dn = s2.y - s1.y;
-    float dz = s2.z - s1.z;
-    float d3 = (float)Math.sqrt( de*de + dn*dn + dz*dz );
-    if ( d < Float.MAX_VALUE-1 ) {
-      String format = mApp.getResources().getString( R.string.dist_path );
-      return String.format(Locale.US, format, s1.short_name, s2.short_name, d3, de, dn, dz, d );
-    } 
-    String format = mApp.getResources().getString( R.string.dist_no_path );
-    return String.format(Locale.US, format, s1.short_name, s2.short_name, d3, de, dn, dz );
+    return new TglMeasure( mApp.getResources(), s1, s2, (float)d );
   }
 
   Cave3DSurvey getSurvey( String name ) // get survey by the NAME

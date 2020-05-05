@@ -4,6 +4,7 @@
 
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Cancel</string>
+    <string name="btn_close">Close</string>
     <string name="btn_compute">Compute</string>
 
     <string name="btn_move">Move</string>
@@ -87,8 +88,13 @@
     <string name="survey_legs_length"> Legs length: </string>
     <string name="survey_splays"> Splays: </string>
     <string name="survey_splays_length"> Splays length: </string>
-    <string name="cave_distance"> 3D distance: %1$.2f</string>
-    <string name="cave_length"> Cave length: %1$.2f</string>
+    <string name="cave_east"> E: %1$.1f</string>
+    <string name="cave_north"> N: %1$.1f</string>
+    <string name="cave_vert"> Z: %1$.1f</string>
+    <string name="cave_distance"> 3D distance: %1$.1f</string>
+    <string name="horz_distance"> 2D horizontal distance: %1$.1f</string>
+    <string name="cave_length"> Cave length: %1$.1f</string>
+    <string name="cave_angle"> Azimuth: %1$.0f  Clino: %2$.0f</string>
 
     <string name="SURVEYS">S U R V E Y S</string>
     <string name="INFO">I N F O</string>
@@ -156,58 +162,49 @@
 
     <string name="category_surface">SURFACE</string>
     <string name="category_walls">WALLS</string>
+    <string name="category_stations">STATIONS</string>
+    <string name="category_grid">GRID</string>
 
-    <string name="pref_base_path_title">Base path</string>
-    <string name="pref_base_path_summary">App base path</string>
-    <string name="pref_base_path_message">Directory containing the survey files</string>
-    <string name="pref_text_size_title">Text size</string>
-    <string name="pref_text_size_summary">Station label size [20]</string>
-    <string name="pref_text_size_message">Station label text size</string>
+    <string name="pref_base_path_title">App base path</string>
+    <string name="pref_base_path_summary">Directory containing the survey files</string>
+    <string name="pref_text_size_title">Label size</string>
+    <string name="pref_text_size_summary">Station label size [10 pt]</string>
     <string name="pref_size_buttons_title">Buttons size</string>
     <string name="pref_size_buttons_summary">Buttons size</string>
     <string name="pref_selection_radius_title">Selection radius</string>
-    <string name="pref_selection_radius_summary">Radius of selection [1.0]</string>
-    <string name="pref_selection_radius_message">Radius of selection</string>
+    <string name="pref_selection_radius_summary">Radius of selection [20 pxl]</string>
     <string name="pref_station_toast_title">Station dialog</string>
-    <string name="pref_station_toast_summary">Show station data in a dialog [n]</string>
-    <string name="pref_station_toast_message">Show station data in a dialog</string>
+    <string name="pref_station_toast_summary">Station data dialog instead of box [n]</string>
     <string name="pref_station_points_title">Station points</string>
     <string name="pref_station_points_summary">Display stations always [n]</string>
-    <string name="pref_station_points_message">Show station points</string>
+    <string name="pref_station_size_title">Station point size</string>
+    <string name="pref_station_size_summary">Size of station points [8 pxl]</string>
+    <string name="pref_measure_dialog_title">Distance message</string>
+    <string name="pref_measure_dialog_summary">Distance message instead of doalog [n]</string>
     <string name="pref_grid_above_title">Top grid</string>
-    <string name="pref_grid_above_summary">Grid on the top [n]</string>
-    <string name="pref_grid_above_message">Show the grid on the top</string>
+    <string name="pref_grid_above_summary">Grid on the top instead of bottom [n]</string>
     <string name="pref_grid_extent_title">Grid extent</string>
-    <string name="pref_grid_extent_summary">Grid extent around the survey</string>
-    <string name="pref_grid_extent_message">Grid extent around the survey plan projection</string>
+    <string name="pref_grid_extent_summary">Grid extent around the survey plan-view</string>
     <string name="pref_neg_clino_title">Below-horizon views</string>
     <string name="pref_neg_clino_summary">Allow below-horizon viewpoints [n]</string>
-    <string name="pref_neg_clino_message">Allow views from below the horizon</string>
     <string name="pref_dem_buffer_title">DEM buffer</string>
-    <string name="pref_dem_buffer_summary">DEM extent around survey [200]</string>
-    <string name="pref_dem_buffer_message">Extension of the DEM around the survey</string>
+    <string name="pref_dem_buffer_summary">Extension of the DEM around survey [200]</string>
     <string name="pref_dem_maxsize_title">DEM max size</string>
-    <string name="pref_dem_maxsize_summary">Maximum DEM size[400]</string>
-    <string name="pref_dem_maxsize_message">Maximum number of the DEM cells in each dimension</string>
+    <string name="pref_dem_maxsize_summary">Maximum number of cells [400]</string>
     <string name="pref_dem_reduce_title">DEM reduce</string>
     <string name="pref_dem_reduce_summary">DEM reducing mode [shrink]</string>
     <string name="pref_all_splay_title">All splays</string>
-    <string name="pref_all_splay_summary">All the splays for walls</string>
-    <string name="pref_all_splay_message">Whether to use all the splays for the walls</string>
+    <string name="pref_all_splay_summary">Whether to use all the splays for the walls [y]</string>
 
     <string name="pref_split_triangles_title">Split triangles</string>
-    <string name="pref_split_triangles_summary">Split wall triangles [y]</string>
-    <string name="pref_split_triangles_message">Whether to split intersecting wall triangles</string>
+    <string name="pref_split_triangles_summary">Whether to split intersecting wall triangles [y]</string>
     <string name="pref_split_random_title">Randomize points</string>
-    <string name="pref_split_random_summary">Randomize wall points [0.1]</string>
-    <string name="pref_split_random_message">Add a small random vector to splays</string>
+    <string name="pref_split_random_summary">Small random vector added to splays [0.1]</string>
     <string name="pref_split_stretch_title">Stretch walls</string>
-    <string name="pref_split_stretch_summary">Stretch wall points along the leg [0.1]</string>
-    <string name="pref_split_stretch_message">Shift wall points by a small quantity along the leg</string>
+    <string name="pref_split_stretch_summary">Stretch of wall points along the leg [0.1]</string>
 
     <string name="pref_powercrust_delta_title">Powercrust Delta</string>
-    <string name="pref_powercrust_delta_summary">Splay filtering [0.1]</string>
-    <string name="pref_powercrust_delta_message">Filter out splays differing from previous and next ones too much</string>
+    <string name="pref_powercrust_delta_summary">Exclude splays differing from nearby too much [0.1]</string>
 <!--
     <string name="pref_convex_hull_title">Convex hull</string>
     <string name="pref_convex_hull_summary">Convex hull walls</string>

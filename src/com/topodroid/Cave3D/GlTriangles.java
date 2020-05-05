@@ -51,7 +51,7 @@ class GlTriangles extends GlShape
   final static int STRIDE            = COORDS_PER_VERTEX + COORDS_PER_NORMAL; 
   final static int OFFSET_VERTEX     = 0;
   final static int OFFSET_NORMAL     = COORDS_PER_VERTEX;
-  final static int DATA_STRIDE       = STRIDE * BYTES_PER_FLOAT;
+  final static int DATA_STRIDE       = STRIDE * Float.BYTES;
 
   // vertex data: ( X Y Z Nx, Ny, Nz )
   GlTriangles( Context ctx ) 

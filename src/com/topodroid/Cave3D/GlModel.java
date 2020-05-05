@@ -25,6 +25,7 @@ public class GlModel
 {
   Context mContext;
   static float   mWidth  = 0;
+  static float   mHalfWidth = 0;
   static float   mHeight = 0; // unused
   TglParser mParser = null;
 
@@ -92,6 +93,7 @@ public class GlModel
 
   static void setWidthAndHeight( float w, float h ) 
   {
+    mHalfWidth = w/2.0f;
     mWidth  = w;
     mHeight = h;
   }
@@ -129,7 +131,7 @@ public class GlModel
   static boolean surfaceLegsMode = false; // show_surface_legs;
   static boolean surfaceTexture  = true;  // show_surface texture;
   static boolean wallMode = false;        // shaw_walls
-  static int planviewMode = 0;            // howto_show_planview = 0;
+  // static int planviewMode = 0;            // howto_show_planview = 0;
   static int splayMode = DRAW_NONE;       // howto_show_splays;
   static int frameMode = FRAME_GRID;      // howto_show_grid/frame
   static int projMode  = PROJ_NONE;       // howto_show_proj
@@ -146,11 +148,30 @@ public class GlModel
   static float mPowercrustDelta     = 0.1f; // meters
 
   static void toggleSplays()   { splayMode = (splayMode+1) % DRAW_MAX; }
-  static void togglePlanview() { planviewMode = ( planviewMode + 1 ) % 4; }
+  // static void togglePlanview() { planviewMode = ( planviewMode + 1 ) % 4; }
   static void toggleWallMode() { wallMode = ! wallMode; }
   static void toggleSurface() { surfaceMode = ! surfaceMode; }
   static void toggleSurfaceLegs() { surfaceLegsMode = ! surfaceLegsMode; }
   static void toggleFrameMode()   { frameMode = (frameMode + 1) % FRAME_MAX; }
+
+  static void resetModes()
+  {
+    splayMode    = DRAW_NONE;
+    // planviewMode = 0;
+    wallMode     = false;
+    frameMode    = FRAME_GRID;
+    projMode     = PROJ_NONE;
+    surfaceMode  = false;
+    surfaceLegsMode = false;
+    surfaceTexture  = true;
+  }
+
+  void resetColorMode()
+  {
+    if ( glLegs   != null ) glLegs.setColorMode( GlLines.COLOR_NONE );
+    if ( glSplays != null ) glSplays.setColorMode( GlLines.COLOR_NONE );
+    if ( glNames  != null ) glNames.clearHighlight();
+  }
 
   synchronized void toggleColorMode() { 
     glLegs.toggleColorMode( );
@@ -285,8 +306,15 @@ public class GlModel
 
   }
 
-  // String checkNames( float x, float y, float[] mvpMatrix, float dmin ) { return ( glNames != null )? glNames.check( x, y, mvpMatrix, dmin ) : null; }
-  String checkNames( float[] zn, float[] zf, float dmin, boolean highlight ) { return ( glNames != null )? glNames.check( zn, zf, dmin, highlight ) : null; }
+  String checkNames( float x, float y, float[] mvpMatrix, float dmin, boolean highlight ) 
+  { 
+    return ( glNames != null )? glNames.checkName( x, y, mvpMatrix, dmin, highlight ) : null;
+  }
+
+  String checkNames( float[] zn, float[] zf, float dmin, boolean highlight ) 
+  { 
+    return ( glNames != null )? glNames.checkName( zn, zf, dmin, highlight ) : null;
+  }
 
   // ----------------------------------------------------------------------
   synchronized void clearWalls( ) 

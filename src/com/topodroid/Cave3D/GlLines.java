@@ -31,7 +31,7 @@ class GlLines extends GlShape
   final static int COORDS_PER_COLOR  = 4;
 
   final static int STRIDE = 7; // COORDS_PER_VERTEX + COORDS_PER_COLOR;
-  final static int BYTE_STRIDE = 28; // STRIDE * BYTES_PER_FLOAT;
+  final static int BYTE_STRIDE = 28; // STRIDE * Float.BYTES;
 
   final static int OFFSET_VERTEX = 0;
   final static int OFFSET_COLOR  = 3; // COORDS_PER_VERTEX;

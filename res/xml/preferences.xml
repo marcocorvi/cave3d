@@ -7,15 +7,7 @@
     android:title="@string/pref_base_path_title"
     android:summary="@string/pref_base_path_summary"
     android:dialogTitle="@string/pref_base_path_title"
-    android:dialogMessage="@string/pref_base_path_message"
-    />
-
-  <android.preference.EditTextPreference
-    android:key="CAVE3D_TEXT_SIZE"
-    android:title="@string/pref_text_size_title"
-    android:summary="@string/pref_text_size_summary"
-    android:dialogTitle="@string/pref_text_size_title"
-    android:dialogMessage="@string/pref_text_size_message"
+    android:dialogMessage="@string/pref_base_path_summary"
     />
 
   <com.topodroid.Cave3D.MyListPreference
@@ -27,49 +19,81 @@
     android:entryValues="@array/sizeButtonsValue"
     />
 
-  <android.preference.EditTextPreference
-    android:key="CAVE3D_SELECTION_RADIUS"
-    android:title="@string/pref_selection_radius_title"
-    android:summary="@string/pref_selection_radius_summary"
-    android:dialogTitle="@string/pref_selection_radius_title"
-    android:dialogMessage="@string/pref_selection_radius_message"
-    />
-
-  <android.preference.CheckBoxPreference
-    android:key="CAVE3D_STATION_TOAST"
-    android:title="@string/pref_station_toast_title"
-    android:summary="@string/pref_station_toast_summary"
-    android:dialogTitle="@string/pref_station_toast_title"
-    />
-
-  <android.preference.CheckBoxPreference
-    android:key="CAVE3D_STATION_POINTS"
-    android:title="@string/pref_station_points_title"
-    android:summary="@string/pref_station_points_summary"
-    android:dialogTitle="@string/pref_station_points_title"
-    />
-
-  <android.preference.CheckBoxPreference
-    android:key="CAVE3D_GRID_ABOVE"
-    android:title="@string/pref_grid_above_title"
-    android:summary="@string/pref_grid_above_summary"
-    android:dialogTitle="@string/pref_grid_above_title"
-    />
-
-  <android.preference.EditTextPreference
-    android:key="CAVE3D_GRID_EXTENT"
-    android:title="@string/pref_grid_extent_title"
-    android:summary="@string/pref_grid_extent_summary"
-    android:dialogTitle="@string/pref_grid_extent_title"
-    android:dialogMessage="@string/pref_grid_extent_message"
-    />
-
   <android.preference.CheckBoxPreference
     android:key="CAVE3D_NEG_CLINO"
     android:title="@string/pref_neg_clino_title"
     android:summary="@string/pref_neg_clino_summary"
     android:dialogTitle="@string/pref_neg_clino_title"
     />
+
+  <android.preference.PreferenceCategory
+    android:title="@string/category_stations"
+    >
+
+    <android.preference.EditTextPreference
+      android:key="CAVE3D_TEXT_SIZE"
+      android:title="@string/pref_text_size_title"
+      android:summary="@string/pref_text_size_summary"
+      android:dialogTitle="@string/pref_text_size_title"
+      android:dialogMessage="@string/pref_text_size_summary"
+      />
+
+    <android.preference.CheckBoxPreference
+      android:key="CAVE3D_STATION_POINTS"
+      android:title="@string/pref_station_points_title"
+      android:summary="@string/pref_station_points_summary"
+      android:dialogTitle="@string/pref_station_points_title"
+      />
+
+    <android.preference.EditTextPreference
+      android:key="CAVE3D_STATION_SIZE"
+      android:title="@string/pref_station_size_title"
+      android:summary="@string/pref_station_size_summary"
+      android:dialogTitle="@string/pref_station_size_title"
+      android:dialogMessage="@string/pref_station_size_summary"
+      />
+
+    <android.preference.EditTextPreference
+      android:key="CAVE3D_SELECTION_RADIUS"
+      android:title="@string/pref_selection_radius_title"
+      android:summary="@string/pref_selection_radius_summary"
+      android:dialogTitle="@string/pref_selection_radius_title"
+      android:dialogMessage="@string/pref_selection_radius_summary"
+      />
+
+    <android.preference.CheckBoxPreference
+      android:key="CAVE3D_MEASURE_DIALOG"
+      android:title="@string/pref_measure_dialog_title"
+      android:summary="@string/pref_measure_dialog_summary"
+      android:dialogTitle="@string/pref_measure_dialog_title"
+      />
+
+    <android.preference.CheckBoxPreference
+      android:key="CAVE3D_STATION_TOAST"
+      android:title="@string/pref_station_toast_title"
+      android:summary="@string/pref_station_toast_summary"
+      android:dialogTitle="@string/pref_station_toast_title"
+      />
+  </android.preference.PreferenceCategory>
+
+  <android.preference.PreferenceCategory
+    android:title="@string/category_grid"
+    >
+    <android.preference.CheckBoxPreference
+      android:key="CAVE3D_GRID_ABOVE"
+      android:title="@string/pref_grid_above_title"
+      android:summary="@string/pref_grid_above_summary"
+      android:dialogTitle="@string/pref_grid_above_title"
+      />
+
+    <android.preference.EditTextPreference
+      android:key="CAVE3D_GRID_EXTENT"
+      android:title="@string/pref_grid_extent_title"
+      android:summary="@string/pref_grid_extent_summary"
+      android:dialogTitle="@string/pref_grid_extent_title"
+      android:dialogMessage="@string/pref_grid_extent_summary"
+      />
+  </android.preference.PreferenceCategory>
 
   <android.preference.PreferenceCategory
     android:title="@string/category_surface"
@@ -80,7 +104,7 @@
        android:title="@string/pref_dem_buffer_title"
        android:summary="@string/pref_dem_buffer_summary"
        android:dialogTitle="@string/pref_dem_buffer_title"
-       android:dialogMessage="@string/pref_dem_buffer_message"
+       android:dialogMessage="@string/pref_dem_buffer_summary"
        />
 
     <android.preference.EditTextPreference
@@ -88,7 +112,7 @@
        android:title="@string/pref_dem_maxsize_title"
        android:summary="@string/pref_dem_maxsize_summary"
        android:dialogTitle="@string/pref_dem_maxsize_title"
-       android:dialogMessage="@string/pref_dem_maxsize_message"
+       android:dialogMessage="@string/pref_dem_maxsize_summary"
        />
 
     <com.topodroid.Cave3D.MyListPreference
@@ -124,7 +148,7 @@
        android:title="@string/pref_split_random_title"
        android:summary="@string/pref_split_random_summary"
        android:dialogTitle="@string/pref_split_random_title"
-       android:dialogMessage="@string/pref_split_random_message"
+       android:dialogMessage="@string/pref_split_random_summary"
        android:inputType="numberDecimal"
        />
 
@@ -133,7 +157,7 @@
        android:title="@string/pref_split_stretch_title"
        android:summary="@string/pref_split_stretch_summary"
        android:dialogTitle="@string/pref_split_stretch_title"
-       android:dialogMessage="@string/pref_split_stretch_message"
+       android:dialogMessage="@string/pref_split_stretch_summary"
        android:inputType="numberDecimal"
        />
 
@@ -142,7 +166,7 @@
        android:title="@string/pref_powercrust_delta_title"
        android:summary="@string/pref_powercrust_delta_summary"
        android:dialogTitle="@string/pref_powercrust_delta_title"
-       android:dialogMessage="@string/pref_powercrust_delta_message"
+       android:dialogMessage="@string/pref_powercrust_delta_summary"
        android:inputType="numberDecimal"
        />
 

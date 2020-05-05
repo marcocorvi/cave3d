@@ -127,40 +127,29 @@
 
     <string name="pref_base_path_title">Рабочий каталог</string>
     <string name="pref_base_path_summary">Путь к файлам съёмок</string>
-    <string name="pref_base_path_message">Директория содержащая файлы Therion</string>
     <string name="pref_text_size_title">Размер текста</string>
     <string name="pref_text_size_summary">Размер номеров пикетов</string>
-    <string name="pref_text_size_message">Размер шрифта подписей пикетов</string>
     <string name="pref_size_buttons_title">Размер кнопок</string>
     <string name="pref_size_buttons_summary">Размер кнопок</string>
     <string name="pref_selection_radius_title">Радиус выбора</string>
     <string name="pref_selection_radius_summary">Радиус выбора</string>
-    <string name="pref_selection_radius_message">Радиус выбора объектов</string>
     <string name="pref_grid_above_title">Сетка сверху</string>
     <string name="pref_grid_above_summary">Сетка сверху</string>
-    <string name="pref_grid_above_message">Показать сетку над пещерой</string>
     <string name="pref_neg_clino_title">Обзор снизу вверх</string>
     <string name="pref_neg_clino_summary">Разрешить точки обзора ниже горизонта</string>
-    <string name="pref_neg_clino_message">Разрешить обзор из под горизонта</string>
     <string name="pref_dem_buffer_title">Буфер DEM</string>
     <string name="pref_dem_buffer_summary">Область DEM вокруг съёмки</string>
-    <string name="pref_dem_buffer_message">Размеры области отображения DEM вокруг нитки хода</string>
     <string name="pref_all_splay_title">Все сплеи</string>
     <string name="pref_all_splay_summary">Все сплеи для стен</string>
-    <string name="pref_all_splay_message">Использовать все сплеи для построения стен</string>
 
     <string name="pref_split_triangles_title">Разделить треугольники</string>
     <string name="pref_split_triangles_summary">Разделить треугольники стен</string>
-    <string name="pref_split_triangles_message">Разделять пересекающиеся треугольники стен</string>
     <string name="pref_split_random_title">Случайные точки</string>
     <string name="pref_split_random_summary">Случайные точки для стен</string>
-    <string name="pref_split_random_message">Добавить меленькие случайные вектора к сплеям</string>
     <string name="pref_split_stretch_title">Растянуть стены</string>
     <string name="pref_split_stretch_summary">Растянуть точки стен вдоль замеров</string>
-    <string name="pref_split_stretch_message">Слегка сдвинуть точки стен вдоль замеров</string>
     <string name="pref_powercrust_delta_title">Powercrust Дельта</string>
     <string name="pref_powercrust_delta_summary">Фильтрация сплеев</string>
-    <string name="pref_powercrust_delta_message">Отфильтруйте сплеи слишком сильно отличающиеся от соседних</string>
 <!--
     <string name="pref_convex_hull_title">Convex hull</string>
     <string name="pref_convex_hull_summary">Convex hull walls</string>

@@ -22,9 +22,6 @@ import android.content.Context;
 
 class GlShape
 {
-  final static int BYTES_PER_FLOAT = 4;
-  final static int BYTES_PER_SORTT = 2;
-
   protected FloatBuffer dataBuffer;
   protected ShortBuffer orderBuffer;
 

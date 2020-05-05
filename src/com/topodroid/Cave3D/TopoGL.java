@@ -390,17 +390,18 @@ public class TopoGL extends Activity
     } else if ( p++ == pos ) { // EXPORT
       new DialogExport( this, this, mParser ).show();
     } else if ( p++ == pos ) { // INFO
-      if ( mFilename != null ) new DialogInfo(this, mParser, mRenderer).show();
+      if ( mParser != null ) new DialogInfo(this, mParser, mRenderer).show();
     } else if ( p++ == pos ) { // ICO
-      if ( mFilename != null ) new DialogIco(this, mParser).show();
+      if ( mParser != null ) new DialogIco(this, mParser).show();
     } else if ( p++ == pos ) { // ROSE
-      if ( mFilename != null ) new DialogRose(this, mParser).show();
+      if ( mParser != null ) new DialogRose(this, mParser).show();
     } else if ( p++ == pos ) { // RESET
-      if ( mFilename != null ) mRenderer.resetTopGeometry();
+      GlModel.resetModes();
+      GlNames.resetStations();
+      if ( mRenderer != null ) mRenderer.resetTopGeometry();
+      resetButtons();
     } else if ( p++ == pos ) { // VIEWPOINT
-      if ( mFilename != null ) {
-        new DialogView( this, this, mRenderer ).show();
-      }
+      if ( mRenderer != null ) new DialogView( this, this, mRenderer ).show();
     } else if ( p++ == pos ) { // SURFACE ALPHA
       new DialogSurface( this, this ).show();
     } else if ( p++ == pos ) { // DO_WALLS
@@ -537,17 +538,22 @@ public class TopoGL extends Activity
     mButtonView1 = new HorizontalButtonView( mButton1 );
     mListView.setAdapter( mButtonView1.mAdapter );
 
+    resetButtons();
+
+    mButton1[ BTN_WALL ].setOnClickListener( this );
+    mButton1[ BTN_SURFACE ].setOnClickListener( this );
+  }
+
+  private void resetButtons()
+  {
     setButtonProjection();
     setButtonSurface();
     setButtonWall();
     setButtonMove();
     setButtonStation();
     setButtonSplays();
-    // setButtonColor();
-    // setButtonFrame();
-
-    mButton1[ BTN_WALL ].setOnClickListener( this );
-    mButton1[ BTN_SURFACE ].setOnClickListener( this );
+    setButtonColor();
+    setButtonFrame();
   }
 
   private void setButtonStation()
@@ -570,7 +576,7 @@ public class TopoGL extends Activity
 
   private void setButtonFrame()
   {
-    // ( mRenderer != null ) is guaranteed
+    if ( mRenderer == null ) return;
     switch ( GlModel.frameMode ) {
       case GlModel.FRAME_NONE:
         mButton1[ BTN_FRAME ].setBackgroundDrawable( mBMframeNo );
@@ -586,7 +592,7 @@ public class TopoGL extends Activity
 
   private void setButtonColor()
   {
-    // ( mRenderer != null ) is guaranteed
+    if ( mRenderer == null ) return;
     switch ( mRenderer.getColorMode() ) {
       case GlLines.COLOR_NONE:
         mButton1[ BTN_COLOR ].setBackgroundDrawable( mBMcolorNo );
@@ -933,15 +939,18 @@ public class TopoGL extends Activity
   // static boolean mWallPowercrust = false;
   // static boolean mWallDelaunay   = false;
   // static boolean mWallHull       = false;
-  static boolean mStationDialog = false;
+  static boolean mStationDialog  = false;
   static boolean mUseSplayVector = true; // ??? Hull Projection
+  static boolean mMeasureToast   = false;
 
   static final String CAVE3D_BASE_PATH        = "CAVE3D_BASE_PATH";
   static final String CAVE3D_TEXT_SIZE        = "CAVE3D_TEXT_SIZE";
   static final String CAVE3D_BUTTON_SIZE      = "CAVE3D_BUTTON_SIZE";
   static final String CAVE3D_SELECTION_RADIUS = "CAVE3D_SELECTION_RADIUS";
   static final String CAVE3D_STATION_TOAST    = "CAVE3D_STATION_TOAST";
+  static final String CAVE3D_STATION_SIZE     = "CAVE3D_STATION_SIZE";
   static final String CAVE3D_STATION_POINTS   = "CAVE3D_STATION_POINTS";
+  static final String CAVE3D_MEASURE_DIALOG   = "CAVE3D_MEASURE_DIALOG";
   static final String CAVE3D_GRID_ABOVE       = "CAVE3D_GRID_ABOVE";
   static final String CAVE3D_GRID_EXTENT      = "CAVE3D_GRID_EXTEND";
   static final String CAVE3D_NEG_CLINO        = "CAVE3D_NEG_CLINO";
@@ -967,8 +976,8 @@ public class TopoGL extends Activity
       if ( mAppBasePath == null ) mAppBasePath = APP_BASE_PATH;
     } else if ( k.equals( CAVE3D_TEXT_SIZE ) ) {
       try {
-        int size = Integer.parseInt( sp.getString( k, "20" ) );
-        if ( size > 6 ) GlNames.setTextSize( size );
+        int size = Integer.parseInt( sp.getString( k, "10" ) );
+        GlNames.setTextSize( size );
       } catch ( NumberFormatException e ) { }
     } else if ( k.equals( CAVE3D_BUTTON_SIZE ) ) {
       try {
@@ -979,12 +988,18 @@ public class TopoGL extends Activity
     } else if ( k.equals( CAVE3D_SELECTION_RADIUS ) ) { 
       try {
         float radius = Float.parseFloat( sp.getString( k, "1.0" ) );
-        if ( radius < 10 && radius > 0.1f ) mSelectionRadius = radius;
+        if ( radius > 0.0f ) mSelectionRadius = radius;
       } catch ( NumberFormatException e ) { }
     } else if ( k.equals( CAVE3D_STATION_TOAST ) ) { 
       mStationDialog = sp.getBoolean( k, false );
+    } else if ( k.equals( CAVE3D_STATION_SIZE ) ) { 
+      try {
+        GlNames.setPointSize( Integer.parseInt( sp.getString( k, "8" ) ) );
+      } catch ( NumberFormatException e ) { }
     } else if ( k.equals( CAVE3D_STATION_POINTS ) ) { 
       GlModel.mStationPoints = sp.getBoolean( k, false );
+    } else if ( k.equals( CAVE3D_MEASURE_DIALOG ) ) { 
+      mMeasureToast  = sp.getBoolean( k, false );
     } else if ( k.equals( CAVE3D_GRID_ABOVE ) ) { 
       GlModel.mGridAbove = sp.getBoolean( k, false );
     } else if ( k.equals( CAVE3D_GRID_EXTENT ) ) { 
@@ -1061,8 +1076,8 @@ public class TopoGL extends Activity
     mAppBasePath = sp.getString( CAVE3D_BASE_PATH, APP_BASE_PATH );
     if ( mAppBasePath == null ) mAppBasePath = APP_BASE_PATH;
     try {
-      int size = Integer.parseInt( sp.getString( CAVE3D_TEXT_SIZE, "20" ) );
-      if ( size > 6 ) GlNames.setTextSize( size );
+      int size = Integer.parseInt( sp.getString( CAVE3D_TEXT_SIZE, "10" ) );
+      GlNames.setTextSize( size );
     } catch ( NumberFormatException e ) { }
     try {
       int size = Integer.parseInt( sp.getString( CAVE3D_BUTTON_SIZE, "1" ) );
@@ -1073,14 +1088,18 @@ public class TopoGL extends Activity
     } catch ( NumberFormatException e ) { }
     try {
       float radius = Float.parseFloat( sp.getString( CAVE3D_SELECTION_RADIUS, "1.0" ) );
-      if ( radius < 10 && radius > 0.1f ) mSelectionRadius = radius;
+      if ( radius > 0.0f ) mSelectionRadius = radius;
     } catch ( NumberFormatException e ) { }
     mStationDialog = sp.getBoolean( CAVE3D_STATION_TOAST, false );
+    try {
+      GlNames.setPointSize( Integer.parseInt( sp.getString( CAVE3D_STATION_SIZE, "8" ) ) );
+    } catch ( NumberFormatException e ) { }
     GlModel.mStationPoints = sp.getBoolean( CAVE3D_STATION_POINTS, false );
+    mMeasureToast  = sp.getBoolean( CAVE3D_MEASURE_DIALOG, false );
     GlModel.mGridAbove = sp.getBoolean( CAVE3D_GRID_ABOVE, false );
     try {
       int extent = Integer.parseInt( sp.getString( CAVE3D_GRID_EXTENT, "10" ) );
-      if ( extent > 1 && extent < 100 ) GlModel.mGridExtent = extent;
+      if ( extent > 1 && extent < 1000 ) GlModel.mGridExtent = extent;
     } catch ( NumberFormatException e ) { }
     GlRenderer.mMinClino  = sp.getBoolean( CAVE3D_NEG_CLINO, false ) ? 90 : 0;
     GlModel.mAllSplay  = sp.getBoolean( CAVE3D_ALL_SPLAY, true );

@@ -48,6 +48,12 @@ release:
 install:
 	adb install -r bin/Cave3D-debug.apk
 
+log: 
+	adb logcat | grep TopoGL
+
+debug:
+	adb logcat | grep Cave3D
+
 rebuild:
 	ant clean
 	ant debug

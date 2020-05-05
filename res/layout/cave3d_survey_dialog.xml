@@ -92,5 +92,13 @@
 
     </TableLayout>
 
+    <Button android:id="@+id/btn_close"
+       android:layout_width="wrap_content" 
+       android:layout_height="wrap_content" 
+       android:layout_marginTop="25sp"
+       android:text="@string/btn_close"
+       />
+      
+
 
 </LinearLayout>

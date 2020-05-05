@@ -125,41 +125,30 @@
 
     <string name="pref_base_path_title">Základný adresár</string>
     <string name="pref_base_path_summary">Základný adresár/cesta k súborom</string>
-    <string name="pref_base_path_message">Adresár obsahujúci Therion súbory</string>
     <string name="pref_text_size_title">Veľkosť meračských bodov</string>
     <string name="pref_text_size_summary">Veľkosť meračských bodov - Staničenia</string>
-    <string name="pref_text_size_message">Veľkosť meračských bodov - Staničenia</string>
     <string name="pref_size_buttons_title">Veľkosť ikoniek</string>
     <string name="pref_size_buttons_summary">Veľkosť ikoniek na obrazovke</string>
     <string name="pref_selection_radius_title">Rozsah výberu</string>
     <string name="pref_selection_radius_summary">Rozsah výberu</string>
-    <string name="pref_selection_radius_message">Rozsah výberu</string>
     <string name="pref_grid_above_title">Mriežka navrchu</string>
     <string name="pref_grid_above_summary">Zaškrtnuté = mriežka hore</string>
-    <string name="pref_grid_above_message">Ukázať mriežku navrchu</string>
     <string name="pref_neg_clino_title">Pohľady spod horizontu</string>
     <string name="pref_neg_clino_summary">Dovoliť pohľady aj spod horizontu</string>
-    <string name="pref_neg_clino_message">Dovoliť pohľady aj spod horizontu</string>
     <!-- TODO string name="pref_dem_buffer_title">DEM buffer</string -->
     <!-- TODO string name="pref_dem_buffer_summary">DEM extent around survey</string -->
-    <!-- TODO string name="pref_dem_buffer_message">Extension of the DEM around the survey</string -->
     <string name="pref_all_splay_title">Všetky pomocné zámery</string>
     <string name="pref_all_splay_summary">Použiť všetky pomocné zámery pre zobrazenie stien</string>
-    <string name="pref_all_splay_message">Použiť všetky pomocné zámery pre zobrazenie stien</string>
 
     <string name="pref_split_triangles_title">Rozdeliť trojuholníky</string>
     <string name="pref_split_triangles_summary">Rozdeliť pretínajúce sa stenové trojuholníky</string>
-    <string name="pref_split_triangles_message">Rozdeliť pretínajúce sa stenové trojuholníky</string>
     <string name="pref_split_random_title">Náhodné body</string>
     <string name="pref_split_random_summary">Náhodné body na stenách</string>
-    <string name="pref_split_random_message">Pridať malé náhodné vektory k pomocným zámerám</string>
     <string name="pref_split_stretch_title">Roztiahnuť steny</string>
     <string name="pref_split_stretch_summary">Roztiahnuť body na stenách pozdĺž hlavných zámer</string>
-    <string name="pref_split_stretch_message">Posunúť  body na stenách o malý kúsok oproti hlavným zámerám</string>
 
     <string name="pref_powercrust_delta_title">Powercrust Delta</string>
     <string name="pref_powercrust_delta_summary">Filtrovanie pomocných zámer</string>
-    <string name="pref_powercrust_delta_message">Odfiltrovať pomocné zámery, ktoré sa príliš líšia od predchádzajúcich a nasledujúcich</string>
 <!--
     <string name="pref_convex_hull_title">Convex hull</string>
     <string name="pref_convex_hull_summary">Convex hull walls</string>

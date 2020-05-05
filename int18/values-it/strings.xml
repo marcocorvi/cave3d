@@ -126,41 +126,30 @@
 
     <string name="pref_base_path_title">Folder di base</string>
     <string name="pref_base_path_summary">Folder di base dell\'app</string>
-    <string name="pref_base_path_message">Folder con i file dei rilievi</string>
     <string name="pref_text_size_title">Dimensione testi</string>
     <string name="pref_text_size_summary">Dimensione capisaldi</string>
-    <string name="pref_text_size_message">Dimensione dei nomi dei capisaldi</string>
     <string name="pref_size_buttons_title">Dimensione bottoni</string>
     <string name="pref_size_buttons_summary">Dimensione bottoni</string>
     <string name="pref_selection_radius_title">Raggio di selezione</string>
     <string name="pref_selection_radius_summary">Raggio di selezione</string>
-    <string name="pref_selection_radius_message">Raggio di selezione</string>
     <string name="pref_grid_above_title">Griglia superiore</string>
     <string name="pref_grid_above_summary">Griglia superiore</string>
-    <string name="pref_grid_above_message">Griglie sopra la poligonale</string>
     <string name="pref_neg_clino_title">Viste sotto l\'orizzonte</string>
     <string name="pref_neg_clino_summary">Permette punti di vista sotto l\'orizzonte</string>
-    <string name="pref_neg_clino_message">Permette punti di vista sotto l\'orizzonte</string>
     <!-- TODO string name="pref_dem_buffer_title">DEM buffer</string -->
     <!-- TODO string name="pref_dem_buffer_summary">DEM extent around survey</string -->
-    <!-- TODO string name="pref_dem_buffer_message">Extension of the DEM around the survey</string -->
     <string name="pref_all_splay_title">Splay per pareti</string>
     <string name="pref_all_splay_summary">Usa tutti gli splay per le pareti</string>
-    <string name="pref_all_splay_message">Usa tutti gli splay per le pareti</string>
 
     <string name="pref_split_triangles_title">Triangoli di parete</string>
     <string name="pref_split_triangles_summary">Dividi i triangoli di parete</string>
-    <string name="pref_split_triangles_message">Dividi i triangoli di parete intersecantesi</string>
     <string name="pref_split_random_title">Punti random</string>
     <string name="pref_split_random_summary">Punti-parete randomizzati</string>
-    <string name="pref_split_random_message">Sposta un poco i punti splay in modo random</string>
     <string name="pref_split_stretch_title">Sposta punti-parete</string>
     <string name="pref_split_stretch_summary">Sposta i punti parete lungo la battuta</string>
-    <string name="pref_split_stretch_message">Sposta un poco i punti parete nella direzione della battuta</string>
 
     <string name="pref_powercrust_delta_title">Powercrust Delta</string>
     <string name="pref_powercrust_delta_summary">Filtro splay</string>
-    <string name="pref_powercrust_delta_message">Filtra gli splay che differiscono troppo dal precedente o successivo</string>
 <!--
     <string name="pref_convex_hull_title">Convex hull</string>
     <string name="pref_convex_hull_summary">Convex hull walls</string>

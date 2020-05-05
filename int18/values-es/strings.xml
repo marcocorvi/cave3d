@@ -126,40 +126,29 @@
 
     <string name="pref_base_path_title">Directorio de la base de datos</string>
     <string name="pref_base_path_summary">Directorio que contiene los archivos de Therion.</string>
-    <string name="pref_base_path_message">Directorio que contiene los archivos de Therion</string>
     <string name="pref_text_size_title">Tamaño Texto</string>
     <string name="pref_text_size_summary">Tamaño de la etiqueta estación</string>
-    <string name="pref_text_size_message">Tamaño de texto de la etiqueta estación</string>
     <string name="pref_size_buttons_title">Tamaño Botones</string>
     <string name="pref_size_buttons_summary">Tamaño Botones</string>
     <string name="pref_selection_radius_title">Selección radio</string>
     <string name="pref_selection_radius_summary">Selección radio</string>
-    <string name="pref_selection_radius_message">Selección de radio</string>
     <string name="pref_grid_above_title">Situación de la cuadrícula</string>
     <string name="pref_grid_above_summary">Situar la cuadrícula en la parte superior</string>
-    <string name="pref_grid_above_message">Mostrar la cuadrícula en la parte superior</string>
     <string name="pref_neg_clino_title">Vistas por debajo del horizonte</string>
     <string name="pref_neg_clino_summary">Permitir puntos de vista por debajo del horizonte</string>
-    <string name="pref_neg_clino_message">Permitir vistas desde debajo del horizonte</string>
     <!-- TODO string name="pref_dem_buffer_title">DEM buffer</string -->
     <!-- TODO string name="pref_dem_buffer_summary">DEM extent around survey</string -->
-    <!-- TODO string name="pref_dem_buffer_message">Extension of the DEM around the survey</string -->
     <string name="pref_all_splay_title">Todas las tomas radiales</string>
     <string name="pref_all_splay_summary">Todas las tomas radiales para paredes</string>
-    <string name="pref_all_splay_message">Usar todas las tomas radiales para las paredes</string>
 
     <string name="pref_split_triangles_title">Dividir triángulos</string>
     <string name="pref_split_triangles_summary">Dividir triángulos de paredes</string>
-    <string name="pref_split_triangles_message">Dividir la intersección de los triángulos de pared</string>
     <string name="pref_split_random_title">Aleatorizar puntos</string>
     <string name="pref_split_random_summary">Selección aleatoria de puntos de pared</string>
-    <string name="pref_split_random_message">Añadir un pequeño vector aleatorio a las tomas laterales</string>
     <string name="pref_split_stretch_title">Estiramiento de paredes</string>
     <string name="pref_split_stretch_summary">puntos de pared de estiramiento a lo largo de la toma</string>
-    <string name="pref_split_stretch_message">Puntos de cambio de la pared por una pequeña cantidad a lo largo de la toma</string>
     <string name="pref_powercrust_delta_title">Recubrimiento fuerte Delta</string>
     <string name="pref_powercrust_delta_summary">Filtrado de tomas radiales</string>
-    <string name="pref_powercrust_delta_message">Filtrar quita las tomas radiales de diferente a las anteriores y las siguientes</string>
 <!--
     <string name="pref_convex_hull_title">Convex hull</string>
     <string name="pref_convex_hull_summary">Convex hull walls</string>

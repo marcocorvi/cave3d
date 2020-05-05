@@ -37,6 +37,11 @@ class GlNames extends GlShape
 
   static int stationMode = STATION_NONE;     // show_stations;
 
+  static void resetStations()
+  {
+    stationMode = STATION_NONE; 
+  }
+
   static void toggleStations() 
   { 
     stationMode = (stationMode + 1)%STATION_MAX; 
@@ -60,40 +65,42 @@ class GlNames extends GlShape
     GlName( float x, float y, float z, String n, String fn ) { pos = new Vector3D(x,y,z); name = n; fullname = fn; }
   }
 
-  final static float TEXT_SIZE = 5.0f;
+  final static float TEXT_SIZE  = 5.0f;
+  final static float POINT_SIZE = 8.0f;
 
   private static float mTextSizeP = 0.6f; // text size factor = 12 pt perspective
   private static float mTextSizeO = 0.3f; // text size factor = 12 pt perspective
   
   private int mHighlight = -1;
   private void setHighlight( int hl ) { mHighlight = hl; }
+  void clearHighlight() { mHighlight = -1; }
 
-  private static float mPointSize  = 6f;
-  private static float mPointSize4 = 2 * mPointSize;
+  private static float mPointSize  = POINT_SIZE;
+  private static float mPointSize4 = 2 * POINT_SIZE;
 
   static void setPointSize( float size )
   { 
-    if ( size <= 0 ) return;
+    if ( size <= 1 ) return;
     mPointSize  = size;
     mPointSize4 = 2*size;
   }
 
   static void setTextSize( int size ) 
   { 
-    if ( size <= 5 ) return;
+    if ( size <= 1 ) return;
     mTextSizeP = size / 20.0f; 
     mTextSizeO = size / 40.0f;  // half size
   }
 
   final static int COORDS_PER_VERTEX = 3;
   final static int OFFSET_VERTEX     = 0;
-  final static int STRIDE_VERTEX     = 12; // BYTES_PER_FLOAT * COORDS_PER_VERTEX;
+  final static int STRIDE_VERTEX     = 12; // Float.BYTES * COORDS_PER_VERTEX;
 
   final static int COORDS_PER_DELTA  = 2;
   final static int COORDS_PER_TEXEL  = 2;
   final static int OFFSET_DELTA      = 0;
   final static int OFFSET_TEXEL      = 2;  // COORDS_PER_DELTA;
-  final static int STRIDE_TEXEL      = 16; // BYTES_PER_FLOAT * (COORDS_PER_DELTA + COORDS_PER_TEXEL);
+  final static int STRIDE_TEXEL      = 16; // Float.BYTES * (COORDS_PER_DELTA + COORDS_PER_TEXEL);
 
   int offsetHighlight = 0;
 
@@ -262,29 +269,45 @@ class GlNames extends GlShape
   // ---------------------------------------------------------------
   // FEEDBACK
 
-  // String check( float x, float y, float[] matrix, float dmin )
-  // {
-  //   if ( mNames.size() == 0 ) return null;
-  //   float[] w = new float[4];
-  //   // StringBuilder sb = new StringBuilder();
-  //   String name = null;
-  //   for ( int i=0; i<nameCount; ++ i ) {
-  //     Matrix.multiplyMV( w, 0, matrix, 0, mData, 4*i );
-  //     w[0] = w[0]/w[3] - x;
-  //     w[1] = w[1]/w[3] - y;
-  //     float d = (float)(Math.abs(w[0]) + Math.abs(w[1]) );
-  //     // sb.append( mNames[i] + " " + d );
-  //     if ( d < dmin ) { dmin = d; name = mNames.get(i).fullname; }
-  //   }
-  //   // Log.v("TopoGL", sb.toString() + " min " + name + " " + dmin );
-  //   return name;
-  // }
+  private String checkName( int idx, boolean highlight )
+  {
+    // Log.v("TopoGL", sb.toString() + " min " + name + " " + dmin );
+    if ( idx < 0 ) {
+      if ( highlight ) setHighlight( -1 );
+      return null;
+    }
+    if ( highlight ) setHighlight( idx );
+    GlName name = mNames.get( idx );
+    return name.fullname;
+  }
+
+  // x, y     canvas coordinates
+  // matrix   MVP matrix
+  // dim      minimum distance
+  String checkName( float x, float y, float[] matrix, float dmin, boolean highlight )
+  {
+    if ( mNames.size() == 0 ) return null;
+    dmin /= GlModel.mHalfWidth;
+    // Log.v("TopoGL", "dmin " + dmin + " width " + GlModel.mWidth );
+    float[] w = new float[4];
+    // StringBuilder sb = new StringBuilder();
+    String name = null;
+    int idx = -1;
+    for ( int i=0; i<nameCount; ++ i ) {
+      Matrix.multiplyMV( w, 0, matrix, 0, mData, 4*i );
+      w[0] = w[0]/w[3] - x;
+      w[1] = w[1]/w[3] - y;
+      float d = (float)(Math.abs(w[0]) + Math.abs(w[1]) );
+      // sb.append( mNames[i] + " " + d );
+      if ( d < dmin ) { dmin = d; idx = i; }
+    }
+    return checkName( idx, highlight );
+  }
 
   // zn, zf normalized (with w=1)
   // dmin distance in world space
-  String check( float[] zn, float[] zf, float dmin, boolean highlight )
+  String checkName( float[] zn, float[] zf, float dmin, boolean highlight )
   {
-    
     if ( mNames.size() == 0 ) return null;
     dmin = dmin * dmin;
     int idx = -1;
@@ -296,16 +319,9 @@ class GlNames extends GlShape
       if ( cx < dmin ) {
         dmin = cx;
         idx  = i;
-        if ( highlight ) setHighlight( i );
       }
     }
-    if ( idx < 0 ) {
-      if ( highlight ) setHighlight( -1 );
-      return null;
-    }
-    GlName name = mNames.get( idx );
-    // Log.v("TopoGL", "check name " + dmin + " : " + name.name + " " + name.fullname );
-    return name.fullname;
+    return checkName( idx, highlight );
   }
 
   // ------------------------------------------------------------------------------
@@ -345,7 +361,7 @@ class GlNames extends GlShape
     Paint textPaint = new Paint(); // text paint
     textPaint.setTextSize(24);
     textPaint.setAntiAlias(true);
-    textPaint.setColor( 0xffffffff ); // white
+    textPaint.setColor( 0xffff00ff ); // pink
     Bitmap bitmap0 = null;
     while ( ! done ) {
       DIMX *= 2;

@@ -34,6 +34,12 @@ public class GlRenderer implements Renderer
   private static final float SCALE_P = 6.0f;
   private static final float SCALE_O = 1.5f;
 
+  static final float NEAR_O = -Float.MAX_VALUE / 8;
+  static final float FAR_O  = 10.0f;
+  static final float NEAR_P = 0.2f;
+  static final float FAR_P  = 10.0f;
+
+
   private TopoGL mApp;
   private GlModel mModel = null;
   private TglParser mParser = null;
@@ -54,6 +60,9 @@ public class GlRenderer implements Renderer
   static final int PROJ_ORTHOGRAPHIC = 1;
   static int projectionMode = PROJ_ORTHOGRAPHIC;
   static void toggleProjectionMode() { projectionMode = 1 - projectionMode; }
+
+  static float nearZ() { return (projectionMode == PROJ_ORTHOGRAPHIC)? NEAR_O : NEAR_P; }
+  static float farZ()  { return (projectionMode == PROJ_ORTHOGRAPHIC)? FAR_O  : FAR_P;  }
 
   private boolean stationDistance = false;
   void toggleStationDistance( boolean on ) { stationDistance = on; }
@@ -97,6 +106,7 @@ public class GlRenderer implements Renderer
     mYAngle = 180;
     mXAngle = -90;
     zoomOne();
+    if ( mModel != null ) mModel.resetColorMode();
   }
 
   void zoomOne()
@@ -151,13 +161,6 @@ public class GlRenderer implements Renderer
     // Log.v("TopoGL", "renderer set parser" );
     mParser = parser;
     prepareModel( parser );
-  }
-
- 
-  void setStationPaintTextSize( int size )
-  {
-    // TODO change the name texture vertex shader
-    GlNames.setTextSize( size );
   }
 
   // ------------------------------------------------------------------------
@@ -231,8 +234,8 @@ public class GlRenderer implements Renderer
     mHalfHeight = height / 2;
     GL.viewport(0, 0, width, height);
     float ratio = (float) width / height;
-    Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1, 1, 0.5f, 10); // 0 ... : offset, left, right, bottom, top, near, far 
-    Matrix.orthoM( mOrtograohicMatrix, 0, -ratio, ratio, -1, 1, -10, 10);
+    Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1, 1, NEAR_P, FAR_P ); // 0 ... : offset, left, right, bottom, top, near, far 
+    Matrix.orthoM( mOrtograohicMatrix, 0, -ratio, ratio, -1, 1, NEAR_O, FAR_O );
 
     mModel.initGL();
     // mModel.createModel( width ); // must be done on surface created
@@ -258,16 +261,19 @@ public class GlRenderer implements Renderer
     x = ( x - mHalfWidth  ) / mHalfWidth;
     y = ( mHalfHeight - y ) / mHalfHeight;
     if ( mMVPMatrixInv != null ) {
-      final float[] near = { x, y, -1, 1 };
-      final float[] far  = { x, y,  1, 1 };
+      /*
+      final float[] near = { x, y, GlRenderer.nearZ(), 1 };
+      final float[] far  = { x, y, GlRenderer.farZ(),  1 };
       float[] zn = new float[4];
       float[] zf = new float[4];
       Matrix.multiplyMV(zn, 0, mMVPMatrixInv, 0, near, 0 );
       Matrix.multiplyMV(zf, 0, mMVPMatrixInv, 0, far,  0 );
       normalize( zn );
       normalize( zf );
-      // Log.v("TopoGL", "check name: near " + zn[0] + " " + zn[1] + " " + zn[2] + " far " + zf[0] + " " + zf[1] + " " + zf[2] );
       final String fullname = mModel.checkNames( zn, zf, TopoGL.mSelectionRadius, (mParser.mStartStation == null) );
+      */
+      final String fullname = mModel.checkNames( x, y, mMVPMatrix, TopoGL.mSelectionRadius, (mParser.mStartStation == null) );
+
       if ( fullname != null ) {
         // Log.v("TopoGL-STATION", fullname );
         if ( mParser.mStartStation != null ) {
@@ -275,7 +281,7 @@ public class GlRenderer implements Renderer
           Cave3DStation station = mParser.getStation( fullname );
           if ( station != null ) {
             if ( station != mParser.mStartStation ) {
-              final String res = mParser.computeCavePathlength( station );
+              final TglMeasure res = mParser.computeCavePathlength( station );
               if ( station.getPathPrevious() != null ) {
                 ArrayList< Cave3DStation > path = new ArrayList< >();
                 while ( station != null ) {
@@ -287,7 +293,11 @@ public class GlRenderer implements Renderer
               }
               mApp.runOnUiThread( new Runnable() {
                 @Override public void run() {
-                  Toast.makeText( mApp, res, Toast.LENGTH_LONG ).show();
+                  if ( TopoGL.mMeasureToast ) {
+                    Toast.makeText( mApp, res.getString(), Toast.LENGTH_LONG ).show();
+                  } else {
+                    (new DialogMeasure( mApp, res )).show();
+                  }
                   mApp.refresh();
                 }
               } );
@@ -359,19 +369,35 @@ public class GlRenderer implements Renderer
   public void setScaleTranslation( float scale, float dx, float dy )
   {
     // perspective
-    mScaleP *= scale;
-    if ( mScaleP < 0.05f ) { mScaleP = 0.05f; } else if ( mScaleP > 100.0f ) { mScaleP = 100.0f; }
     mDXP -= dy * 10 / (mHalfHeight); 
     mDYP -= dx * 10 / (mHalfHeight);
+
+    mScaleP *= scale;
+    if ( mScaleP < 0.05f ) {
+      mScaleP = 0.05f; 
+    } else {
+      // if ( mScaleP > 100.0f ) { mScaleP = 100.0f;
+      mDXP *= scale;
+      mDYP *= scale;
+    }
+
     // orthogonal
-    mScaleO *= scale;
-    if ( mScaleO < 0.05f ) { mScaleO = 0.05f; } else if ( mScaleO > 100.0f ) { mScaleO = 100.0f; }
+    // Log.v("TopoGL-SCALE", "scale " + mScaleO + " " + scale + " at " + mDXO + " " + mDYO );
     // float dh = dx / (mHalfHeight);  // not working
     // mDZO -= dh * (float)Math.cos(mYAngle * Math.PI/180f);
     // mDYO -= dh * (float)Math.sin(mYAngle * Math.PI/180f);
 
     mDXO -= dy / (mHalfHeight);
     mDYO -= dx / (mHalfHeight);
+
+    mScaleO *= scale;
+    if ( mScaleO < 0.05f ) {
+      mScaleO = 0.05f;
+    } else {
+      // if ( mScaleO > 100.0f ) { mScaleO = 100.0f; 
+      mDXO *= scale;
+      mDYO *= scale;
+    }
 
     makeModelMatrix();
   }
@@ -542,7 +568,7 @@ public class GlRenderer implements Renderer
   // ------------------------------- DISPLAY MODEs
   void toggleStations()    { GlNames.toggleStations(); }
   // void toggleSplays()      { GlModel.toggleSplays(); }
-  void togglePlanview()    { GlModel.togglePlanview(); }
+  // void togglePlanview()    { GlModel.togglePlanview(); }
   // void toggleSurface()     { GlModel.toggleSurface(); }
   // void toggleWallMode()    { GlModel.toggleWallMode(); }
   void toggleColorMode()   { if ( mModel != null ) mModel.toggleColorMode(); }

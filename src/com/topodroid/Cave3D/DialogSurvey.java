@@ -25,6 +25,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 class DialogSurvey extends Dialog 
+                   implements View.OnClickListener
 {
   // private Button mBtnOk;
 
@@ -55,15 +56,17 @@ class DialogSurvey extends Dialog
     tv = (TextView) findViewById( R.id.survey_splays_length );
     tv.setText( Integer.toString( (int)(mSurvey.mLenSplays) ) );
 
+    Button btn_close = (Button) findViewById( R.id.btn_close );
+    btn_close.setOnClickListener( this );
+
     setTitle( mSurvey.name );
   }
 
-  // @Override
-  // public void onClick(View view)
-  // {
-  //   // Log.v( TAG, "onClick()" );
-  //   dismiss();
-  // }
+  @Override
+  public void onClick(View view)
+  {
+    dismiss();
+  }
 
 }
 

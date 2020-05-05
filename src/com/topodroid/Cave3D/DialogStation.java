@@ -28,7 +28,7 @@ import android.widget.TextView;
 import android.util.Log;
 
 class DialogStation extends Dialog 
-//                    implements View.OnClickListener
+                    implements View.OnClickListener
 {
   private Button mBtDistance;
   private Button mBtCenter;
@@ -80,6 +80,9 @@ class DialogStation extends Dialog
       // Button btDistance = (Button) findViewById( R.id.st_distance );
       // btDistance.setOnClickListener( this );
 
+      Button btn_close = (Button) findViewById( R.id.btn_close );
+      btn_close.setOnClickListener( this );
+
       mTvSurface  = (TextView) findViewById( R.id.st_surface );
       if ( mSurface != null ) {
         double zs = mSurface.computeZ( mStation.x, mStation.y );
@@ -95,15 +98,16 @@ class DialogStation extends Dialog
       setTitle( R.string.STATION );
   }
 
-  // public void onClick(View v)
-  // {
+  @Override
+  public void onClick(View v)
+  {
   //   if ( v.getId() == R.id.st_distance ) {
   //     // mRenderer.toggleStationDistance( true );
   //     mParser.startStationDistance( mStation );
   //   // } else if ( v.getId() == R.id.st_center ) {
   //   //   mRenderer.centerStation( mStation );
   //   }  
-  //   dismiss();
-  // }
+    dismiss();
+  }
 }
 

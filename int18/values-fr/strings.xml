@@ -127,40 +127,29 @@
 
     <string name="pref_base_path_title">Dossier de la base de données</string>
     <string name="pref_base_path_summary">Dossier Therion</string>
-    <string name="pref_base_path_message">Dossier qui contient les archives Therion</string>
     <string name="pref_text_size_title">Taille Texte</string>
     <string name="pref_text_size_summary">Taille des étiquettes de stations</string>
-    <string name="pref_text_size_message">Taille du texte des étiquettes des stations</string>
     <string name="pref_size_buttons_title">Taille Boutons</string>
     <string name="pref_size_buttons_summary">Taille des boutons</string>
     <string name="pref_selection_radius_title">Selection rayon</string>
     <string name="pref_selection_radius_summary">Selectionn rayon</string>
-    <string name="pref_selection_radius_message">Selection du rayon</string>
     <string name="pref_grid_above_title">Situation de la grille quadrillée</string>
     <string name="pref_grid_above_summary">Placer la grille dans la partie supérieure</string>
-    <string name="pref_grid_above_message">Montrer la grille dans la partie supérieure</string>
     <string name="pref_neg_clino_title">Vue sous l\'horizon</string>
     <string name="pref_neg_clino_summary">Permettre point de vue sous horizon</string>
-    <string name="pref_neg_clino_message">Permettre d\'avoir un point de vue sous l\'horizon</string>
     <!-- TODO string name="pref_dem_buffer_title">DEM buffer</string -->
     <!-- TODO string name="pref_dem_buffer_summary">DEM extent around survey</string -->
-    <!-- TODO string name="pref_dem_buffer_message">Extension of the DEM around the survey</string -->
     <string name="pref_all_splay_title">Toutes visées latérales</string>
     <string name="pref_all_splay_summary">Toutes visées latérales pour parois</string>
-    <string name="pref_all_splay_message">Utiliser la totalité des visées latérales pour tracer les parois</string>
 
     <string name="pref_split_triangles_title">Diviser triangles</string>
     <string name="pref_split_triangles_summary">Diviser les parois en triangles</string>
-    <string name="pref_split_triangles_message">Diviser l\'intersection des triangles de parois</string>
     <string name="pref_split_random_title">Points aléatoires</string>
     <string name="pref_split_random_summary">Selection aléatoire des points de parois</string>
-    <string name="pref_split_random_message">Ajouter un petit vecteur aléatoire aux visées latérales</string>
     <string name="pref_split_stretch_title">Etirer les parois</string>
     <string name="pref_split_stretch_summary">Etirer les parois le long de la visée</string>
-    <string name="pref_split_stretch_message">Modifier les points de paroi d\'une faible valeur le long de la visée</string>
     <string name="pref_powercrust_delta_title">Enveloppe Powercrust Delta</string>
     <string name="pref_powercrust_delta_summary">Filtrage des visées latérales</string>
-    <string name="pref_powercrust_delta_message">Le filtre sépare les visées latérales entre précédente et suivante</string>
 <!--
     <string name="pref_convex_hull_title">Enveloppe convexe</string>
     <string name="pref_convex_hull_summary">Enveloppe de parois convexes</string>

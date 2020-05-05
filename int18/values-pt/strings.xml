@@ -126,40 +126,29 @@
 
     <string name="pref_base_path_title">Diretório base</string>
     <string name="pref_base_path_summary">Diretório base da app</string>
-    <string name="pref_base_path_message">Diretório contendo os arquivos Therion</string>
     <string name="pref_text_size_title">Tamanho do texto</string>
     <string name="pref_text_size_summary">Tamanho rótulo base</string>
-    <string name="pref_text_size_message">Tamanho do texto do rótulo da base</string>
     <string name="pref_size_buttons_title">Tamanho botões</string>
     <string name="pref_size_buttons_summary">Tamanho dos botões</string>
     <string name="pref_selection_radius_title">Raio seleção</string>
     <string name="pref_selection_radius_summary">Raio da seleção</string>
-    <string name="pref_selection_radius_message">Raio da seleção</string>
     <string name="pref_grid_above_title">Grade topo</string>
     <string name="pref_grid_above_summary">Grade no topo</string>
-    <string name="pref_grid_above_message">Apresentar grade no topo</string>
     <!-- TODO string name="pref_neg_clino_title">Below-horizon views</string -->
     <!-- TODO string name="pref_neg_clino_summary">Allow below-horizon viewpoints</string -->
-    <!-- TODO string name="pref_neg_clino_message">Allow views from below the horizon</string -->
     <!-- TODO string name="pref_dem_buffer_title">DEM buffer</string -->
     <!-- TODO string name="pref_dem_buffer_summary">DEM extent around survey</string -->
-    <!-- TODO string name="pref_dem_buffer_message">Extension of the DEM around the survey</string -->
     <string name="pref_all_splay_title">Todas medidas auxiliares</string>
     <string name="pref_all_splay_summary">Todas as medidas auxialires</string>
-    <string name="pref_all_splay_message">Usar todas as medidas auxiliares para as paredes</string>
 
     <string name="pref_split_triangles_title">Partir triângulos</string>
     <string name="pref_split_triangles_summary">Partir triângulos das paredes</string>
-    <string name="pref_split_triangles_message">Partir triângulos das paredes que se interceptem</string>
     <string name="pref_split_random_title">Ruído pontos</string>
     <string name="pref_split_random_summary">Ruído pontos paredes</string>
-    <string name="pref_split_random_message">Adicionar um pequeno ruído nos valores dos pontos das medidas auxiliares</string>
     <string name="pref_split_stretch_title">Alongar paredes</string>
     <string name="pref_split_stretch_summary">Alongar pontos das paredes na direção da visada</string>
-    <string name="pref_split_stretch_message">Mover os pontos das paredes por uma pequena distância na direção da visada</string>
     <!-- TODO string name="pref_powercrust_delta_title">Powercrust Delta</string -->
     <!-- TODO string name="pref_powercrust_delta_summary">Splay filtering</string -->
-    <!-- TODO string name="pref_powercrust_delta_message">Filter out splays differing from previous and next ones too much</string -->
 <!--
     <string name="pref_convex_hull_title">Convex hull</string>
     <string name="pref_convex_hull_summary">Convex hull walls</string>
