@@ -31,10 +31,12 @@ class DialogSurface extends Dialog
   private Context mContext;
 
   private SeekBar mETalpha;
-  private Button mBtnLoad;
+  // private Button mBtnLoadDEM;
+  // private Button mBtnLoadTexture;
   private CheckBox mCBproj;
   private CheckBox mCBtexture;
-  private EditText mDemFile;
+  // private EditText mDemFile;
+  // private EditText mTextureFile;
 
   private TopoGL mApp;
   // private Cave3DRenderer mRenderer;
@@ -57,21 +59,36 @@ class DialogSurface extends Dialog
     mETalpha = ( SeekBar ) findViewById(R.id.alpha);
     mETalpha.setProgress( (int)(GlSurface.mAlpha * 255) );
 
-    mDemFile = (EditText) findViewById( R.id.dem_file );
-    String name = (mApp.mDEMname != null )? mApp.mDEMname : "--";
-    mDemFile.setText( String.format( mContext.getResources().getString( R.string.dem_file ), name ) );
+    EditText mDemFile = (EditText) findViewById( R.id.dem_file );
+    
+    if ( mApp.mDEMname != null ) {
+      mDemFile.setText( String.format( mContext.getResources().getString( R.string.dem_file ), mApp.mDEMname ) );
+    } else {
+      mDemFile.setVisibility( View.GONE );
+    }
+
+    EditText mTextureFile = (EditText) findViewById( R.id.texture_file );
+    Button btn_texture = (Button)findViewById( R.id.texture_load );
+    if ( mApp.hasSurface() ) {
+      if ( mApp.mTextureName != null ) {
+        mTextureFile.setText( String.format( mContext.getResources().getString( R.string.texture_file ), mApp.mTextureName ) );
+      } else {
+        mTextureFile.setVisibility( View.GONE );
+      }
+      btn_texture.setOnClickListener( this );
+    } else {
+      mTextureFile.setVisibility( View.GONE );
+      btn_texture.setVisibility( View.GONE );
+    }
 
     mCBproj = (CheckBox) findViewById( R.id.projection );
     mCBtexture = (CheckBox) findViewById( R.id.texture );
     mCBproj.setChecked( GlModel.surfaceLegsMode );
     mCBtexture.setChecked( GlModel.surfaceTexture );
 
-    Button btnOk     = (Button) findViewById( R.id.button_ok );
-    Button btnCancel = (Button) findViewById( R.id.button_cancel );
-    Button btnLoad   = (Button) findViewById( R.id.dem_load );
-    btnOk.setOnClickListener( this );
-    btnCancel.setOnClickListener( this );
-    btnLoad.setOnClickListener( this );
+    findViewById( R.id.button_ok ).setOnClickListener( this );
+    findViewById( R.id.button_cancel ).setOnClickListener( this );
+    findViewById( R.id.dem_load ).setOnClickListener( this );
 
     setTitle( R.string.title_surface_alpha );
   }
@@ -80,6 +97,8 @@ class DialogSurface extends Dialog
   {
     if ( view.getId() == R.id.dem_load ) {
       (new DialogDEM( mContext, mApp )).show();
+    } else if ( view.getId() == R.id.texture_load ) {
+      (new DialogTexture( mContext, mApp )).show();
     } else if ( view.getId() == R.id.button_ok ) {
       GlModel.surfaceLegsMode = mCBproj.isChecked();
       GlModel.surfaceTexture  = mCBtexture.isChecked();

@@ -31,6 +31,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 
+import android.graphics.RectF;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.View.OnTouchListener;
@@ -89,6 +93,8 @@ public class TopoGL extends Activity
   private boolean supportsES2 = false;
 
   String mDEMname = null;
+  String mTextureName = null;
+
   // --------------------------------- OpenGL stuff
   private GlSurfaceView glSurfaceView;
   private GlRenderer mRenderer = null;
@@ -98,6 +104,9 @@ public class TopoGL extends Activity
   private boolean rendererSet = false;
   private TglParser mParser;
   private Button mCurrentStation;
+
+  // used also by DialogSurface
+  boolean hasSurface() { return ( mRenderer != null ) && mRenderer.hasSurface(); }
 
   // ---------------------------------------------------------------
   // LIFECYCLE
@@ -156,18 +165,15 @@ public class TopoGL extends Activity
         // Log.v("DistoX-URI", "Cave3D " + uri.toString() );
 
         String name = extras.getString( "INPUT_FILE" );
-        // Log.v( "Cave3D-EXTRA", "TopoDroid filename " + name );
-        if ( name != null ) {
-          if ( doOpenFile( name ) ) {
-            file_dialog = false;
-          } else {
-            Log.e( "TopoGL", "Cannot open input file " + name );
-          }
+        if ( name != null ) { // used by TdManager
+          // Log.v( "Cave3D-EXTRA", "TopoDroid filename " + name );
+          file_dialog = false;
+          doOpenFile( name, true ); // asynch
         } else {
           name = extras.getString( "INPUT_SURVEY" );
           String base = extras.getString( "SURVEY_BASE" );
-          // Log.v( "Cave3D-EXTRA", "open input survey " + name + " base " + base );
           if ( name != null ) {
+            // Log.v( "Cave3D-EXTRA", "open input survey " + name + " base " + base );
             if ( doOpenSurvey( name, base ) ) {
               file_dialog = false;
             } else {
@@ -267,7 +273,7 @@ public class TopoGL extends Activity
   {
     // Log.v("TopoGL", "parser " + filename );
     mParser = new TglParser( this, filename );
-    mRenderer.setParser( mParser );
+    if ( mRenderer != null ) mRenderer.setParser( mParser );
   }
 
   void setTheTitle( String str ) { setTitle( str ); }
@@ -636,13 +642,14 @@ public class TopoGL extends Activity
 
   private void setButtonProjection()
   {
-    mButton1[ BTN_PROJECT ].setBackgroundDrawable( (mRenderer.projectionMode == GlRenderer.PROJ_PERSPECTIVE )? mBMperspective : mBMorthogonal );
+    mButton1[ BTN_PROJECT ].setBackgroundDrawable( 
+     ( mRenderer != null && mRenderer.projectionMode == GlRenderer.PROJ_PERSPECTIVE )? mBMperspective : mBMorthogonal );
   }
 
   private void setButtonMove()
   {
     if ( GlSurfaceView.mLightMode ) {
-      if ( mRenderer != null && mRenderer.hasSurface() ) {
+      if ( hasSurface() ) {
         mButton1[BTN_MOVE].setBackgroundDrawable( mBMlight );
       } else {
         mButton1[BTN_MOVE].setBackgroundDrawable( mBMmove );
@@ -661,8 +668,8 @@ public class TopoGL extends Activity
   void closeCurrentStation()
   {
     mCurrentStation.setVisibility( View.GONE );
-    mRenderer.setModelPath( null );
-    mParser.mStartStation = null;
+    if ( mRenderer != null ) mRenderer.setModelPath( null );
+    if ( mParser   != null ) mParser.mStartStation = null;
   }
 
   @Override
@@ -711,12 +718,12 @@ public class TopoGL extends Activity
       setButtonSurface();
       setButtonMove();
     } else if ( b0 == mButton1[k1++] ) { // COLOR
-      if ( mFilename != null ) {
+      if ( mRenderer != null ) {
         mRenderer.toggleColorMode();
         setButtonColor();
       }
     } else if ( b0 == mButton1[k1++] ) { // FRAME
-      if ( mFilename != null ) {
+      if ( mRenderer != null ) {
         mRenderer.toggleFrameMode();
         setButtonFrame();
       }
@@ -758,27 +765,38 @@ public class TopoGL extends Activity
     return true;
   }
 
-  boolean doOpenFile( final String filename )
+  // always called asynch
+  // asynch call returns always false
+  // synch call return true if successful
+  boolean doOpenFile( final String filename, boolean asynch )
   {
     mFilename = null;
     // setTitle( filename );
     int idx = filename.lastIndexOf( '/' );
     String path = ( idx >= 0 )? filename.substring( idx+1 ) : filename;
     Toast.makeText( this, String.format( getResources().getString( R.string.reading_file ), path ), Toast.LENGTH_SHORT ).show();
-    (new AsyncTask<Void, Void, Boolean>() {
-      @Override public Boolean doInBackground(Void ... v ) {
-        return initRendering( filename );
-      }
-      @Override public void onPostExecute( Boolean b )
-      {
-        if ( b ) {
-          mFilename = path;
-          CWConvexHull.resetCounters();
-          mRenderer.setParser( mParser );
+    if ( asynch ) {
+      (new AsyncTask<Void, Void, Boolean>() {
+        @Override public Boolean doInBackground(Void ... v ) {
+          return initRendering( filename );
         }
+        @Override public void onPostExecute( Boolean b )
+        {
+          if ( b ) {
+            mFilename = path;
+            CWConvexHull.resetCounters();
+            if ( mRenderer != null ) mRenderer.setParser( mParser );
+          }
+        }
+      } ).execute();
+      return false;
+    } else { // synchronous
+      if ( initRendering( filename ) ) {
+        mFilename = path;
+        CWConvexHull.resetCounters();
+        if ( mRenderer != null ) mRenderer.setParser( mParser );
       }
-    } ).execute();
-
+    }
     return ( mFilename != null );
   }
 
@@ -819,18 +837,19 @@ public class TopoGL extends Activity
   }
 
   // ------------------------------ DEM
-  void openDEM( String filename ) 
+  void openDEM( String pathname, String filename ) 
   {
-    // Log.v("Cave3D-DEM", filename );
+    // Log.v("Cave3D-DEM", pathname );
     ParserDEM dem = null;
-    if ( filename.endsWith( ".grid" ) ) {
-      dem = new DEMgridParser( filename, mDEMmaxsize );
-    } else if ( filename.endsWith( ".asc" ) || filename.endsWith(".ascii") ) {
-      dem = new DEMasciiParser( filename, mDEMmaxsize, false ); // false: flip horz
+    if ( pathname.endsWith( ".grid" ) ) {
+      dem = new DEMgridParser( pathname, mDEMmaxsize );
+    } else if ( pathname.endsWith( ".asc" ) || pathname.endsWith(".ascii") ) {
+      dem = new DEMasciiParser( pathname, mDEMmaxsize, false ); // false: flip horz
     } else { 
       return;
     }
     if ( dem.valid() ) {
+      mDEMname = filename;
       final float dd = mDEMbuffer;
       // Log.v("TopoGL-DEM", "BBox X " + mParser.emin + " " + mParser.emax + " Y " + mParser.nmin + " " + mParser.nmax + " Z " + mParser.zmin + " " + mParser.zmax );
       (new AsyncTask<ParserDEM, Void, Boolean>() {
@@ -845,7 +864,7 @@ public class TopoGL extends Activity
         public void onPostExecute( Boolean b )
         {
           if ( b ) {
-            mRenderer.notifyDEM( my_dem );
+            if ( mRenderer != null ) mRenderer.notifyDEM( my_dem );
             toast( R.string.dem_ok, true );
           } else {
             toast( R.string.dem_failed, true );
@@ -854,6 +873,45 @@ public class TopoGL extends Activity
       }).execute( dem );
 
     }
+  }
+
+  void openTexture( String pathname, String filename )
+  {
+    if ( mRenderer == null ) return;
+    final RectF  bounds = mRenderer.getSurfaceBounds();
+    if ( bounds == null ) return;
+
+    Log.v("TopoGL", "texture " + pathname + " bbox " + bounds.left + " " + bounds.bottom + "  " + bounds.right + " " + bounds.top );
+
+    mTextureName = filename;
+      (new AsyncTask<String, Void, Boolean>() {
+        Bitmap bitmap = null;
+
+        public Boolean doInBackground( String ... files ) {
+          String file = files[0];
+ 
+          // bitmap = BitmapFactory.decodeFile( file );
+          // TiffWrapper tiff = new TiffWrapper();
+          // TiffWrapper.setFilename( pathname );
+          // bitmap = (Bitmap)( TiffWrapper.getBitmap( bounds.left, bounds.bottom, bounds.right, bounds.top ) );
+          bitmap = (Bitmap)( TiffFactory.getBitmap( pathname, bounds.left, bounds.bottom, bounds.right, bounds.top ) );
+          if ( bitmap != null ) {
+            Log.v("TopoGL", "texture " + file + " size " + bitmap.getWidth() + " " + bitmap.getHeight() );
+          }
+
+          return (bitmap != null);
+        }
+
+        public void onPostExecute( Boolean b )
+        {
+          if ( b ) {
+            if ( mRenderer != null ) mRenderer.notifyTexture( bitmap ); // FIXME do in doInBackground
+            toast( R.string.texture_ok, true );
+          } else {
+            toast( R.string.texture_failed, true );
+          }
+        }
+      }).execute( pathname );
   }
 
   // ---------------------------------------- PERMISSIONS
@@ -1200,7 +1258,7 @@ public class TopoGL extends Activity
     // Log.v("TopoGL", "init rendering " + filename );
     try {
       mParser = null;
-      mRenderer.clearModel();
+      if ( mRenderer != null ) mRenderer.clearModel();
       // resetAllPaths();
       if ( filename.endsWith( ".tdconfig" ) ) {
         mParser = new ParserTh( this, filename ); // tdconfig files are saved with therion syntax
@@ -1216,7 +1274,7 @@ public class TopoGL extends Activity
         return false;
       }
       // CWConvexHull.resetCounters();
-      // mRenderer.setParser( mParser );
+      // if ( mRenderer != null ) mRenderer.setParser( mParser );
       // Log.v( "TopoGL", "Station " + mParser.getStationNumber() + " shot " + mParser.getShotNumber() );
     } catch ( ParserException e ) {
       toast(R.string.error_parser_error, filename + " " + e.msg(), true );

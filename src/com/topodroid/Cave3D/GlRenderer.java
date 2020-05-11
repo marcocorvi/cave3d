@@ -25,6 +25,8 @@ import android.app.Activity;
 
 import android.widget.Toast;
 
+import android.graphics.Bitmap;
+import android.graphics.RectF;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -99,6 +101,9 @@ public class GlRenderer implements Renderer
   private boolean doMakeModel = false;
   // ------------------------------------------------------------------------
 
+  RectF getSurfaceBounds() { return ( mModel == null )? null : mModel.mSurfaceBounds; }
+
+  // ------------------------------------------------------------------------
   void resetTopGeometry() // same as setting top-view
   {
     projectionMode = PROJ_ORTHOGRAPHIC;
@@ -600,6 +605,14 @@ public class GlRenderer implements Renderer
         mModel.prepareDEM( dem );
         mModel.prepareSurfaceLegs( mParser, dem );
       }
+    }
+  }
+
+  void notifyTexture( Bitmap bitmap )
+  {
+    if ( mModel != null && bitmap != null ) {
+      // (new DialogBitmap( mApp, bitmap )).show();
+      mModel.prepareTexture( bitmap );
     }
   }
 

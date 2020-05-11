@@ -24,5 +24,7 @@ public class Cave3DCS
 
   public boolean equals( Cave3DCS cs ) { return (cs != null) && name.equals( cs.name ); }
 
+  public boolean equals( String cs_name ) { return (cs_name != null) && name.equals( cs_name ); }
+
 }
 

@@ -7,10 +7,61 @@
     android:paddingRight="6dip"
     android:paddingBottom="3dip">
 
+    <!-- DEM file -->
+    <LinearLayout
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="10dp"
+      android:orientation="horizontal"
+      >
+      <Button android:id="@+id/dem_load"
+        android:layout_width="0dp" 
+        android:layout_weight="50" 
+        android:layout_height="wrap_content" 
+        android:gravity="left"
+        android:text="@string/dem_load"
+        />
+      <EditText android:id="@+id/dem_file"
+        android:layout_width="0dp" 
+        android:layout_weight="50" 
+        android:layout_height="wrap_content" 
+        android:gravity="left"
+        />
+    </LinearLayout>
+
+    <!-- texture file -->
+    <LinearLayout
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="10dp"
+      android:layout_marginLeft="10dp"
+      android:layout_marginRight="10dp"
+      android:layout_marginTop="25dp"
+      android:orientation="horizontal"
+      >
+      <Button android:id="@+id/texture_load"
+        android:layout_width="0dp" 
+        android:layout_weight="50" 
+        android:layout_height="wrap_content" 
+        android:gravity="left"
+        android:text="@string/texture_load"
+        />
+      <EditText android:id="@+id/texture_file"
+        android:layout_width="0dp" 
+        android:layout_weight="50" 
+        android:layout_height="wrap_content" 
+        android:gravity="left"
+        />
+    </LinearLayout>
+   					  
+
     <SeekBar android:id="@+id/alpha"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_margin="10dp"
+      android:layout_marginBottom="10dp"
+      android:layout_marginLeft="10dp"
+      android:layout_marginRight="10dp"
+      android:layout_marginTop="25dp"
       android:padding="10dp"
       android:max="255"
       android:background="#666666"
@@ -29,27 +80,6 @@
       android:layout_margin="10dp"
       android:text="@string/surface_texture"
       />
-
-    <!-- DEM file -->
-    <LinearLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_margin="10dp"
-      android:orientation="horizontal"
-      >
-      <EditText android:id="@+id/dem_file"
-        android:layout_width="wrap_content" 
-        android:layout_height="wrap_content" 
-        android:gravity="left"
-        />
-      <Button android:id="@+id/dem_load"
-        android:layout_width="wrap_content" 
-        android:layout_height="wrap_content" 
-        android:gravity="right"
-        android:text="@string/dem_load"
-        />
-    </LinearLayout>
-   					  
     <LinearLayout
       android:layout_width="fill_parent" 
       android:layout_height="wrap_content"

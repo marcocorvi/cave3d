@@ -104,15 +104,15 @@ class GlSurface extends GlShape
   }
 
   // take ownership of the bitmap
-  void setBitmap( Bitmap bitmap ) { mBitmap = bitmap; }
+  synchronized void setBitmap( Bitmap bitmap ) { mBitmap = bitmap; }
 
   // texture = texture resource id
-  void initTexture( int texture )
+  synchronized void initTexture( int texture )
   {
     mBitmap = GlResourceReader.readTexture( mContext, texture );
   }
 
-  private void bindBitmap()
+  private synchronized void bindBitmap()
   {
     if ( mBitmap == null ) return;
     mTexId = GL.bindTexture( mBitmap );

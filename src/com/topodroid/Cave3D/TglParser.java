@@ -72,7 +72,7 @@ public class TglParser
   // ----------------------------------------------------------------
 
   // TODO VECTOR
-  private float x0, y0, z0;       // model center coords (remain fixed)
+  protected float x0, y0, z0;       // model center coords (remain fixed)
 
   public float emin, emax, nmin, nmax, zmin, zmax; // survey bounds
 

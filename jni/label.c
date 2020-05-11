@@ -126,7 +126,8 @@ void sym_update( int pi, int defer, double theta )
           heap_insert(npi,adjlist[npi].out);
         }
       } else { /* in the heap */
-        if (heap_A[adjlist[npi].hid].pid != npi) PRINTE("ERROR\n");
+        if (heap_A[adjlist[npi].hid].pid != npi) PRINTE("ERROR\n")
+          ;
         nhi = adjlist[npi].hid;
         if (adjlist[pi].in > adjlist[pi].out) {
           /* propagate in*cos to in */

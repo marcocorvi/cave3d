@@ -222,7 +222,8 @@ void *compute_pole2( simplex * s, void * p ) // , struct simplex ** pole1, struc
     }
 
     if (!s->vv) {
-      if (s->status != SLV) PRINTE("cannot happen3\n");
+      if (s->status != SLV) PRINTE("cannot happen3\n")
+        ;
       continue;
     }
 

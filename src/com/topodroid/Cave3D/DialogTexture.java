@@ -1,9 +1,9 @@
-/* @file DialogOpenFile.java
+/* @file DialogTexture.java
  *
  * @author marco corvi
  * @date nov 2011
  *
- * @brief file opener dialog: get user input filename
+ * @brief file opener dialo: get user input DEM filename
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
@@ -16,33 +16,31 @@ package com.topodroid.Cave3D;
 import java.io.File;
 import java.io.FilenameFilter;
 
-import java.util.Arrays;
 import java.util.ArrayList;
 
-import android.app.Activity;
+import android.content.Context;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.content.Intent;
-import android.content.Context;
 
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.Toast;
 
-class DialogOpenFile extends Dialog
-                     implements OnItemClickListener
+
+class DialogTexture extends Dialog
+                    implements OnItemClickListener
 {
   private Context mContext;
   private TopoGL  mApp;
+  private String  mBaseDir;
 
-  // private ArrayAdapter<String> mArrayAdapter;
   private ArrayList< MyFileItem > mItems;
   private MyFileAdapter mArrayAdapter;
   private ListView mList;
@@ -50,14 +48,8 @@ class DialogOpenFile extends Dialog
   class MyFilenameFilter implements FilenameFilter
   {
     public boolean accept( File dir, String name ) {
-      if ( name.endsWith( ".th" ) ) return true;
-      if ( name.endsWith( "thconfig" ) ) return true;
-      if ( name.endsWith( "tdconfig" ) ) return true;
-      if ( name.endsWith( ".lox" ) ) return true;
-      if ( name.endsWith( ".mak" ) ) return true;
-      if ( name.endsWith( ".dat" ) ) return true;
-      if ( name.endsWith( ".tro" ) ) return true;
-      // if ( name.endsWith( ".srv" ) ) return true; // not implemented yet
+      if ( name.endsWith( ".tif" ) ) return true;  // geotiff file
+      if ( name.endsWith( ".tiff" ) ) return true; 
       return false;
     }
   }
@@ -71,12 +63,13 @@ class DialogOpenFile extends Dialog
     }
   }
 
-  DialogOpenFile( Context ctx, TopoGL app )
+  DialogTexture( Context ctx, TopoGL app )
   {
     super( ctx );
     mContext = ctx;
-    mApp     = app;
-  }
+    mApp  = app;
+    mBaseDir = mApp.mAppBasePath;
+  } 
 
   @Override
   public void onCreate( Bundle savedInstanceState )
@@ -86,7 +79,7 @@ class DialogOpenFile extends Dialog
     setContentView(R.layout.openfile);
     getWindow().setLayout( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
 
-    setTitle( R.string.select_file );
+    setTitle( R.string.select_texture_file );
     mList = (ListView) findViewById( R.id.list );
 
     // mArrayAdapter = new ArrayAdapter<String>( this, R.layout.message );
@@ -95,7 +88,7 @@ class DialogOpenFile extends Dialog
  
     mItems = new ArrayList< MyFileItem >();
     mArrayAdapter = new MyFileAdapter( mContext, this, mList, R.layout.message, mItems );
-    updateList( mApp.mAppBasePath );
+    updateList( mBaseDir );
     mList.setAdapter( mArrayAdapter );
   }
 
@@ -106,8 +99,6 @@ class DialogOpenFile extends Dialog
     if ( dir.exists() ) {
       String[] dirs  = dir.list( new MyDirnameFilter() );
       String[] files = dir.list( new MyFilenameFilter() );
-      Arrays.sort( dirs );
-      Arrays.sort( files );
       mArrayAdapter.clear();
       mArrayAdapter.add( "..", true );
       if ( dirs != null ) {
@@ -135,28 +126,24 @@ class DialogOpenFile extends Dialog
       name = name.substring( 2 );
     }
     if ( name.equals("..") ) {
-      File dir = new File( mApp.mAppBasePath );
+      File dir = new File( mBaseDir );
       String parent_dir = dir.getParent();
       if ( parent_dir != null ) {
-        mApp.mAppBasePath = parent_dir;
-        updateList( mApp.mAppBasePath );
+        mBaseDir = parent_dir;
+        updateList( mBaseDir );
       } else {
         Toast.makeText( mContext, R.string.warning_no_parent, Toast.LENGTH_LONG ).show();
       }
       return;
     }
-    File file = new File( mApp.mAppBasePath, name );
+    File file = new File( mBaseDir, name );
     if ( file.isDirectory() ) {
-      mApp.mAppBasePath += "/" + name;
-      updateList( mApp.mAppBasePath );
+      mBaseDir += "/" + name;
+      updateList( mBaseDir );
       return;
     }
-    // Intent intent = new Intent();
-    // intent.putExtra( "com.topodroid.Cave3D.filename", name );
-    // setResult( Activity.RESULT_OK, intent );
-    mApp.doOpenFile( mApp.mAppBasePath + "/" + name, true ); // open asynchronous
+    mApp.openTexture( mBaseDir + "/" + name, name );
     dismiss();
   }
-    
 
 }

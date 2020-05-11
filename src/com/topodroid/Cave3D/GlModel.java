@@ -16,6 +16,7 @@ import android.util.Log;
 import android.content.Context;
 
 import android.graphics.Bitmap;
+import android.graphics.RectF;
 
 import android.opengl.Matrix;
 
@@ -28,6 +29,7 @@ public class GlModel
   static float   mHalfWidth = 0;
   static float   mHeight = 0; // unused
   TglParser mParser = null;
+  RectF mSurfaceBounds = null;
 
   private float mXmed, mYmed, mZmed; // XYZ openGL
   float grid_size = 1;
@@ -438,6 +440,7 @@ public class GlModel
   void prepareDEM( ParserDEM dem ) 
   {
     if ( dem == null ) return;
+    mSurfaceBounds = dem.getBounds();
     // Log.v("TopoGL", "prepare DEM");
     GlSurface surface = new GlSurface( mContext );
     surface.initData( dem, mXmed, mYmed, mZmed );
@@ -460,6 +463,13 @@ public class GlModel
     surface_legs.computeBBox();
     surface_legs.initData();
     synchronized( this ) { glSurfaceLegs = surface_legs; }
+  }
+
+  void prepareTexture( Bitmap texture )
+  {
+    if ( texture != null && glSurface != null ) {
+      glSurface.setBitmap( texture );
+    }
   }
 
   // ----------------------------------------------------------------------
@@ -602,6 +612,7 @@ public class GlModel
 
     DEMsurface surface = parser.getSurface();
     if ( surface != null ) {
+      mSurfaceBounds = surface.getBounds();
       // Log.v("TopoGL", "parser has surface");
       GlSurface gl_surface = new GlSurface( mContext );
       gl_surface.initData( surface, mXmed, mYmed, mZmed, parser.surfaceFlipped() );

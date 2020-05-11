@@ -74,10 +74,14 @@
     <string name="style_fill">Fill</string>
     <string name="surface_projection">Projection on surface</string>
     <string name="surface_texture">Surface texture</string>
-    <string name="dem_file">File %1$s</string>
-    <string name="dem_load">load</string>
+    <string name="dem_file">%1$s</string>
+    <string name="dem_load">load DEM</string>
     <string name="dem_failed">Failed DEM loading</string>
     <string name="dem_ok">Read DEM data</string>
+    <string name="texture_file">%1$s</string>
+    <string name="texture_load">load texture</string>
+    <string name="texture_failed">Failed texture loading</string>
+    <string name="texture_ok">Read texture file</string>
 
     <string name="title">%1$s  Clino: %2$.0f  Azimuth: %3$.0f</string>
     <string name="title_clino"> Clino: </string>
@@ -105,6 +109,7 @@
     <string name="CENTER">CENTER</string>
     <string name="select_file">Cave3D - Select a file:</string>
     <string name="select_dem_file">Select a DEM file:</string>
+    <string name="select_texture_file">Select a texture file:</string>
     <string name="Wall">Walls</string>
     <string name="Surface">Surface</string>
 

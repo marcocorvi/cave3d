@@ -48,6 +48,7 @@ public class ParserTh extends TglParser
   DataHelper mData;
 
   private Cave3DFix mOrigin = null; // coordinates of the origin station
+  private Cave3DCS cs1 = null;
 
   static int parseFlip( String flip )
   {
@@ -91,7 +92,7 @@ public class ParserTh extends TglParser
     mMarks = new ArrayList< String >();
 
     String path = base + "distox14.sqlite";
-    // Log.v( "Cave3D-TH", "Th parser DB " + path );
+    // Log.v( "Cave3D-TH", "Th parser DB " + path + " survey " + surveyname );
     mData = new DataHelper( cave3d, path, TOPODROID_DB_VERSION ); // FIXME DB VERSION
 
     StringWriter sw = new StringWriter();
@@ -129,7 +130,7 @@ public class ParserTh extends TglParser
     PrintWriter  pw = new PrintWriter( sw );
     pw.printf("Read file " + filename + "\n");
     int res = readFile( filename, "", false, 0.0f, 1.0f, 1.0f, 1.0f, pw );
-    Toast.makeText( mApp, sw.toString(), Toast.LENGTH_LONG ).show();
+    // Toast.makeText( mApp, sw.toString(), Toast.LENGTH_LONG ).show();
 
     if ( res == SUCCESS ) {
       processShots();
@@ -223,19 +224,17 @@ public class ParserTh extends TglParser
     }
 
     List<SurveyFixed> fixeds = mData.getSurveyFixeds( sid );
-    // Log.v("Cave3D-DEM", "fixed points " + fixeds.size() );
+    // Log.v("Cave3D-TH", "survey fixed points " + fixeds.size() );
     if ( fixeds != null && fixeds.size() > 0 ) {
       Cave3DCS cs0 = new Cave3DCS("WGS-84");
-      Cave3DCS cs1 = null;
       float PI_180 = (float)(Math.PI / 180);
       for ( SurveyFixed fx : fixeds ) {
         String name = makeName( fx.station, path );
-        float x0=0, y0=0, z0=0; // long-lat
-        float x1=0, y1=0, z1=0; // long-lat
+        float x0=0, y0=0, z0=0; // long-lat E,N,Z
+        float x1=0, y1=0, z1=0; // CS1 E,N,Z
 
         float alat = (float)fx.mLatitude;
         if ( alat < 0 ) alat = -alat;
-
         float s_radius = ((90 - alat) * ExportKML.EARTH_RADIUS1 + alat * ExportKML.EARTH_RADIUS2)/90;
         float e_radius = s_radius * (float)Math.cos( alat * PI_180 );
         s_radius *= PI_180;
@@ -244,34 +243,41 @@ public class ParserTh extends TglParser
         x0 = (float)fx.mLongitude * e_radius;
         y0 = (float)fx.mLatitude * s_radius;
         z0 = (float)fx.mAltitude;
-        // Log.v( "Cave3D-DEM", "Long-Lat " + x0 + " " + y0 + " " + z0 );
+        // Log.v( "Cave3D-TH", "Fix Long-Lat " + x0 + " " + y0 + " " + z0 + " cs1 " + ((fx.mCsName!=null)?fx.mCsName:"null")  );
         if ( mOrigin == null ) {
-          // Log.v( "Cave3D-DEM", "Fix origin " + name + " " + x0 + " " + y0 + " " + z0 );
+          // Log.v( "Cave3D-TH", "Fix origin " + name + " " + x0 + " " + y0 + " " + z0 );
           mOrigin = new Cave3DFix( name, x0, y0, z0, cs0 );
           if ( fx.mCsName != null ) {
             cs1 = new Cave3DCS( fx.mCsName );
             x1 = (float)fx.mCsLongitude;
             y1 = (float)fx.mCsLatitude;
             z1 = (float)fx.mCsAltitude;
-            // Log.v( "Cave3D-DEM", "CS " + fx.mCsName + " " + x1 + " " + y1 + " " + z1 );
+            // Log.v( "Cave3D-TH", "FIX " + name + " CS1 " + fx.mCsName + " " + x1 + " " + y1 + " " + z1 );
 	    fixes.add( new Cave3DFix( name, x1, y1, z1, cs1 ) );
           } else {
+            // Log.v( "Cave3D-TH", "CS0 " + x0 + " " + y0 + " " + z0 );
 	    fixes.add( new Cave3DFix( name, x0, y0, z0, cs0 ) );
           }
         } else {
-          // Log.v( "Cave3D-TH", "Fix relative " + name + " " + x + " " + y + " " + z );
-          if ( cs1 == null ) {
-	    fixes.add( new Cave3DFix( name, x0, y0, z0, cs0 ) );
+          // Log.v( "Cave3D-TH", "Fix relative " + name + " " + x0 + " " + y0 + " " + z0 + " cs1 " + ((fx.mCsName!=null)?fx.mCsName:"null") );
+          if ( cs1 != null && cs1.name.equals( fx.mCsName ) ) {
+            x1 = (float)fx.mCsLongitude;
+            y1 = (float)fx.mCsLatitude;
+            z1 = (float)fx.mCsAltitude;
+            // Log.v( "Cave3D-TH", "fix " + name + " using " + cs1.name + " " + x1 + " " + y1 + " " + z1 );
+	    fixes.add( new Cave3DFix( name, x1, y1, z1, cs1 ) );
           } else {
-            x0 -= mOrigin.x; // displacement of fix (using CS0)
-            y0 -= mOrigin.y;
-            z0 -= mOrigin.z;
-	    fixes.add( new Cave3DFix( name, x1+x0, y1+y0, z1+z0, cs1 ) );
+            // Log.v( "Cave3D-TH", "use CS0 " + x0 + " " + y0 + " " + z0 );
+            // x0 -= mOrigin.x; // displacement of fix (using CS0)
+            // y0 -= mOrigin.y;
+            // z0 -= mOrigin.z;
+	    fixes.add( new Cave3DFix( name, x0, y0, z0, cs0 ) );
           }
         }
       }
     }
 
+    // Log.v("Cave3D-TH", "fixes " + fixes.size() );
     return SUCCESS;
   }
   
@@ -754,26 +760,29 @@ public class ParserTh extends TglParser
  
     int mLoopCnt = 0;
     Cave3DFix f0 = fixes.get( 0 );
-    // Log.v( "Cave3D-TH", "Process Shots. Fix " + f0.name + " " + f0.e + " " + f0.n + " " + f0.z );
+    // Log.v( "Cave3D-TH", "Process Shots. Fix " + f0.name + " " + f0.x + " " + f0.y + " " + f0.z );
 
     mCaveLength = 0.0f;
     // Log.v( "Cave3D-TH", "shots " + shots.size() + " splays " + splays.size() + " fixes " + fixes.size() );
 
+    // for ( Cave3DShot sh : shots ) {
+    //   Log.v( "Cave3D-TH", "shot " + sh.from + " " + sh.to );
+    // }
+
     int used_cnt = 0; // number of used shots
     for ( Cave3DFix f : fixes ) {
-      boolean found = false;
       // Log.v( "Cave3D-TH", "checking fix " + f.name );
+      boolean found = false;
       for ( Cave3DStation s1 : stations ) {
         if ( f.name.equals( s1.name ) ) { found = true; break; }
       }
       if ( found ) { // skip fixed stations that are already included in the model
-        // Log.v( "Cave3D-TH", "found fix " + f.name );
+        // Log.v( "Cave3D-TH", "fix " + f.name + " already used" );
         continue;
       }
-      // Log.v( "Cave3D-TH", "start station " + f.name + " N " + f.n + " E " + f.e + " Z " + f.z );
+      // Log.v( "Cave3D-TH", "start station " + f.name + " N " + f.y + " E " + f.x + " Z " + f.z );
       stations.add( new Cave3DStation( f.name, f.x, f.y, f.z ) );
       // sh.from_station = s0;
-    
 
       boolean repeat = true;
       while ( repeat ) {
@@ -800,7 +809,7 @@ public class ParserTh extends TglParser
             if ( sf != null && st != null ) break;
           }
           if ( sf != null && st != null ) {
-            // Log.v( "Cave3D-TH", "unused shot " + sh.from + " " + sh.to + " : " + sf.name + " " + st.name );
+            // Log.v( "Cave3D-TH", "using loop-closing shot " + sh.from + " " + sh.to + " : " + sf.name + " " + st.name );
             sh.used = true; // LOOP
 	    ++ used_cnt;
             mCaveLength += sh.len;
@@ -812,7 +821,7 @@ public class ParserTh extends TglParser
             sh.to_station = s;
             repeat = true; // unnecessary
           } else if ( sf != null && st == null ) {
-            // Log.v( "Cave3D-TH", "unused shot " + sh.from + " " + sh.to + " : " + sf.name + " null" );
+            // Log.v( "Cave3D-TH", "using forwxprad shot " + sh.from + " " + sh.to + " : " + sf.name + " null" );
             Cave3DStation s = sh.getStationFromStation( sf );
             stations.add( s );
             sh.to_station = s;
@@ -822,7 +831,7 @@ public class ParserTh extends TglParser
             mCaveLength += sh.len;
             repeat = true;
           } else if ( sf == null && st != null ) {
-            // Log.v( "Cave3D-TH", "unused shot " + sh.from + " " + sh.to + " : null " + st.name );
+            // Log.v( "Cave3D-TH", "using backward shot " + sh.from + " " + sh.to + " : null " + st.name );
             Cave3DStation s = sh.getStationFromStation( st );
             stations.add( s );
             sh.from_station = s;
@@ -836,8 +845,9 @@ public class ParserTh extends TglParser
           }
         }
       }
+      // Log.v( "Cave3D-TH", "after " + f.name + " used shot " + used_cnt + " loops " + mLoopCnt );
     } // for ( Cave3DFix f : fixes )
-    // Log.v( "Cave3D-TH", "used shot " + used_cnt + " loops " + mLoopCnt );
+    // Log.v( "Cave3D-TH", "used shot " + used_cnt + " loops " + mLoopCnt + " total shots " + shots.size() );
     // StringBuilder sb = new StringBuilder();
     // for ( Cave3DStation st : stations ) { sb.append(" "); sb.append( st.name ); }
     // Log.v( "Cave3D-TH", sb.toString() );
@@ -858,18 +868,8 @@ public class ParserTh extends TglParser
     }
 
     computeBoundingBox();
-    // // bounding box
-    // emin = emax = stations.get(0).e;
-    // nmin = nmax = stations.get(0).n;
-    // zmin = zmax = stations.get(0).z;
-    // for ( Cave3DStation s : stations ) {
-    //   if ( nmin > s.n )      nmin = s.n;
-    //   else if ( nmax < s.n ) nmax = s.n;
-    //   if ( emin > s.e )      emin = s.e;
-    //   else if ( emax < s.e ) emax = s.e;
-    //   if ( zmin > s.z )      zmin = s.z;
-    //   else if ( zmax < s.z ) zmax = s.z;
-    // }
+    // Log.v("Cave3D-TH", "stations " + stations.size() + " center " + x0 + " " + y0 + " " + z0 );
+    // Log.v("Cave3D-TH", "bbox E " + emin + " " + emax + " N " + nmin + " " + nmax );
   }
 
   static int nextIndex( String[] vals, int idx )

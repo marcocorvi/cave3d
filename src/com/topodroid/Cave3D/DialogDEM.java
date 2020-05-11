@@ -143,7 +143,7 @@ class DialogDEM extends Dialog
       updateList( mBaseDir );
       return;
     }
-    mApp.openDEM( mBaseDir + "/" + name );
+    mApp.openDEM( mBaseDir + "/" + name, name );
     dismiss();
   }
 

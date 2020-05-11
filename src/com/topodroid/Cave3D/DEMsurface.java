@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import android.util.Log;
+import android.graphics.RectF;
 
 public class DEMsurface
 {
@@ -26,6 +27,13 @@ public class DEMsurface
   int mNr2;           // number of centers in North
   float mDim1, mDim2; // spacing between grid centers
   // float mNormal[];    // normal vectors (3 float per vertex)
+
+  // lefttop right bottom
+  RectF getBounds( )
+  {
+    return new RectF( mEast1-mDim1/2, mNorth2+mDim2/2, mEast2+mDim1/2, mNorth1-mDim2/2 );
+  }
+
   /**
    *        ^
    * d2 = 2 |-----------+P2 = (e2,n2)
