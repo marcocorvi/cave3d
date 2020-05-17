@@ -15,17 +15,17 @@ import android.util.Log;
 
 class Cave3DSite extends Vector3D
 {
-  Angle angle; // head of list of sites
+  Angle angle; // head of list of disjoint angles at the site
   Cave3DPolygon poly;
 
-  class Angle // link between two sites
+  class Angle // angle (between two sites) at a site
   {
-    Cave3DSite v1;
+    Cave3DSite v1; // angle side vertices
     Cave3DSite v2;
-    Angle next;
+    Angle next; // links in the list of site's angles
     Angle prev;
 
-    Angle( Cave3DSite w1, Cave3DSite w2 )
+    Angle( Cave3DSite w1, Cave3DSite w2 ) // create an angle w1-w2 (not inserted in the list of the site's angles)
     {
       v1 = w1;
       v2 = w2;
@@ -33,13 +33,30 @@ class Cave3DSite extends Vector3D
     }
   }
 
-  Cave3DSite( float x, float y, float z )
+  Cave3DSite( float x, float y, float z ) // create a site with empty list
   {
     super( x, y, z );
     angle = null;
     poly  = null;
   }
 
+  // float distance2D( Cave3DSite s ) 
+  // {
+  //   return (float)Math.sqrt( (x - s.x)*(x - s.x) + (y - s.y)*(y - s.y) );
+  // }
+
+  private void unlink( Angle b ) 
+  {
+    if ( b.next != null ) b.next.prev = b.prev; // a.prev;
+    if ( b.prev != null ) b.prev.next = b.next; else angle = b.next;
+    b.next = b.prev = null;
+  }
+
+  // insert angle W1--Site--W2:
+  // if there is already an angle with vertex V2 equals to W1
+  //    change the angle vertex V2 to W2
+  //    next if there is another angle with vertex V1 equals to W2
+  //      move the angle vertex V2 to the other angle V2
   void insertAngle( Cave3DSite w1, Cave3DSite w2 )
   {
     boolean done = false;
@@ -51,10 +68,8 @@ class Cave3DSite extends Vector3D
           if ( b == a ) continue;
           if ( a.v2 == b.v1 ) { // ... -p- v1 -a- w2 -b- v2 -N- ...
             a.v2 = b.v2;        // ... -p- v1 -a- v2 - ...
-            if ( b.next != null ) b.next.prev = a.prev;
-            if ( b.prev != null ) b.prev.next = b.next; else angle = b.next;
-            b.next = b.prev = null;
-            break;
+            unlink( b );
+            break; // because all angles are disjoint
           }
         }
         break;
@@ -66,16 +81,16 @@ class Cave3DSite extends Vector3D
           if ( b == a ) continue;
           if ( a.v1 == b.v2 ) {
             a.v1 = b.v1;
-            if ( b.next != null ) b.next.prev = a.prev;
-            if ( b.prev != null ) b.prev.next = b.next; else angle = b.next;
-            b.next = b.prev = null;
-            break;
+            unlink( b );
+            break; // because all angles are disjoint
           }
         }
         break;
       }
     }
-    if ( ! done ) {
+    if ( ! done ) { // put A at the head of the list:
+                    //                   angle <--> A1 ...
+                    //    angle = A <--> ..... <--> A1 ...
       Angle a = new Angle( w1, w2 );
       a.next = angle;
       if ( angle != null ) angle.prev = a;
@@ -83,12 +98,15 @@ class Cave3DSite extends Vector3D
     }
   }
 
+  // a Cave3DSite is NOT open if
+  //   - either the list of angles is empty
+  //   - or head.v1 == tail.v2
   boolean isOpen( ) 
   {
     if ( angle == null ) return false;
     if ( angle.next != null ) {
-      Log.e( "TopoGL-SITE", "site with more than one angle");
-      Angle n = angle.next;
+      // Log.e( "TopoGL-SITE", "site with more than one angle");
+      Angle n = angle.next;  // get the tail of the list of angles
       while ( n.next != null ) n = n.next;
       return n.v2 != angle.v1;
     }

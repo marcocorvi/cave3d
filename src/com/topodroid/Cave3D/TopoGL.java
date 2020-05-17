@@ -39,13 +39,15 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.View.OnTouchListener;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
+// import android.view.MotionEvent;
 
 import android.widget.Toast;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.CheckBox;
 // import android.widget.TextView;
 import android.widget.LinearLayout;
 import android.widget.AdapterView;
@@ -67,6 +69,7 @@ import android.opengl.GLSurfaceView;
 
 public class TopoGL extends Activity 
                     implements OnClickListener
+                    , OnLongClickListener
                     , OnItemClickListener
                     , OnSharedPreferenceChangeListener
 {
@@ -95,6 +98,8 @@ public class TopoGL extends Activity
   String mDEMname = null;
   String mTextureName = null;
 
+  static boolean mSelectStation = true;
+
   // --------------------------------- OpenGL stuff
   private GlSurfaceView glSurfaceView;
   private GlRenderer mRenderer = null;
@@ -103,10 +108,15 @@ public class TopoGL extends Activity
   // private TextView     mText;
   private boolean rendererSet = false;
   private TglParser mParser;
+
+  private LinearLayout mLayoutStation;
   private Button mCurrentStation;
+  CheckBox mMeasureStation;
 
   // used also by DialogSurface
   boolean hasSurface() { return ( mRenderer != null ) && mRenderer.hasSurface(); }
+
+  boolean withOsm() { return mParser != null && mParser.hasOrigin(); }
 
   // ---------------------------------------------------------------
   // LIFECYCLE
@@ -135,9 +145,11 @@ public class TopoGL extends Activity
     mListView = (HorizontalListView) findViewById(R.id.listview);
     resetButtonBar();
 
+    mLayoutStation = (LinearLayout) findViewById( R.id.layout_station );
     mCurrentStation = (Button) findViewById( R.id.current_station );
     mCurrentStation.setOnClickListener( this );
-    mCurrentStation.setVisibility( View.GONE );
+    mMeasureStation = (CheckBox) findViewById( R.id.measure_station );
+    mLayoutStation.setVisibility( View.GONE );
     
     // setWallButton( mRenderer.wall_mode );
 
@@ -405,6 +417,7 @@ public class TopoGL extends Activity
       GlModel.resetModes();
       GlNames.resetStations();
       if ( mRenderer != null ) mRenderer.resetTopGeometry();
+      mSelectStation = true;
       resetButtons();
     } else if ( p++ == pos ) { // VIEWPOINT
       if ( mRenderer != null ) new DialogView( this, this, mRenderer ).show();
@@ -439,7 +452,7 @@ public class TopoGL extends Activity
   static int izons[] = {
     R.drawable.iz_light,
     R.drawable.iz_orthogonal,
-    R.drawable.iz_station_no,
+    R.drawable.iz_station_no_dot,
     R.drawable.iz_splays_no,
     R.drawable.iz_wall_no,
     R.drawable.iz_surface_no,
@@ -477,7 +490,11 @@ public class TopoGL extends Activity
   BitmapDrawable mBMstationNo;
   BitmapDrawable mBMstationPoint;
   BitmapDrawable mBMstationName;
-  BitmapDrawable mBMstation;
+  // BitmapDrawable mBMstation;
+  BitmapDrawable mBMstationNoDot;
+  BitmapDrawable mBMstationPointDot;
+  BitmapDrawable mBMstationNameDot;
+  // BitmapDrawable mBMstationDot;
 
   BitmapDrawable mBMsplaysNo;
   BitmapDrawable mBMsplaysLine;
@@ -499,37 +516,46 @@ public class TopoGL extends Activity
     if ( mListView == null ) return;
     int size = setListViewHeight( this, mListView );
     mButton1 = new MyButton[ mNrButton1 ];
-    mButton1[0] = new MyButton( this, this, size, izons[0], 0 );
-    mButton1[1] = new MyButton( this, this, size, izons[1], 0 );
-    mButton1[2] = new MyButton( this, this, size, izons[2], 0 );
-    mButton1[3] = new MyButton( this, this, size, izons[3], 0 );
-    mButton1[4] = new MyButton( this, this, size, izons[4], 0 );
-    mButton1[5] = new MyButton( this, this, size, izons[5], 0 );
-    mButton1[6] = new MyButton( this, this, size, izons[6], 0 );
-    mButton1[7] = new MyButton( this, this, size, izons[7], 0 );
+    mButton1[0] = new MyButton( this, this, size, izons[0] );
+    mButton1[1] = new MyButton( this, this, size, izons[1] );
+    mButton1[2] = new MyButton( this, this, size, izons[2] );
+    mButton1[3] = new MyButton( this, this, size, izons[3] );
+    mButton1[4] = new MyButton( this, this, size, izons[4] );
+    mButton1[5] = new MyButton( this, this, size, izons[5] );
+    mButton1[6] = new MyButton( this, this, size, izons[6] );
+    mButton1[7] = new MyButton( this, this, size, izons[7] );
+
+    mButton1[ 0 ].setOnLongClickListener( this );
+    mButton1[ 1 ].setOnLongClickListener( this );
+    mButton1[ 2 ].setOnLongClickListener( this );
 
     mBMlight = mButton1[BTN_MOVE].mBitmap;
     mBMturn = MyButton.getButtonBackground( this, size, R.drawable.iz_turn );
     mBMmove = MyButton.getButtonBackground( this, size, R.drawable.iz_move );
     // mBMconvex = mButton1[BTN_WALL].mBitmap;
 
-    mBMwallNo      = mButton1[ BTN_WALL     ].mBitmap;
-    mBMwall        = MyButton.getButtonBackground( this, size, R.drawable.iz_wall );
-
     mBMorthogonal  = mButton1[ BTN_PROJECT  ].mBitmap;
     mBMperspective = MyButton.getButtonBackground( this, size, R.drawable.iz_perspective);
 
-    mBMsurfaceNo   = mButton1[ BTN_SURFACE  ].mBitmap;
-    mBMsurface     = MyButton.getButtonBackground( this, size, R.drawable.iz_surface );
+    mBMstationNoDot   = mButton1[ BTN_STATION ].mBitmap;
+    mBMstationPointDot= MyButton.getButtonBackground( this, size, R.drawable.iz_station_point_dot );
+    mBMstationNameDot = MyButton.getButtonBackground( this, size, R.drawable.iz_station_name_dot );
+    // mBMstationDot     = MyButton.getButtonBackground( this, size, R.drawable.iz_station_dot );
 
-    mBMstationNo   = mButton1[ BTN_STATION ].mBitmap;
+    mBMstationNo   = MyButton.getButtonBackground( this, size, R.drawable.iz_station_no );
     mBMstationPoint= MyButton.getButtonBackground( this, size, R.drawable.iz_station_point );
     mBMstationName = MyButton.getButtonBackground( this, size, R.drawable.iz_station_name );
-    mBMstation     = MyButton.getButtonBackground( this, size, R.drawable.iz_station );
+    // mBMstation     = MyButton.getButtonBackground( this, size, R.drawable.iz_station );
 
     mBMsplaysNo    = mButton1[ BTN_SPLAYS  ].mBitmap;
     mBMsplaysLine  = MyButton.getButtonBackground( this, size, R.drawable.iz_splays_line );
     mBMsplaysPoint = MyButton.getButtonBackground( this, size, R.drawable.iz_splays_point );
+
+    mBMwallNo      = mButton1[ BTN_WALL     ].mBitmap;
+    mBMwall        = MyButton.getButtonBackground( this, size, R.drawable.iz_wall );
+
+    mBMsurfaceNo   = mButton1[ BTN_SURFACE  ].mBitmap;
+    mBMsurface     = MyButton.getButtonBackground( this, size, R.drawable.iz_surface );
 
     mBMcolorNo     = mButton1[ BTN_COLOR   ].mBitmap;
     mBMcolorSurvey = MyButton.getButtonBackground( this, size, R.drawable.iz_color_survey );
@@ -546,8 +572,19 @@ public class TopoGL extends Activity
 
     resetButtons();
 
-    mButton1[ BTN_WALL ].setOnClickListener( this );
-    mButton1[ BTN_SURFACE ].setOnClickListener( this );
+    // mButton1[ BTN_WALL ].setOnClickListener( this );
+    // mButton1[ BTN_SURFACE ].setOnClickListener( this );
+  }
+
+  // only for BTN_STATION
+  @Override 
+  public boolean onLongClick( View v ) 
+  {
+    mSelectStation = ! mSelectStation;
+    Log.v("TopoGL", "on long click " + mSelectStation );
+    setButtonStation();
+    closeCurrentStation();
+    return true;
   }
 
   private void resetButtons()
@@ -564,19 +601,36 @@ public class TopoGL extends Activity
 
   private void setButtonStation()
   {
-    switch ( GlNames.stationMode ) {
-      case GlNames.STATION_NONE:
-        mButton1[ BTN_STATION ].setBackgroundDrawable( mBMstationNo );
-        break;
-      case GlNames.STATION_POINT:
-        mButton1[ BTN_STATION ].setBackgroundDrawable( mBMstationPoint );
-        break;
-      case GlNames.STATION_NAME:
-        mButton1[ BTN_STATION ].setBackgroundDrawable( mBMstationName );
-        break;
-      case GlNames.STATION_ALL:
-        mButton1[ BTN_STATION ].setBackgroundDrawable( mBMstation );
-        break;
+    if ( mSelectStation ) {
+      switch ( GlNames.stationMode ) {
+        case GlNames.STATION_NONE:
+          mButton1[ BTN_STATION ].setBackgroundDrawable( mBMstationNoDot );
+          break;
+        case GlNames.STATION_POINT:
+          mButton1[ BTN_STATION ].setBackgroundDrawable( mBMstationPointDot );
+          break;
+        case GlNames.STATION_NAME:
+          mButton1[ BTN_STATION ].setBackgroundDrawable( mBMstationNameDot );
+          break;
+        // case GlNames.STATION_ALL:
+        //   mButton1[ BTN_STATION ].setBackgroundDrawable( mBMstationDot );
+        //   break;
+      }
+    } else {
+      switch ( GlNames.stationMode ) {
+        case GlNames.STATION_NONE:
+          mButton1[ BTN_STATION ].setBackgroundDrawable( mBMstationNo );
+          break;
+        case GlNames.STATION_POINT:
+          mButton1[ BTN_STATION ].setBackgroundDrawable( mBMstationPoint );
+          break;
+        case GlNames.STATION_NAME:
+          mButton1[ BTN_STATION ].setBackgroundDrawable( mBMstationName );
+          break;
+        // case GlNames.STATION_ALL:
+        //   mButton1[ BTN_STATION ].setBackgroundDrawable( mBMstation );
+        //   break;
+      }
     }
   }
 
@@ -662,14 +716,14 @@ public class TopoGL extends Activity
   void showCurrentStation( String text )
   {
     mCurrentStation.setText( text );
-    mCurrentStation.setVisibility( View.VISIBLE );
+    mLayoutStation.setVisibility( View.VISIBLE );
   }
  
   void closeCurrentStation()
   {
-    mCurrentStation.setVisibility( View.GONE );
-    if ( mRenderer != null ) mRenderer.setModelPath( null );
-    if ( mParser   != null ) mParser.mStartStation = null;
+    mLayoutStation.setVisibility( View.GONE );
+    if ( mRenderer != null ) mRenderer.clearStationHighlight();
+    if ( mParser   != null ) mParser.clearStartStation();
   }
 
   @Override
@@ -679,8 +733,8 @@ public class TopoGL extends Activity
       closeMenu();
       return;
     }
-    Button b0 = (Button)view;
-    if ( b0 == mMenuImage ) {
+    int id = view.getId();
+    if ( id == R.id.handle ) {
       if ( mMenu.getVisibility() == View.VISIBLE ) {
         mMenu.setVisibility( View.GONE );
         onMenu = false;
@@ -690,10 +744,12 @@ public class TopoGL extends Activity
       }
       return;
     } 
-    if ( b0 == mCurrentStation ) {
+    if ( id == R.id.current_station ) {
       closeCurrentStation();
+      return;
     }
 
+    Button b0 = (Button)view;
     int k1 = 0;
     if ( b0 == mButton1[k1++] ) { // MOVE - TURN
       GlSurfaceView.toggleLightMode();
@@ -875,43 +931,83 @@ public class TopoGL extends Activity
     }
   }
 
+  // load a texture file (either GeoTIFF or OSM)
   void openTexture( String pathname, String filename )
   {
     if ( mRenderer == null ) return;
     final RectF  bounds = mRenderer.getSurfaceBounds();
     if ( bounds == null ) return;
 
+
     Log.v("TopoGL", "texture " + pathname + " bbox " + bounds.left + " " + bounds.bottom + "  " + bounds.right + " " + bounds.top );
 
     mTextureName = filename;
-      (new AsyncTask<String, Void, Boolean>() {
-        Bitmap bitmap = null;
+    if ( filename.endsWith( ".osm" ) ) {
+      loadTextureOSM( pathname, bounds );
+    } else {
+      loadTextureGeotiff( pathname, bounds );
+    }
+  }
 
-        public Boolean doInBackground( String ... files ) {
-          String file = files[0];
- 
-          // bitmap = BitmapFactory.decodeFile( file );
-          // TiffWrapper tiff = new TiffWrapper();
-          // TiffWrapper.setFilename( pathname );
-          // bitmap = (Bitmap)( TiffWrapper.getBitmap( bounds.left, bounds.bottom, bounds.right, bounds.top ) );
-          bitmap = (Bitmap)( TiffFactory.getBitmap( pathname, bounds.left, bounds.bottom, bounds.right, bounds.top ) );
-          if ( bitmap != null ) {
-            Log.v("TopoGL", "texture " + file + " size " + bitmap.getWidth() + " " + bitmap.getHeight() );
-          }
+  private void loadTextureGeotiff( final String pathname, final RectF bounds )
+  {
+    (new AsyncTask<String, Void, Boolean>() {
+      Bitmap bitmap = null;
 
-          return (bitmap != null);
+      public Boolean doInBackground( String ... files ) {
+        String file = files[0];
+        bitmap = (Bitmap)( TiffFactory.getBitmap( pathname, bounds.left, bounds.bottom, bounds.right, bounds.top ) );
+        // if ( bitmap != null ) {
+        //   Log.v("TopoGL", "texture " + file + " size " + bitmap.getWidth() + " " + bitmap.getHeight() );
+        // }
+
+        return (bitmap != null);
+      }
+
+      public void onPostExecute( Boolean b )
+      {
+        if ( b ) {
+          if ( mRenderer != null ) mRenderer.notifyTexture( bitmap ); // FIXME do in doInBackground
+          toast( R.string.texture_ok, true );
+        } else {
+          toast( R.string.texture_failed, true );
         }
+      }
+    }).execute( pathname );
+  }
 
-        public void onPostExecute( Boolean b )
-        {
-          if ( b ) {
-            if ( mRenderer != null ) mRenderer.notifyTexture( bitmap ); // FIXME do in doInBackground
-            toast( R.string.texture_ok, true );
-          } else {
-            toast( R.string.texture_failed, true );
-          }
+  private void loadTextureOSM( final String pathname, final RectF bounds )
+  {
+    (new AsyncTask<String, Void, Boolean>() {
+      Bitmap bitmap = null;
+
+      public Boolean doInBackground( String ... files ) {
+        String file = files[0];
+        Cave3DFix origin = mParser.getOrigin();
+        if ( origin == null ) {
+          Log.e("TopoGL", "OSM with null origin");
+          return false;
+        } 
+
+        OsmFactory osm = new OsmFactory( bounds.left, bounds.bottom, bounds.right, bounds.top, origin );
+        bitmap = osm.getBitmap( pathname );
+        // if ( bitmap != null ) {
+        //   Log.v("TopoGL", "texture " + file + " size " + bitmap.getWidth() + " " + bitmap.getHeight() );
+        // }
+
+        return (bitmap != null);
+      }
+
+      public void onPostExecute( Boolean b )
+      {
+        if ( b ) {
+          if ( mRenderer != null ) mRenderer.notifyTexture( bitmap ); // FIXME do in doInBackground
+          toast( R.string.texture_ok, true );
+        } else {
+          toast( R.string.texture_failed, true );
         }
-      }).execute( pathname );
+      }
+    }).execute( pathname );
   }
 
   // ---------------------------------------- PERMISSIONS

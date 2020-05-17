@@ -175,7 +175,7 @@ public class ParserLox extends TglParser
       }
       float de = step * surface.DimEast();
       float dn = step * surface.DimNorth();
-      Log.v("TopoGL-LOX", "lox surface " + dim1 + "x" + dim2 + " (max " + TopoGL.mDEMmaxsize + ") W-E " + e1 + " " + de + " N-S " + n1 + " " + dn );
+      // Log.v("TopoGL-LOX", "lox surface " + dim1 + "x" + dim2 + " (max " + TopoGL.mDEMmaxsize + ") W-E " + e1 + " " + de + " N-S " + n1 + " " + dn );
       mSurface = new DEMsurface( e1, n1, de, dn, dim1, dim2 );
       mSurface.setGridData( surface.Grid(), xoff, yoff, step, surface.Width(), surface.Height() );
     }

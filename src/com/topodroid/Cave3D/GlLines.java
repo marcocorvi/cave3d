@@ -216,7 +216,7 @@ class GlLines extends GlShape
     }
   }
 
-  /* LOG
+  /* LOG */
   void logMinMax() 
   {
     if ( lines.size() == 0 ) {
@@ -239,7 +239,7 @@ class GlLines extends GlShape
     }
     Log.i("TopoGL-LINE", "lines " + lines.size() + " X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
   }
-  */
+  //
 
   // must be called only on legs - for the others use addLine with reduced XYZ med
   // X,Y,Z openGL

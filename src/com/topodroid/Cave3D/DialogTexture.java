@@ -47,11 +47,16 @@ class DialogTexture extends Dialog
 
   class MyFilenameFilter implements FilenameFilter
   {
+    private boolean withOsm;
+
     public boolean accept( File dir, String name ) {
       if ( name.endsWith( ".tif" ) ) return true;  // geotiff file
       if ( name.endsWith( ".tiff" ) ) return true; 
+      if ( withOsm && name.endsWith( ".osm" ) ) return true;  // OSM file
       return false;
     }
+
+    MyFilenameFilter( boolean osm ) { withOsm = osm; }
   }
 
   class MyDirnameFilter implements FilenameFilter
@@ -98,7 +103,7 @@ class DialogTexture extends Dialog
     File dir = new File( basedir );
     if ( dir.exists() ) {
       String[] dirs  = dir.list( new MyDirnameFilter() );
-      String[] files = dir.list( new MyFilenameFilter() );
+      String[] files = dir.list( new MyFilenameFilter( mApp.withOsm() ) );
       mArrayAdapter.clear();
       mArrayAdapter.add( "..", true );
       if ( dirs != null ) {

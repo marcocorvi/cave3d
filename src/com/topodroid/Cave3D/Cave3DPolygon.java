@@ -39,4 +39,13 @@ class Cave3DPolygon
     // points.add( new Point2D( s.x, s.y ) );
     return false;
   }
+
+  float getAverageDistance() 
+  {
+    int ns = points.size();
+    if ( ns <= 1 ) return 0.0f;
+    float d = 0.0f;
+    for ( int k=1; k<ns; ++k ) d += Vector3D.distance3D( points.get(k-1), points.get(k) );
+    return d / (ns - 1);
+  }
 }

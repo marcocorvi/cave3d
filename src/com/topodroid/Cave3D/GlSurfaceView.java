@@ -112,11 +112,7 @@ class GlSurfaceView extends GLSurfaceView
           final float yy = e.getY();
           mPreviousX = xx;
           mPreviousY = yy;
-          // queueEvent( new Runnable() {
-          //   @Override public void run() {
-              mRenderer.onTouch( xx, yy );
-          //   }
-          // } );
+          if ( TopoGL.mSelectStation ) mRenderer.onTouch( xx, yy );
         }
         return true;
       case MotionEvent.ACTION_MOVE:

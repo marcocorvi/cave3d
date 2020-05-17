@@ -68,6 +68,7 @@
     <string name="profile_proj">Profile</string>
     <string name="dist_no_path">%1$s %2$s: D %3$.1f (%4$.1f %5$.1f %6$.1f)</string>
     <string name="dist_path">%1$s %2$s: D %3$.1f (%4$.1f %5$.1f %6$.1f) Cave %7$.1f</string>
+    <string name="measure">measure</string>
 
     <string name="style_stroke">Stroke</string>
     <string name="style_stroke_fill">Fill &amp; Stroke</string>

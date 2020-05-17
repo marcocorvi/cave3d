@@ -27,7 +27,7 @@ class Cave3DSegmentList
     head = s;
     size = 1;
   }
-
+/*
   void mergeIn( Cave3DSegmentList ll ) 
   {
     Cave3DSegment ss = ll.head;
@@ -39,10 +39,29 @@ class Cave3DSegmentList
     ll.size = 0;
   }
 
-  void add( Cave3DSegment s )
+  void add( Cave3DSegment sgm )
   {
-    s.next = head;
-    head = s;
+    sgm.next = head;
+    head = sgm;
+    ++ size;
+  }
+*/
+ 
+  // insert a segment keeping the list ordered by increasing s
+  void insert( Cave3DSegment sgm ) 
+  {
+    if ( head == null ) {
+      sgm.next = null;
+      head = sgm;
+    } else if ( head.s() > sgm.s() ) {
+      sgm.next = head;
+      head = sgm;
+    } else {
+      Cave3DSegment s2 = head;
+      while ( s2.next != null && s2.next.s() < sgm.s() ) s2 = s2.next;
+      sgm.next = s2.next;
+      s2.next  = sgm;
+    }
     ++ size;
   }
 

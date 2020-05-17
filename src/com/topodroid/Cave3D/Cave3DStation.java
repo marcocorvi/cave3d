@@ -65,6 +65,7 @@ public class Cave3DStation extends Vector3D
   void setPathlength( double len, Cave3DStation prev ) { pathlength = len; pathprev = prev; }
 
   double getPathlength() { return pathlength; }
+  float getFinalPathlength() { return (pathprev == null)? -1.0f : (float)pathlength; }
   Cave3DStation getPathPrevious() { return pathprev; }
 
   Vector3D toVector3D() { return new Vector3D( x, y, z ); }
@@ -83,6 +84,8 @@ public class Cave3DStation extends Vector3D
     mSurvey = survey;
     flag    = fl;
     comment = cmt;
+    pathlength = Float.MAX_VALUE;
+    pathprev = null;
   }
 
   private void setName( String nm )

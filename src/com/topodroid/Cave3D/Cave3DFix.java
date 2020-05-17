@@ -22,16 +22,29 @@ class Cave3DFix extends Vector3D
   Cave3DCS cs;
   String name;
   // float e, n, z; // north east, vertical (upwards)
+  
+  double longitude; // WGS84
+  double latitude; 
+  boolean hasWGS84;
+
+  public Cave3DFix( String nm, float e0, float n0, float z0, Cave3DCS cs0, double lng, double lat )
+  {
+    super( e0, n0, z0 );
+    name = nm;
+    cs = cs0;
+    longitude = lng;
+    latitude  = lat;
+    hasWGS84  = true;
+  }
 
   public Cave3DFix( String nm, float e0, float n0, float z0, Cave3DCS cs0 )
   {
     super( e0, n0, z0 );
     name = nm;
-    // e = e0;
-    // n = n0;
-    // z = z0;
     cs = cs0;
+    longitude = 0;
+    latitude  = 0;
+    hasWGS84  = false;
   }
 
 }
-

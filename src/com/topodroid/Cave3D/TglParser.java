@@ -65,8 +65,13 @@ public class TglParser
 
   Cave3DStation mCenterStation = null;
   Cave3DStation mStartStation = null;
+  protected Cave3DFix mOrigin = null; // coordinates of the origin station
+
+  Cave3DFix getOrigin() { return mOrigin; }
+  boolean hasOrigin() { return mOrigin != null; }
 
   // void setStartStation( Cave3DStation station ) { mStartStation = station; }
+  void clearStartStation( ) { mStartStation = null; }
   void setStartStation( String fullname ) { mStartStation = getStation( fullname ); }
 
   // ----------------------------------------------------------------
@@ -143,32 +148,26 @@ public class TglParser
   { 
     Cave3DStation s1 = mStartStation;
     if ( s1 == null ) return null;
-    if ( s2 == null ) return null;
-    double d = Float.MAX_VALUE;
-    if ( s2 != s1 ) {
-      initStationsPathlength( );
-      s1.setPathlength( 0, null );
-      Stack<Cave3DStation> stack = new Stack<Cave3DStation>();
-      stack.push( s1 );
-      while ( ! stack.empty() ) {
-        Cave3DStation s0 = stack.pop();
-        ArrayList< Cave3DShot > legs = getLegsAt( s0, true );
-        for ( Cave3DShot leg : legs ) {
-          Cave3DStation s3 = leg.getOtherStation( s0 );
-          if ( s3 != null ) {
-            d = s0.getPathlength() + leg.len;
-            if ( s3.getPathlength() > d ) {
-              s3.setPathlength( d, s0 );
-              stack.push( s3 );
-            }
+    if ( s2 == null || s2 == s1 ) return null;
+    initStationsPathlength( );
+    s1.setPathlength( 0, null );
+    Stack<Cave3DStation> stack = new Stack<Cave3DStation>();
+    stack.push( s1 );
+    while ( ! stack.empty() ) {
+      Cave3DStation s0 = stack.pop();
+      ArrayList< Cave3DShot > legs = getLegsAt( s0, true );
+      for ( Cave3DShot leg : legs ) {
+        Cave3DStation s3 = leg.getOtherStation( s0 );
+        if ( s3 != null ) {
+          double d = s0.getPathlength() + leg.len;
+          if ( s3.getPathlength() > d ) {
+            s3.setPathlength( d, s0 );
+            stack.push( s3 );
           }
         }
       }
-      d = s2.getPathlength();
-    } else { 
-      d = 0;
     }
-    return new TglMeasure( mApp.getResources(), s1, s2, (float)d );
+    return new TglMeasure( mApp.getResources(), s1, s2, s2.getFinalPathlength() );
   }
 
   Cave3DSurvey getSurvey( String name ) // get survey by the NAME
@@ -377,6 +376,7 @@ public class TglParser
   {
     mApp = app;
     do_render = false;
+    mOrigin = null;
     // Toast.makeText( app, "Reading " + filename, Toast.LENGTH_SHORT ).show();
 
     // Log.v( TAG, "parsing " + filename );

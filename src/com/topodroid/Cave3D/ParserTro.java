@@ -64,6 +64,23 @@ public class ParserTro extends TglParser
     return value * unit;
   }
 
+  private boolean setTroFix( String entrance, String coords )
+  {
+    String[] params = coords.split(",");
+    if ( params.length >= 5 ) {
+      String name = params[0].replaceAll(" ","_"); // cave name
+      try { // FIXME coordinates NOT SURE THERE IS z
+        float x = Float.parseFloat( params[1] );
+        float y = Float.parseFloat( params[2] );
+        float z = Float.parseFloat( params[3] );
+        String vt_cs = params[4]; // ccords system: must be present in VisualTopo registry
+        fixes.add( new Cave3DFix( name, x, y, z, new Cave3DCS( vt_cs ) ) ); // FIXME
+        return true;
+      } catch ( NumberFormatException e ) { }
+    }
+    return false;
+  }
+
   /** read input TRO file
    */
   private boolean readFile( String filename )
@@ -72,8 +89,10 @@ public class ParserTro extends TglParser
     if ( ! checkPath( filename ) ) return false;
 
     int linenr = 0;
+    String entrance = null;
+    String coords   = null;
     // Log.v( "TopoGL-TRO", "DAT file <" + filename + "> station " + station );
-    Cave3DCS cs = null;
+    // Cave3DCS cs = null;
     // int in_data = 0; // 0 none, 1 normal, 2 dimension
 
     // String survey = null; // UNUSED
@@ -122,18 +141,10 @@ public class ParserTro extends TglParser
           int idx = nextIndex( vals, -1 );
           if ( line.startsWith("Version") ) {
             // IGNORE
-          } else if ( line.startsWith("Trou") ) { // cave name and crs are not handled
-            // String[] params = line.substring(5).split(",");
-            // if ( params.length > 0 ) {
-            //   String name = params[0].replaceAll(" ","_");
-            //   try { // TODO coordinates
-            //     float x = Float.parseFloat( params[1] );
-            //     float y = Float.parseFloat( params[2] );
-            //     // float z = Float.parseFloat( params[3] );
-            //     String vt_cs = params[3]; // ccords system: must be present in VisualTopo registry
-            //     fixes.add( new Cave3DFix( name, x, y, z, cs ) ); // FIXME
-            //   } catch ( NumberFormatException e ) { }
-            // }
+          } else if ( line.startsWith("Trou") ) { 
+            if ( entrance == null || !  setTroFix( entrance, line.substring(5) ) ) {
+              coords = line.substring(5);
+            }
           } else if ( vals[idx].equals("Param") ) {
             for ( int k = idx+1; k < vals.length; ++k ) {
               if ( vals[k].equals("Deca") ) {
@@ -185,6 +196,11 @@ public class ParserTro extends TglParser
               }
             }
           } else if ( vals[idx].equals("Entree") ) { // entrance station
+            if ( vals.length > 1 ) {
+              if ( coords == null || ! setTroFix( vals[1], coords ) ) {
+                entrance = vals[1];
+              }
+            }
           } else if ( vals[idx].equals("Club") ) {  // team and caving club
             // IGNORE mTeam = line.substring(5);
           } else if ( vals[idx].equals("Couleur") ) { 

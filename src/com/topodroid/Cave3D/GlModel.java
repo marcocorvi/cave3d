@@ -153,7 +153,7 @@ public class GlModel
   // static void togglePlanview() { planviewMode = ( planviewMode + 1 ) % 4; }
   static void toggleWallMode() { wallMode = ! wallMode; }
   static void toggleSurface() { surfaceMode = ! surfaceMode; }
-  static void toggleSurfaceLegs() { surfaceLegsMode = ! surfaceLegsMode; }
+  // static void toggleSurfaceLegs() { surfaceLegsMode = ! surfaceLegsMode; }
   static void toggleFrameMode()   { frameMode = (frameMode + 1) % FRAME_MAX; }
 
   static void resetModes()
@@ -172,7 +172,13 @@ public class GlModel
   {
     if ( glLegs   != null ) glLegs.setColorMode( GlLines.COLOR_NONE );
     if ( glSplays != null ) glSplays.setColorMode( GlLines.COLOR_NONE );
+    clearStationHighlight();
+  }
+  
+  void clearStationHighlight()
+  {
     if ( glNames  != null ) glNames.clearHighlight();
+    setPath( null );
   }
 
   synchronized void toggleColorMode() { 
@@ -241,14 +247,6 @@ public class GlModel
         // }
       }
     }
-    if ( surfaceLegsMode ) {
-      GlLines surface_legs = null;
-      synchronized( this ) { surface_legs = glSurfaceLegs; }
-      if ( surface_legs != null ) {
-        GL.setLineWidth( 1.0f );
-        surface_legs.draw( mvp_matrix, DRAW_ALL );
-      }
-    }
 
     if ( wallMode ) {
       GlTriangles walls = null;
@@ -260,6 +258,15 @@ public class GlModel
       }
     }
     GL.enableDepth( false );
+
+    if ( surfaceLegsMode ) {
+      GlLines surface_legs = null;
+      synchronized( this ) { surface_legs = glSurfaceLegs; }
+      if ( surface_legs != null ) {
+        GL.setLineWidth( 2.0f );
+        surface_legs.draw( mvp_matrix, DRAW_ALL );
+      }
+    }
 
     if ( projMode == PROJ_PLAN ) {
       GlLines plan = null;
@@ -412,9 +419,10 @@ public class GlModel
       for ( Cave3DPolygon poly : computer.getPlanview() ) {
         int nn = poly.size();
         if ( nn > 2 ) {
-          Vector3D p1 = new Vector3D( poly.get( nn - 1 ) );
+          // leave polygon border open, otherwise there can be long lines that are artifacts
+          Vector3D p1 = new Vector3D( poly.get( 0 ) );
           p1.z = mZ0Min;
-          for ( int k = 0; k < nn; ++k ) {
+          for ( int k = 1; k < nn; ++k ) {
             Vector3D p2 = new Vector3D( poly.get( k ) );
             p2.z = mZ0Min;
             plan.addLine( p1, p2, 4, false, mXmed, mYmed, mZmed );
@@ -428,15 +436,14 @@ public class GlModel
     if ( computer.hasProfilearcs() ) {
       GlLines profile = new GlLines( mContext, TglColor.ColorPlan );
       for ( Cave3DSegment sgm : computer.getProfilearcs() ) {
-        Vector3D p1 = sgm.v1;
-        Vector3D p2 = sgm.v2;
-        profile.addLine( p1, p2, 4, false, mXmed, mYmed, mZmed );
+        profile.addLine( sgm.v1, sgm.v2, 4, false, mXmed, mYmed, mZmed );
       }
       profile.initData();
       synchronized( this ) { glProfile = profile; }
     }
   }
 
+  // called by GlRenderer notifyDEM
   void prepareDEM( ParserDEM dem ) 
   {
     if ( dem == null ) return;
@@ -446,12 +453,13 @@ public class GlModel
     surface.initData( dem, mXmed, mYmed, mZmed );
     synchronized( this ) { glSurface = surface; }
     glLegs.prepareDepthBuffer( mParser.getShots(), dem );
+    prepareSurfaceLegs( mParser, dem );
   }
   
-  void prepareSurfaceLegs( TglParser parser, DEMsurface surface )
+  private void prepareSurfaceLegs( TglParser parser, DEMsurface surface )
   {
     if ( parser == null || surface == null ) return;
-    // Log.v("TopoGL", "prepare surface legs");
+    // Log.v("TopoGL", "prepare surface legs. Shots " + parser.getShots().size() );
     GlLines surface_legs = new GlLines( mContext, TglColor.ColorSurfaceLeg );
     for ( Cave3DShot leg : parser.getShots() ) {
       Vector3D v1 = new Vector3D( leg.from_station );
@@ -461,6 +469,7 @@ public class GlModel
       surface_legs.addLine( v1, v2, 3, false, mXmed, mYmed, mZmed ); // 3: color_index, false: fixed colors
     }
     surface_legs.computeBBox();
+    // surface_legs.logMinMax();
     surface_legs.initData();
     synchronized( this ) { glSurfaceLegs = surface_legs; }
   }
@@ -636,6 +645,9 @@ public class GlModel
 
     mDiameter = legs.diameter();
     mY0med    = legs.getYmed();
+
+    // legs.logMinMax();
+    // splays.logMinMax();
 
     synchronized( this ) {
       glLegs = legs;

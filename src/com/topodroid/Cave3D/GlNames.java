@@ -32,7 +32,7 @@ class GlNames extends GlShape
   static final int STATION_NONE  = 0;
   static final int STATION_POINT = 1;
   static final int STATION_NAME  = 2;
-  static final int STATION_ALL   = 3; 
+  // static final int STATION_ALL   = 3; 
   static final int STATION_MAX   = 3; // skip station_all
 
   static int stationMode = STATION_NONE;     // show_stations;
@@ -51,9 +51,9 @@ class GlNames extends GlShape
 
   private boolean hasNames() { return nameBuffer != null; }
 
-  static boolean showStationNames()  { return (stationMode == STATION_NAME || stationMode == STATION_ALL); }
+  static boolean showStationNames()  { return stationMode == STATION_NAME /* || stationMode == STATION_ALL */ ; }
   static boolean hiddenStations()    { return stationMode == STATION_NONE; }
-  static boolean showStationPoints() { return stationMode == STATION_POINT || stationMode == STATION_ALL ; }
+  static boolean showStationPoints() { return stationMode == STATION_POINT /* || stationMode == STATION_ALL */ ; }
 
   // ----------------------------------------
  

@@ -47,7 +47,6 @@ public class ParserTh extends TglParser
 
   DataHelper mData;
 
-  private Cave3DFix mOrigin = null; // coordinates of the origin station
   private Cave3DCS cs1 = null;
 
   static int parseFlip( String flip )
@@ -235,10 +234,9 @@ public class ParserTh extends TglParser
 
         float alat = (float)fx.mLatitude;
         if ( alat < 0 ) alat = -alat;
+        // KML radius is already premultiplied by PI/180
         float s_radius = ((90 - alat) * ExportKML.EARTH_RADIUS1 + alat * ExportKML.EARTH_RADIUS2)/90;
         float e_radius = s_radius * (float)Math.cos( alat * PI_180 );
-        s_radius *= PI_180;
-        e_radius *= PI_180;
 
         x0 = (float)fx.mLongitude * e_radius;
         y0 = (float)fx.mLatitude * s_radius;
@@ -246,17 +244,18 @@ public class ParserTh extends TglParser
         // Log.v( "Cave3D-TH", "Fix Long-Lat " + x0 + " " + y0 + " " + z0 + " cs1 " + ((fx.mCsName!=null)?fx.mCsName:"null")  );
         if ( mOrigin == null ) {
           // Log.v( "Cave3D-TH", "Fix origin " + name + " " + x0 + " " + y0 + " " + z0 );
-          mOrigin = new Cave3DFix( name, x0, y0, z0, cs0 );
           if ( fx.mCsName != null ) {
             cs1 = new Cave3DCS( fx.mCsName );
             x1 = (float)fx.mCsLongitude;
             y1 = (float)fx.mCsLatitude;
             z1 = (float)fx.mCsAltitude;
             // Log.v( "Cave3D-TH", "FIX " + name + " CS1 " + fx.mCsName + " " + x1 + " " + y1 + " " + z1 );
-	    fixes.add( new Cave3DFix( name, x1, y1, z1, cs1 ) );
+            mOrigin = new Cave3DFix( name, x1, y1, z1, cs1, fx.mLongitude, fx.mLatitude );
+	    fixes.add( mOrigin );
           } else {
             // Log.v( "Cave3D-TH", "CS0 " + x0 + " " + y0 + " " + z0 );
-	    fixes.add( new Cave3DFix( name, x0, y0, z0, cs0 ) );
+            mOrigin = new Cave3DFix( name, x0, y0, z0, cs0, fx.mLongitude, fx.mLatitude );
+	    fixes.add( mOrigin );
           }
         } else {
           // Log.v( "Cave3D-TH", "Fix relative " + name + " " + x0 + " " + y0 + " " + z0 + " cs1 " + ((fx.mCsName!=null)?fx.mCsName:"null") );
@@ -265,13 +264,10 @@ public class ParserTh extends TglParser
             y1 = (float)fx.mCsLatitude;
             z1 = (float)fx.mCsAltitude;
             // Log.v( "Cave3D-TH", "fix " + name + " using " + cs1.name + " " + x1 + " " + y1 + " " + z1 );
-	    fixes.add( new Cave3DFix( name, x1, y1, z1, cs1 ) );
+	    fixes.add( new Cave3DFix( name, x1, y1, z1, cs1, fx.mLongitude, fx.mLatitude ) );
           } else {
             // Log.v( "Cave3D-TH", "use CS0 " + x0 + " " + y0 + " " + z0 );
-            // x0 -= mOrigin.x; // displacement of fix (using CS0)
-            // y0 -= mOrigin.y;
-            // z0 -= mOrigin.z;
-	    fixes.add( new Cave3DFix( name, x0, y0, z0, cs0 ) );
+	    fixes.add( new Cave3DFix( name, x0, y0, z0, cs0, fx.mLongitude, fx.mLatitude ) );
           }
         }
       }

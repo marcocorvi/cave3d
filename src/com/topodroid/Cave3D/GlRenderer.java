@@ -63,6 +63,8 @@ public class GlRenderer implements Renderer
   static int projectionMode = PROJ_ORTHOGRAPHIC;
   static void toggleProjectionMode() { projectionMode = 1 - projectionMode; }
 
+  static boolean mMeasureCompute = false;
+
   static float nearZ() { return (projectionMode == PROJ_ORTHOGRAPHIC)? NEAR_O : NEAR_P; }
   static float farZ()  { return (projectionMode == PROJ_ORTHOGRAPHIC)? FAR_O  : FAR_P;  }
 
@@ -258,14 +260,18 @@ public class GlRenderer implements Renderer
 
   void setModelPath( ArrayList< Cave3DStation > path ) { if ( mModel != null ) mModel.setPath( path ); }
 
+  void clearStationHighlight() { if ( mModel != null ) mModel.clearStationHighlight(); }
+
   void onTouch( float x, float y )
   {
     // if ( ! GlNames.showStationNames() ) return;
     if ( GlNames.hiddenStations() ) return;
+    if ( mMeasureCompute ) return;
+    mMeasureCompute = true;
 
     x = ( x - mHalfWidth  ) / mHalfWidth;
     y = ( mHalfHeight - y ) / mHalfHeight;
-    if ( mMVPMatrixInv != null ) {
+    // if ( mMVPMatrixInv != null ) {
       /*
       final float[] near = { x, y, GlRenderer.nearZ(), 1 };
       final float[] far  = { x, y, GlRenderer.farZ(),  1 };
@@ -277,74 +283,10 @@ public class GlRenderer implements Renderer
       normalize( zf );
       final String fullname = mModel.checkNames( zn, zf, TopoGL.mSelectionRadius, (mParser.mStartStation == null) );
       */
-      final String fullname = mModel.checkNames( x, y, mMVPMatrix, TopoGL.mSelectionRadius, (mParser.mStartStation == null) );
-
-      if ( fullname != null ) {
-        // Log.v("TopoGL-STATION", fullname );
-        if ( mParser.mStartStation != null ) {
-          // Log.v("TopoGL-PATH", "distance/pathlength " + mParser.mStartStation.name + " " + fullname );
-          Cave3DStation station = mParser.getStation( fullname );
-          if ( station != null ) {
-            if ( station != mParser.mStartStation ) {
-              final TglMeasure res = mParser.computeCavePathlength( station );
-              if ( station.getPathPrevious() != null ) {
-                ArrayList< Cave3DStation > path = new ArrayList< >();
-                while ( station != null ) {
-                  path.add( station );
-                  station = station.getPathPrevious();
-                }
-                // Log.v("TopoGL-PATH", "path size " + path.size() );
-                mModel.setPath( path );
-              }
-              mApp.runOnUiThread( new Runnable() {
-                @Override public void run() {
-                  if ( TopoGL.mMeasureToast ) {
-                    Toast.makeText( mApp, res.getString(), Toast.LENGTH_LONG ).show();
-                  } else {
-                    (new DialogMeasure( mApp, res )).show();
-                  }
-                  mApp.refresh();
-                }
-              } );
-            } else {
-              mApp.closeCurrentStation();
-            }
-          } else {
-            Log.w("TopoGL-PATH", "null station" );
-            // mModel.setPath( null );
-          }
-        } else {
-          mModel.setPath( null );
-          mParser.setStartStation( fullname );
-          mApp.runOnUiThread( new Runnable() {
-            @Override public void run() {
-              if ( TopoGL.mStationDialog ) {
-                (new DialogStation( mApp, mParser, fullname, mDEM )).show();
-              } else {
-                Cave3DStation st = mParser.getStation( fullname );
-                if ( st != null ) {
-                  DEMsurface surface = (mDEM != null)? mDEM : mParser.getSurface();
-                  String msg = String.format("%s: E %.1f N %.1f H %.1f", st.short_name, st.x, st.y, st.z );
-                  if (surface != null) {
-                    double zs = surface.computeZ( st.x, st.y );
-                    if ( zs > -1000 ) {
-                      zs -= st.z;
-                      msg = msg + String.format("\nDepth %.1f", zs );
-                    }
-                  }
-                  mApp.showCurrentStation( msg );
-                  // Toast.makeText( mApp, msg, Toast.LENGTH_SHORT ).show();
-                }
-              }
-            }
-          } );
-        }
-      } else {
-        // mModel.setPath( null );
-        // mParser.mStartStation = null;
-      }
-    }
+      new MeasureComputer( mApp, x, y, mMVPMatrix, mParser, mDEM, mModel ).execute();
+    // }
   }
+
 
   void setAngles( float azimuth, float clino )
   {
@@ -578,7 +520,7 @@ public class GlRenderer implements Renderer
   // void toggleWallMode()    { GlModel.toggleWallMode(); }
   void toggleColorMode()   { if ( mModel != null ) mModel.toggleColorMode(); }
   void toggleFrameMode()   { GlModel.toggleFrameMode(); }
-  void toggleSurfaceLegs() { GlModel.toggleSurfaceLegs(); }
+  // void toggleSurfaceLegs() { GlModel.toggleSurfaceLegs(); }
 
   int getColorMode() { return ( mModel != null )? mModel.getColorMode() : GlLines.COLOR_NONE; }
 
@@ -603,7 +545,7 @@ public class GlRenderer implements Renderer
       mDEM = dem;
       if ( mDEM != null ) {
         mModel.prepareDEM( dem );
-        mModel.prepareSurfaceLegs( mParser, dem );
+        // mModel.prepareSurfaceLegs( mParser, dem );
       }
     }
   }

@@ -27,25 +27,26 @@ public class MyButton extends Button
 {
   Context mContext;
   BitmapDrawable mBitmap;
-  BitmapDrawable mBitmap2;
-  OnClickListener mListener;
+  // BitmapDrawable mBitmap2;
+  // OnClickListener mListener;
   int mSize;
   float mX, mY;
 
-  public MyButton( Context context, OnClickListener click_listener, int size, int res_id, int res_id2 )
+  public MyButton( Context context, OnClickListener click_listener, int size, int res_id /*, int res_id2 */ )
   {
     super( context );
     mContext = context;
     setPadding(0,0,0,0);
     mSize = size;
-    mListener = click_listener;
-    // setOnClickListener( click_listener );
+    // mListener = click_listener;
+    setOnClickListener( click_listener );
         
-    mBitmap  = getButtonBackground2( mContext, size, res_id );
+    mBitmap  = getButtonBackground( mContext, size, res_id );
     // mBitmap2 = ( res_id2 > 0 )? getButtonBackground( mContext, size, res_id2 ) : null;
     setBackgroundDrawable( mBitmap );
   }
 
+/*
   @Override
   public boolean onTouchEvent( MotionEvent ev )
   {
@@ -64,7 +65,9 @@ public class MyButton extends Button
     }
     return false;
   }
+*/
 
+/*
   private BitmapDrawable getButtonBackground2( Context c, int size, int res_id )
   {
     Bitmap bm1 = BitmapFactory.decodeResource( c.getResources(), res_id );
@@ -80,7 +83,7 @@ public class MyButton extends Button
     BitmapDrawable bm2 = new BitmapDrawable( c.getResources(), bmx );
     return bm2;
   }
-
+*/
 
   static BitmapDrawable getButtonBackground( Context c, int size, int res_id )
   {
