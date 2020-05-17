@@ -2,6 +2,7 @@
 <resources>
     <!-- TODO string name="btn_ok">OK</string -->
     <!-- TODO string name="btn_cancel">Cancel</string -->
+    <!-- TODO string name="btn_close">Close</string -->
     <!-- TODO string name="btn_compute">Compute</string -->
 
     <string name="btn_move">Posun</string>
@@ -14,6 +15,7 @@
     <string name="menu_open">Otvoriť súbor</string>
     <string name="menu_options">Nastavenia</string>
     <string name="menu_reset">Reset</string>
+    <!-- UNUSED string name="menu_zoom_one">Zoom 1</string -->
 
     <!-- TODO string name="menu_alpha">DEM opacity</string -->
     <string name="menu_viewpoint">Pohľad z ...</string>
@@ -26,27 +28,62 @@
     <string name="menu_rose">Ružicový diagram</string>
     <string name="menu_wall">Modely Stien</string>
     <string name="menu_fractal">Fraktálne výpočty</string>
+    <!-- TODO string name="menu_help">Help</string -->
 
     <string name="fractal_title">Fraktálne výpočty</string>
     <string name="info_title">INFO</string>
+    <!-- TODO string name="info_surveys">SURVEYS</string -->
     <string name="info_axes">Osi: modrá = Sever, zelená = Východ</string>
     <string name="info_grid">Rám mriežky [m]</string>
     <string name="info_view">Pohľad z</string>
     <string name="info_surveys">Jaskyne</string>
+    <!-- TODO string name="info_shot">Shots</string -->
+    <!-- TODO string name="info_station">Stations</string -->
     <string name="info_length">Dĺžka</string>
     <string name="info_depth">Hĺbka</string>
     <string name="info_volume">Objem</string>
 
+    <!-- TODO string name="info_east">East</string -->
+    <!-- TODO string name="info_north">North</string -->
+    <!-- TODO string name="info_z">Altitude</string -->
+    <!-- TODO string name="info_grid_value">%1$.0f m</string -->
+    <!-- TODO string name="info_view_value">A. %1$.0f C. %2$.0f</string -->
+    <!-- TODO string name="info_survey_value">%1$d</string -->
+    <!-- TODO string name="info_shot_value">Legs %1$d, Splays %2$d</string -->
+    <!-- TODO string name="info_station_value">%1$d</string -->
+    <!-- TODO string name="info_length_value">%1$.1f m</string -->
+    <!-- TODO string name="info_depth_value">%1$.1f m</string -->
+    <!-- string name="info_volume_value">P. %1$.0f m&#00b3; C. %2$.0f m&#00b3;</string -->
+    <!-- TODO string name="info_volume_value">P. %1$.0f m³ C. %2$.0f m³</string -->
+    <!-- TODO string name="info_east_value">W %1$.1f E %2$.1f</string -->
+    <!-- TODO string name="info_north_value">S %1$.1f N %2$.1f</string -->
+    <!-- TODO string name="info_z_value">%1$.1f  %2$.1f</string -->
+
     <string name="query" formatted="false">Jaskyne: %d Zámery: %d Staničenia: %d\nDĺžka: %d Hĺbka: %d</string>
     <string name="no_files">Žiadne súbory</string>
+    <!-- TODO string name="reading_file">Reading file %1$s</string -->
     <string name="clear">Vyčistiť</string>
+
+    <!-- TODO string name="plan_proj">Plan</string -->
+    <!-- TODO string name="profile_proj">Profile</string -->
+    <!-- TODO string name="dist_no_path">%1$s %2$s: D %3$.1f (%4$.1f %5$.1f %6$.1f)</string -->
+    <!-- TODO string name="dist_path">%1$s %2$s: D %3$.1f (%4$.1f %5$.1f %6$.1f) Cave %7$.1f</string -->
+    <!-- TODO string name="measure">measure</string -->
 
     <!-- TODO string name="style_stroke">Stroke</string -->
     <!-- TODO string name="style_stroke_fill">Fill &amp; Stroke</string -->
     <!-- TODO string name="style_fill">Fill</string -->
     <!-- TODO string name="surface_projection">Projection on DEM</string -->
+    <!-- TODO string name="surface_texture">Surface texture</string -->
     <!-- TODO string name="dem_file">DEM %1$s</string -->
     <!-- TODO string name="dem_load">load</string -->
+
+    <!-- TODO string name="dem_failed">Failed DEM loading</string -->
+    <!-- TODO string name="dem_ok">Read DEM data</string -->
+    <!-- TODO string name="texture_file">%1$s</string -->
+    <!-- TODO string name="texture_load">load texture</string -->
+    <!-- TODO string name="texture_failed">Failed texture loading</string -->
+    <!-- TODO string name="texture_ok">Read texture file</string -->
 
     <string name="title">%1$s  Uhol: %2$.0f  Azimut: %3$.0f</string>
     <string name="title_clino"> Uhol: </string>
@@ -57,8 +94,15 @@
     <string name="survey_legs_length"> Dĺžka hlavných zámer: </string>
     <string name="survey_splays"> Pomocné zámery: </string>
     <string name="survey_splays_length"> Dĺžka pomocných zámer: </string>
+
+    <!-- TODO string name="cave_east"> E: %1$.1f</string -->
+    <!-- TODO string name="cave_north"> N: %1$.1f</string -->
+    <!-- TODO string name="cave_vert"> Z: %1$.1f</string -->
+
     <string name="cave_distance"> 3D vzdialenosť: %1$.2f</string>
+    <!-- TODO string name="horz_distance"> 2D horizontal distance: %1$.1f</string -->
     <string name="cave_length"> Dĺžka jaskyne: %1$.2f</string>
+    <!-- TODO string name="cave_angle"> Azimuth: %1$.0f  Clino: %2$.0f</string -->
 
     <string name="SURVEYS">JASKYNE</string>
     <string name="INFO">INFO</string>
@@ -69,6 +113,7 @@
     <string name="CENTER">CENTROVANIE</string>
     <string name="select_file">Cave3D - Vybrať súbor:</string>
     <!-- TODO string name="select_dem_file">Select a DEM file:</string -->
+    <!-- TODO string name="select_texture_file">Select a texture file:</string -->
     <string name="Wall">Steny</string>
     <string name="Surface">Povrch</string>
 
@@ -123,6 +168,11 @@
     <!-- TODO string name="no_file">No file %1$s\n</string -->
     <!-- TODO string name="empty_survey">Empty survey %1$s\n</string -->
 
+    <!-- TODO string name="category_surface">SURFACE</string -->
+    <!-- TODO string name="category_walls">WALLS</string -->
+    <!-- TODO string name="category_stations">STATIONS</string -->
+    <!-- TODO string name="category_grid">GRID</string -->
+    
     <string name="pref_base_path_title">Základný adresár</string>
     <string name="pref_base_path_summary">Základný adresár/cesta k súborom</string>
     <string name="pref_text_size_title">Veľkosť meračských bodov</string>
@@ -131,12 +181,30 @@
     <string name="pref_size_buttons_summary">Veľkosť ikoniek na obrazovke</string>
     <string name="pref_selection_radius_title">Rozsah výberu</string>
     <string name="pref_selection_radius_summary">Rozsah výberu</string>
+
+    <!-- TODO string name="pref_station_toast_title">Station dialog</string -->
+    <!-- TODO string name="pref_station_toast_summary">Station data dialog instead of box [n]</string -->
+    <!-- TODO string name="pref_station_points_title">Station points</string -->
+    <!-- TODO string name="pref_station_points_summary">Display stations always [n]</string -->
+    <!-- TODO string name="pref_station_size_title">Station point size</string -->
+    <!-- TODO string name="pref_station_size_summary">Size of station points [8 pxl]</string -->
+    <!-- TODO string name="pref_measure_dialog_title">Distance message</string -->
+    <!-- TODO string name="pref_measure_dialog_summary">Distance message instead of doalog [n]</string -->
+ 
     <string name="pref_grid_above_title">Mriežka navrchu</string>
     <string name="pref_grid_above_summary">Zaškrtnuté = mriežka hore</string>
+    <!-- TODO string name="pref_grid_extent_title">Grid extent</string -->
+    <!-- TODO string name="pref_grid_extend_summary">Grid extent arond the survey</string -->
     <string name="pref_neg_clino_title">Pohľady spod horizontu</string>
     <string name="pref_neg_clino_summary">Dovoliť pohľady aj spod horizontu</string>
     <!-- TODO string name="pref_dem_buffer_title">DEM buffer</string -->
     <!-- TODO string name="pref_dem_buffer_summary">DEM extent around survey</string -->
+   
+    <!-- TODO string name="pref_dem_maxsize_title">DEM max size</string -->
+    <!-- TODO string name="pref_dem_maxsize_summary">Maximum number of cells [400]</string -->
+    <!-- TODO string name="pref_dem_reduce_title">DEM reduce</string -->
+    <!-- TODO string name="pref_dem_reduce_summary">DEM reducing mode [shrink]</string -->
+  
     <string name="pref_all_splay_title">Všetky pomocné zámery</string>
     <string name="pref_all_splay_summary">Použiť všetky pomocné zámery pre zobrazenie stien</string>
 
@@ -162,5 +230,6 @@
     <!-- TODO string name="perms_mandatory">Cave3D cannot run without these permissions:</string -->
     <!-- TODO string name="perms_optional">Cave3D may fail without these permissions:</string -->
     <!-- TODO string name="welcome_title">Cave3D %1$s</string -->
+    <!-- TODO string name="help_title">Cave3D %1$s Help</string -->
 
 </resources>

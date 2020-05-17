@@ -2,6 +2,7 @@
 <resources>
     <!-- TODO string name="btn_ok">OK</string -->
     <!-- TODO string name="btn_cancel">Cancel</string -->
+    <!-- TODO string name="btn_close">Close</string -->
     <!-- TODO string name="btn_compute">Compute</string -->
 
     <string name="btn_move">Déplacer</string>
@@ -30,19 +31,43 @@
     <!-- TODO string name="menu_help">Help</string -->
 
     <!-- TODO string name="fractal_title">Fractal counts</string -->
-
     <string name="info_title">Information</string>
+    <!-- TODO string name="info_surveys">SURVEYS</string -->
     <string name="info_axes">Axes: bleu Nord, vert Est</string>
     <string name="info_grid">Grille quadrillage (m)</string>
     <string name="info_view">Point de vue</string>
     <string name="info_surveys">Topographie</string>
+    <!-- TODO string name="info_shot">Shots</string -->
+    <!-- TODO string name="info_station">Stations</string -->
     <string name="info_length">Longueur</string>
     <string name="info_depth">Profondeur</string>
     <string name="info_volume">Volume</string>
 
+    <!-- TODO string name="info_east">East</string -->
+    <!-- TODO string name="info_north">North</string -->
+    <!-- TODO string name="info_z">Altitude</string -->
+    <!-- TODO string name="info_grid_value">%1$.0f m</string -->
+    <!-- TODO string name="info_view_value">A. %1$.0f C. %2$.0f</string -->
+    <!-- TODO string name="info_survey_value">%1$d</string -->
+    <!-- TODO string name="info_shot_value">Legs %1$d, Splays %2$d</string -->
+    <!-- TODO string name="info_station_value">%1$d</string -->
+    <!-- TODO string name="info_length_value">%1$.1f m</string -->
+    <!-- TODO string name="info_depth_value">%1$.1f m</string -->
+    <!-- string name="info_volume_value">P. %1$.0f m&#00b3; C. %2$.0f m&#00b3;</string -->
+    <!-- TODO string name="info_volume_value">P. %1$.0f m³ C. %2$.0f m³</string -->
+    <!-- TODO string name="info_east_value">W %1$.1f E %2$.1f</string -->
+    <!-- TODO string name="info_north_value">S %1$.1f N %2$.1f</string -->
+    <!-- TODO string name="info_z_value">%1$.1f  %2$.1f</string -->
+
     <string name="query" formatted="false">Topographie: %d Visées: %d Station: %d\nLongueur : %d Profondeur : %d</string>
     <string name="no_files">Pas de fichier archive</string>
     <string name="clear">Effacer</string>
+
+    <!-- TODO string name="plan_proj">Plan</string -->
+    <!-- TODO string name="profile_proj">Profile</string -->
+    <!-- TODO string name="dist_no_path">%1$s %2$s: D %3$.1f (%4$.1f %5$.1f %6$.1f)</string -->
+    <!-- TODO string name="dist_path">%1$s %2$s: D %3$.1f (%4$.1f %5$.1f %6$.1f) Cave %7$.1f</string -->
+    <!-- TODO string name="measure">measure</string -->
 
     <!-- TODO string name="style_stroke">Stroke</string -->
     <!-- TODO string name="style_stroke_fill">Fill &amp; Stroke</string -->
@@ -50,6 +75,13 @@
     <!-- TODO string name="surface_projection">Projection on DEM</string -->
     <!-- TODO string name="dem_file">DEM %1$s</string -->
     <!-- TODO string name="dem_load">load</string -->
+
+    <!-- TODO string name="dem_failed">Failed DEM loading</string -->
+    <!-- TODO string name="dem_ok">Read DEM data</string -->
+    <!-- TODO string name="texture_file">%1$s</string -->
+    <!-- TODO string name="texture_load">load texture</string -->
+    <!-- TODO string name="texture_failed">Failed texture loading</string -->
+    <!-- TODO string name="texture_ok">Read texture file</string -->
 
     <string name="title">%1$s  Pente: %2$.0f  Azimut: %3$.0f</string>
     <string name="title_clino"> Pente : </string>
@@ -60,8 +92,15 @@
     <string name="survey_legs_length"> Longueur des visées : </string>
     <string name="survey_splays"> Visées latérales : </string>
     <string name="survey_splays_length"> Longueur des visées latérales : </string>
+
+    <!-- TODO string name="cave_east"> E: %1$.1f</string -->
+    <!-- TODO string name="cave_north"> N: %1$.1f</string -->
+    <!-- TODO string name="cave_vert"> Z: %1$.1f</string -->
+
     <string name="cave_distance"> Distance 3D : %1$.2f</string>
+    <!-- TODO string name="horz_distance"> 2D horizontal distance: %1$.1f</string -->
     <string name="cave_length"> Longueur de la cavité : %1$.2f</string>
+    <!-- TODO string name="cave_angle"> Azimuth: %1$.0f  Clino: %2$.0f</string -->
 
     <string name="SURVEYS">T o p o g r a p h i e</string>
     <string name="INFO">I n f o r m a t i o n</string>
@@ -69,8 +108,10 @@
     <string name="STATION">S t a t i o n</string>
     <string name="STATIONS_DISTANCE">Distance station</string>
     <string name="DISTANCE">Distance</string>
+    <!-- TODO string name="CENTER">CENTER</string -->
     <string name="select_file">Cave3D - Selectionner archive :</string>
     <!-- TODO string name="select_dem_file">Select a DEM file:</string -->
+    <!-- TODO string name="select_texture_file">Select a texture file:</string -->
     <string name="Wall">Parois</string>
     <string name="Surface">Superficie</string>
 
@@ -125,6 +166,11 @@
     <!-- TODO string name="no_file">No file %1$s\n</string -->
     <!-- TODO string name="empty_survey">Empty survey %1$s\n</string -->
 
+    <!-- TODO string name="category_surface">SURFACE</string -->
+    <!-- TODO string name="category_walls">WALLS</string -->
+    <!-- TODO string name="category_stations">STATIONS</string -->
+    <!-- TODO string name="category_grid">GRID</string -->
+
     <string name="pref_base_path_title">Dossier de la base de données</string>
     <string name="pref_base_path_summary">Dossier Therion</string>
     <string name="pref_text_size_title">Taille Texte</string>
@@ -133,12 +179,30 @@
     <string name="pref_size_buttons_summary">Taille des boutons</string>
     <string name="pref_selection_radius_title">Selection rayon</string>
     <string name="pref_selection_radius_summary">Selectionn rayon</string>
+
+    <!-- TODO string name="pref_station_toast_title">Station dialog</string -->
+    <!-- TODO string name="pref_station_toast_summary">Station data dialog instead of box [n]</string -->
+    <!-- TODO string name="pref_station_points_title">Station points</string -->
+    <!-- TODO string name="pref_station_points_summary">Display stations always [n]</string -->
+    <!-- TODO string name="pref_station_size_title">Station point size</string -->
+    <!-- TODO string name="pref_station_size_summary">Size of station points [8 pxl]</string -->
+    <!-- TODO string name="pref_measure_dialog_title">Distance message</string -->
+    <!-- TODO string name="pref_measure_dialog_summary">Distance message instead of doalog [n]</string -->
+ 
     <string name="pref_grid_above_title">Situation de la grille quadrillée</string>
     <string name="pref_grid_above_summary">Placer la grille dans la partie supérieure</string>
+    <!-- TODO string name="pref_grid_extent_title">Grid extent</string -->
+    <!-- TODO string name="pref_grid_extend_summary">Grid extent arond the survey</string -->
     <string name="pref_neg_clino_title">Vue sous l\'horizon</string>
     <string name="pref_neg_clino_summary">Permettre point de vue sous horizon</string>
     <!-- TODO string name="pref_dem_buffer_title">DEM buffer</string -->
     <!-- TODO string name="pref_dem_buffer_summary">DEM extent around survey</string -->
+   
+    <!-- TODO string name="pref_dem_maxsize_title">DEM max size</string -->
+    <!-- TODO string name="pref_dem_maxsize_summary">Maximum number of cells [400]</string -->
+    <!-- TODO string name="pref_dem_reduce_title">DEM reduce</string -->
+    <!-- TODO string name="pref_dem_reduce_summary">DEM reducing mode [shrink]</string -->
+  
     <string name="pref_all_splay_title">Toutes visées latérales</string>
     <string name="pref_all_splay_summary">Toutes visées latérales pour parois</string>
 
@@ -163,6 +227,7 @@
     <!-- TODO string name="perms_mandatory">Cave3D cannot run without these permissions:</string -->
     <!-- TODO string name="perms_optional">Cave3D may fail without these permissions:</string -->
     <!-- TODO string name="welcome_title">Cave3D %1$s</string -->
+    <!-- TODO string name="help_title">Cave3D %1$s Help</string -->
 
 </resources>
 

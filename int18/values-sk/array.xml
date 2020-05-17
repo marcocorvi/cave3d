@@ -4,8 +4,9 @@
      <item name="small1">Malé</item>
      <item name="large">Veľké</item>
   </string-array>
-  <string-array name="sizeButtonsValue">
-     <item name="small">1</item>
-     <item name="large">2</item>
-  </string-array>
+
+  <!-- TODO string-array name="demReduce">
+     <item name="shrink">Subsample</item>
+     <item name="cut">Clip</item>
+  </string-array -->
 </resources>

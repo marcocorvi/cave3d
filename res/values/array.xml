@@ -6,7 +6,7 @@
      <item name="small1">Small</item>
      <item name="large">Large</item>
   </string-array>
-  <string-array name="sizeButtonsValue">
+  <string-array name="sizeButtonsValue" translatable="false">
      <item name="small">1</item>
      <item name="large">2</item>
   </string-array>
@@ -16,7 +16,7 @@
      <item name="shrink">Subsample</item>
      <item name="cut">Clip</item>
   </string-array>
-  <string-array name="demReduceValue">
+  <string-array name="demReduceValue" translatable="false">
      <item name="shrink">1</item>
      <item name="cut">2</item>
   </string-array>
