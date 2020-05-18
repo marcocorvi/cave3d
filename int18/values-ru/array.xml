@@ -8,8 +8,8 @@
   </string-array>
 
 
-  <!-- TODO string-array name="demReduce">
-     <item name="shrink">Subsample</item>
-     <item name="cut">Clip</item>
-  </string-array -->
+  <string-array name="demReduce">
+     <item name="shrink">Передискретизировать</item>
+     <item name="cut">Обрезать</item>
+  </string-array>
 </resources>
