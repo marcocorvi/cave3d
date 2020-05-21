@@ -11,7 +11,7 @@
  */
 package com.topodroid.Cave3D;
 
-// import android.util.Log;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -66,7 +66,7 @@ class DialogOpenFile extends Dialog
   {
     public boolean accept( File dir, String name ) {
       File file = new File( dir, name );
-      if ( file.isDirectory() && ! name.startsWith(".") ) return true;
+      if ( file.isDirectory() && ! name.equals(".") ) return true;
       return false;
     }
   }
@@ -95,34 +95,46 @@ class DialogOpenFile extends Dialog
  
     mItems = new ArrayList< MyFileItem >();
     mArrayAdapter = new MyFileAdapter( mContext, this, mList, R.layout.message, mItems );
-    updateList( mApp.mAppBasePath );
-    mList.setAdapter( mArrayAdapter );
+    if ( ! updateList( mApp.mAppBasePath ) ) {
+      dismiss();
+    } else {
+      mList.setAdapter( mArrayAdapter );
+    }
   }
 
-  private void updateList( String basedir )
+  private boolean updateList( String basedir )
   {
-    if ( basedir == null ) return;
+    if ( basedir == null ) return false;
+    Log.v("TopoGL", "update list files " + basedir );
     File dir = new File( basedir );
     if ( dir.exists() ) {
       String[] dirs  = dir.list( new MyDirnameFilter() );
       String[] files = dir.list( new MyFilenameFilter() );
-      Arrays.sort( dirs );
-      Arrays.sort( files );
+      if ( dirs == null && files == null ) {
+        Toast.makeText( mContext, R.string.warning_empty_cwd, Toast.LENGTH_LONG ).show();
+        return false;
+      }
       mArrayAdapter.clear();
       mArrayAdapter.add( "..", true );
       if ( dirs != null ) {
+        Arrays.sort( dirs );
         for ( String item : dirs ) {
           mArrayAdapter.add( item, true );
         }
       }
-      if ( files != null ) {
+      if ( files != null && files.length > 0 ) {
+        Arrays.sort( files );
         for ( String item : files ) {
           mArrayAdapter.add( item, false );
         }
+      } else {
+        Toast.makeText( mContext, R.string.warning_no_file, Toast.LENGTH_LONG ).show();
       }
+      return true;
     } else {
       // should never comes here
       Toast.makeText( mContext, R.string.warning_no_cwd, Toast.LENGTH_LONG ).show();
+      return false;
     }
   }
 
@@ -138,8 +150,9 @@ class DialogOpenFile extends Dialog
       File dir = new File( mApp.mAppBasePath );
       String parent_dir = dir.getParent();
       if ( parent_dir != null ) {
-        mApp.mAppBasePath = parent_dir;
-        updateList( mApp.mAppBasePath );
+        if ( updateList( parent_dir ) ) {
+          mApp.mAppBasePath = parent_dir;
+        }
       } else {
         Toast.makeText( mContext, R.string.warning_no_parent, Toast.LENGTH_LONG ).show();
       }
@@ -147,8 +160,10 @@ class DialogOpenFile extends Dialog
     }
     File file = new File( mApp.mAppBasePath, name );
     if ( file.isDirectory() ) {
-      mApp.mAppBasePath += "/" + name;
-      updateList( mApp.mAppBasePath );
+      String dir = mApp.mAppBasePath + "/" + name;
+      if ( updateList( dir ) ) {
+        mApp.mAppBasePath = dir;
+      }
       return;
     }
     // Intent intent = new Intent();

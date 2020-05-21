@@ -152,7 +152,9 @@
     <!-- UNUSED string name="warning_not_las">Warning: not las file %1$s</string -->
     <!-- UNUSED string name="warning_not_cgal">Warning: not CGAL text file %1$s</string -->
     <!-- UNUSED string name="warning_not_stl">Warning: not stl file %1$s</string -->
-    <string name="warning_no_cwd">Warning: missing base path</string>
+    <string name="warning_no_cwd">Warning: no base path</string>
+    <string name="warning_no_file">Warning: no 3d file found</string>
+    <string name="warning_empty_cwd">Warning: empty base path</string>
     <string name="warning_no_parent">Warning: cannot go to parent folder</string>
 
     <string name="done_fractals">Done fractals dims</string>

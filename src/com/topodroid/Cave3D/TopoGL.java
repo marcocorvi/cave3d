@@ -73,15 +73,33 @@ public class TopoGL extends Activity
                     , OnItemClickListener
                     , OnSharedPreferenceChangeListener
 {
-  final static boolean ANDROID_10 = ( Build.VERSION.SDK_INT <= Build.VERSION_CODES.P );
+  // android P (9) is API 28
+  final static boolean NOT_ANDROID_10 = ( Build.VERSION.SDK_INT <= Build.VERSION_CODES.P );
+  final static boolean NOT_ANDROID_11 = ( Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q );
   static String VERSION = "";
 
   // private static final int REQUEST_OPEN_FILE = 1;
 
-  final static String APP_BASE_PATH = 
-    ANDROID_10 ? Environment.getExternalStorageDirectory().getAbsolutePath()
-               : Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
-  static String mAppBasePath  = APP_BASE_PATH;
+
+  static String EXTERNAL_STORAGE_PATH =  // app base path
+    NOT_ANDROID_11 ? Environment.getExternalStorageDirectory().getAbsolutePath()
+                   : null; 
+                   // : Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+                   // : "/sdcard";
+
+  static String HOME_PATH = EXTERNAL_STORAGE_PATH;
+                          // "/sdcard/Android/data/com.topodroid.Cave3D/files";
+  static String mAppBasePath = HOME_PATH;
+
+  // reset app base path
+  void checkAppBasePath()
+  {
+    if ( EXTERNAL_STORAGE_PATH == null ) {
+      EXTERNAL_STORAGE_PATH = getExternalFilesDir( null ).getPath();
+    }
+    mAppBasePath = EXTERNAL_STORAGE_PATH;
+    Log.v("TopoGL", "use base path " + mAppBasePath );
+  }
 
   static int mCheckPerms = -1;
 
@@ -125,7 +143,7 @@ public class TopoGL extends Activity
   public void onCreate(Bundle savedInstanceState) 
   {
     super.onCreate(savedInstanceState);
-    // Log.v( "TopoGL", "on create");
+    // Log.v( "TopoGL", "on create: Not Android 10 " + NOT_ANDROID_10 + " 11 " + NOT_ANDROID_11 );
 
     checkPermissions();
 
@@ -178,14 +196,14 @@ public class TopoGL extends Activity
 
         String name = extras.getString( "INPUT_FILE" );
         if ( name != null ) { // used by TdManager
-          // Log.v( "Cave3D-EXTRA", "TopoDroid filename " + name );
+          Log.v( "TopoGL-EXTRA", "TopoDroid filename " + name );
           file_dialog = false;
           doOpenFile( name, true ); // asynch
         } else {
           name = extras.getString( "INPUT_SURVEY" );
           String base = extras.getString( "SURVEY_BASE" );
           if ( name != null ) {
-            // Log.v( "Cave3D-EXTRA", "open input survey " + name + " base " + base );
+            Log.v( "TopoGL-EXTRA", "open input survey " + name + " base " + base );
             if ( doOpenSurvey( name, base ) ) {
               file_dialog = false;
             } else {
@@ -814,10 +832,11 @@ public class TopoGL extends Activity
 
   private boolean doOpenSurvey( String survey, String base )
   {
-    mAppBasePath = base;
+    // checkAppBasePath();
+    // mAppBasePath = base;
     mFilename = survey;
     boolean ret = initRendering( survey, base );
-    // Log.v( "TopoGL", "do open survey: " + (ret? "true" : "false" ) );
+    Log.v( "TopoGL", "do open survey: " + base + "/" + survey + " " + (ret? "true" : "false" ) );
     return true;
   }
 
@@ -1124,10 +1143,11 @@ public class TopoGL extends Activity
 
   public void onSharedPreferenceChanged( SharedPreferences sp, String k ) 
   {
+    // checkAppBasePath();
     if ( k.equals( CAVE3D_BASE_PATH ) ) { 
-      mAppBasePath = sp.getString( k, APP_BASE_PATH );
-      // Log.v( "TopoGL", "SharedPref change: path " + mAppBasePath );
-      if ( mAppBasePath == null ) mAppBasePath = APP_BASE_PATH;
+      mAppBasePath = sp.getString( k, HOME_PATH );
+      Log.v( "TopoGL", "SharedPref change: path " + mAppBasePath );
+      if ( mAppBasePath == null ) mAppBasePath = HOME_PATH;
     } else if ( k.equals( CAVE3D_TEXT_SIZE ) ) {
       try {
         int size = Integer.parseInt( sp.getString( k, "10" ) );
@@ -1227,8 +1247,9 @@ public class TopoGL extends Activity
   private void loadPreferences( SharedPreferences sp )
   {
     float r;
-    mAppBasePath = sp.getString( CAVE3D_BASE_PATH, APP_BASE_PATH );
-    if ( mAppBasePath == null ) mAppBasePath = APP_BASE_PATH;
+    checkAppBasePath();
+    mAppBasePath = sp.getString( CAVE3D_BASE_PATH, HOME_PATH );
+    if ( mAppBasePath == null ) mAppBasePath = HOME_PATH;
     try {
       int size = Integer.parseInt( sp.getString( CAVE3D_TEXT_SIZE, "10" ) );
       GlNames.setTextSize( size );
@@ -1332,7 +1353,7 @@ public class TopoGL extends Activity
 
   private boolean initRendering( String survey, String base ) 
   {
-    // Log.v("TopoGL", "init rendering " + survey + " base " + base );
+    Log.v("TopoGL", "init rendering " + survey + " base " + base );
     try {
       mParser = new ParserTh( this, survey, base ); // survey data directly from TopoDroid database
       CWConvexHull.resetCounters();

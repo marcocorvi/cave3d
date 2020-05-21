@@ -81,12 +81,18 @@ class DataHelper extends DataSetObservable
   void openDatabase( Context context, String database_name, int db_version )
   {
     // String database_name = TDPath.getDatabase();
+    Log.v("TopoGL", "database " + database_name + " version " + db_version );
     DistoXOpenHelper openHelper = new DistoXOpenHelper( context, database_name, db_version );
+    if ( openHelper == null ) {
+      Log.e("TopoGL-DB", "null helper");
+      return;
+    }
 
     try {
-        myDB = openHelper.getWritableDatabase();
+        // myDB = openHelper.getWritableDatabase();
+        myDB = openHelper.getReadableDatabase();
         if ( myDB == null ) {
-          // Log.v( TAG, "failed get writable database" );
+          Log.e("TopoGL-DB", "failed get writable database" );
           return;
         }
 

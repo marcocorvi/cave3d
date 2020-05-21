@@ -91,7 +91,7 @@ public class ParserTh extends TglParser
     mMarks = new ArrayList< String >();
 
     String path = base + "distox14.sqlite";
-    // Log.v( "Cave3D-TH", "Th parser DB " + path + " survey " + surveyname );
+    Log.v( "TopoGL-TH", "Th parser DB " + path + " survey " + surveyname );
     mData = new DataHelper( cave3d, path, TOPODROID_DB_VERSION ); // FIXME DB VERSION
 
     StringWriter sw = new StringWriter();
