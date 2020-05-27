@@ -91,7 +91,7 @@ public class ParserTh extends TglParser
     mMarks = new ArrayList< String >();
 
     String path = base + "distox14.sqlite";
-    Log.v( "TopoGL-TH", "Th parser DB " + path + " survey " + surveyname );
+    // Log.v( "TopoGL-TH", "Th parser DB " + path + " survey " + surveyname );
     mData = new DataHelper( cave3d, path, TOPODROID_DB_VERSION ); // FIXME DB VERSION
 
     StringWriter sw = new StringWriter();
@@ -553,7 +553,7 @@ public class ParserTh extends TglParser
                     }
                   }
                 } catch ( NumberFormatException e ) {
-                  Log.e( "Cave3D-TH", "surface grid metadata " + e.getMessage() );
+                  Log.e( "TopoGL-TH", "surface grid metadata " + e.getMessage() );
                 }
                 // and read grid data
                 if ( mSurface != null ) {
@@ -578,7 +578,7 @@ public class ParserTh extends TglParser
                     }
                   }
                 } catch ( NumberFormatException e ) {
-                  Log.e( "Cave3D-TH", "surface grid units " + e.getMessage() );
+                  Log.e( "TopoGL-TH", "surface grid units " + e.getMessage() );
                 }
               }
             } else if ( cmd.equals("declination") ) {

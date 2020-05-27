@@ -155,6 +155,11 @@ class GlLines extends GlShape
   // color  = color index: [0-12) for survey, [0-5) for fixed
   void addLine( Vector3D w1, Vector3D w2, int color, boolean survey ) 
   { 
+    if ( w1 == null || w2 == null ) return; // should not happen, but it did:
+       // TopoGL.onStart() calls makeSurface() which calls
+       // GlRenderer.setParser() if the parser is not null
+       // this calls GlRenderer.prepareModel() which calls addLine() on the legs
+       // Legs should not have null stations ... [2020-05-23]
     lines.add( new Line3D( w1, w2, color, survey ) ); 
     if ( lines.size() == 1 ) {
       xmin = xmax = w1.x;
@@ -171,6 +176,7 @@ class GlLines extends GlShape
   // XYZ med n OpenGlL
   void addLine( Vector3D w1, Vector3D w2, int color, boolean survey, float xmed, float ymed, float zmed ) 
   { 
+    if ( w1 == null || w2 == null ) return; // should not happen
     lines.add( new Line3D( w1, w2, color, survey, xmed, ymed, zmed ) ); 
   }
 

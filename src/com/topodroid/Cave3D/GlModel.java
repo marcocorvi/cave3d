@@ -20,7 +20,9 @@ import android.graphics.RectF;
 
 import android.opengl.Matrix;
 
+import java.util.Collections;
 import java.util.ArrayList;
+import java.util.List;
 
 public class GlModel
 {
@@ -30,6 +32,8 @@ public class GlModel
   static float   mHeight = 0; // unused
   TglParser mParser = null;
   RectF mSurfaceBounds = null;
+  List< GlSketch > glSketches = null;
+      
 
   private float mXmed, mYmed, mZmed; // XYZ openGL
   float grid_size = 1;
@@ -107,6 +111,7 @@ public class GlModel
     GlSurface.initGL( mContext );
     GlTriangles.initGL( mContext );
     GlPath.initGL( mContext );
+    GlSketch.initGL( mContext );
   }
 
   // ----------------------------------------------------------------------------------
@@ -166,6 +171,7 @@ public class GlModel
     surfaceMode  = false;
     surfaceLegsMode = false;
     surfaceTexture  = true;
+    // GlSketch.reloadSymbols( TopoGL.SYMBOL_PATH );
   }
 
   void resetColorMode()
@@ -182,8 +188,10 @@ public class GlModel
   }
 
   synchronized void toggleColorMode() { 
-    glLegs.toggleColorMode( );
-    glSplays.setColorMode( glLegs.mColorMode ); 
+    if ( glLegs != null ) {
+      glLegs.toggleColorMode( );
+      if ( glSplays != null ) glSplays.setColorMode( glLegs.mColorMode ); 
+    }
   }
 
   int getColorMode() 
@@ -199,6 +207,8 @@ public class GlModel
   GlModel ( Context ctx )
   { 
     mContext = ctx;
+    GlSketch.loadSymbols( TopoGL.SYMBOL_PATH );
+    glSketches = Collections.synchronizedList(new ArrayList< GlSketch >());
   }
 
   void draw( float[] mvp_matrix, /* float[] inverse_scale_matrix, */ float[] mv_matrix, Vector3D light ) 
@@ -312,6 +322,14 @@ public class GlModel
     //   GL.setLineWidth( 3.0f );
     //   glPath.draw( mvp_matrix );
     // }
+
+    synchronized( glSketches ) {
+      GlSketch gl_sketch;
+      for ( GlSketch sketch : glSketches ) {
+        synchronized( this ) { gl_sketch = sketch; }
+        gl_sketch.draw( mvp_matrix );
+      }
+    }
 
   }
 
@@ -481,6 +499,59 @@ public class GlModel
     }
   }
 
+  void prepareSketch( ParserSketch psketch )
+  {
+    // Log.v("TopoGL", "prepare sketch " + psketch.mName );
+    dropSketch( psketch.mName );
+    GlSketch gl_sketch = new GlSketch( mContext, psketch.mName, psketch.mPoints, psketch.mLines, psketch.mAreas );
+    // gl_sketch.logMinMax();
+    gl_sketch.initData( mXmed, mYmed, mZmed );
+    addSketch( gl_sketch );
+  }
+
+  private void dropSketch( String name )
+  {
+    synchronized( glSketches ) {
+      for ( int k = 0; k < glSketches.size(); ++k ) {
+        GlSketch sketch = glSketches.get( k );
+        if ( sketch.mName.equals( name ) ) {
+          glSketches.remove( k );
+          break;
+        }
+      }
+    }
+  }
+
+  private void addSketch( GlSketch sketch ) 
+  {
+    if ( sketch == null || sketch.mName == null ) return;
+    synchronized( glSketches ) {
+      glSketches.add( sketch );
+    }
+  }
+
+  List< GlSketch > getSketches() 
+  {
+    List< GlSketch > sketches = new ArrayList< GlSketch >();
+    if ( glSketches == null ) return sketches;
+    synchronized( glSketches ) {
+      for ( GlSketch sketch : glSketches ) sketches.add( sketch );
+    }
+    return sketches;
+  }
+
+  void updateSketches() 
+  {
+    if ( glSketches == null ) return;
+    List< GlSketch > sketches = Collections.synchronizedList(new ArrayList< GlSketch >());
+    synchronized( glSketches ) {
+      for ( GlSketch sketch : glSketches ) {
+        if ( ! sketch.mDelete ) sketches.add( sketch );
+      }
+    }
+    synchronized( this ) { glSketches = sketches; }
+  }
+
   // ----------------------------------------------------------------------
   private void makeGrid( float x1, float x2, float z1, float z2, float y1, float y2, float step )
   {
@@ -586,11 +657,12 @@ public class GlModel
     for ( Cave3DShot leg : parser.getShots() ) {
       legs.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, true ); // leg.mSurveyNr = color-index
     }
+    // legs.logMinMax();
     mXmed = (legs.getXmin() + legs.getXmax())/2;
     mYmed = (legs.getYmin() + legs.getYmax())/2;
     mZmed = (legs.getZmin() + legs.getZmax())/2;
-    legs.reduceData( mXmed, mYmed, mZmed );
     // Log.v("TopoGL-MODEL", "center " + mXmed + " " + mYmed + " " + mZmed );
+    legs.reduceData( mXmed, mYmed, mZmed );
     // legs.logMinMax();
     
     for ( Cave3DShot splay : parser.getSplays() ) {

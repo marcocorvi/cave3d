@@ -539,6 +539,13 @@ public class GlRenderer implements Renderer
     }
   }
 
+  void notifySketch( ParserSketch psketch )
+  {
+    if ( mModel != null ) {
+      mModel.prepareSketch( psketch );
+    }
+  }
+
   void notifyDEM( ParserDEM dem ) 
   {
     if ( mModel != null ) {
@@ -561,6 +568,17 @@ public class GlRenderer implements Renderer
   void clearModel()
   {
     if ( mModel != null ) mModel.clearAll();
+  }
+
+  void updateSketches()
+  {
+    if ( mModel != null ) mModel.updateSketches();
+  }
+
+  List< GlSketch > getSketches()
+  {
+    if ( mModel != null ) return mModel.getSketches();
+    return null;
   }
 
 }

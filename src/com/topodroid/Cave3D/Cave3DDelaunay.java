@@ -3,10 +3,11 @@
  * @author marco corvi
  * @date nov 2011
  *
- * @brief Cave3D Delaunay-based triangulation
+ * @brief Cave3D Delaunay-style triangulation
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
+ * --------------------------------------------------------
  */
 package com.topodroid.Cave3D;
 
@@ -20,23 +21,26 @@ import android.util.Log;
 
 class Cave3DDelaunay
 {
-  private static final String TAG = "Cave3D DELAUNAY";
+  private static final String TAG = "TopoGL DELAUNAY";
 
   double eps = 0.001;
 
-  class DelaunayPoint
+  // normalized 3D vector
+  class DelaunayPoint extends Vector3D
   {
     int index; // debug
-    Vector3D orig;
-    Vector3D v;
+    Vector3D orig; // original vector
+    // Vector3D v;    // normalized vector
     boolean used;
  
     DelaunayPoint( Vector3D vv, int kk ) 
     {
+      super( vv );
       orig  = vv;
       index = kk;
-      v = new Vector3D( vv.x, vv.y, vv.z );
-      v.normalized();
+      // v = new Vector3D( vv.x, vv.y, vv.z );
+      // v.normalized();
+      this.normalized();
       used = false;
     }
 
@@ -54,7 +58,7 @@ class Cave3DDelaunay
     {
       p1=i0;
       p2=j0;
-      n = p1.v.crossProduct( p2.v );
+      n = p1.crossProduct( p2 );
       n.normalized();
       t = null;
     }
@@ -90,10 +94,10 @@ class Cave3DDelaunay
       s1 = i0;
       s2 = j0;
       s3 = k0;
-      Vector3D v1 = s1.p1.v;
-      Vector3D v2 = s2.p1.v.difference( v1 );
-      Vector3D v3 = s3.p1.v.difference( v1 );
-      Vector3D v0 = v1.sum( s2.p1.v ).sum( s3.p1.v );
+      Vector3D v1 = s1.p1;
+      Vector3D v2 = s2.p1.difference( v1 );
+      Vector3D v3 = s3.p1.difference( v1 );
+      Vector3D v0 = v1.sum( s2.p1 ).sum( s3.p1 );
       center = v2.crossProduct( v3 ); // (v2-v1)^(v3-v1) = (v2^v3 + v3^v1 + v1^v2) normalized
       center.normalized();
       // sign = ( center.dotProduct(v0) > 0 )? -1 : +1;
@@ -277,7 +281,7 @@ class Cave3DDelaunay
   {
     DelaunaySide sh = s0.otherHalf;
     DelaunayTriangle th = sh.t;
-    if ( th.circumcontains( p0.v, eps ) ) { 
+    if ( th.circumcontains( p0, eps ) ) { 
       DelaunayTriangle t0 = s0.t;
       DelaunayPoint ph = th.vertexOf( sh );
       DelaunaySide sh2 = th.prev( sh );
@@ -433,10 +437,10 @@ class Cave3DDelaunay
     setOpposite( s13, s31 );
     setOpposite( s23, s32 );
 
-    Vector3D v0 = pp[0].v;
-    Vector3D v1 = pp[1].v.difference( v0 );
-    Vector3D v2 = pp[2].v.difference( v0 );
-    Vector3D v3 = pp[3].v.difference( v0 );
+    Vector3D v0 = pp[0];
+    Vector3D v1 = pp[1].difference( v0 );
+    Vector3D v2 = pp[2].difference( v0 );
+    Vector3D v3 = pp[3].difference( v0 );
     double d = v1.crossProduct(v2).dotProduct( v3 );
     if ( d < 0 ) {
       addTriangle( s01, s12, s20 ); //          0
@@ -459,15 +463,15 @@ class Cave3DDelaunay
       // Log.v( TAG, "handling point " + n );
       mPts[n].used = true;
       DelaunayPoint p = mPts[n];
-      Vector3D v  = p.v;
+      // Vector3D v  = p.v;
       // DelaunaySide s0 = findSide( v );
       // if ( s0 != null ) {
       //   handleSide( s0, p );
       // } else 
       {
-        DelaunayTriangle tri = findTriangle( v );
+        DelaunayTriangle tri = findTriangle( p );
         if ( tri == null ) {
-          Log.e( TAG, "V on no triangle. " + v.x + " " + v.y + " " + v.z + " S " + mSide.size() + " T " + mTri.size() );
+          Log.e( TAG, "V on no triangle. " + p.x + " " + p.y + " " + p.z + " S " + mSide.size() + " T " + mTri.size() );
           return;
         }
         // Log.v( TAG, "K " + k + " Point " + p.index + " in T " + tri.s1.p1.k + " " + tri.s2.p1.k + " " + tri.s3.p1.k );
@@ -480,15 +484,15 @@ class Cave3DDelaunay
       if ( mPts[n].used ) continue;
       mPts[n].used = true;
       DelaunayPoint p = mPts[n];
-      Vector3D v  = p.v;
+      // Vector3D v  = p.v;
       // DelaunaySide s0 = findSide( v );
       // if ( s0 != null ) {
       //   handleSide( s0, p );
       // } else
       {
-        DelaunayTriangle tri = findTriangle( v );
+        DelaunayTriangle tri = findTriangle( p );
         if ( tri == null ) {
-          Log.e( TAG, "V on no triangle. " + v.x + " " + v.y + " " + v.z + " S " + mSide.size() + " T " + mTri.size() );
+          Log.e( TAG, "V on no triangle. " + p.x + " " + p.y + " " + p.z + " S " + mSide.size() + " T " + mTri.size() );
           return;
         }
         // Log.v( TAG, "N " + n + " Point " + p.index + " in T " + tri.s1.p1.k + " " + tri.s2.p1.k + " " + tri.s3.p1.k );

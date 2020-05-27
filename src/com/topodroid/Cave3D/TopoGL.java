@@ -90,6 +90,7 @@ public class TopoGL extends Activity
   static String HOME_PATH = EXTERNAL_STORAGE_PATH;
                           // "/sdcard/Android/data/com.topodroid.Cave3D/files";
   static String mAppBasePath = HOME_PATH;
+  static String SYMBOL_PATH = EXTERNAL_STORAGE_PATH + "/TopoDroid/symbol/point";
 
   // reset app base path
   void checkAppBasePath()
@@ -98,7 +99,7 @@ public class TopoGL extends Activity
       EXTERNAL_STORAGE_PATH = getExternalFilesDir( null ).getPath();
     }
     mAppBasePath = EXTERNAL_STORAGE_PATH;
-    Log.v("TopoGL", "use base path " + mAppBasePath );
+    // Log.v("TopoGL", "use base path " + mAppBasePath );
   }
 
   static int mCheckPerms = -1;
@@ -125,7 +126,7 @@ public class TopoGL extends Activity
   private LinearLayout mLayout;
   // private TextView     mText;
   private boolean rendererSet = false;
-  private TglParser mParser;
+  private TglParser mParser = null;
 
   private LinearLayout mLayoutStation;
   private Button mCurrentStation;
@@ -196,14 +197,14 @@ public class TopoGL extends Activity
 
         String name = extras.getString( "INPUT_FILE" );
         if ( name != null ) { // used by TdManager
-          Log.v( "TopoGL-EXTRA", "TopoDroid filename " + name );
+          // Log.v( "TopoGL-EXTRA", "TopoDroid filename " + name );
           file_dialog = false;
           doOpenFile( name, true ); // asynch
         } else {
           name = extras.getString( "INPUT_SURVEY" );
           String base = extras.getString( "SURVEY_BASE" );
           if ( name != null ) {
-            Log.v( "TopoGL-EXTRA", "open input survey " + name + " base " + base );
+            // Log.v( "TopoGL-EXTRA", "open input survey " + name + " base " + base );
             if ( doOpenSurvey( name, base ) ) {
               file_dialog = false;
             } else {
@@ -390,6 +391,7 @@ public class TopoGL extends Activity
     R.string.menu_viewpoint,  // 5
     R.string.menu_alpha,
     R.string.menu_wall,       // 7
+    R.string.menu_sketch,     // 8
     R.string.menu_options,
     // R.string.menu_fractal, // FRACTAL
     R.string.menu_help
@@ -424,7 +426,7 @@ public class TopoGL extends Activity
       (new DialogOpenFile( this, this )).show();
       // openFile();
     } else if ( p++ == pos ) { // EXPORT
-      new DialogExport( this, this, mParser ).show();
+      if ( mParser != null ) new DialogExport( this, this, mParser ).show();
     } else if ( p++ == pos ) { // INFO
       if ( mParser != null ) new DialogInfo(this, mParser, mRenderer).show();
     } else if ( p++ == pos ) { // ICO
@@ -443,6 +445,8 @@ public class TopoGL extends Activity
       new DialogSurface( this, this ).show();
     } else if ( p++ == pos ) { // DO_WALLS
       new DialogWalls( this, this, mParser ).show();
+    } else if ( p++ == pos ) { // SKETCH
+      if ( mRenderer != null ) new DialogSketches( this, this, mRenderer ).show();
     } else if ( p++ == pos ) { // OPTIONS
       startActivity( new Intent( this, TopoGLPreferences.class ) );
     // } else if ( p++ == pos ) { // FRACTAL
@@ -599,7 +603,7 @@ public class TopoGL extends Activity
   public boolean onLongClick( View v ) 
   {
     mSelectStation = ! mSelectStation;
-    Log.v("TopoGL", "on long click " + mSelectStation );
+    // Log.v("TopoGL", "on long click " + mSelectStation );
     setButtonStation();
     closeCurrentStation();
     return true;
@@ -836,7 +840,7 @@ public class TopoGL extends Activity
     // mAppBasePath = base;
     mFilename = survey;
     boolean ret = initRendering( survey, base );
-    Log.v( "TopoGL", "do open survey: " + base + "/" + survey + " " + (ret? "true" : "false" ) );
+    // Log.v( "TopoGL", "do open survey: " + base + "/" + survey + " " + (ret? "true" : "false" ) );
     return true;
   }
 
@@ -911,6 +915,36 @@ public class TopoGL extends Activity
 */
   }
 
+  // ------------------------------ SKETCH
+  void openSketch( String pathname, String filename ) 
+  {
+    // Log.v("Cave3D-DEM", pathname );
+    if ( ! pathname.endsWith( ".c3d" ) ) return;
+    ParserSketch sketch = new ParserSketch( pathname );
+    final float dd = mDEMbuffer;
+    (new AsyncTask<ParserSketch, Void, Boolean>() {
+      ParserSketch my_sketch = null;
+
+      public Boolean doInBackground( ParserSketch ... sketch ) 
+      {
+        my_sketch = sketch[0];
+        my_sketch.readData( );
+        return true;
+      }
+
+      public void onPostExecute( Boolean b )
+      {
+        // my_sketch.log();
+        if ( b ) {
+          if ( mRenderer != null ) mRenderer.notifySketch( my_sketch );
+          toast( R.string.sketch_ok, true );
+        } else {
+          toast( R.string.sketch_failed, true );
+        }
+      }
+    }).execute( sketch );
+  }
+
   // ------------------------------ DEM
   void openDEM( String pathname, String filename ) 
   {
@@ -958,7 +992,7 @@ public class TopoGL extends Activity
     if ( bounds == null ) return;
 
 
-    Log.v("TopoGL", "texture " + pathname + " bbox " + bounds.left + " " + bounds.bottom + "  " + bounds.right + " " + bounds.top );
+    // Log.v("TopoGL", "texture " + pathname + " bbox " + bounds.left + " " + bounds.bottom + "  " + bounds.right + " " + bounds.top );
 
     mTextureName = filename;
     if ( filename.endsWith( ".osm" ) ) {
@@ -1146,7 +1180,7 @@ public class TopoGL extends Activity
     // checkAppBasePath();
     if ( k.equals( CAVE3D_BASE_PATH ) ) { 
       mAppBasePath = sp.getString( k, HOME_PATH );
-      Log.v( "TopoGL", "SharedPref change: path " + mAppBasePath );
+      // Log.v( "TopoGL", "SharedPref change: path " + mAppBasePath );
       if ( mAppBasePath == null ) mAppBasePath = HOME_PATH;
     } else if ( k.equals( CAVE3D_TEXT_SIZE ) ) {
       try {
@@ -1353,7 +1387,7 @@ public class TopoGL extends Activity
 
   private boolean initRendering( String survey, String base ) 
   {
-    Log.v("TopoGL", "init rendering " + survey + " base " + base );
+    // Log.v("TopoGL", "init rendering " + survey + " base " + base );
     try {
       mParser = new ParserTh( this, survey, base ); // survey data directly from TopoDroid database
       CWConvexHull.resetCounters();
@@ -1423,5 +1457,10 @@ public class TopoGL extends Activity
   {
     if ( glSurfaceView != null ) glSurfaceView.requestRender(); 
     if ( mRenderer != null ) setTheTitle( mRenderer.getAngleString() );
+  }
+
+  void loadSketch()
+  {
+    new DialogSketch( this, this ).show();
   }
 }

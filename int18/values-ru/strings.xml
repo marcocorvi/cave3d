@@ -29,10 +29,6 @@
     <string name="menu_wall">Режим стен</string>
     <string name="menu_fractal">Кол-во фракталофф</string>
     <string name="menu_help">Помощь</string>
-    <string name="menu_fractal">Кол-во фракталов</string>
-    <string name="fractal_title">Кол-во фракталоф</string>
-    <string name="menu_help">Помощь</string>
-    <string name="info_surveys">СЪЁМКИ</string>
     <string name="fractal_title">Кол-во фракталов</string>
     <string name="info_title">ИНФО</string>
     <string name="info_axes">Оси: синий Север, зеленый Восток</string>
@@ -77,7 +73,6 @@
     <string name="surface_projection">Проекция на DEM</string>
     <string name="surface_texture">Текстура поверхности</string>
     <string name="dem_file">DEM %1$s</string>
-    <string name="dem_load">загрузить</string>
     <string name="dem_load">загрузить</string>
     <string name="dem_failed">Ошибка загрузки DEM</string>
     <string name="dem_ok">Прочитать данные DEM</string>

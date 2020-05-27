@@ -28,6 +28,7 @@
     <string name="menu_ico">3D-Rose diagram</string>
     <string name="menu_rose">Rose diagram</string>
     <string name="menu_wall">Wall models</string>
+    <string name="menu_sketch">Sketches</string>
     <string name="menu_fractal">Fractal counts</string>
     <string name="menu_help">Help</string>
 
@@ -76,18 +77,22 @@
     <string name="surface_projection">Projection on surface</string>
     <string name="surface_texture">Surface texture</string>
     <string name="dem_file">%1$s</string>
-    <string name="dem_load">load DEM</string>
+    <string name="dem_load">Load DEM</string>
     <string name="dem_failed">Failed DEM loading</string>
     <string name="dem_ok">Read DEM data</string>
     <string name="texture_file">%1$s</string>
-    <string name="texture_load">load texture</string>
+    <string name="texture_load">Load texture</string>
     <string name="texture_failed">Failed texture loading</string>
     <string name="texture_ok">Read texture file</string>
+    <string name="sketch_load">Load sketch</string>
+    <string name="sketch_failed">Failed sketch loading</string>
+    <string name="sketch_ok">Read sketch data</string>
 
     <string name="title">%1$s  Clino: %2$.0f  Azimuth: %3$.0f</string>
     <string name="title_clino"> Clino: </string>
     <string name="title_azimuth"> Azimuth: </string>
     <string name="title_surface_alpha">Surface transparency</string>
+    <string name="title_sketches">Sketches</string>
 
     <string name="survey_legs"> Legs: </string>
     <string name="survey_legs_length"> Legs length: </string>
