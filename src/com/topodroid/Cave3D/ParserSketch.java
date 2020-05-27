@@ -28,7 +28,7 @@ class ParserSketch
   private boolean mValid;    // header is valid
   String mFilename; // Sketch filename
   String mName;
-  int mType;
+  int mType; // 1 PLAN, 2 PROFILE
   int mAzimuth;
   ArrayList< SketchPoint > mPoints;
   ArrayList< SketchLine  > mLines;

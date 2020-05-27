@@ -5,6 +5,7 @@
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Cancel</string>
     <string name="btn_close">Close</string>
+    <string name="btn_bind">Rebind</string>
     <string name="btn_compute">Compute</string>
 
     <string name="btn_move">Move</string>

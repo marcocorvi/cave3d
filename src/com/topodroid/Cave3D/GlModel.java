@@ -44,16 +44,16 @@ public class GlModel
   private float mDiameter = 0;
 
   GlSurface glSurface = null; // surface
-  GlNames   glNames   = null; // stations
-  GlLines   glLegs    = null;
-  GlLines   glSplays  = null;
-  GlLines   glGrid    = null;
-  GlLines   glFrame   = null;
-  GlLines   glSurfaceLegs = null;
-  GlTriangles glWalls = null;
-  GlLines   glPlan    = null; // plan projection
-  GlLines   glProfile = null;
-  GlPath    glPath    = null;
+  GlNames glNames   = null; // stations
+  GlLines glLegs    = null;
+  GlLines glSplays  = null;
+  GlLines glGrid    = null;
+  GlLines glFrame   = null;
+  GlLines glSurfaceLegs = null;
+  GlWalls glWalls = null;
+  GlLines glPlan    = null; // plan projection
+  GlLines glProfile = null;
+  GlPath  glPath    = null;
 
   // --------------------------------------------------------------
   // MAINTENANCE
@@ -109,7 +109,7 @@ public class GlModel
     GlLines.initGL( mContext ); // init GL programs
     GlNames.initGL( mContext );
     GlSurface.initGL( mContext );
-    GlTriangles.initGL( mContext );
+    GlWalls.initGL( mContext );
     GlPath.initGL( mContext );
     GlSketch.initGL( mContext );
   }
@@ -259,7 +259,7 @@ public class GlModel
     }
 
     if ( wallMode ) {
-      GlTriangles walls = null;
+      GlWalls walls = null;
       synchronized( this ) { walls = glWalls; }
       if ( walls != null ) { 
         // GL.enableCull( false );
@@ -395,7 +395,7 @@ public class GlModel
       return;
     }
     if ( computer == null ) return;
-    GlTriangles walls = new GlTriangles( mContext );
+    GlWalls walls = new GlWalls( mContext );
     for ( CWConvexHull cw : computer.getWalls() ) {
       for ( CWTriangle tr : cw.mFace ) {
         Vector3D v1 = new Vector3D( tr.v1.x - mXmed, tr.v1.z - mYmed, -tr.v1.y - mZmed );
@@ -416,7 +416,7 @@ public class GlModel
       return;
     }
     if ( computer == null ) return;
-    GlTriangles walls = new GlTriangles( mContext );
+    GlWalls walls = new GlWalls( mContext );
     for ( Triangle3D tr : computer.getTriangles() ) {
       // Vector3D v1 = new Vector3D( tr.vertex[0].x - mXmed, tr.vertex[0].z - mYmed, -tr.vertex[0].y - mZmed );
       // Vector3D v2 = new Vector3D( tr.vertex[1].x - mXmed, tr.vertex[1].z - mYmed, -tr.vertex[1].y - mZmed );
@@ -503,7 +503,7 @@ public class GlModel
   {
     // Log.v("TopoGL", "prepare sketch " + psketch.mName );
     dropSketch( psketch.mName );
-    GlSketch gl_sketch = new GlSketch( mContext, psketch.mName, psketch.mPoints, psketch.mLines, psketch.mAreas );
+    GlSketch gl_sketch = new GlSketch( mContext, psketch.mName, psketch.mType, psketch.mPoints, psketch.mLines, psketch.mAreas );
     // gl_sketch.logMinMax();
     gl_sketch.initData( mXmed, mYmed, mZmed );
     addSketch( gl_sketch );

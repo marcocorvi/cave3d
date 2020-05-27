@@ -1,4 +1,4 @@
-/** @file GlTriangles.java
+/** @file GlWalls.java
  *
  * @author marco corvi
  * @date may 2020
@@ -22,7 +22,7 @@ import android.content.Context;
 
 import java.util.ArrayList;
 
-class GlTriangles extends GlShape
+class GlWalls extends GlShape
 {
   private class GlTriangle3D
   {
@@ -44,7 +44,7 @@ class GlTriangles extends GlShape
   int triangleCount; // public for log
 
   static final float[] mColor = { 1f, 1f, 1f, 0.7f };
-  private float mAlpha = 0.7f;
+  private static float mAlpha = 0.7f;
 
   final static int COORDS_PER_VERTEX = 3;
   final static int COORDS_PER_NORMAL = 3;
@@ -54,7 +54,7 @@ class GlTriangles extends GlShape
   final static int DATA_STRIDE       = STRIDE * Float.BYTES;
 
   // vertex data: ( X Y Z Nx, Ny, Nz )
-  GlTriangles( Context ctx ) 
+  GlWalls( Context ctx ) 
   {
     super( ctx );
     // mColor = new float[4];
@@ -196,7 +196,8 @@ class GlTriangles extends GlShape
   //   setAlpha( a );
   // }
 
-  void setAlpha( float a ) { mAlpha = ( a < 0 )? 0 : ( a > 1 )? 1 : a; }
+  static void setAlpha( float a ) { mAlpha = ( a < 0 )? 0 : ( a > 1 )? 1 : a; }
+  static float getAlpha() { return mAlpha; }
 
   // -------------------------------------------------------------------
   // OpenGL

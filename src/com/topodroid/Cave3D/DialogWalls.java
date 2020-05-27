@@ -23,6 +23,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.SeekBar;
 import android.widget.RadioButton;
 
 class DialogWalls extends Dialog 
@@ -39,6 +40,7 @@ class DialogWalls extends Dialog
 
   private CheckBox mCBplanProj;
   private CheckBox mCBprofileProj;
+  private SeekBar mETalpha;
 
   public DialogWalls( Context context, TopoGL app, TglParser parser )
   {
@@ -54,6 +56,9 @@ class DialogWalls extends Dialog
     super.onCreate(savedInstanceState);
     setContentView(R.layout.cave3d_walls_dialog);
     getWindow().setLayout( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
+
+    mETalpha = ( SeekBar ) findViewById(R.id.alpha);
+    mETalpha.setProgress( (int)(GlWalls.getAlpha() * 255) );
 
     Button buttonOK     = (Button) findViewById( R.id.button_ok );
     Button buttonCancel = (Button) findViewById( R.id.button_cancel );
@@ -89,6 +94,9 @@ class DialogWalls extends Dialog
       mCBplanProj.setChecked( false );
       return;
     } else if ( v.getId() == R.id.button_ok ) {
+      int alpha = mETalpha.getProgress();
+      if ( 0 < alpha && alpha < 256 ) GlWalls.setAlpha( alpha/255.0f );
+
       if ( mCBconvexhull.isChecked() ) {
         mParser.makeConvexHull( mCBconvexhullNo.isChecked() );
       } 

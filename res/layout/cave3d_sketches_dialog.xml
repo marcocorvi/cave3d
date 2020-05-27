@@ -20,12 +20,19 @@
     android:layout_margin="10dp"
     android:orientation="horizontal"
     >
-    <Button android:id="@+id/btn_close"
+    <!-- Button android:id="@+id/btn_close"
       android:layout_width="0dp"
       android:layout_weight="1"
       android:layout_height="wrap_content"
       android:gravity="center"
       android:text="@string/btn_close"
+      / -->
+    <Button android:id="@+id/btn_bind"
+      android:layout_width="0dp"
+      android:layout_weight="1"
+      android:layout_height="wrap_content"
+      android:gravity="center"
+      android:text="@string/btn_bind"
       />
     <Button android:id="@+id/btn_load"
       android:layout_width="0dp"

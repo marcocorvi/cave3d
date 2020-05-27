@@ -70,6 +70,7 @@ class GlSketch extends GlShape
   private static Bitmap mBitmap = null;
 
   String mName;
+  int    mType;
   private ArrayList< SketchPoint > mPoints;
   private ArrayList< SketchLine  > mLines;
   private ArrayList< SketchLine  > mAreas;
@@ -108,10 +109,11 @@ class GlSketch extends GlShape
     mSymbolSizeO = size / 20.0f;  // half size
   }
 
-  GlSketch( Context ctx, String name, ArrayList< SketchPoint > pts, ArrayList< SketchLine > lns, ArrayList< SketchLine > areas  )
+  GlSketch( Context ctx, String name, int type, ArrayList< SketchPoint > pts, ArrayList< SketchLine > lns, ArrayList< SketchLine > areas  )
   {
     super( ctx );
     mName   = name;
+    mType   = type; // 1 PLAN, 2 PROFILE
     mPoints = pts;
     mLines  = lns;
     mAreas  = areas;
@@ -189,6 +191,8 @@ class GlSketch extends GlShape
     // mTexId = -1;
   }
 
+  static void rebindTexture() { mTexId = -1; }
+
   void draw( float[] mvpMatrix ) // , float[] inverseScaleMatrix )
   {
     if ( mEmpty ) return;
@@ -205,22 +209,28 @@ class GlSketch extends GlShape
     }
     // mBitmap.recycle(); // do not clean up, but keep the bitmap
     // mBitmap = null;
-    GL.useProgram( mProgram );
-    bindData( mvpMatrix ); 
-    GL.drawTriangle( 0, pointCount*2 );
-    // unbindData();
-    // GL.useProgram( mProgramPos );
-    // bindDataPos( mvpMatrix );
-    // GL.drawPoint( 0, pointCount );
+    if ( pointCount > 0 ) {
+      GL.useProgram( mProgram );
+      bindData( mvpMatrix ); 
+      GL.drawTriangle( 0, pointCount*2 );
+      // unbindData();
+      // GL.useProgram( mProgramPos );
+      // bindDataPos( mvpMatrix );
+      // GL.drawPoint( 0, pointCount );
+    }
 
-    GL.setLineWidth( 2.0f );
-    GL.useProgram( mProgramLine );
-    bindDataLine( mvpMatrix ); 
-    GL.drawLine( 0, lineCount );
+    if ( lineCount > 0 ) {
+      GL.setLineWidth( 2.0f );
+      GL.useProgram( mProgramLine );
+      bindDataLine( mvpMatrix ); 
+      GL.drawLine( 0, lineCount );
+    }
 
-    GL.useProgram( mProgramArea );
-    bindDataArea( mvpMatrix ); 
-    GL.drawTriangle( 0, areaCount );
+    if ( areaCount > 0 ) {
+      GL.useProgram( mProgramArea );
+      bindDataArea( mvpMatrix ); 
+      GL.drawTriangle( 0, areaCount );
+    }
   }
 
   private void bindData( float[] mvpMatrix )
@@ -394,6 +404,7 @@ class GlSketch extends GlShape
 
   // ------------------------------------------------------------------------------
   // point Vector3D NOT in GL orientation (Y upward)
+
   private void initBuffer( float xmed, float ymed, float zmed )
   {
     float x2 = 144.0f / GlModel.mWidth;
@@ -486,7 +497,6 @@ class GlSketch extends GlShape
     areaCount = off3/21;
     areaBuffer = GL.getFloatBuffer( off3 );
     areaBuffer.put( data3, 0, off3 );
-
   }
 
   // --------------------------------------------------------------------

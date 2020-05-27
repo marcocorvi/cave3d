@@ -58,11 +58,13 @@ class DialogSketches extends Dialog
     getWindow().setLayout( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
 
     Button mLoad  = (Button) findViewById( R.id.btn_load );
+    Button mBind  = (Button) findViewById( R.id.btn_bind );
     Button mOk    = (Button) findViewById( R.id.btn_ok );
-    Button mClose = (Button) findViewById( R.id.btn_close );
+    // Button mClose = (Button) findViewById( R.id.btn_close );
     mLoad.setOnClickListener( this );
+    mBind.setOnClickListener( this );
     mOk.setOnClickListener( this );
-    mClose.setOnClickListener( this );
+    // mClose.setOnClickListener( this );
 
     SketchAdapter sketchAdapter = new SketchAdapter( mContext, mApp, R.layout.sketch_row, new ArrayList<GlSketch>() );
 
@@ -85,6 +87,8 @@ class DialogSketches extends Dialog
   {
     if ( view.getId() == R.id.btn_load ) {
       mApp.loadSketch();
+    } else if ( view.getId() == R.id.btn_bind ) {
+      GlSketch.rebindTexture();
     } else if ( view.getId() == R.id.btn_ok ) {
       mRenderer.updateSketches();
     }
