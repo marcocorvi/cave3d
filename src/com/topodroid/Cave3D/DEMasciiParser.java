@@ -27,18 +27,18 @@ import java.io.IOException;
  */
 class DEMasciiParser extends ParserDEM
 {
-  private float   xll,  yll; // Lower-left corner of lower-left cell
+  private double  xll,  yll; // Lower-left corner of lower-left cell
   private int     cols, rows;
   private boolean flip_horz; // whether to flip lines horizontally
 
-  DEMasciiParser( String filename, int maxsize, boolean hflip )
+  DEMasciiParser( String filename, int maxsize, boolean hflip, double xu, double yu )
   {
-    super( filename, maxsize );
+    super( filename, maxsize, xu, yu );
     flip_horz = hflip;
   }
 
   @Override
-  boolean readData( float xwest, float xeast, float ysouth, float ynorth )
+  boolean readData( double xwest, double xeast, double ysouth, double ynorth )
   {
     if ( ! mValid ) return mValid;
     FileReader fr = null;
@@ -47,7 +47,7 @@ class DEMasciiParser extends ParserDEM
       BufferedReader br = new BufferedReader( fr );
       for ( int k=0; k<6; ++k) br.readLine();
 
-      float y = yll + mDim2/2 + mDim2 * (rows-1); // upper-row midpoint
+      double y = yll + mDim2/2 + mDim2 * (rows-1); // upper-row midpoint
       int k = 0;
       for ( ; k < rows && y > ynorth; ++k ) {
         br.readLine();
@@ -56,7 +56,7 @@ class DEMasciiParser extends ParserDEM
       mNorth2 = y;
       // int yoff = k
       
-      float x = xll + mDim1/2; // left-column midpoint
+      double x = xll + mDim1/2; // left-column midpoint
       int i = 0;
       for ( ; i < cols && x < xwest; ++i ) x += mDim1;
       mEast1 = x;
@@ -129,23 +129,27 @@ class DEMasciiParser extends ParserDEM
       rows = Integer.parseInt( vals[1] ); // nrows
       line = br.readLine();
       vals = line.replaceAll("\\s+", " ").split(" ");
-      xll = Float.parseFloat( vals[1] ); // xllcorner
+      xll  = Double.parseDouble( vals[1] ); // xllcorner
       line = br.readLine();
       vals = line.replaceAll("\\s+", " ").split(" ");
-      yll = Float.parseFloat( vals[1] ); // yllcorner
+      yll  = Double.parseDouble( vals[1] ); // yllcorner
       line = br.readLine();
       vals = line.replaceAll("\\s+", " ").split(" ");
-      mDim1 = Float.parseFloat( vals[1] ); // cellsize
+      mDim1 = Double.parseDouble( vals[1] ); // cellsize
       mDim2 = mDim1;
       line = br.readLine();
       vals = line.replaceAll("\\s+", " ").split(" ");
-      nodata = Float.parseFloat( vals[1] ); // nodata.value
+      nodata = Double.parseDouble( vals[1] ); // nodata.value
       fr.close();
     } catch ( IOException e1 ) { 
       return false;
     } catch ( NumberFormatException e2 ) {
       return false;
     }
+    xll   *= xunit;
+    mDim1 *= xunit;
+    yll   *= yunit;
+    mDim2 *= yunit;
     // Log.v("TopoGL-DEM", "cell " + mDim1 + " X " + xll + " Y " + yll + " Nx " + cols + " Ny " + rows );
     return true;
   }

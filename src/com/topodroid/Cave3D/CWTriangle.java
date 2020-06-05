@@ -34,7 +34,7 @@ public class CWTriangle extends CWFacet
   int mType;
   
   // private Vector3D mVolume;
-  // private float mVolumeOffset;
+  // private double mVolumeOffset;
 
   private boolean mOutside; // work variable
   
@@ -177,10 +177,10 @@ public class CWTriangle extends CWFacet
   boolean intersectionPoints( Vector3D v, Vector3D n, CWLinePoint lp1, CWLinePoint lp2 )
   {
     // round beta to three decimal digits
-    float b2 = ((int)(beta2( v, n )*1000.1))/1000.0f;
-    float b3 = ((int)(beta3( v, n )*1000.1))/1000.0f;
-    float b1 = ((int)(beta1( v, n )*1000.1))/1000.0f;
-    float a1, a2, a3;
+    double b2 = ((int)(beta2( v, n )*1000.1))/1000.0;
+    double b3 = ((int)(beta3( v, n )*1000.1))/1000.0;
+    double b1 = ((int)(beta1( v, n )*1000.1))/1000.0;
+    double a1, a2, a3;
     if ( b1 >= 0 && b1 <= 1 ) {
       a1 = alpha1( v, n );
       lp1.copy( a1, s1, this, v.sum( n.scaledBy(a1) ) );

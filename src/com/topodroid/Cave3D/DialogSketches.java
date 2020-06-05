@@ -68,7 +68,7 @@ class DialogSketches extends Dialog
 
     SketchAdapter sketchAdapter = new SketchAdapter( mContext, mApp, R.layout.sketch_row, new ArrayList<GlSketch>() );
 
-    Log.v("TopoGL-SKETCH", "adapter size " + sketchAdapter.size() );
+    // Log.v("TopoGL-SKETCH", "adapter size " + sketchAdapter.size() );
 
     ListView list = (ListView) findViewById( R.id.list );
     list.setAdapter( sketchAdapter );

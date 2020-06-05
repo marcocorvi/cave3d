@@ -68,7 +68,7 @@ class DialogIco extends Dialog
     mContext = context;
 
     DisplayMetrics dm = context.getResources().getDisplayMetrics();
-    // float density  = dm.density;
+    // double density  = dm.density;
     // mDisplayWidth  = dm.widthPixels;
     // mDisplayHeight = dm.heightPixels;
     SIDE = dm.widthPixels;

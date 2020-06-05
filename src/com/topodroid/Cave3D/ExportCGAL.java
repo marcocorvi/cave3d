@@ -28,9 +28,9 @@ import java.io.IOException;
 class ExportCGAL
 {
   // ArrayList<CWFacet> mFacets;
-  // float lat, lng, asl;
-  float s_radius = 1;
-  float e_radius = 1;
+  // double lat, lng, asl;
+  double s_radius = 1;
+  double e_radius = 1;
   Cave3DStation zero = new Cave3DStation( "", 0, 0, 0 );
 
   // ExportCGAL() { }
@@ -57,9 +57,9 @@ class ExportCGAL
       pw.format(Locale.US, "\n");
 
       for ( Cave3DStation st : stations ) {
-        float e = (st.x - zero.x) * e_radius;
-        float n = (st.y - zero.y) * s_radius;
-        float z = (st.z - zero.z);
+        double e = (st.x - zero.x) * e_radius;
+        double n = (st.y - zero.y) * s_radius;
+        double z = (st.z - zero.z);
         int cnt = 0;
         for ( Cave3DShot sp : splays ) {
           if ( st == sp.from_station ) ++cnt;

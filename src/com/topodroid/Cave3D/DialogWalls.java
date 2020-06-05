@@ -33,9 +33,13 @@ class DialogWalls extends Dialog
   private TopoGL  mApp;
   private TglParser mParser;
 
+  private CheckBox mCBhull;
+  private CheckBox mCBhullNo;
+
   private CheckBox mCBconvexhull;
-  private CheckBox mCBpowercrust;
   private CheckBox mCBconvexhullNo;
+
+  private CheckBox mCBpowercrust;
   private CheckBox mCBpowercrustNo;
 
   private CheckBox mCBplanProj;
@@ -68,10 +72,21 @@ class DialogWalls extends Dialog
     buttonCancel.setOnClickListener( this );
     // buttonSketch.setOnClickListener( this );
 
+    mCBhull   = (CheckBox) findViewById( R.id.hull );
+    mCBhullNo = (CheckBox) findViewById( R.id.hull_no );
+
+    // mCBhull.setVisibility( View.GONE );
+    // mCBhullNo.setVisibility( View.GONE );
+
     mCBconvexhull   = (CheckBox) findViewById( R.id.convexhull );
-    mCBpowercrust   = (CheckBox) findViewById( R.id.powercrust );
     mCBconvexhullNo = (CheckBox) findViewById( R.id.convexhull_no );
+
+    mCBpowercrust   = (CheckBox) findViewById( R.id.powercrust );
     mCBpowercrustNo = (CheckBox) findViewById( R.id.powercrust_no );
+
+    mCBhull.setOnClickListener( this );
+    mCBconvexhull.setOnClickListener( this );
+    mCBpowercrust.setOnClickListener( this );
 
     mCBplanProj     = (CheckBox) findViewById( R.id.cb_plan_proj );
     mCBprofileProj  = (CheckBox) findViewById( R.id.cb_profile_proj );
@@ -93,15 +108,31 @@ class DialogWalls extends Dialog
     } else if ( v.getId() == R.id.cb_profile_proj ) {
       mCBplanProj.setChecked( false );
       return;
+    } else if ( v.getId() == R.id.hull ) {
+      // mCBhull.setChecked( false );
+      mCBconvexhull.setChecked( false );
+      mCBpowercrust.setChecked( false );
+      return;
+    } else if ( v.getId() == R.id.convexhull ) {
+      mCBhull.setChecked( false );
+      // mCBconvexhull.setChecked( false );
+      mCBpowercrust.setChecked( false );
+      return;
+    } else if ( v.getId() == R.id.powercrust ) {
+      mCBhull.setChecked( false );
+      mCBconvexhull.setChecked( false );
+      // mCBpowercrust.setChecked( false );
+      return;
     } else if ( v.getId() == R.id.button_ok ) {
       int alpha = mETalpha.getProgress();
       if ( 0 < alpha && alpha < 256 ) GlWalls.setAlpha( alpha/255.0f );
 
-      if ( mCBconvexhull.isChecked() ) {
-        mParser.makeConvexHull( mCBconvexhullNo.isChecked() );
-      } 
-      if ( mCBpowercrust.isChecked() ) {
-        mParser.makePowercrust( mCBpowercrustNo.isChecked() );
+      if ( mCBhull.isChecked() ) {
+        mParser.makeHull( mCBhullNo.isChecked() );
+      } else if ( mCBconvexhull.isChecked() ) {
+        if ( mParser != null ) mParser.makeConvexHull( mCBconvexhullNo.isChecked() );
+      } else if ( mCBpowercrust.isChecked() ) {
+        if ( mParser != null ) mParser.makePowercrust( mCBpowercrustNo.isChecked() );
       }
       if ( mCBplanProj.isChecked() ) {
         GlModel.projMode = GlModel.PROJ_PLAN;

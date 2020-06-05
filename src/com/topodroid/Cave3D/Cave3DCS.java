@@ -12,19 +12,22 @@ package com.topodroid.Cave3D;
 
 import android.util.Log;
 
-public class Cave3DCS
+class Cave3DCS
 {
+  final static String WGS84 = "WGS-84";
+
   String name; // CS name
   // String proj4; // proj4 syntax CS description
 
-  public Cave3DCS( String nm )
-  {
-    name = nm;
-  }
+  Cave3DCS( ) { name = WGS84; }
+  Cave3DCS( String nm ) { name = nm; }
 
-  public boolean equals( Cave3DCS cs ) { return (cs != null) && name.equals( cs.name ); }
+  boolean hasName() { return ( name != null ) && ( name.length() > 0 ); }
 
-  public boolean equals( String cs_name ) { return (cs_name != null) && name.equals( cs_name ); }
+  boolean equals( Cave3DCS cs ) { return (cs != null) && equals( cs.name ); }
+  boolean equals( String cs_name ) { return (cs_name != null) && ( cs_name.length() > 0 ) && name.equals( cs_name ); }
+
+  boolean isWGS84() { return name.equals( WGS84 ); }
 
 }
 

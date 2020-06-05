@@ -29,8 +29,8 @@ class ExportSHP
   Vector3D[] mVertex; // triangle vertices
   Vector3D mMin;
   Vector3D mMax;
-  float xoff, yoff, zoff; // offset to have positive coords values
-  float scale;       // scale factor
+  double xoff, yoff, zoff; // offset to have positive coords values
+  double scale;       // scale factor
 
   ExportSHP()
   {

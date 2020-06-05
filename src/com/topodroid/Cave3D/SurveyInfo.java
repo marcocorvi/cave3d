@@ -15,19 +15,19 @@ package com.topodroid.Cave3D;
 
 class SurveyInfo
 {
-  final static float DECLINATION_MAX = 720;    // twice 360
-  final static float DECLINATION_UNSET = 1080; // three times 360
+  final static double DECLINATION_MAX = 720;    // twice 360
+  final static double DECLINATION_UNSET = 1080; // three times 360
 
   long id;
   String name;
   String date;
   String team;
-  float  declination;
+  double  declination;
 
   boolean hasDeclination() { return declination < DECLINATION_MAX; }
 
   // get the declination or 0 if not-defined
-  float getDeclination()
+  double getDeclination()
   {
     if ( declination < DECLINATION_MAX ) return declination;
     return 0;

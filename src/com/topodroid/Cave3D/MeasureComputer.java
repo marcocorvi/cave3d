@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 class MeasureComputer extends AsyncTask< Void, Void, Integer >
 {
-  private final static int MEASURE_NONE         = 0;
+  private final static int MEASURE_NO_PATH      = 0;
   private final static int MEASURE_OK           = 1;
   private final static int MEASURE_SAME_STATION = 2;
   private final static int MEASURE_NO_STATION   = 3;
@@ -84,14 +84,18 @@ class MeasureComputer extends AsyncTask< Void, Void, Integer >
       mModel.setPath( path );
       return new Integer( MEASURE_OK );
     }
-    return new Integer( MEASURE_NONE );
+    return new Integer( MEASURE_NO_PATH );
   }
 
   @Override
   protected void onPostExecute( Integer result )
   {
+    // String[] resstr = { "no path", "ok", "same staion", "no station", "no start", "no name", "no model", "skip" };
+    // Log.v("TopoGL", "measure result: " + resstr[result] );
+  
     switch ( result.intValue() ) {
       case MEASURE_OK:
+      case MEASURE_NO_PATH:
         if ( TopoGL.mMeasureToast ) {
           Toast.makeText( mApp, mMeasure.getString(), Toast.LENGTH_LONG ).show();
         } else {

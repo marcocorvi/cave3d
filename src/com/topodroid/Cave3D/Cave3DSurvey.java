@@ -46,9 +46,9 @@ public class Cave3DSurvey
     init( n, id, pid );
   }
 
-  // void addShot( String from, String to, double len, double ber, double cln ) { addShot( new Cave3DShot( from, to, ber, len, cln ) ); }
+  // void addShot( String from, String to, double len, double ber, double cln ) { addShot( new Cave3DShot( from, to, ber, len, cln, 0, 0 ) ); }
   
-  // void addSplay( String from, double len, double ber, double cln ) { addSplay( new Cave3DShot( from, null, ber, len, cln ) ); }
+  // void addSplay( String from, double len, double ber, double cln ) { addSplay( new Cave3DShot( from, null, ber, len, cln, 0, 0 ) ); }
 
   void addShot( Cave3DShot sh ) 
   { 

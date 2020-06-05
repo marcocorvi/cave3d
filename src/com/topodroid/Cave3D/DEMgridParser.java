@@ -24,7 +24,7 @@ import java.io.IOException;
 
 class DEMgridParser extends ParserDEM
 {
-  private float xll, yll; // lower-left corner of lower-left cell
+  private double xll, yll; // lower-left corner of lower-left cell
   private int   cols, rows;
   private boolean flip_vert; // flip_vert: rows are south-to-north
   private boolean flip_horz; // flip_horz: columns are east-to-west
@@ -35,7 +35,7 @@ class DEMgridParser extends ParserDEM
   }
 
   @Override
-  boolean readData( float xwest, float xeast, float ysouth, float ynorth ) 
+  boolean readData( double xwest, double xeast, double ysouth, double ynorth ) 
   {
     // Log.v("TopoGL-DEM", "read data dim " + cols + "x" + rows + " LLcorner " + xll + " " + yll + " cell " + mDim1 + " " + mDim2 + " flip " + flip_vert + " " + flip_horz );
     if ( ! mValid ) return mValid;
@@ -45,7 +45,7 @@ class DEMgridParser extends ParserDEM
     int xoff = 0;
     int yoff = 0;
     if ( flip_horz ) {  // row-data [xoff, xoff+mNr1) are [xeast .. xwest]
-      float x = xll + mDim1/2 + (cols-1) * mDim1;
+      double x = xll + mDim1/2 + (cols-1) * mDim1;
       int i = 0;
       for ( ; i < cols && x > xeast; ++i ) x -= mDim1;
       mEast2 = x;   // X-coord of first data
@@ -54,7 +54,7 @@ class DEMgridParser extends ParserDEM
       for ( ; i < cols && x >= xwest; ++i ) { x -= mDim1; ++mNr1; }
       mEast1 = x + mDim1; // X-coord of last data
     } else {
-      float x = xll + mDim1/2;     // row-data [xoff, xoff+mNr1) are [xwest .. xeast]
+      double x = xll + mDim1/2;     // row-data [xoff, xoff+mNr1) are [xwest .. xeast]
       int i = 0;
       for ( ; i < cols && x < xwest; ++i ) x += mDim1;
       mEast1 = x;   // X-coord of first data
@@ -72,7 +72,7 @@ class DEMgridParser extends ParserDEM
     }
 
     if ( ! flip_vert ) { // yll is TOP-LEFT
-      float y = yll + mDim2/2 + (rows-1) * mDim2;
+      double y = yll + mDim2/2 + (rows-1) * mDim2;
       int j = 0;
       for ( ; j < rows && y > ynorth; ++j ) y -= mDim2; 
       mNorth2 = y;
@@ -81,7 +81,7 @@ class DEMgridParser extends ParserDEM
       for ( ; j < rows && y >= ysouth; ++j ) { y -= mDim2; ++mNr2; }
       mNorth1 = y + mDim2;
     } else {
-      float y = yll + mDim2/2;
+      double y = yll + mDim2/2;
       int j = 0;
       for ( ; j < rows && y < ysouth; ++j ) y += mDim2; 
       mNorth1 = y;
@@ -170,10 +170,10 @@ class DEMgridParser extends ParserDEM
           String[] vals = line.replaceAll("\\s+", " ").split(" ");
           cols = Integer.parseInt( vals[5] ); // ncols
           rows = Integer.parseInt( vals[6] ); // nrows
-          xll = Float.parseFloat( vals[1] ); // xcorner
-          yll = Float.parseFloat( vals[2] ); // ycorner
-          mDim1 = Float.parseFloat( vals[3] ); // cellsize
-          mDim2 = Float.parseFloat( vals[4] ); // cellsize
+          xll = Double.parseDouble( vals[1] ); // xcorner
+          yll = Double.parseDouble( vals[2] ); // ycorner
+          mDim1 = Double.parseDouble( vals[3] ); // cellsize
+          mDim2 = Double.parseDouble( vals[4] ); // cellsize
           continue;
         }
         if ( line.startsWith("grid-flip ") ) {

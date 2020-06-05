@@ -50,7 +50,7 @@ class GlPath extends GlShape
 
   // survey = survey or fixed (axis) color
   // color  = color index: [0-12) for survey, [0-5) for fixed
-  void addVertex( Vector3D w1, float xmed, float ymed, float zmed ) 
+  void addVertex( Vector3D w1, double xmed, double ymed, double zmed ) 
   { 
     points.add( new Vector3D( w1.x - xmed, w1.z - ymed, - w1.y - zmed ) );
   }
@@ -63,9 +63,9 @@ class GlPath extends GlShape
     float[] data = new float[ vertexCount * STRIDE ];
     int k = 0;
     for ( Vector3D point : points ) {
-      data[k++] = point.x;
-      data[k++] = point.y;
-      data[k++] = point.z;
+      data[k++] = (float)point.x;
+      data[k++] = (float)point.y;
+      data[k++] = (float)point.z;
     }
     return data;
   }

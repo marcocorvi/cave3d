@@ -24,6 +24,7 @@ class Cave3DDelaunay
   private static final String TAG = "TopoGL DELAUNAY";
 
   double eps = 0.001;
+  int color; // DEBUG
 
   // normalized 3D vector
   class DelaunayPoint extends Vector3D
@@ -44,7 +45,7 @@ class Cave3DDelaunay
       used = false;
     }
 
-    // float distance( DelaunayPoint p ) { return orig.distance( p.orig ); }
+    // double distance( DelaunayPoint p ) { return orig.distance( p.orig ); }
   }
 
   class DelaunaySide // half-side
@@ -79,14 +80,14 @@ class Cave3DDelaunay
 
     // boolean contains( Vector3D v, double eps ) { return Math.abs( n.dotProduct( v ) ) < eps; } 
 
-    float dot( Vector3D v ) { return n.dotProduct( v ); }
+    double dot( Vector3D v ) { return n.dotProduct( v ); }
   }
 
   class DelaunayTriangle
   {
     DelaunaySide s1, s2, s3;
     // int   sign;
-    private float radius; // maximal inside the circumsphere
+    private double radius; // maximal inside the circumsphere
     private Vector3D center;
 
     DelaunayTriangle( DelaunaySide i0, DelaunaySide j0, DelaunaySide k0 )
@@ -158,7 +159,7 @@ class Cave3DDelaunay
   DelaunayPoint[] mPts;
   ArrayList< DelaunayTriangle > mTri;
   ArrayList< DelaunaySide > mSide;
-  // float[] mDist; // precomputed arc-distances between points
+  // double[] mDist; // precomputed arc-distances between points
 
   // For each DelaunayTriangle add a Triangle3D into the array list
   // The Triangle3D has vertex vectors the Cave3DStation + the original points 
@@ -174,7 +175,7 @@ class Cave3DDelaunay
         Vector3D v1 = p0.sum( t.s1.p1.orig );
         Vector3D v2 = p0.sum( t.s2.p1.orig );
         Vector3D v3 = p0.sum( t.s3.p1.orig );
-        Triangle3D t0 = new Triangle3D( v1, v2, v3 );
+        Triangle3D t0 = new Triangle3D( v1, v2, v3, color );
         triangles.add( t0 );
       }
     }
@@ -195,10 +196,10 @@ class Cave3DDelaunay
   // double arc_angle( DelaunayPoint p1, DelaunayPoint p2 ) { return 1 - p1.v.dot( p2.v ); }
   
   // arc-distance = arccos of the dot-product ( range in [0, PI] )
-  // float arc_distance( DelaunayPoint p1, DelaunayPoint p2 ) { return (float)( Math.acos( p1.v.dot( p2.v ) ) ); }
-  // float arc_distance( Vector3D v1, Vector3D v2 ) { return (float)( Math.acos( v1.dot( v2 ) ) ); }
+  // double arc_distance( DelaunayPoint p1, DelaunayPoint p2 ) { return ( Math.acos( p1.v.dot( p2.v ) ) ); }
+  // double arc_distance( Vector3D v1, Vector3D v2 ) { return ( Math.acos( v1.dot( v2 ) ) ); }
 
-  // float distance3D( Vector3D v1, Vector3D v2 ) { return v1.distance3D( v2 ); }
+  // double distance3D( Vector3D v1, Vector3D v2 ) { return v1.distance3D( v2 ); }
 
   // triple-product of three Vector3D
   // double triple_product( Vector3D p1, Vector3D p2, Vector3D p3 ) { return p1.crossProduct( p2 ).dot( p3 ); }
@@ -241,6 +242,7 @@ class Cave3DDelaunay
     if ( N >= 4 ) {
       computeLawson( );
     }
+    color = 0xffcccccc; // DEBUG grey
   }
 
   // DelaunaySide findSide( Vector3D v )
@@ -267,9 +269,9 @@ class Cave3DDelaunay
       }
       if ( ret == null ) {
         // Log.v( TAG, "point in no triangle ... retry" );
-        v.x += (float)(e * ( Math.random() - 0.5 ));
-        v.y += (float)(e * ( Math.random() - 0.5 ));
-        v.z += (float)(e * ( Math.random() - 0.5 ));
+        v.x += (e * ( Math.random() - 0.5 ));
+        v.y += (e * ( Math.random() - 0.5 ));
+        v.z += (e * ( Math.random() - 0.5 ));
         v.normalized();
         e *= 2;
       }

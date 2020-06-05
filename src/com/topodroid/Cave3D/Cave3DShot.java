@@ -17,6 +17,14 @@ public class Cave3DShot
 {
   private static final double DEG2RAD = (Math.PI/180);
 
+  static final long FLAG_SURVEY     =  0; // flags
+  static final long FLAG_SURFACE    =  1;
+  static final long FLAG_DUPLICATE  =  2;
+  static final long FLAG_COMMENTED  =  4; // lox-flag NOT_VISIBLE
+  // static final long FLAG_NO_PLAN    =  8;
+  // static final long FLAG_NO_PROFILE = 16;
+  // static final long FLAG_BACKSHOT   = 32;
+
   String from;
   String to;
   Cave3DStation from_station;
@@ -25,9 +33,16 @@ public class Cave3DShot
   Cave3DSurvey mSurvey;
   int mSurveyNr;
   boolean used = false;
+  long mFlag;
+  long mMillis;
+
+  public boolean isSurvey()    { return mFlag == FLAG_SURVEY; }
+  public boolean isSurface()   { return (mFlag & FLAG_SURFACE)    == FLAG_SURFACE; }
+  public boolean isDuplicate() { return (mFlag & FLAG_DUPLICATE)  == FLAG_DUPLICATE; }
+  public boolean isCommented() { return (mFlag & FLAG_COMMENTED)  == FLAG_COMMENTED; } 
 
   // b/c in degrees
-  public Cave3DShot( String f, String t, double l, double b, double c )
+  public Cave3DShot( String f, String t, double l, double b, double c, long flag, long millis )
   {
     from = f;
     to   = t;
@@ -39,11 +54,13 @@ public class Cave3DShot
     to_station   = null;
     mSurvey = null;
     mSurveyNr = 0;
+    mFlag = flag;
+    mMillis = millis;
   }
 
   // used for cave pathlength between stations
   // b,c radians
-  public Cave3DShot( Cave3DStation f, Cave3DStation t, double l, double b, double c )
+  public Cave3DShot( Cave3DStation f, Cave3DStation t, double l, double b, double c, long flag, long millis )
   {
     from = (f!=null)? f.name : null;
     to   = (t!=null)? t.name : null;
@@ -55,6 +72,8 @@ public class Cave3DShot
     to_station   = t;
     mSurvey   = null;
     mSurveyNr = 0;
+    mFlag = flag;
+    mMillis = millis;
   }
 
   boolean hasSurvey() { return mSurvey != null; }
@@ -77,16 +96,16 @@ public class Cave3DShot
       double dz = len * Math.sin( cln );
       double dh = len * Math.cos( cln );
       return new Cave3DStation( to, 
-                          st.x + (float)(dh * Math.sin(ber)),
-                          st.y + (float)(dh * Math.cos(ber)),
-                          st.z + (float)(dz) );
+                          st.x + (dh * Math.sin(ber)),
+                          st.y + (dh * Math.cos(ber)),
+                          st.z + (dz) );
     } else if ( st.name.equals( to ) ) {
       double dz = len * Math.sin( cln );
       double dh = len * Math.cos( cln );
       return new Cave3DStation( from,
-                          st.x - (float)(dh * Math.sin(ber)),
-                          st.y - (float)(dh * Math.cos(ber)),
-                          st.z - (float)(dz) );
+                          st.x - (dh * Math.sin(ber)),
+                          st.y - (dh * Math.cos(ber)),
+                          st.z - (dz) );
     } else {
       return null;
     }
@@ -99,10 +118,11 @@ public class Cave3DShot
     return (from_station.depth + to_station.depth)/2;
   }
 
+  // return the 3D vector (E, N, Up )
   Vector3D toVector3D() 
   {
     double h = len * Math.cos(cln);
-    return new Vector3D( (float)(h * Math.sin(ber)), (float)(h * Math.cos(ber)), (float)(len * Math.sin(cln)) );
+    return new Vector3D( (h * Math.sin(ber)), (h * Math.cos(ber)), (len * Math.sin(cln)) );
   }
 
   // makes sense only for splays
@@ -116,7 +136,7 @@ public class Cave3DShot
     }
     if ( st == null ) return null;
     double h = sign * len * Math.cos(cln);
-    return new Vector3D( st.x + (float)(h * Math.sin(ber)), st.y + (float)(h * Math.cos(ber)), st.z + sign * (float)(len * Math.sin(cln)) );
+    return new Vector3D( st.x + (h * Math.sin(ber)), st.y + (h * Math.cos(ber)), st.z + sign * (len * Math.sin(cln)) );
   }
 
   Cave3DStation getOtherStation( Cave3DStation st )

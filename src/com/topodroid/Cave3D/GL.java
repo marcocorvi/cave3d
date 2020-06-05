@@ -141,6 +141,8 @@ class GL
   public static void setUniform( int uniform, float x, float y, float z, float w )   { GLES20.glUniform4f( uniform, x, y, z, w ); }
   public static void setUniform( int uniform, float[] value, int count, int offset ) { GLES20.glUniform4fv( uniform, count, value, offset); }
 
+  public static void setUniformVector( int uniform, float[] vec )    { GLES20.glUniform4f( uniform, vec[0], vec[1], vec[2], vec[3] ); }
+
   public static void setUniformMatrix( int uniform, float[] matrix ) { GLES20.glUniformMatrix4fv( uniform, 1, false, matrix, 0); }
 
   public static void setUniformTexture( int id, int texture ) { GLES20.glUniform1i( id, texture ); }

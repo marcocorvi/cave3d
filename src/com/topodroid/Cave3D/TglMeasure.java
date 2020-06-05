@@ -20,13 +20,13 @@ class TglMeasure
   private Resources mRes;
 
   Cave3DStation st1, st2;
-  float d3; // 3D distance
-  float de, dn, dz;  // axis distances
-  float d2; // horiz. plane distance
-  float azimuth, clino; // angles
-  float dcave; // cave distance
+  double d3; // 3D distance
+  double de, dn, dz;  // axis distances
+  double d2; // horiz. plane distance
+  double azimuth, clino; // angles
+  double dcave; // cave distance
 
-  TglMeasure( Resources res, Cave3DStation s1, Cave3DStation s2, float dc )
+  TglMeasure( Resources res, Cave3DStation s1, Cave3DStation s2, double dc )
   {
     st1 = s1;
     st2 = s2;
@@ -35,11 +35,11 @@ class TglMeasure
     de = s2.x - s1.x;
     dn = s2.y - s1.y;
     dz = s2.z - s1.z;
-    d3 = (float)Math.sqrt( de*de + dn*dn + dz*dz );
-    d2 = (float)Math.sqrt( de*de + dn*dn );
-    azimuth = (float)( Math.atan2( de, dn ) * 180.0f / Math.PI );
+    d3 = Math.sqrt( de*de + dn*dn + dz*dz );
+    d2 = Math.sqrt( de*de + dn*dn );
+    azimuth = ( Math.atan2( de, dn ) * 180.0f / Math.PI );
     if ( azimuth < 0 ) azimuth += 360.0f; 
-    clino   = (float)( Math.atan2( dz, d2 ) * 180.0f / Math.PI );
+    clino   = ( Math.atan2( dz, d2 ) * 180.0f / Math.PI );
   }
 
   String getString()

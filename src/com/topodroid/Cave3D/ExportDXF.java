@@ -39,8 +39,8 @@ public class ExportDXF
   Vector3D[] mVertex; // triangle vertices
   Vector3D mMin;
   Vector3D mMax;
-  float xoff, yoff, zoff; // offset to have positive coords values
-  float scale;       // scale factor
+  double xoff, yoff, zoff; // offset to have positive coords values
+  double scale;       // scale factor
 
   ExportDXF()
   {
@@ -103,10 +103,10 @@ public class ExportDXF
 
   static private int inc( int h ) { ++h; if ( h == 0x0105 ) ++h; return h; }
 
-  static final private float POINT_SCALE   = 10.0f; // scale of point icons: only ACAD_6
+  static final private double POINT_SCALE   = 10.0; // scale of point icons: only ACAD_6
   // the next three are for text
-  static final private float STATION_SCALE =  6.0f / 20; // DrawingUtil.SCALE_FIX; // scale of station names
-  static final private float AXIS_SCALE    = 10.0f / 20; // DrawingUtil.SCALE_FIX; // scale of text on the axes
+  static final private double STATION_SCALE =  6.0 / 20; // DrawingUtil.SCALE_FIX; // scale of station names
+  static final private double AXIS_SCALE    = 10.0 / 20; // DrawingUtil.SCALE_FIX; // scale of text on the axes
   static final private String zero = "0.0";
   static final private String one  = "1.0";
   static final private String two  = "2.0";
@@ -201,7 +201,7 @@ public class ExportDXF
     pw.printf("  %d%s%s%s", code, EOL, name, EOL );
   }
 
-  static void printFloat(  PrintWriter pw, int code, float val )
+  static void printFloat(  PrintWriter pw, int code, double val )
   {
     pw.printf(Locale.US, "  %d%s%.2f%s", code, EOL, val, EOL );
   }
@@ -231,12 +231,12 @@ public class ExportDXF
     out.write( SPACE + b10 + EOL + x + EOLSPACE + b20 + EOL + y + EOLSPACE + b30 + EOL + z + EOL );
   }
 
-  static private void printXY( PrintWriter pw, float x, float y, int base )
+  static private void printXY( PrintWriter pw, double x, double y, int base )
   {
     pw.printf(Locale.US, "  %d%s%.4f%s  %d%s%.4f%s", base+10, EOL, x, EOL, base+20, EOL, y, EOL );
   }
 
-  static void printXYZ( PrintWriter pw, float x, float y, float z, int base )
+  static void printXYZ( PrintWriter pw, double x, double y, double z, int base )
   {
     pw.printf(Locale.US, "  %d%s%.4f%s  %d%s%.4f%s  %d%s%.4f%s",
        base+10, EOL, x, EOL, base+20, EOL, y, EOL, base+30, EOL, z, EOL );
@@ -297,7 +297,7 @@ public class ExportDXF
   //   printString( pw, 7, style );
   //   printString( pw, 100, AcDbText );
   // }
-  private int printLinePoint( PrintWriter pw, int handle, String layer, float x, float y, float z )
+  private int printLinePoint( PrintWriter pw, int handle, String layer, double x, double y, double z )
   {
     printString( pw, 0, "VERTEX" );
     if ( mVersion13 ) {
@@ -310,7 +310,7 @@ public class ExportDXF
     return handle;
   }
 
-  private int printLine(PrintWriter pw, int handle, String layer, float x1, float y1, float z1, float x2, float y2, float z2 )
+  private int printLine(PrintWriter pw, int handle, String layer, double x1, double y1, double z1, double x2, double y2, double z2 )
   {
     printString( pw, 0, "LINE" );
     handle = inc(handle);
@@ -323,7 +323,7 @@ public class ExportDXF
   }
 
   private int printText( PrintWriter pw, int handle, String label,
-                        float x, float y, float z, float angle, float height,
+                        double x, double y, double z, double angle, double height,
                         String layer, String style )
   {
     // if ( false && mVersion13 ) { // FIXME TEXT in AC1012
@@ -361,7 +361,7 @@ public class ExportDXF
     return handle;
   }
 
-  private int printSegment( PrintWriter pw, int handle, String layer, float x1, float y1, float z1, float x2, float y2, float z2 )
+  private int printSegment( PrintWriter pw, int handle, String layer, double x1, double y1, double z1, double x2, double y2, double z2 )
   {
     printString( pw, 0, "LINE" );
     handle = inc(handle); printAcDb( pw, handle, AcDbEntity, AcDbLine );
@@ -407,12 +407,12 @@ public class ExportDXF
     
     int handle = 0;
 
-    float xmin = mMin.x ;
-    float xmax = mMax.x + 2;
-    float ymin = mMin.y ;
-    float ymax = mMax.y + 2;
-    float zmin = mMin.z ;
-    float zmax = mMax.z + 2;
+    double xmin = mMin.x ;
+    double xmax = mMax.x + 2;
+    double ymin = mMin.y ;
+    double ymax = mMax.y + 2;
+    double zmin = mMin.z ;
+    double zmax = mMax.z + 2;
 
     int p_style = 0;
 
@@ -791,12 +791,12 @@ public class ExportDXF
       writeSection( out, "ENTITIES" );
       {
 	String scale_len = "20";
-        float sc1 = 20; // DrawingUtil.SCALE_FIX / 2 = 10;
+        double sc1 = 20; // DrawingUtil.SCALE_FIX / 2 = 10;
 
         // REFERENCE
         StringWriter sw9 = new StringWriter();
         PrintWriter pw9  = new PrintWriter(sw9);
-	float sc2 = sc1 / 2;
+	double sc2 = sc1 / 2;
         handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin, xmin+sc1,  ymin,      zmin );
         handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin, xmin,      ymin+sc1,  zmin );
         handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin, xmin,      ymin,      zmin+sc1 );

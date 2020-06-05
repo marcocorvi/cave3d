@@ -32,8 +32,8 @@ class ExportSTL
   Vector3D[] mVertex; // triangle vertices
   Vector3D mMin;
   Vector3D mMax;
-  float x, y, z; // offset to have positive coords values
-  float s;       // scale factor
+  double x, y, z; // offset to have positive coords values
+  double s;       // scale factor
 
   ExportSTL()
   {
@@ -140,8 +140,9 @@ class ExportSTL
     b[3] = (byte)( (i>>24) & 0xff );
   }
 
-  private void floatToByte( float f, byte[] b )
+  private void floatToByte( double d, byte[] b )
   {
+    float f = (float)d;
     int i = Float.floatToIntBits( f );
     b[0] = (byte)(  i      & 0xff );
     b[1] = (byte)( (i>>8)  & 0xff );

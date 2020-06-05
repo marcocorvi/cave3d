@@ -15,6 +15,7 @@ import android.util.Log;
 
 import java.io.StringWriter;
 import java.io.PrintWriter;
+import java.io.File;
 
 import java.util.ArrayList;
 
@@ -91,6 +92,9 @@ public class TopoGL extends Activity
                           // "/sdcard/Android/data/com.topodroid.Cave3D/files";
   static String mAppBasePath = HOME_PATH;
   static String SYMBOL_PATH = EXTERNAL_STORAGE_PATH + "/TopoDroid/symbol/point";
+  static String C3D_PATH    = EXTERNAL_STORAGE_PATH + "/TopoDroid/c3d";
+
+  boolean doSketches = false;
 
   // reset app base path
   void checkAppBasePath()
@@ -118,6 +122,7 @@ public class TopoGL extends Activity
   String mTextureName = null;
 
   static boolean mSelectStation = true;
+  static boolean mHasC3d = false;
 
   // --------------------------------- OpenGL stuff
   private GlSurfaceView glSurfaceView;
@@ -167,6 +172,7 @@ public class TopoGL extends Activity
     mLayoutStation = (LinearLayout) findViewById( R.id.layout_station );
     mCurrentStation = (Button) findViewById( R.id.current_station );
     mCurrentStation.setOnClickListener( this );
+    mCurrentStation.setOnLongClickListener( this );
     mMeasureStation = (CheckBox) findViewById( R.id.measure_station );
     mLayoutStation.setVisibility( View.GONE );
     
@@ -206,6 +212,7 @@ public class TopoGL extends Activity
           if ( name != null ) {
             // Log.v( "TopoGL-EXTRA", "open input survey " + name + " base " + base );
             if ( doOpenSurvey( name, base ) ) {
+              doSketches = true;
               file_dialog = false;
             } else {
               Log.e( "TopoGL", "Cannot open input survey " + name );
@@ -388,10 +395,10 @@ public class TopoGL extends Activity
     R.string.menu_ico,
     R.string.menu_rose,
     R.string.menu_reset,
-    R.string.menu_viewpoint,  // 5
+    R.string.menu_viewpoint,  // 6
     R.string.menu_alpha,
-    R.string.menu_wall,       // 7
-    R.string.menu_sketch,     // 8
+    R.string.menu_wall,       // 8
+    R.string.menu_sketch,     // 9
     R.string.menu_options,
     // R.string.menu_fractal, // FRACTAL
     R.string.menu_help
@@ -399,10 +406,13 @@ public class TopoGL extends Activity
 
   void setMenuAdapter( Resources res )
   {
+    mHasC3d = new File( C3D_PATH ).exists();
+
     int size = getScaledSize( this );
     MyButton.setButtonBackground( this, mMenuImage, size, R.drawable.iz_menu );
     mMenuAdapter = new MyMenuAdapter( this, this, mMenu, R.layout.menu, new ArrayList< MyMenuItem >() );
     for ( int k=0; k<menus.length; ++k ) {
+      if ( k == 9 && ! mHasC3d ) continue;
       mMenuAdapter.add( res.getString( menus[k] ) );
     }
     mMenu.setAdapter( mMenuAdapter );
@@ -426,13 +436,29 @@ public class TopoGL extends Activity
       (new DialogOpenFile( this, this )).show();
       // openFile();
     } else if ( p++ == pos ) { // EXPORT
-      if ( mParser != null ) new DialogExport( this, this, mParser ).show();
+      if ( mParser != null ) {
+        new DialogExport( this, this, mParser ).show();
+      } else {
+        Toast.makeText( this, R.string.no_model, Toast.LENGTH_SHORT ).show();
+      }
     } else if ( p++ == pos ) { // INFO
-      if ( mParser != null ) new DialogInfo(this, mParser, mRenderer).show();
+      if ( mParser != null ) {
+        new DialogInfo(this, mParser, mRenderer).show();
+      } else {
+        Toast.makeText( this, R.string.no_model, Toast.LENGTH_SHORT ).show();
+      }
     } else if ( p++ == pos ) { // ICO
-      if ( mParser != null ) new DialogIco(this, mParser).show();
+      if ( mParser != null ) {
+        new DialogIco(this, mParser).show();
+      } else {
+        Toast.makeText( this, R.string.no_model, Toast.LENGTH_SHORT ).show();
+      }
     } else if ( p++ == pos ) { // ROSE
-      if ( mParser != null ) new DialogRose(this, mParser).show();
+      if ( mParser != null ) {
+        new DialogRose(this, mParser).show();
+      } else {
+        Toast.makeText( this, R.string.no_model, Toast.LENGTH_SHORT ).show();
+      }
     } else if ( p++ == pos ) { // RESET
       GlModel.resetModes();
       GlNames.resetStations();
@@ -440,13 +466,33 @@ public class TopoGL extends Activity
       mSelectStation = true;
       resetButtons();
     } else if ( p++ == pos ) { // VIEWPOINT
-      if ( mRenderer != null ) new DialogView( this, this, mRenderer ).show();
+      if ( mParser != null ) {
+        if ( mRenderer != null ) new DialogView( this, this, mRenderer ).show();
+      } else {
+        Toast.makeText( this, R.string.no_model, Toast.LENGTH_SHORT ).show();
+      }
     } else if ( p++ == pos ) { // SURFACE ALPHA
-      new DialogSurface( this, this ).show();
+      if ( mParser != null ) {
+        new DialogSurface( this, this ).show();
+      } else {
+        Toast.makeText( this, R.string.no_model, Toast.LENGTH_SHORT ).show();
+      }
     } else if ( p++ == pos ) { // DO_WALLS
-      new DialogWalls( this, this, mParser ).show();
-    } else if ( p++ == pos ) { // SKETCH
-      if ( mRenderer != null ) new DialogSketches( this, this, mRenderer ).show();
+      if ( mParser != null ) {
+        new DialogWalls( this, this, mParser ).show();
+      } else {
+        Toast.makeText( this, R.string.no_model, Toast.LENGTH_SHORT ).show();
+      }
+    } else if ( mHasC3d && p++ == pos ) { // SKETCH
+      if ( mParser != null ) {
+        if ( doSketches ) {
+          if ( mRenderer != null ) new DialogSketches( this, this, mRenderer ).show();
+        } else {
+          Toast.makeText( this, R.string.no_topodroid_model, Toast.LENGTH_SHORT ).show();
+        }
+      } else {
+        Toast.makeText( this, R.string.no_model, Toast.LENGTH_SHORT ).show();
+      }
     } else if ( p++ == pos ) { // OPTIONS
       startActivity( new Intent( this, TopoGLPreferences.class ) );
     // } else if ( p++ == pos ) { // FRACTAL
@@ -547,9 +593,10 @@ public class TopoGL extends Activity
     mButton1[6] = new MyButton( this, this, size, izons[6] );
     mButton1[7] = new MyButton( this, this, size, izons[7] );
 
-    mButton1[ 0 ].setOnLongClickListener( this );
-    mButton1[ 1 ].setOnLongClickListener( this );
-    mButton1[ 2 ].setOnLongClickListener( this );
+    // mButton1[ 0 ].setOnLongClickListener( this );
+    mButton1[ 1 ].setOnLongClickListener( this ); // projection params
+    mButton1[ 2 ].setOnLongClickListener( this ); // stations
+    mButton1[ 3 ].setOnLongClickListener( this ); // splays
 
     mBMlight = mButton1[BTN_MOVE].mBitmap;
     mBMturn = MyButton.getButtonBackground( this, size, R.drawable.iz_turn );
@@ -602,10 +649,23 @@ public class TopoGL extends Activity
   @Override 
   public boolean onLongClick( View v ) 
   {
-    mSelectStation = ! mSelectStation;
-    // Log.v("TopoGL", "on long click " + mSelectStation );
-    setButtonStation();
-    closeCurrentStation();
+    if ( v.getId() == R.id.current_station ) {
+      centerAtCurrentStation();
+      return true;
+    }
+
+    Button b = (Button) v;
+    if ( b == mButton1[1] ) {
+      if ( mRenderer.projectionMode != GlRenderer.PROJ_PERSPECTIVE ) return false;
+      new DialogProjection( this, mRenderer ).show();
+    } else if ( b == mButton1[2] ) {
+      mSelectStation = ! mSelectStation;
+      // Log.v("TopoGL", "on long click " + mSelectStation );
+      setButtonStation();
+      closeCurrentStation();
+    } else if ( b == mButton1[3] ) {
+      new DialogLegs( this ).show();
+    }
     return true;
   }
 
@@ -746,6 +806,15 @@ public class TopoGL extends Activity
     mLayoutStation.setVisibility( View.GONE );
     if ( mRenderer != null ) mRenderer.clearStationHighlight();
     if ( mParser   != null ) mParser.clearStartStation();
+    GlNames.setHLcolorG( 0.0f );
+  }
+
+  void centerAtCurrentStation()
+  {
+    boolean res = false;
+    if ( mRenderer != null ) res = mRenderer.setCenter();
+    // Toast.makeText( this, res ? R.string.center_set : R.string.center_clear, Toast.LENGTH_SHORT ).show();
+    GlNames.setHLcolorG( res ? 0.5f : 0.0f );
   }
 
   @Override
@@ -850,6 +919,7 @@ public class TopoGL extends Activity
   boolean doOpenFile( final String filename, boolean asynch )
   {
     mFilename = null;
+    doSketches = false;
     // setTitle( filename );
     int idx = filename.lastIndexOf( '/' );
     String path = ( idx >= 0 )? filename.substring( idx+1 ) : filename;
@@ -921,7 +991,7 @@ public class TopoGL extends Activity
     // Log.v("Cave3D-DEM", pathname );
     if ( ! pathname.endsWith( ".c3d" ) ) return;
     ParserSketch sketch = new ParserSketch( pathname );
-    final float dd = mDEMbuffer;
+    // final double dd = mDEMbuffer;
     (new AsyncTask<ParserSketch, Void, Boolean>() {
       ParserSketch my_sketch = null;
 
@@ -953,13 +1023,18 @@ public class TopoGL extends Activity
     if ( pathname.endsWith( ".grid" ) ) {
       dem = new DEMgridParser( pathname, mDEMmaxsize );
     } else if ( pathname.endsWith( ".asc" ) || pathname.endsWith(".ascii") ) {
-      dem = new DEMasciiParser( pathname, mDEMmaxsize, false ); // false: flip horz
+      Cave3DFix origin = mParser.getOrigin();
+      // origin.log();
+      double xunit = mParser.getWEradius();
+      double yunit = mParser.getSNradius();
+      // Log.v("TopoGL", "xunit " + xunit + " yunit " + yunit );
+      dem = new DEMasciiParser( pathname, mDEMmaxsize, false, xunit, yunit ); // false: flip horz
     } else { 
       return;
     }
     if ( dem.valid() ) {
       mDEMname = filename;
-      final float dd = mDEMbuffer;
+      final double dd = mDEMbuffer;
       // Log.v("TopoGL-DEM", "BBox X " + mParser.emin + " " + mParser.emax + " Y " + mParser.nmin + " " + mParser.nmax + " Z " + mParser.zmin + " " + mParser.zmax );
       (new AsyncTask<ParserDEM, Void, Boolean>() {
         ParserDEM my_dem = null;
@@ -1147,8 +1222,10 @@ public class TopoGL extends Activity
   // static boolean mWallDelaunay   = false;
   // static boolean mWallHull       = false;
   static boolean mStationDialog  = false;
-  static boolean mUseSplayVector = true; // ??? Hull Projection
+  // static boolean mUseSplayVector = true; // ??? Hull with 3D splays or 2D splay projections
   static boolean mMeasureToast   = false;
+  static boolean mSplayProj      = false;
+  static float   mSplayThr       = 0.5f;
 
   static final String CAVE3D_BASE_PATH        = "CAVE3D_BASE_PATH";
   static final String CAVE3D_TEXT_SIZE        = "CAVE3D_TEXT_SIZE";
@@ -1166,6 +1243,8 @@ public class TopoGL extends Activity
   static final String CAVE3D_DEM_REDUCE       = "CAVE3D_DEM_REDUCE";
   // WALLS category
   static final String CAVE3D_ALL_SPLAY        = "CAVE3D_ALL_SPLAY";
+  static final String CAVE3D_SPLAY_PROJ       = "CAVE3D_SPLAY_PROJ";
+  static final String CAVE3D_SPLAY_THR        = "CAVE3D_SPLAY_THR";
   static final String CAVE3D_SPLIT_TRIANGLES  = "CAVE3D_SPLIT_TRIANGLES";
   static final String CAVE3D_SPLIT_RANDOM     = "CAVE3D_SPLIT_RANDOM";
   static final String CAVE3D_SPLIT_STRETCH    = "CAVE3D_SPLIT_STRETCH";
@@ -1219,6 +1298,14 @@ public class TopoGL extends Activity
       GlRenderer.mMinClino = sp.getBoolean( k, false ) ? 90: 0;
     } else if ( k.equals( CAVE3D_ALL_SPLAY ) ) { 
       GlModel.mAllSplay = sp.getBoolean( k, true );
+    } else if ( k.equals( CAVE3D_SPLAY_PROJ ) ) { 
+      mSplayProj = sp.getBoolean( k, false );
+    } else if ( k.equals( CAVE3D_SPLAY_THR ) ) { 
+      try {
+        float buffer = Float.parseFloat( sp.getString( k, "0.5" ) );
+        mSplayThr = buffer; 
+      } catch ( NumberFormatException e ) { }
+
     } else if ( k.equals( CAVE3D_DEM_BUFFER ) ) { 
       try {
         float buffer = Float.parseFloat( sp.getString( k, "200" ) );
@@ -1312,6 +1399,11 @@ public class TopoGL extends Activity
     } catch ( NumberFormatException e ) { }
     GlRenderer.mMinClino  = sp.getBoolean( CAVE3D_NEG_CLINO, false ) ? 90 : 0;
     GlModel.mAllSplay  = sp.getBoolean( CAVE3D_ALL_SPLAY, true );
+    mSplayProj = sp.getBoolean( CAVE3D_SPLAY_PROJ, false );
+    try {
+      float buffer = Float.parseFloat( sp.getString( CAVE3D_SPLAY_THR, "0.5" ) );
+      mSplayThr = buffer;
+    } catch ( NumberFormatException e ) { }
     try {
       float buffer = Float.parseFloat( sp.getString( CAVE3D_DEM_BUFFER, "200" ) );
       if ( buffer >= 0 ) mDEMbuffer = buffer;
@@ -1388,6 +1480,7 @@ public class TopoGL extends Activity
   private boolean initRendering( String survey, String base ) 
   {
     // Log.v("TopoGL", "init rendering " + survey + " base " + base );
+    doSketches = false;
     try {
       mParser = new ParserTh( this, survey, base ); // survey data directly from TopoDroid database
       CWConvexHull.resetCounters();
@@ -1395,6 +1488,7 @@ public class TopoGL extends Activity
         mRenderer.clearModel();
         mRenderer.setParser( mParser );
       }
+      doSketches = true;
       // Log.v( "TopoGL", "Station " + mParser.getStationNumber() + " shot " + mParser.getShotNumber() );
     } catch ( ParserException e ) {
       toast(R.string.error_parser_error, survey + " " + e.msg(), true );
@@ -1407,12 +1501,14 @@ public class TopoGL extends Activity
   private boolean initRendering( String filename )
   {
     // Log.v("TopoGL", "init rendering " + filename );
+    doSketches = false;
     try {
       mParser = null;
       if ( mRenderer != null ) mRenderer.clearModel();
       // resetAllPaths();
       if ( filename.endsWith( ".tdconfig" ) ) {
         mParser = new ParserTh( this, filename ); // tdconfig files are saved with therion syntax
+        doSketches = true;
       } else if ( filename.endsWith( ".th" ) || filename.endsWith( ".thconfig" ) ) {
         mParser = new ParserTh( this, filename );
       } else if ( filename.endsWith( ".lox" ) ) {
@@ -1421,6 +1517,8 @@ public class TopoGL extends Activity
         mParser = new ParserDat( this, filename );
       } else if ( filename.endsWith( ".tro" ) ) {
         mParser = new ParserTro( this, filename );
+      } else if ( filename.endsWith( ".3d" ) ) {
+        mParser = new Parser3d( this, filename );
       } else {
         return false;
       }
@@ -1449,14 +1547,24 @@ public class TopoGL extends Activity
       } else {
         toast( R.string.fail_powercrust, true );
       }
+    } else if ( type == TglParser.WALL_HULL ) {
+      if ( result ) {
+        toast(  R.string.done_hull );
+      } else {
+        toast( R.string.fail_hull, true );
+      }
     }
     if ( mRenderer != null ) mRenderer.notifyWall( type, result );
   }
 
   void refresh()
   {
-    if ( glSurfaceView != null ) glSurfaceView.requestRender(); 
+    // Log.v("TopoGL", "refresh. mode " + mRenderer.projectionMode );
     if ( mRenderer != null ) setTheTitle( mRenderer.getAngleString() );
+    if ( glSurfaceView != null ) { // neither of these help
+      glSurfaceView.requestRender(); 
+      // glSurfaceView.onTouchEvent( null );
+    }
   }
 
   void loadSketch()

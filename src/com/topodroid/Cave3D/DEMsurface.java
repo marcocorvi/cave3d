@@ -11,6 +11,8 @@
  */
 package com.topodroid.Cave3D;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 
@@ -19,19 +21,19 @@ import android.graphics.RectF;
 
 public class DEMsurface
 {
-  float mEast1, mNorth1; // (west, south) center of LL-cornel cell
-  float mEast2, mNorth2; // (east, north) center of UR-corner cell
+  double mEast1, mNorth1; // (west, south) center of LL-cornel cell
+  double mEast2, mNorth2; // (east, north) center of UR-corner cell
 
   float[] mZ;         // vertical (upwards)
   int mNr1;           // number of centers in East 
   int mNr2;           // number of centers in North
-  float mDim1, mDim2; // spacing between grid centers
+  double mDim1, mDim2; // spacing between grid centers
   // float mNormal[];    // normal vectors (3 float per vertex)
 
   // lefttop right bottom
   RectF getBounds( )
   {
-    return new RectF( mEast1-mDim1/2, mNorth2+mDim2/2, mEast2+mDim1/2, mNorth1-mDim2/2 );
+    return new RectF( (float)(mEast1-mDim1/2), (float)(mNorth2+mDim2/2), (float)(mEast2+mDim1/2), (float)(mNorth1-mDim2/2) );
   }
 
   /**
@@ -53,7 +55,7 @@ public class DEMsurface
    * called by Therion/Lox parser
    * Therion/Loch have (East,North) bounds at the LL-corner of the cell
    */
-  public DEMsurface( float e1, float n1, float delta_e, float delta_n, int dim1, int dim2 )
+  public DEMsurface( double e1, double n1, double delta_e, double delta_n, int dim1, int dim2 )
   {
     mEast1  = e1 + delta_e/2;
     mNorth1 = n1 + delta_n/2;
@@ -70,18 +72,18 @@ public class DEMsurface
 
   protected DEMsurface( ) { }
 
-  float computeZ( float e, float n )
+  float computeZ( double e, double n )
   {
     if ( e < mEast1 || n < mNorth1 || e > mEast2 || n > mNorth2 ) return -9999.0f;
     int i1 = (int)((e-mEast1)/mDim1);
     int j1 = (int)((n-mNorth1)/mDim2);
-    float dx2 = (e - ( mEast1 + i1 * mDim1 ))/mDim1;
-    float dx1 = 1.0f - dx2;
-    float dy2 = (n - ( mNorth1 + j1 * mDim2 ))/mDim2;
-    float dy1 = 1.0f - dy2;
+    double dx2 = (e - ( mEast1 + i1 * mDim1 ))/mDim1;
+    double dx1 = 1.0 - dx2;
+    double dy2 = (n - ( mNorth1 + j1 * mDim2 ))/mDim2;
+    double dy1 = 1.0 - dy2;
     int i2 = i1 + 1;
     int j2 = j1 + 1;
-    return ( ( j2 < mNr2 ) ?
+    return (float)( ( j2 < mNr2 ) ?
         ( (i2 < mNr1 )? mZ[j1*mNr1+i1] * dx1 + mZ[j1*mNr1+i2] * dx2 : mZ[j1*mNr1+i1] ) * dy1 + ( (i2 < mNr1 )? mZ[j2*mNr1+i1] * dx1 + mZ[j2*mNr1+i2] * dx2 : mZ[j2*mNr1+i1] ) * dy2
       : ( (i2 < mNr1 )? mZ[j1*mNr1+i1] * dx1 + mZ[j1*mNr1+i2] * dx2 : mZ[j1*mNr1+i1] ) );
     // Log.v("TopoGL-SURFACE", "i " + i1 + " j " + j2 + " z " + ret );
@@ -96,15 +98,15 @@ public class DEMsurface
   //     int j0 = j*mNr1;
   //     int j1 = ( j > 0 )?      (j-1) : j;
   //     int j2 = ( j < mNr2-1 )? (j+1) : j;
-  //     float dy = (j2-j1) * mDim2;
+  //     double dy = (j2-j1) * mDim2;
   //     int j1 *= mNr1;
   //     int j2 *= mNr1;
   //     for ( int i=0; i<mNr1-1; ++i ) {
   //       int i1 = ( i > 0 )?      (i-1) : i;
   //       int i2 = ( i < mNr1-1 )? (i+1) : i;
-  //       float x = ( mZ[j0 + i2] - mZ[j0 + i1] ) / ((i2-i1)*mDim1);
-  //       float y = ( mZ[j2 + i ] - mZ[j1 + i ] ) / dy;
-  //       float m = (float)Math.sqrt( 1 + x*x + y*y );
+  //       double x = ( mZ[j0 + i2] - mZ[j0 + i1] ) / ((i2-i1)*mDim1);
+  //       double y = ( mZ[j2 + i ] - mZ[j1 + i ] ) / dy;
+  //       double m = Math.sqrt( 1 + x*x + y*y );
   //       mNormal[ 3*j0     ] =  x / m;
   //       mNormal[ 3*j0 + 1 ] =  y / m;
   //       mNormal[ 3*j0 + 2 ] = -1 / m;
@@ -125,7 +127,7 @@ public class DEMsurface
   //   each row being filled left (e1) to right (e2)
   //
   // called only by ParserTh
-  void readGridData( float units, int flip, BufferedReader br, String filename )
+  void readGridData( double units, int flip, BufferedReader br, String filename )
       throws ParserException
   {
     int linenr = 0;

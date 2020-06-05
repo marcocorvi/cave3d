@@ -28,8 +28,8 @@ import java.io.IOException;
 public class ExportKML
 {
   ArrayList<CWFacet> mFacets;
-  float lat, lng, asl;
-  float s_radius, e_radius;
+  double lat, lng, asl;
+  double s_radius, e_radius;
   Cave3DStation zero;
   ArrayList< Triangle3D > mTriangles;
 
@@ -46,10 +46,10 @@ public class ExportKML
      mFacets.add( new CWFacet( v1, v2, v3 ) );
   }
 
-  static float EARTH_RADIUS1 = (float)(6378137 * Math.PI / 180.0f); // semimajor axis [m]
-  static float EARTH_RADIUS2 = (float)(6356752 * Math.PI / 180.0f);
+  static double EARTH_RADIUS1 = (6378137 * Math.PI / 180.0f); // semimajor axis [m]
+  static double EARTH_RADIUS2 = (6356752 * Math.PI / 180.0f);
 
-  private boolean getGeolocalizedData( TglParser data, float decl, float asl_factor )
+  private boolean getGeolocalizedData( TglParser data, double decl, double asl_factor )
   {
     // Log.v( "TopoGL-KML", "get geoloc. data. Decl " + decl );
     List< Cave3DFix > fixes = data.getFixes();
@@ -75,14 +75,14 @@ public class ExportKML
 
     // origin has coordinates ( e, n, z ) these are assumed lat-long
     // altitude is assumed wgs84
-    lat = (float)origin.y;
-    lng = (float)origin.x;
-    asl = (float)origin.z; // KML uses Geoid altitude (unless altitudeMode is set)
+    lat = origin.y;
+    lng = origin.x;
+    asl = origin.z; // KML uses Geoid altitude (unless altitudeMode is set)
     // Log.v( "TopoGL-KML", "origin " + lat + " N " + lng + " E " + asl );
-    float alat = ( lat > 0 )? lat : - lat;
+    double alat = ( lat > 0 )? lat : - lat;
 
     s_radius = ((90 - alat) * EARTH_RADIUS1 + alat * EARTH_RADIUS2)/90;
-    e_radius = s_radius * (float)Math.cos( alat * Math.PI / 180.0 );
+    e_radius = s_radius * Math.cos( alat * Math.PI / 180.0 );
 
     s_radius = 1 / s_radius;
     e_radius = 1 / e_radius;
@@ -172,9 +172,9 @@ public class ExportKML
 
       if ( do_station ) {
         for ( Cave3DStation st : stations ) {
-          float e = lng + (st.x - zero.x) * e_radius;
-          float n = lat + (st.y - zero.y) * s_radius;
-          float z = asl + (st.z - zero.z);
+          double e = lng + (st.x - zero.x) * e_radius;
+          double n = lat + (st.y - zero.y) * s_radius;
+          double z = asl + (st.z - zero.z);
           pw.format(Locale.US, "<Placemark>\n");
           pw.format(Locale.US, "  <name>%s</name>\n", st.name );
           pw.format(Locale.US, "  <styleUrl>#station</styleUrl>\n");
@@ -195,12 +195,12 @@ public class ExportKML
       for ( Cave3DShot sh : shots ) {
         Cave3DStation sf = sh.from_station;
         Cave3DStation st = sh.to_station;
-        float ef = lng + (sf.x - zero.x) * e_radius;
-        float nf = lat + (sf.y - zero.y) * s_radius;
-        float zf = asl + (sf.z - zero.z);
-        float et = lng + (st.x - zero.x) * e_radius;
-        float nt = lat + (st.y - zero.y) * s_radius;
-        float zt = asl + (st.z - zero.z);
+        double ef = lng + (sf.x - zero.x) * e_radius;
+        double nf = lat + (sf.y - zero.y) * s_radius;
+        double zf = asl + (sf.z - zero.z);
+        double et = lng + (st.x - zero.x) * e_radius;
+        double nt = lat + (st.y - zero.y) * s_radius;
+        double zt = asl + (st.z - zero.z);
         pw.format(Locale.US, "    <LineString id=\"%s-%s\"> <coordinates>\n", sf.name, st.name );
         // pw.format(Locale.US, "      <tessellate>1</tessellate>\n"); //   breaks the line up in small chunks
         // pw.format(Locale.US, "      <extrude>1</extrude>\n"); // extends the line down to the ground
@@ -219,12 +219,12 @@ public class ExportKML
         for ( Cave3DShot sp : splays ) {
           Cave3DStation sf = sp.from_station;
           Vector3D v = sp.toVector3D();
-          float ef = lng + (sf.x - zero.x) * e_radius;
-          float nf = lat + (sf.y - zero.y) * s_radius;
-          float zf = asl + (sf.z - zero.z);
-          float et = lng + (sf.x + v.x - zero.x) * e_radius;
-          float nt = lat + (sf.y + v.y - zero.y) * s_radius;
-          float zt = asl + (sf.z + v.z - zero.z);
+          double ef = lng + (sf.x - zero.x) * e_radius;
+          double nf = lat + (sf.y - zero.y) * s_radius;
+          double zf = asl + (sf.z - zero.z);
+          double et = lng + (sf.x + v.x - zero.x) * e_radius;
+          double nt = lat + (sf.y + v.y - zero.y) * s_radius;
+          double zt = asl + (sf.z + v.z - zero.z);
           pw.format(Locale.US, "    <LineString> <coordinates>\n" );
           // pw.format(Locale.US, "      <tessellate>1</tessellate>\n"); //   breaks the line up in small chunks
           // pw.format(Locale.US, "      <extrude>1</extrude>\n"); // extends the line down to the ground
@@ -242,15 +242,15 @@ public class ExportKML
         pw.format(Locale.US, "  <altitudeMode>absolute</altitudeMode>\n");
         pw.format(Locale.US, "  <MultiGeometry>\n");
         for ( CWFacet facet : mFacets ) {
-          float e1 = lng + (facet.v1.x - zero.x) * e_radius;
-          float n1 = lat + (facet.v1.y - zero.y) * s_radius;
-          float z1 = asl + (facet.v1.z - zero.z);
-          float e2 = lng + (facet.v2.x - zero.x) * e_radius;
-          float n2 = lat + (facet.v2.y - zero.y) * s_radius;
-          float z2 = asl + (facet.v2.z - zero.z);
-          float e3 = lng + (facet.v3.x - zero.x) * e_radius;
-          float n3 = lat + (facet.v3.y - zero.y) * s_radius;
-          float z3 = asl + (facet.v3.z - zero.z);
+          double e1 = lng + (facet.v1.x - zero.x) * e_radius;
+          double n1 = lat + (facet.v1.y - zero.y) * s_radius;
+          double z1 = asl + (facet.v1.z - zero.z);
+          double e2 = lng + (facet.v2.x - zero.x) * e_radius;
+          double n2 = lat + (facet.v2.y - zero.y) * s_radius;
+          double z2 = asl + (facet.v2.z - zero.z);
+          double e3 = lng + (facet.v3.x - zero.x) * e_radius;
+          double n3 = lat + (facet.v3.y - zero.y) * s_radius;
+          double z3 = asl + (facet.v3.z - zero.z);
           pw.format(Locale.US, "    <Polygon>\n");
           pw.format(Locale.US, "      <outerBoundaryIs> <LinearRing> <coordinates>\n");
           pw.format(Locale.US, "             %f,%f,%.3f\n", e1,n1,z1);
@@ -273,20 +273,20 @@ public class ExportKML
             pw.format(Locale.US, "    <Polygon>\n");
             pw.format(Locale.US, "      <outerBoundaryIs> <LinearRing> <coordinates>\n");
             for ( int k = 0; k < t.size; ++k ) {
-              float e1 = lng + (t.vertex[k].x - zero.x) * e_radius;
-              float n1 = lat + (t.vertex[k].y - zero.y) * s_radius;
-              float z1 = asl + (t.vertex[k].z - zero.z);
+              double e1 = lng + (t.vertex[k].x - zero.x) * e_radius;
+              double n1 = lat + (t.vertex[k].y - zero.y) * s_radius;
+              double z1 = asl + (t.vertex[k].z - zero.z);
               pw.format(Locale.US, "             %f,%f,%.3f\n", e1,n1,z1);
             }
             pw.format(Locale.US, "      </coordinates> </LinearRing> </outerBoundaryIs>\n");
             pw.format(Locale.US, "    </Polygon>\n");
-            float e0 = lng + (t.vertex[t.size-1].x - zero.x) * e_radius;
-            float n0 = lat + (t.vertex[t.size-1].y - zero.y) * s_radius;
-            float z0 = asl + (t.vertex[t.size-1].z - zero.z);
+            double e0 = lng + (t.vertex[t.size-1].x - zero.x) * e_radius;
+            double n0 = lat + (t.vertex[t.size-1].y - zero.y) * s_radius;
+            double z0 = asl + (t.vertex[t.size-1].z - zero.z);
             for ( int k = 0; k < t.size; ++k ) {
-              float e1 = lng + (t.vertex[k].x - zero.x) * e_radius;
-              float n1 = lat + (t.vertex[k].y - zero.y) * s_radius;
-              float z1 = asl + (t.vertex[k].z - zero.z);
+              double e1 = lng + (t.vertex[k].x - zero.x) * e_radius;
+              double n1 = lat + (t.vertex[k].y - zero.y) * s_radius;
+              double z1 = asl + (t.vertex[k].z - zero.z);
               pw.format(Locale.US, "    <LineString> <coordinates>\n");
               pw.format(Locale.US, "             %f,%f,%.3f %f,%f,%.3f", e0,n0,z0, e1,n1,z1 );
               pw.format(Locale.US, "    </coordinates> </LineString>\n");

@@ -84,6 +84,10 @@
     <!-- TODO string name="texture_load">load texture</string -->
     <!-- TODO string name="texture_failed">Failed texture loading</string -->
     <!-- TODO string name="texture_ok">Read texture file</string -->
+    <!-- TODO string name="sketch_load">Load</string -->
+    <!-- TODO string name="sketch_failed">Failed sketch loading</string -->
+    <!-- TODO string name="sketch_ok">Read sketch data</string -->
+
     <string name="title">%1$s  Clino: %2$.0f  Azimut: %3$.0f</string>
     <string name="title_clino"> Clino: </string>
     <string name="title_azimuth"> Azimut: </string>
@@ -161,6 +165,8 @@
     <string name="fail_convexhull">Calcolo inviluppo-convesso fallito</string>
     <string name="done_powercrust">Powercrust calcolato</string>
     <string name="fail_powercrust">Powercrust fallito</string>
+    <!-- TODO string name="done_hull">Done simple-hull walls</string -->
+    <!-- TODO string name="fail_hull">Failed simple-hull walls</string -->
 
     <string name="no_database">Database non trovato\n</string>
     <string name="no_survey">Rilievo %1$s non trovato\n</string>
@@ -206,6 +212,10 @@
   
     <string name="pref_all_splay_title">Splay per pareti</string>
     <string name="pref_all_splay_summary">Usa tutti gli splay per le pareti</string>
+    <!-- TODO string name="pref_splay_proj_title">Projected splays</string -->
+    <!-- TODO string name="pref_splay_proj_summary">Whether to use splays projected on a normal plane [n]</string -->
+    <!-- TODO string name="pref_splay_thr_title">Splay threshold</string -->
+    <!-- TODO string name="pref_splay_thr_summary">Splays outside the shot to keep [0.5]</string -->
 
     <string name="pref_split_triangles_title">Triangoli di parete</string>
     <string name="pref_split_triangles_summary">Dividi i triangoli di parete</string>

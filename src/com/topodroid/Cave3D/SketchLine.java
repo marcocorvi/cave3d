@@ -42,7 +42,7 @@ class SketchLine
     alpha = a;
   }
 
-  void insertPoint( float x, float y, float z )
+  void insertPoint( double x, double y, double z )
   {
     pts.add( new Vector3D( x, y, z ) );
   }

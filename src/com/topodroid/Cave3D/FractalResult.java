@@ -24,7 +24,7 @@ class FractalResult
   static TopoGL  mApp = null;
   static Context mContext;
 
-  static float[] mCount = new float[ FractalComputer.SIZE ];
+  static double[] mCount = new double[ FractalComputer.SIZE ];
 
   static int compute( Context context, TopoGL app, final TglParser r, boolean do_splays, int cell, int mode )
   {
@@ -58,7 +58,7 @@ class FractalResult
     }
   }
 
-  static void setCount(int k, float val) { mCount[k] = val; }
+  static void setCount(int k, double val) { mCount[k] = val; }
 
   static String countsString()
   {

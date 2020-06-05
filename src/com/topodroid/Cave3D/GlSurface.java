@@ -67,39 +67,39 @@ class GlSurface extends GlShape
   // PROGRAM
 
   // DEM data in survey frame, XYZ med in OpenGL
-  void initData( ParserDEM dem, float xmed, float ymed, float zmed )
+  void initData( ParserDEM dem, double xmed, double ymed, double zmed )
   {
     int nx = dem.dimX();
     int ny = dem.dimY();
     if ( nx <= 1 || ny <= 1 ) return;
-    float dx =   dem.cellXSize();
-    float dy =   dem.cellYSize();
-    float x0 =   dem.west() - xmed;
-    float y0 =   dem.south() + zmed;
+    float dx = (float)( dem.cellXSize() );
+    float dy = (float)( dem.cellYSize() );
+    float x0 = (float)( dem.west() - xmed );
+    float y0 = (float)( dem.south() + zmed );
     // Log.v("TopoGL", "DEM " + nx + "x" + ny + " W " + dem.west() + " S " + dem.south() );
-    initDataBuffer( dem.data(), nx, ny, dx, dy, x0, y0, ymed ); // ymed = survey data medium elevation
+    initDataBuffer( dem.data(), nx, ny, dx, dy, x0, y0, (float)ymed ); // ymed = survey data medium elevation
     // logData( dem.data(), nx, ny, x0, (x0+nx*dx), y0, (y0+ny*dy) );
   }
 
   // Lox/Therion DEM data in survey frame, XYZ med in OpenGL
   // therion grid data are for ( east .. west ) for ( north .. south ) 
   // N.B. value are already in E-N frame, therefore "add" zmed (which is south)
-  void initData( DEMsurface surface, float xmed, float ymed, float zmed, boolean flip )
+  void initData( DEMsurface surface, double xmed, double ymed, double zmed, boolean flip )
   {
     int nx = surface.mNr1;
     int nz = surface.mNr2;
     if ( nx <= 1 || nz <= 1 ) return;
-    float dx =   surface.mDim1;
-    float x0 =   surface.mEast1  - xmed;
+    float dx = (float)( surface.mDim1 );
+    float x0 = (float)( surface.mEast1  - xmed );
    
-    // float dz =   surface.mDim2;  // GOOD
-    float dz = flip ? - surface.mDim2 : surface.mDim2; // flip for complesso.lox
-    // float z0 =   surface.mNorth1 + zmed; //  GOOD
-    float z0 = flip ? surface.mNorth2 + zmed : surface.mNorth1 + zmed;
+    // double dz =   surface.mDim2;  // GOOD
+    float dz = (float)( flip ? - surface.mDim2 : surface.mDim2 ); // flip for complesso.lox
+    // double z0 =   surface.mNorth1 + zmed; //  GOOD
+    float z0 = (float)( flip ? surface.mNorth2 + zmed : surface.mNorth1 + zmed );
 
     // Log.v("TopoGL", "surface " + nx + "x" + nz + " E " + surface.mEast1 + " " + surface.mEast2 + " " + x0 + " N " + surface.mNorth1 + " " + surface.mNorth2 + " " + z0 + " Dx " + dx + " Dz " + dz );
     // Log.v("TopoGL", "Z " + surface.mZ[0] + " " + surface.mZ[1] + " " + surface.mZ[2] + " " + surface.mZ[3] + " " + surface.mZ[4] + " " + surface.mZ[5] + " " + surface.mZ[6] + " ... ");
-    initDataBuffer( surface.mZ, nx, nz, dx, dz, x0, z0, ymed ); // ymed = survey data medium elevation
+    initDataBuffer( surface.mZ, nx, nz, dx, dz, x0, z0, (float)ymed ); // ymed = survey data medium elevation
     // logData( surface.mZ, nx, nz, x0, (x0+nx*dx), z0, (z0+nz*dz) );
   }
 
@@ -126,7 +126,7 @@ class GlSurface extends GlShape
     GL.setUniformMatrix( mbUMVMatrixInvT, mv_matrix_int_t );
     GL.setAttributePointer( mbAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, BYTE_STRIDE );
     GL.setAttributePointer( mbANormal,   dataBuffer, OFFSET_NORMAL, COORDS_PER_NORMAL, BYTE_STRIDE );
-    GL.setUniform( mbULight, light.x, light.y, light.z );
+    GL.setUniform( mbULight, (float)light.x, (float)light.y, (float)light.z );
 
     // mUTexUnit   = GL.getUniform( mProgram, GL.uTexUnit ); // texture units
     // GL.setUniformTexture( mATexCoord, 1 );
@@ -145,7 +145,7 @@ class GlSurface extends GlShape
     GL.setUniformMatrix( mgUMVMatrixInvT, mv_matrix_int_t );
     GL.setAttributePointer( mgAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, BYTE_STRIDE );
     GL.setAttributePointer( mgANormal,   dataBuffer, OFFSET_NORMAL, COORDS_PER_NORMAL, BYTE_STRIDE );
-    GL.setUniform( mgULight, light.x, light.y, light.z );
+    GL.setUniform( mgULight, (float)light.x, (float)light.y, (float)light.z );
 
     GL.setUniform( mgUColor, mColor[0], mColor[1], mColor[2], mColor[3] );
     GL.setUniform( mgUAlpha, mAlpha ); // UNUSED

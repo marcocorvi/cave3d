@@ -30,22 +30,29 @@ public class GlModel
   static float   mWidth  = 0;
   static float   mHalfWidth = 0;
   static float   mHeight = 0; // unused
+
+  static boolean showLegsSurface   = true;
+  static boolean showLegsDuplicate = true;
+  static boolean showLegsCommented = true;
+
   TglParser mParser = null;
   RectF mSurfaceBounds = null;
   List< GlSketch > glSketches = null;
-      
 
-  private float mXmed, mYmed, mZmed; // XYZ openGL
+  private double mXmed, mYmed, mZmed; // XYZ openGL
   float grid_size = 1;
-  static float mZMin, mZDelta; // draw params
-  private float mZ0Min;        // minimum model altitude (survey frame)
+  static  double mZMin, mZDelta; // draw params
+  private double mZ0Min;        // minimum model altitude (survey frame)
 
-  private float mY0med    = 0; // used in drawing
-  private float mDiameter = 0;
+  private double mY0med    = 0; // used in drawing
+  private double mDiameter = 0;
 
   GlSurface glSurface = null; // surface
   GlNames glNames   = null; // stations
   GlLines glLegs    = null;
+  GlLines glLegsS   = null; // surface
+  GlLines glLegsD   = null; // duplicate
+  GlLines glLegsC   = null; // commented
   GlLines glSplays  = null;
   GlLines glGrid    = null;
   GlLines glFrame   = null;
@@ -73,13 +80,15 @@ public class GlModel
     if ( glNames != null ) glNames.unbindTexture();
   }
 
-  float getDiameter() { return mDiameter; } 
+  double getDiameter() { return mDiameter; } 
+
+  Vector3D getCenter() { return ( glNames != null )? glNames.getCenter() : null; }
 
   float getGridCell() { return grid_size; }
 
-  // float getDx0() { return ((glLegs == null)? 0 : glLegs.xmed ); }
-  // float getDy0() { return ((glLegs == null)? 0 : glLegs.ymin ); }
-  // float getDz0() { return ((glLegs == null)? 0 : glLegs.zmin ); }
+  // double getDx0() { return ((glLegs == null)? 0 : glLegs.xmed ); }
+  // double getDy0() { return ((glLegs == null)? 0 : glLegs.ymin ); }
+  // double getDz0() { return ((glLegs == null)? 0 : glLegs.zmin ); }
 
   synchronized void clearAll() 
   {
@@ -93,6 +102,9 @@ public class GlModel
     glProfile = null;
     glSplays  = null;
     glLegs    = null;
+    glLegsS   = null;
+    glLegsD   = null;
+    glLegsC   = null;
     glPath    = null;
     mParser   = null;
   }
@@ -150,9 +162,9 @@ public class GlModel
   static boolean mSplitTriangles = true;
   static boolean mSplitRandomize = true;
   static boolean mSplitStretch   = false;
-  static float mSplitRandomizeDelta = 0.1f; // meters
-  static float mSplitStretchDelta   = 0.1f;
-  static float mPowercrustDelta     = 0.1f; // meters
+  static double mSplitRandomizeDelta = 0.1f; // meters
+  static double mSplitStretchDelta   = 0.1f;
+  static double mPowercrustDelta     = 0.1f; // meters
 
   static void toggleSplays()   { splayMode = (splayMode+1) % DRAW_MAX; }
   // static void togglePlanview() { planviewMode = ( planviewMode + 1 ) % 4; }
@@ -169,14 +181,20 @@ public class GlModel
     frameMode    = FRAME_GRID;
     projMode     = PROJ_NONE;
     surfaceMode  = false;
-    surfaceLegsMode = false;
-    surfaceTexture  = true;
+    surfaceLegsMode   = false;
+    surfaceTexture    = true;
+    showLegsSurface   = true;
+    showLegsDuplicate = true;
+    showLegsCommented = true;
     // GlSketch.reloadSymbols( TopoGL.SYMBOL_PATH );
   }
 
   void resetColorMode()
   {
     if ( glLegs   != null ) glLegs.setColorMode( GlLines.COLOR_NONE );
+    if ( glLegsS  != null ) glLegsS.setColorMode( GlLines.COLOR_NONE );
+    if ( glLegsD  != null ) glLegsD.setColorMode( GlLines.COLOR_NONE );
+    if ( glLegsC  != null ) glLegsC.setColorMode( GlLines.COLOR_NONE );
     if ( glSplays != null ) glSplays.setColorMode( GlLines.COLOR_NONE );
     clearStationHighlight();
   }
@@ -190,6 +208,9 @@ public class GlModel
   synchronized void toggleColorMode() { 
     if ( glLegs != null ) {
       glLegs.toggleColorMode( );
+      if ( glLegsS  != null ) glLegsS.toggleColorMode( );
+      if ( glLegsD  != null ) glLegsD.toggleColorMode( );
+      if ( glLegsC  != null ) glLegsC.toggleColorMode( );
       if ( glSplays != null ) glSplays.setColorMode( glLegs.mColorMode ); 
     }
   }
@@ -211,7 +232,7 @@ public class GlModel
     glSketches = Collections.synchronizedList(new ArrayList< GlSketch >());
   }
 
-  void draw( float[] mvp_matrix, /* float[] inverse_scale_matrix, */ float[] mv_matrix, Vector3D light ) 
+  void draw( float[] mvp_matrix, float[] mv_matrix, Vector3D light ) 
   { 
     if ( ! modelCreated ) return;
 
@@ -231,7 +252,7 @@ public class GlModel
           float[] revMatrix = new float[16];
           float[] matrix = new float[16];
           Matrix.setIdentityM( revMatrix, 0 );
-          revMatrix[13] = mY0med; // glLegs.getYmed();
+          revMatrix[13] = (float)mY0med; // glLegs.getYmed();
           revMatrix[ 5] = -1;
           Matrix.multiplyMM( matrix, 0, mvp_matrix, 0, revMatrix, 0 );
           grid.draw( matrix, DRAW_LINE ); 
@@ -278,39 +299,42 @@ public class GlModel
       }
     }
 
+    GL.setLineWidth( 1.0f );
     if ( projMode == PROJ_PLAN ) {
       GlLines plan = null;
       synchronized( this ) { plan = glPlan; }
-      if ( plan != null ) { 
-        GL.setLineWidth( 1.0f );
-        plan.draw( mvp_matrix, DRAW_LINE );
-      }
+      if ( plan != null ) plan.draw( mvp_matrix, DRAW_LINE );
     } else if ( projMode == PROJ_PROFILE ) {
       GlLines profile = null;
       synchronized( this ) { profile = glProfile; }
-      if ( profile != null ) { 
-        GL.setLineWidth( 1.0f );
-        profile.draw( mvp_matrix, DRAW_LINE );
-      }
+      if ( profile != null ) profile.draw( mvp_matrix, DRAW_LINE );
     }
+
     GlLines splays = null;
     synchronized( this ) { splays = glSplays; }
-    if ( splays != null ) {
-      GL.setLineWidth( 1.0f );
-      splays.draw( mvp_matrix, splayMode );
-    }
+    if ( splays != null ) splays.draw( mvp_matrix, splayMode );
+
     GlLines legs = null;
-    synchronized( this ) { legs = glLegs; }
-    if ( legs   != null ) {
-      GL.setLineWidth( 2.0f );
-      legs.draw( mvp_matrix, DRAW_LINE, mStationPoints );
+    GL.setLineWidth( 2.0f );
+    if ( showLegsSurface ) {
+      synchronized( this ) { legs = glLegsS; }
+      // Log.v("TopoGL-SURFACE", "draw surface " + legs.size() );
+      if ( legs   != null ) legs.draw( mvp_matrix, DRAW_LINE, mStationPoints, TglColor.ColorLegS );
     }
+    if ( showLegsDuplicate ) {
+      synchronized( this ) { legs = glLegsD; }
+      if ( legs   != null ) legs.draw( mvp_matrix, DRAW_LINE, mStationPoints, TglColor.ColorLegD );
+    }
+    if ( showLegsCommented ) {
+      synchronized( this ) { legs = glLegsC; }
+      if ( legs   != null ) legs.draw( mvp_matrix, DRAW_LINE, mStationPoints, TglColor.ColorLegC );
+    }
+    synchronized( this ) { legs = glLegs; }
+    if ( legs   != null ) legs.draw( mvp_matrix, DRAW_LINE, mStationPoints, TglColor.ColorLeg );
 
     GlNames names = null;
     synchronized( this ) { names = glNames; }
-    if ( names  != null ) {
-      names.draw( mvp_matrix );
-    }
+    if ( names  != null ) names.draw( mvp_matrix );
 
     GlPath gl_path = null;
     synchronized( this ) { gl_path = glPath; }
@@ -338,10 +362,10 @@ public class GlModel
     return ( glNames != null )? glNames.checkName( x, y, mvpMatrix, dmin, highlight ) : null;
   }
 
-  String checkNames( float[] zn, float[] zf, float dmin, boolean highlight ) 
-  { 
-    return ( glNames != null )? glNames.checkName( zn, zf, dmin, highlight ) : null;
-  }
+  // String checkNames( float[] zn, float[] zf, float dmin, boolean highlight ) 
+  // { 
+  //   return ( glNames != null )? glNames.checkName( zn, zf, dmin, highlight ) : null;
+  // }
 
   // ----------------------------------------------------------------------
   synchronized void clearWalls( ) 
@@ -379,13 +403,13 @@ public class GlModel
   {
     // Log.v("TopoGL", "BBox " + legs.getBBoxString() );
 
-    float xmin = legs.getXmin() - delta;
-    float xmax = legs.getXmax() + delta;
-    float zmin = legs.getZmin() - delta;
-    float zmax = legs.getZmax() + delta;
+    float xmin = (float)legs.getXmin() - delta;
+    float xmax = (float)legs.getXmax() + delta;
+    float zmin = (float)legs.getZmin() - delta;
+    float zmax = (float)legs.getZmax() + delta;
     
-    makeGrid(  xmin, xmax, zmin, zmax, legs.getYmin(), legs.getYmax(), grid_size );
-    makeFrame( xmin, xmax, zmin, zmax, legs.getYmin(), legs.getYmax() );
+    makeGrid(  xmin, xmax, zmin, zmax, (float)legs.getYmin(), (float)legs.getYmax(), grid_size );
+    makeFrame( xmin, xmax, zmin, zmax, (float)legs.getYmin(), (float)legs.getYmax() );
   }
 
   void prepareWalls( ConvexHullComputer computer, boolean make )
@@ -395,7 +419,7 @@ public class GlModel
       return;
     }
     if ( computer == null ) return;
-    GlWalls walls = new GlWalls( mContext );
+    GlWalls walls = new GlWalls( mContext, GlWalls.WALL_FACE );
     for ( CWConvexHull cw : computer.getWalls() ) {
       for ( CWTriangle tr : cw.mFace ) {
         Vector3D v1 = new Vector3D( tr.v1.x - mXmed, tr.v1.z - mYmed, -tr.v1.y - mZmed );
@@ -416,7 +440,7 @@ public class GlModel
       return;
     }
     if ( computer == null ) return;
-    GlWalls walls = new GlWalls( mContext );
+    GlWalls walls = new GlWalls( mContext, GlWalls.WALL_FACE );
     for ( Triangle3D tr : computer.getTriangles() ) {
       // Vector3D v1 = new Vector3D( tr.vertex[0].x - mXmed, tr.vertex[0].z - mYmed, -tr.vertex[0].y - mZmed );
       // Vector3D v2 = new Vector3D( tr.vertex[1].x - mXmed, tr.vertex[1].z - mYmed, -tr.vertex[1].y - mZmed );
@@ -428,6 +452,26 @@ public class GlModel
     synchronized( this ) { glWalls = walls; }
     // Log.v("TopoGL", "powercrust triangles " + walls.triangleCount );
     preparePlanAndProfile( computer );
+  }
+
+  void prepareWalls( HullComputer computer, boolean make )
+  {
+    if ( ! make ) {
+      clearWalls();
+      return;
+    }
+    if ( computer == null ) return;
+    GlWalls walls = new GlWalls( mContext, GlWalls.WALL_FACE );
+    for ( Triangle3D tr : computer.getTriangles() ) {
+      // Vector3D v1 = new Vector3D( tr.vertex[0].x - mXmed, tr.vertex[0].z - mYmed, -tr.vertex[0].y - mZmed );
+      // Vector3D v2 = new Vector3D( tr.vertex[1].x - mXmed, tr.vertex[1].z - mYmed, -tr.vertex[1].y - mZmed );
+      // Vector3D v3 = new Vector3D( tr.vertex[2].x - mXmed, tr.vertex[2].z - mYmed, -tr.vertex[2].y - mZmed );
+      // walls.addTriangle( v1, v2, v3 );
+      walls.addTriangle( tr, mXmed, mYmed, mZmed );
+    }
+    walls.initData();
+    synchronized( this ) { glWalls = walls; }
+    // Log.v("TopoGL", "powercrust triangles " + walls.triangleCount );
   }
 
   private void preparePlanAndProfile( PowercrustComputer computer )
@@ -470,7 +514,14 @@ public class GlModel
     GlSurface surface = new GlSurface( mContext );
     surface.initData( dem, mXmed, mYmed, mZmed );
     synchronized( this ) { glSurface = surface; }
-    glLegs.prepareDepthBuffer( mParser.getShots(), dem );
+
+    // glLegs.prepareDepthBuffer( mParser.getShots(), dem );
+    double inv_surface_zmax = prepareStationSurfaceDepth( mParser, dem );
+    glLegs.prepareDepthBuffer(  legsSurvey );
+    glLegsS.prepareDepthBuffer( legsSurface );
+    glLegsD.prepareDepthBuffer( legsDuplicate );
+    glLegsC.prepareDepthBuffer( legsCommented );
+
     prepareSurfaceLegs( mParser, dem );
   }
   
@@ -505,7 +556,7 @@ public class GlModel
     dropSketch( psketch.mName );
     GlSketch gl_sketch = new GlSketch( mContext, psketch.mName, psketch.mType, psketch.mPoints, psketch.mLines, psketch.mAreas );
     // gl_sketch.logMinMax();
-    gl_sketch.initData( mXmed, mYmed, mZmed );
+    gl_sketch.initData( mXmed, mYmed, mZmed, psketch.xoff, psketch.yoff, psketch.zoff );
     addSketch( gl_sketch );
   }
 
@@ -555,6 +606,7 @@ public class GlModel
   // ----------------------------------------------------------------------
   private void makeGrid( float x1, float x2, float z1, float z2, float y1, float y2, float step )
   {
+    step = 2 * step;
     int nx = 1 + (int)((x2-x1)/step);
     int nz = 1 + (int)((z2-z1)/step);
     // Log.v("TopoGL", "Grid NX " + nx + " NY " + nz + " cell " + step + " X0 " + x1 + " Y0 " + y1 + " Z0 " + z1 );
@@ -640,6 +692,11 @@ public class GlModel
     glFrame.initData( data, 3 ); // , R.raw.line_acolor_vertex, R.raw.line_fragment );
   }
 
+  ArrayList< Cave3DShot > legsSurvey;
+  ArrayList< Cave3DShot > legsSurface;
+  ArrayList< Cave3DShot > legsDuplicate;
+  ArrayList< Cave3DShot > legsCommented;
+
   void prepareModel( TglParser parser )
   {
     modelCreated = false;
@@ -650,12 +707,35 @@ public class GlModel
     mParser = parser;
     mZ0Min  = parser.getCaveZMin();
     GlLines legs   = new GlLines( mContext, GlLines.COLOR_NONE );
+    GlLines legsS  = new GlLines( mContext, GlLines.COLOR_NONE );
+    GlLines legsD  = new GlLines( mContext, GlLines.COLOR_NONE );
+    GlLines legsC  = new GlLines( mContext, GlLines.COLOR_NONE );
     GlLines splays = new GlLines( mContext, GlLines.COLOR_NONE );
     GlNames names  = new GlNames( mContext );
+ 
+    legsSurvey    = new ArrayList< Cave3DShot >();
+    legsSurface   = new ArrayList< Cave3DShot >();
+    legsDuplicate = new ArrayList< Cave3DShot >();
+    legsCommented = new ArrayList< Cave3DShot >();
 
     // Log.v("TopoGL", "create model. shots " + parser.getShotNumber() + "/" + parser.getSplayNumber() + " stations " + parser.getStationNumber() );
     for ( Cave3DShot leg : parser.getShots() ) {
-      legs.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, true ); // leg.mSurveyNr = color-index
+      if ( leg.isSurvey() ) {
+        legsSurvey.add( leg );
+        legs.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, true ); // leg.mSurveyNr = color-index
+      } else if ( leg.isSurface() ) {
+        legsSurface.add( leg );
+        legsS.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, true );
+      } else if ( leg.isDuplicate() ) {
+        legsDuplicate.add( leg );
+        legsD.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, true );
+      } else if ( leg.isCommented() ) {
+        legsCommented.add( leg );
+        legsC.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, true );
+      } else {
+        legsSurvey.add( leg );
+        legs.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, true ); 
+      }
     }
     // legs.logMinMax();
     mXmed = (legs.getXmin() + legs.getXmax())/2;
@@ -663,6 +743,9 @@ public class GlModel
     mZmed = (legs.getZmin() + legs.getZmax())/2;
     // Log.v("TopoGL-MODEL", "center " + mXmed + " " + mYmed + " " + mZmed );
     legs.reduceData( mXmed, mYmed, mZmed );
+    legsS.reduceData( mXmed, mYmed, mZmed );
+    legsD.reduceData( mXmed, mYmed, mZmed );
+    legsC.reduceData( mXmed, mYmed, mZmed );
     // legs.logMinMax();
     
     for ( Cave3DShot splay : parser.getSplays() ) {
@@ -674,7 +757,7 @@ public class GlModel
     }
     splays.computeBBox();
     mZMin = legs.getYmin();
-    float mZMax = legs.getYmax();
+    double mZMax = legs.getYmax();
     // Log.v("TopoGL", "med " + mXmed + " " + mYmed + " " + mZmed + " Z " + mZMin + " " + mZMax );
     if ( mZMin > splays.getYmin() ) mZMin = splays.getYmin();
     if ( mZMax < splays.getYmax() ) mZMax = splays.getYmax();
@@ -707,13 +790,22 @@ public class GlModel
       prepareSurfaceLegs( parser, surface );
     }
 
+    legsS.initData( );
+    legsD.initData( );
+    legsC.initData( );
     legs.initData( );
     splays.initData( );
     names.initData( );
-    float grid_size = parser.getGridSize();
+    float grid_size = (float)parser.getGridSize();
     prepareGridAndFrame( legs, grid_size, mGridExtent*grid_size );
 
-    legs.prepareDepthBuffer( parser.getShots(), surface );
+    if ( surface != null ) {
+      double surface_zmax = prepareStationSurfaceDepth( parser, surface );
+      legs.prepareDepthBuffer(  legsSurvey );
+      legsS.prepareDepthBuffer( legsSurface );
+      legsD.prepareDepthBuffer( legsDuplicate );
+      legsC.prepareDepthBuffer( legsCommented );
+    }
 
     mDiameter = legs.diameter();
     mY0med    = legs.getYmed();
@@ -722,10 +814,32 @@ public class GlModel
     // splays.logMinMax();
 
     synchronized( this ) {
-      glLegs = legs;
+      glLegs   = legs;
+      glLegsS  = legsS;
+      glLegsD  = legsD;
+      glLegsC  = legsC;
       glSplays = splays;
       glNames  = names;
     }
+  }
+
+  // return inverse of max surface depth
+  private double prepareStationSurfaceDepth( TglParser parser, DEMsurface surface )
+  {
+    if ( surface == null ) return 1.0f;
+    double zmax = 0;
+    for ( Cave3DStation st : parser.getStations() ) {
+      st.surface_depth = surface.computeZ( st.x, st.y ) - st.z;
+      if ( st.surface_depth > zmax ) { zmax = st.surface_depth; }
+      else if ( st.surface_depth < 0.0f ) { st.surface_depth = 0.0f; }
+    }
+    zmax = 1.0/zmax;
+    for ( Cave3DStation st : parser.getStations() ) {
+      st.surface_depth *= zmax;
+      if ( st.surface_depth > 1.0f ) st.surface_depth = 1.0f;
+    }
+    // Log.v("TopoGL-SURFACE", "inv depth " + zmax + " stations " + parser.getStations().size() );
+    return zmax;
   }
 
   void createModel( )

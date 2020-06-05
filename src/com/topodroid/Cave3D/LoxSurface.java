@@ -19,12 +19,12 @@ class LoxSurface
   private double calib[];
   private double[] grid;
 
-  float East1()    { return (float)(calib[0]); }
-  float North1()   { return (float)(calib[1]); } // loch data are written north-to-south
+  double East1()    { return (calib[0]); }
+  double North1()   { return (calib[1]); } // loch data are written north-to-south
   int NrEast()     { return ww; }
   int NrNorth()    { return hh; }
-  float DimEast()  { return (float)(calib[2]); }
-  float DimNorth() { return (float)(calib[5]); }
+  double DimEast()  { return (calib[2]); }
+  double DimNorth() { return (calib[5]); }
 
   LoxSurface( int _id, int w, int h, double[] c, double[] g )
   {

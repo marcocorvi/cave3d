@@ -36,17 +36,35 @@ public class GlRenderer implements Renderer
   private static final float SCALE_P = 6.0f;
   private static final float SCALE_O = 1.5f;
 
-  static final float NEAR_O = -Float.MAX_VALUE / 8;
-  static final float FAR_O  = 10.0f;
-  static final float NEAR_P = 0.2f;
-  static final float FAR_P  = 10.0f;
+  private static float ratio;
 
+  static float NEAR_O = -1000.0f; // -Float.MAX_VALUE / 8;
+  static float FAR_O  = 1000.0f;
+  static float NEAR_P =  0.1f;
+  static float FAR_P  = 10.0f;
+  static float FOCAL  = 0.25f;
+  static float SIDE   = 1.0f;
+
+  static final float FOCAL_MIN  = 0.01f;
+  static final float FOCAL_MAX  = 1.0f;
+  static final float NEAR_P_MIN = 0.05f;
+  static final float NEAR_P_MAX = 1.0f;
+  static final float FAR_P_MIN  = 1.1f;
+  static final float FAR_P_MAX  = 100.0f;
+
+  static final float SIDE_MIN   = 0.01f;
+  static final float SIDE_MAX   = 5.0f;
+  static final float NEAR_O_MIN = -10000.0f;
+  static final float NEAR_O_MAX = 0.0f;
+  static final float FAR_O_MIN  = 0.0f;
+  static final float FAR_O_MAX  = 10000.0f;
 
   private TopoGL mApp;
   private GlModel mModel = null;
   private TglParser mParser = null;
   private ParserDEM mDEM = null;
-  private Cave3DStation mCenterStation = null;
+  private float[] mCenter = null;
+  private float[] mOffset = null;  // center offset
 
   static final int MODE_TRANSLATE = 0;
   static final int MODE_ROTATE    = 1;
@@ -90,7 +108,7 @@ public class GlRenderer implements Renderer
   private final float[] mMVPMatrix = new float[16];
   private float[] mMVPMatrixInv    = new float[16];
 
-  private final float[] mProjectionMatrix  = new float[16];
+  private final float[] mPerspectiveMatrix  = new float[16];
   private final float[] mOrtograohicMatrix = new float[16];
   private final float[] mViewMatrix       = new float[16];
   private final float[] mModelMatrix      = new float[16];
@@ -109,11 +127,19 @@ public class GlRenderer implements Renderer
   void resetTopGeometry() // same as setting top-view
   {
     projectionMode = PROJ_ORTHOGRAPHIC;
-    mCenterStation = null;
+    NEAR_O = -1000.0f; // -Float.MAX_VALUE / 8;
+    FAR_O  = 1000.0f;
+    NEAR_P =  0.1f;
+    FAR_P  = 10.0f;
+    FOCAL  = 0.25f;
+    SIDE   = 1.0f;
+    mCenter = null;
     mYAngle = 180;
     mXAngle = -90;
     zoomOne();
     if ( mModel != null ) mModel.resetColorMode();
+    makePerspectiveMatrix();
+    makeOrthographicMatrix();
   }
 
   void zoomOne()
@@ -144,7 +170,7 @@ public class GlRenderer implements Renderer
     // mModel = new GlModel( mApp, mHalfWidth*2, mHalfHeight*2, parser );
     // if ( mModel == null ) return;
     mModel.prepareModel( parser );
-    float d = mModel.getDiameter();
+    float d = (float)mModel.getDiameter();
     mScale0 = 1.0f / d;
     // mDX0 = - mModel.getDx0() / d;
     // mDY0 =   mModel.getDy0() / d; 
@@ -240,12 +266,35 @@ public class GlRenderer implements Renderer
     mHalfWidth = width / 2;
     mHalfHeight = height / 2;
     GL.viewport(0, 0, width, height);
-    float ratio = (float) width / height;
-    Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1, 1, NEAR_P, FAR_P ); // 0 ... : offset, left, right, bottom, top, near, far 
-    Matrix.orthoM( mOrtograohicMatrix, 0, -ratio, ratio, -1, 1, NEAR_O, FAR_O );
+    ratio = (float) width / height;
+    makePerspectiveMatrix( );
+    makeOrthographicMatrix( );
 
     mModel.initGL();
     // mModel.createModel( width ); // must be done on surface created
+  }
+
+  // perspective matrixA
+  //   focal/aspect    0               0                      0
+  //        0        focal             0                      0
+  //        0          0    -(far+near)/(far-near)  2*far*near/(far-near)
+  //        0          0               1                      0
+  //
+  // focal  = 1 / tg( field_of_vision / 2 )
+  // aspect = aspect ration of the screen
+  // far    = far plane (positive and far > near)
+  // near   = near plane (positive, eg near=1 means plane z=-1)
+  void makePerspectiveMatrix( )
+  {
+    // Log.v("TopoGL-PROJ", "perspective " + FOCAL + " " + NEAR_P + " " + FAR_P );
+    Matrix.frustumM(mPerspectiveMatrix, 0, -FOCAL*ratio, FOCAL*ratio, -FOCAL, FOCAL, NEAR_P, FAR_P ); // 0 ... : offset, left, right, bottom, top, near, far 
+  }
+
+  // ortographic matrix
+  void makeOrthographicMatrix( )
+  {
+    // Log.v("TopoGL-PROJ", "ortographic " + SIDE + " " + NEAR_O + " " + FAR_O );
+    Matrix.orthoM( mOrtograohicMatrix, 0, -SIDE*ratio, SIDE*ratio, -SIDE, SIDE, NEAR_O, FAR_O );
   }
 
   public float getXAngle() { return mXAngle; }
@@ -260,7 +309,11 @@ public class GlRenderer implements Renderer
 
   void setModelPath( ArrayList< Cave3DStation > path ) { if ( mModel != null ) mModel.setPath( path ); }
 
-  void clearStationHighlight() { if ( mModel != null ) mModel.clearStationHighlight(); }
+  void clearStationHighlight() 
+  { 
+    if ( mModel != null ) mModel.clearStationHighlight();
+    mCenter = null;
+  }
 
   void onTouch( float x, float y )
   {
@@ -316,8 +369,9 @@ public class GlRenderer implements Renderer
   public void setScaleTranslation( float scale, float dx, float dy )
   {
     // perspective
-    mDXP -= dy * 10 / (mHalfHeight); 
-    mDYP -= dx * 10 / (mHalfHeight);
+    float df = 25 * FOCAL / mHalfHeight; 
+    mDXP -= dy * df;
+    mDYP -= dx * df;
 
     mScaleP *= scale;
     if ( mScaleP < 0.05f ) {
@@ -345,7 +399,6 @@ public class GlRenderer implements Renderer
       mDXO *= scale;
       mDYO *= scale;
     }
-
     makeModelMatrix();
   }
 
@@ -373,10 +426,15 @@ public class GlRenderer implements Renderer
   private void makeModelMatrix()
   {
     float[] matrix1 = new float[16];
-    float[] matrix2 = new float[16];
+    float[] matrix2 = new float[16]; // rotation
     float[] matrix3 = new float[16];
     float dx = 0;
     float dy = 0;
+    float dz = 0;
+
+    Matrix.setRotateM( mXRotationMatrix, 0, mXAngle, 1.0f, 0.0f, 0.0f );
+    Matrix.setRotateM( mYRotationMatrix, 0, mYAngle, 0.0f, 1.0f, 0.0f );
+    Matrix.multiplyMM( matrix2, 0, mXRotationMatrix, 0, mYRotationMatrix, 0);
 
     if ( projectionMode == PROJ_PERSPECTIVE ) {
       // initM( matrix1, mScale*5 );
@@ -387,23 +445,26 @@ public class GlRenderer implements Renderer
       // initM( matrix1, mScale ); // bring model to (-2/3,2/3) cube
       initM( matrix1, mScaleO );
       dx = mDXO;
-      dy = mDYO;;
-      // matrix1[12] = mDXO * mScaleO; // trying to translate before rotate
-      // matrix1[13] = mDYO * mScaleO;
-      // matrix1[13] = mDZO * mScaleO;
+      dy = mDYO;
     }
 
-    Matrix.setRotateM( mXRotationMatrix, 0, mXAngle, 1.0f, 0.0f, 0.0f );
-    Matrix.setRotateM( mYRotationMatrix, 0, mYAngle, 0.0f, 1.0f, 0.0f );
-    Matrix.multiplyMM( matrix2, 0, mXRotationMatrix, 0, mYRotationMatrix, 0);
     Matrix.multiplyMM( matrix3, 0, matrix2, 0, matrix1, 0);
-    identityM( matrix1 );
+
+    if ( mCenter != null ) { 
+      float[] cx = new float[4];
+      Matrix.multiplyMV( cx, 0, matrix3, 0, mCenter, 0);
+      dx = (mOffset[0] - cx[0]); // * mScaleO;
+      dy = (mOffset[1] - cx[1]); // * mScaleO;
+      dz = (mOffset[2] - cx[2]); // * mScaleO;
+      // Log.v("TopoGL-CENTER", "D0 " + mDXO + " " + mDYO + " D " + dx + " " + dy + " " + dz );
+    }
+
+    identityM( matrix1 ); // TRANSLATION
     matrix1[12] = dx;
     matrix1[13] = dy;
-    // if ( projectionMode == PROJ_PERSPECTIVE ) matrix1[14] = mScaleP;
+    matrix1[14] = dz;
 
     Matrix.multiplyMM( mModelMatrix, 0, matrix1, 0, matrix3, 0);
-    // Matrix.translateM( mModelMatrix, 0, matrix3, 0, mDX, mDY, 0f );
 
     // model matrix maps the coordinates into the unit cube
     // logMatrix( mModelMatrix );
@@ -448,7 +509,7 @@ public class GlRenderer implements Renderer
     float[] matrix2 = new float[16];
     Matrix.multiplyMM( mModelViewMatrix, 0, mViewMatrix, 0, mModelMatrix, 0 );
     if ( projectionMode == PROJ_PERSPECTIVE ) {
-      Matrix.multiplyMM( mMVPMatrix, 0, mProjectionMatrix, 0, mModelViewMatrix, 0);
+      Matrix.multiplyMM( mMVPMatrix, 0, mPerspectiveMatrix, 0, mModelViewMatrix, 0);
     } else {
       Matrix.multiplyMM( mMVPMatrix, 0, mOrtograohicMatrix, 0, mModelViewMatrix, 0);
     }
@@ -485,12 +546,21 @@ public class GlRenderer implements Renderer
     // mLight.normalized();
   }
 
+  void resetLight()
+  {
+    mXLight  = 0;
+    mYLight  = 0;
+    mLight.x = 0;
+    mLight.y = 1;
+    mLight.z = 0;
+  }
+
   // private float xoff, yoff, zoff; // model offsets in the view (changed in resetGeometry and changeParams )
   // private float xc, yc, zc;       // camera coords (computed in makeNZ )
 
   // void resetGeometry()
   // {
-  //   mCenterStation = null;
+  //   mCenter = null;
   //   mXAngle = 0;
   //   mYAngle = 0;
 
@@ -503,13 +573,26 @@ public class GlRenderer implements Renderer
   //   // mApp.setTheTitle( String );
   // }
 
-  void resetLight()
+  // ---------------------------------------------------------------------------
+  // CENTER
+
+  boolean setCenter()
   {
-    mXLight  = 0;
-    mYLight  = 0;
-    mLight.x = 0;
-    mLight.y = 1;
-    mLight.z = 0;
+    Vector3D c = ( mModel != null) ? mModel.getCenter() : null;
+    if ( c == null || mCenter != null ) {
+      mCenter = null;
+      return false;
+    } else {
+      mCenter = new float[4];
+      mCenter[0] = (float)c.x;
+      mCenter[1] = (float)c.y;
+      mCenter[2] = (float)c.z;
+      mCenter[3] = 1.0f;
+      mOffset = new float[4];
+      Matrix.multiplyMV( mOffset, 0, mModelMatrix, 0, mCenter, 0 );
+      // Log.v("TopoGL-CENTER", "offset " + mOffset[0] + " " + mOffset[1] + " " + mOffset[2] );
+      return true;
+    }
   }
 
   // ------------------------------- DISPLAY MODEs
@@ -533,6 +616,8 @@ public class GlRenderer implements Renderer
         mModel.prepareWalls( mParser.convexhullcomputer, b );
       } else if ( type == TglParser.WALL_POWERCRUST ) {
         mModel.prepareWalls( mParser.powercrustcomputer, b );
+      } else if ( type == TglParser.WALL_HULL ) {
+        mModel.prepareWalls( mParser.hullcomputer, b );
       } else {
         mModel.clearWalls( );
       }

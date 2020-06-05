@@ -54,7 +54,7 @@ class GlLines extends GlShape
 
     // w1, w2 in survey frame
     // XYZ med in OpenGL
-    Line3D( Vector3D w1, Vector3D w2, int c, boolean s, float xmed, float ymed, float zmed ) 
+    Line3D( Vector3D w1, Vector3D w2, int c, boolean s, double xmed, double ymed, double zmed ) 
     { 
        v1 = new Vector3D( w1.x-xmed, w1.z-ymed, -w1.y-zmed );
        v2 = new Vector3D( w2.x-xmed, w2.z-ymed, -w2.y-zmed );
@@ -63,7 +63,7 @@ class GlLines extends GlShape
      }
 
     // XYZ med in OpenGL
-    void reduce( float x0, float y0, float z0 )
+    void reduce( double x0, double y0, double z0 )
     {
       v1.x -= x0;   v1.y -= y0;   v1.z -= z0;
       v2.x -= x0;   v2.y -= y0;   v2.z -= z0;
@@ -81,21 +81,21 @@ class GlLines extends GlShape
   private int lineCount;
   private TglColor mColor;
 
-  private float xmin, xmax; // OpenGL frame
-  private float ymin, ymax;
-  private float zmin, zmax;
+  private double xmin, xmax; // OpenGL frame
+  private double ymin, ymax;
+  private double zmin, zmax;
 
-  float getXmin()   { return xmin; }
-  float getYmin()   { return ymin; }
-  float getZmin()   { return zmin; }
-  float getXmax()   { return xmax; }
-  float getYmax()   { return ymax; }
-  float getZmax()   { return zmax; }
+  double getXmin()   { return xmin; }
+  double getYmin()   { return ymin; }
+  double getZmin()   { return zmin; }
+  double getXmax()   { return xmax; }
+  double getYmax()   { return ymax; }
+  double getZmax()   { return zmax; }
 
-  float getYdelta() { return ymax - ymin; }
-  float getXmed()   { return (xmin + xmax)/2; }
-  float getYmed()   { return (ymin + ymax)/2; }
-  float getZmed()   { return (zmin + zmax)/2; }
+  double getYdelta() { return ymax - ymin; }
+  double getXmed()   { return (xmin + xmax)/2; }
+  double getYmed()   { return (ymin + ymax)/2; }
+  double getZmed()   { return (zmin + zmax)/2; }
 
   String getBBoxString() // LOG
   {
@@ -107,12 +107,12 @@ class GlLines extends GlShape
   }
 
   // this is not the rel diameter, but the diagonal of the enclosing axis-parallel parallelepiped 
-  float diameter()
+  double diameter()
   {
-    float x = xmax - xmin;
-    float y = ymax - ymin;
-    float z = zmax - zmin;
-    return (float)Math.sqrt( x*x + y*y + z*z );
+    double x = xmax - xmin;
+    double y = ymax - ymin;
+    double z = zmax - zmin;
+    return Math.sqrt( x*x + y*y + z*z );
   }
 
   // vertex data ( X Y Z R G B A )
@@ -174,34 +174,28 @@ class GlLines extends GlShape
   // survey = index of survey in Cave3DSurvey list
   // w1, w2 in survey frame
   // XYZ med n OpenGlL
-  void addLine( Vector3D w1, Vector3D w2, int color, boolean survey, float xmed, float ymed, float zmed ) 
+  void addLine( Vector3D w1, Vector3D w2, int color, boolean survey, double xmed, double ymed, double zmed ) 
   { 
     if ( w1 == null || w2 == null ) return; // should not happen
     lines.add( new Line3D( w1, w2, color, survey, xmed, ymed, zmed ) ); 
   }
 
-  void prepareDepthBuffer( List<Cave3DShot> legs, DEMsurface surface )
+  void prepareDepthBuffer( List<Cave3DShot> legs )
   {
-    depthBuffer = null;
-    if ( surface == null ) return;
     int count = 2 * legs.size();
+    if ( count == 0 ) return;
+    depthBuffer = null;
     float[] col = new float[ count ];
     int k = 0;
-    float zmax = 0;
     for ( Cave3DShot leg : legs ) {
       Cave3DStation f = leg.from_station;
       Cave3DStation t = leg.to_station;
-      col[k] = surface.computeZ( f.x, f.y ) - f.z;
-      if ( col[k] < 0 )         { col[k] = 0; }
-      else if ( col[k] > zmax ) { zmax = col[k]; }
+      col[k] = (float)f.surface_depth;
       ++k;
-      col[k] = surface.computeZ( t.x, t.y ) - t.z;
-      if ( col[k] < 0 )         { col[k] = 0; }
-      else if ( col[k] > zmax ) { zmax = col[k]; }
+      col[k] = (float)t.surface_depth;
       ++k;
     }
-    zmax = 1.0f/zmax;
-    for ( k=0; k<count; ++k ) col[k] *= zmax;
+    // Log.v("TopoGL-SURFACE", "depth buffer count " + count + " k " + k );
     depthBuffer = GL.getFloatBuffer( count );
     depthBuffer.put( col );
   }
@@ -228,7 +222,7 @@ class GlLines extends GlShape
     if ( lines.size() == 0 ) {
       return;
     }
-    float xmin, xmax, ymin, ymax, zmin, zmax;
+    double xmin, xmax, ymin, ymax, zmin, zmax;
     Vector3D v = lines.get( 0 ).v1;
     xmin = xmax = v.x;
     ymin = ymax = v.y;
@@ -249,7 +243,7 @@ class GlLines extends GlShape
 
   // must be called only on legs - for the others use addLine with reduced XYZ med
   // X,Y,Z openGL
-  void reduceData( float xmed, float ymed, float zmed )
+  void reduceData( double xmed, double ymed, double zmed )
   {
     for ( Line3D line : lines ) line.reduce( xmed, ymed, zmed );
     computeBBox();
@@ -261,7 +255,7 @@ class GlLines extends GlShape
     lineCount   = lines.size();
     // Log.v("TopoGL", "lines " + lineCount + " X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
     int vertexCount = lineCount * 2;
-    float[] data = new float[ vertexCount * STRIDE ];
+    float[] data  = new float[ vertexCount * STRIDE ];
     float[] color = new float[ COORDS_PER_COLOR ];
     TglColor.getSurveyColor( lines.get(0).color, color );
     // Log.v("TopoGL-LINES", "prepare lines " + lineCount + " color " + color[0] + " " + color[1] + " " + color[2] + " " + color[3] );
@@ -275,16 +269,16 @@ class GlLines extends GlShape
       } else {
         TglColor.getAxisColor( line.color, color );
       }
-      data[k++] = w1.x;
-      data[k++] = w1.y;
-      data[k++] = w1.z;
+      data[k++] = (float)w1.x;
+      data[k++] = (float)w1.y;
+      data[k++] = (float)w1.z;
       data[k++] = color[0];
       data[k++] = color[1];
       data[k++] = color[2];
       data[k++] = 1.0f; // alpha;
-      data[k++] = w2.x;
-      data[k++] = w2.y;
-      data[k++] = w2.z;
+      data[k++] = (float)w2.x;
+      data[k++] = (float)w2.y;
+      data[k++] = (float)w2.z;
       data[k++] = color[0];
       data[k++] = color[1];
       data[k++] = color[2];
@@ -298,6 +292,7 @@ class GlLines extends GlShape
   void initData( float[] data, int count )
   { 
     lineCount = count;
+    // Log.v("TopoGL-SURFACE", "lines init data " + count );
     if ( lineCount == 0 ) return;
     initDataBuffer( data );
 
@@ -318,27 +313,31 @@ class GlLines extends GlShape
   // ---------------------------------------------------
   // DRAW
 
-  void draw( float[] mvpMatrix, int draw_mode, boolean points ) // for legs-only
+  void draw( float[] mvpMatrix, int draw_mode, boolean points, float[] color ) // for legs-only
   {
-    if ( draw_mode == GlModel.DRAW_NONE || lineCount == 0 ) return;
+    if ( draw_mode == GlModel.DRAW_NONE || lineCount == 0 ) {
+      // Log.v("TopoGL-SURFACE", "no draw " + lineCount );
+      return;
+    }
     if ( mColorMode == COLOR_NONE   ) {
       GL.useProgram( mProgramUColor );
-      bindDataUColor( mvpMatrix, TglColor.ColorLeg );
+      bindDataUColor( mvpMatrix, color );
     } else if ( mColorMode == COLOR_SURVEY ) {
       GL.useProgram( mProgramAColor );
       bindDataAColor( mvpMatrix );
     } else if ( mColorMode == COLOR_DEPTH  ) {
       GL.useProgram( mProgramZColor );
-      bindDataZColor( mvpMatrix, TglColor.ColorLeg );
+      bindDataZColor( mvpMatrix, color );
     } else if ( mColorMode == COLOR_SURFACE  ) {
       if ( depthBuffer != null ) {
         GL.useProgram( mProgramSColor );
         bindDataSColor( mvpMatrix );
       } else {
         GL.useProgram( mProgramUColor );
-        bindDataUColor( mvpMatrix, TglColor.ColorLeg );
+        bindDataUColor( mvpMatrix, color );
       }
     } else { 
+      Log.e("TopoGL", "unexpected color mode " + mColorMode );
       return; 
     }
 
@@ -416,8 +415,8 @@ class GlLines extends GlShape
     GL.setUniformMatrix( mzUMVPMatrix, mvpMatrix );
     GL.setUniform( mzUPointSize, mPointSize );
     GL.setAttributePointer( mzAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, BYTE_STRIDE );
-    GL.setUniform( mzUZMin,   GlModel.mZMin );
-    GL.setUniform( mzUZDelta, GlModel.mZDelta );
+    GL.setUniform( mzUZMin,   (float)GlModel.mZMin );
+    GL.setUniform( mzUZDelta, (float)GlModel.mZDelta );
     GL.setUniform( mzUColor, color[0], color[1], color[2], color[3] );
   }
 
@@ -438,7 +437,7 @@ class GlLines extends GlShape
 
   void setAlpha( float a ) { mAlpha = ( a < 0.2f )? 0.2f : ( a > 1.0f )? 1.0f : a; }
 
-  private void updateBounds( float x, float y, float z )
+  private void updateBounds( double x, double y, double z )
   {
     if ( xmin > x ) { xmin = x; } else if ( xmax < x ) { xmax = x; }
     if ( ymin > y ) { ymin = y; } else if ( ymax < y ) { ymax = y; }

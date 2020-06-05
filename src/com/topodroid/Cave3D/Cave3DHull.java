@@ -27,30 +27,46 @@ class Cave3DHull
   ArrayList< Cave3DShot > rays1;  
   ArrayList< Cave3DShot > rays2;  
   ArrayList< Triangle3D > triangles;
-  ArrayList< Cave3DProjection > projs1;
-  ArrayList< Cave3DProjection > projs2;
+  ArrayList< HullProjection > projs1;
+  ArrayList< HullProjection > projs2;
+  HullAngle afrom;
+  HullAngle ato;
+  int color; // DEBUG
 
   /** get the size of the projections
    * @param k    proj index: 0 at FROM, 1 at TO
    */
-  int size( int k ) { return (k==0)? projs1.size() : projs2.size(); }
+  // int projSize( int k ) { return (k==0)? projs1.size() : projs2.size(); }
+
+  int size() { return triangles == null ? 0 : triangles.size(); }
 
   Cave3DHull( Cave3DShot sh,                   // shot
               ArrayList< Cave3DShot > splays1, // splays at FROM station
               ArrayList< Cave3DShot > splays2, // splays at TO station
               Cave3DStation sf,                // shot FROM station
-              Cave3DStation st )               // shot TO station
+              Cave3DStation st,                // shot TO station
+              HullAngle af,
+              HullAngle at )
   {
     // Log.v( TAG, "Hull at station " + st.name + " shot " + sh.from_station.name + "-" + sh.to_station.name );
     mStationFrom = sf;
     mStationTo   = st;
-    shot    = sh;
-    normal = shot.toVector3D();
+    shot   = sh;
+    rays1  = splays1;
+    rays2  = splays2;
+    projs1 = new ArrayList< HullProjection >();
+    projs2 = new ArrayList< HullProjection >();
+    afrom  = af;
+    ato    = at;
+
+    // Log.v("TopoGL-ANGLE", "Shot " + sf.short_name + "-" + st.short_name + " ber " + (sh.ber * 180/Math.PI) );
+    // afrom.log( sf.short_name );
+    // ato.log(   st.short_name );
+
+    normal = shot.toVector3D(); // (E,N,Up)
+    normal.z = 0;  // make normal horizontal (Up = 0)
     normal.normalized();
-    rays1 = splays1;
-    rays2 = splays2;
-    projs1 = new ArrayList< Cave3DProjection >();
-    projs2 = new ArrayList< Cave3DProjection >();
+
     computeHull();
   }
 
@@ -58,47 +74,54 @@ class Cave3DHull
   {
     int s1 = projs1.size();
     int s2 = projs2.size();
-    Log.v( TAG, "at station " + mStationFrom.name + " size " + s1 + " " + mStationTo.name + " " + s2 );
+    Log.v("TopoGL-HULL", "at station " + mStationFrom.short_name + " size " + s1 + " " + mStationTo.name + " " + s2 );
     // for (int k=0; k<s1; ++k ) {
-    //   Cave3DProjection p = projs1.get(k);
+    //   HullProjection p = projs1.get(k);
     //   Log.v( TAG, k + ": " + p.angle + " - " + p.proj.x + " " + p.proj.y + " " + p.proj.z );
     // }
     // for (int k=0; k<s2; ++k ) {
-    //   Cave3DProjection p = projs2.get(k);
+    //   HullProjection p = projs2.get(k);
     //   Log.v( TAG, k + ": " + p.angle + " - " + p.proj.x + " " + p.proj.y + " " + p.proj.z );
     // }
   }
 
-  private void addTriangle( Cave3DProjection p1, Cave3DProjection p2, Cave3DProjection p3 )
+  private void addTriangle( HullProjection p1, HullProjection p2, HullProjection p3 )
   {
-    triangles.add( new Triangle3D( p1.vector, p2.vector, p3.vector ) );
+    triangles.add( new Triangle3D( p1.vector, p2.vector, p3.vector, color ) );
   }
 
-  void makeTriangles()
+  // N.B. the two arrays are sorted by the angle
+  private void makeTriangles()
   {
     triangles = new ArrayList< Triangle3D >();
     int s1 = projs1.size();
     int s2 = projs2.size();
+    Log.v("TopoGL-HULL", "at station " + mStationFrom.short_name + " size " + s1 + " " + mStationTo.name + " " + s2 );
+    
     if ( s1 == 0 || s2 == 0 ) return;
     if ( s1 == 1 && s2 == 1 ) return;
+    // at least one projection in each array and at least one array with two projections
     int k1 = 0;
     int k2 = 0;
-    Cave3DProjection p1 = projs1.get(0);
-    Cave3DProjection p2 = projs2.get(0);
+    HullProjection p1 = projs1.get(0);
+    HullProjection p2 = projs2.get(0);
+    projs1.add( new HullProjection( p1, Math.PI*2 ) );
+    projs2.add( new HullProjection( p2, Math.PI*2 ) );
+
     while ( k1 < s1 || k2 < s2 ) {
       if ( k1 == s1 ) {  // next point on projs2
         k2 ++;
-        Cave3DProjection q2 = projs2.get( k2%s2 );
+        HullProjection q2 = projs2.get( k2 );
         addTriangle( p1, p2, q2 );
         p2 = q2;
       } else if ( k2 == s2 ) { // next point on projs1
         k1 ++;
-        Cave3DProjection q1 = projs1.get( k1%s1 );
+        HullProjection q1 = projs1.get( k1 );
         addTriangle( p1, p2, q1);
         p1 = q1;
       } else { // must choose
-        Cave3DProjection q1 = projs1.get( (k1+1)%s1 );
-        Cave3DProjection q2 = projs2.get( (k2+1)%s2 );
+        HullProjection q1 = projs1.get( (k1+1) );
+        HullProjection q2 = projs2.get( (k2+1) );
         if ( q1.angle < q2.angle ) {
           k1++;
           addTriangle( p1, p2, q1 );
@@ -110,6 +133,7 @@ class Cave3DHull
         }
       }
     }
+    Log.v("TopoGL-HULL", "at station " + mStationFrom.short_name + " size " + s1 + " " + mStationTo.name + " " + s2 + " triangles " + triangles.size() );
   }
 
   /** make triangles from the HULL to a vertex
@@ -122,24 +146,24 @@ class Cave3DHull
     if ( s1 < 2 ) return;
     // Log.v( TAG, "Triangles at " + mStationFrom.name + " with vertex. Nr triangles " + s1 );
     for ( int k=0; k<s1; ++k ) {
-      Cave3DProjection p1 = projs1.get(k);
-      Cave3DProjection p2 = projs1.get((k+1)%s1);
+      HullProjection p1 = projs1.get(k);
+      HullProjection p2 = projs1.get((k+1)%s1);
       Vector3D v1 = vertex.sum( p1.proj );
       Vector3D v2 = vertex.sum( p2.proj );
-      triangles.add( new Triangle3D( p1.vector, p2.vector, v2 ) );
-      triangles.add( new Triangle3D( p1.vector, v2, v1 ) );
+      triangles.add( new Triangle3D( p1.vector, p2.vector, v2, color ) );
+      triangles.add( new Triangle3D( p1.vector, v2, v1, color ) );
     }
   }
 
   private void computeHull()
   {
-    // Log.v( TAG, "compute Hull : splays " + rays1.size() + " " + rays2.size() );
+    // Log.v( TAG, "compute Hull [0]: splays " + rays1.size() + " " + rays2.size() );
 
-    computeHullProjs( rays1, projs1, mStationFrom );
-    computeHullProjs( rays2, projs2, mStationTo );
+    computeHullProjs( rays1, projs1, mStationFrom, afrom );
+    computeHullProjs( rays2, projs2, mStationTo,   ato );
     // Log.v( TAG, "compute Hull [1]: projs " + projs1.size() + " " + projs2.size() );
 
-    Vector3D p0 = null;
+    Vector3D p0 = null; // pick a reference projection vector
     if ( projs1.size() > 1 ) {
       p0 = new Vector3D( projs1.get(0).proj );
     } else if ( projs2.size() > 1 ) {
@@ -147,58 +171,83 @@ class Cave3DHull
     } else {
       return;
     }
+    double pn = normal.dotProduct( p0 );
+    p0.x -= pn * normal.x;
+    p0.y -= pn * normal.y;
+    // p0.z -= pn * normal.z; // normal.z == 0
     p0.normalized();
 
+    // Log.v("TopoGL-HULL", "[1] Ref V0 " + p0.x + " " + p0.y + " " + p0.z );
+    // Log.v( "TopoGL-HULL", "compute Hull [1]: " + mStationFrom.short_name + " rays " + rays1.size() + " projs " + projs1.size() );
     computeAnglesAndSort( p0, projs1 );
+    // Log.v( "TopoGL-HULL", "compute Hull [2]: " + mStationTo.short_name   + " rays " + rays2.size() + " projs " + projs2.size() );
     computeAnglesAndSort( p0, projs2 );
-    // Log.v( TAG, "compute Hull [2]: projs " + projs1.size() + " " + projs2.size() );
+
 
     removeInsideProjs( projs1 );
     removeInsideProjs( projs2 );
+    // Log.v( "TopoGL-HULL", "compute Hull after remove-inside: " + projs1.size() + " " + projs2.size() );
 
     makeTriangles();
 
     // Log.v( TAG, "compute Hull [3]: projs " + projs1.size() + " " + projs2.size() );
   }
 
-
-  private void computeHullProjs( ArrayList< Cave3DShot > rays, ArrayList< Cave3DProjection > projs, Cave3DStation st )
+  // compute the projections of the rays at a given station
+  // @param rays    rays (splays) at the station
+  // @param projs   result projections (array)
+  // @param st      station
+  // @param dir     outside direction (-1 at FROM, 1 at TO)
+  private void computeHullProjs( ArrayList< Cave3DShot > rays, ArrayList< HullProjection > projs, Cave3DStation st, HullAngle angles )
   {
-    for ( Cave3DShot splay : rays ) {
-      projs.add( new Cave3DProjection( st, splay, normal ) ); 
-    }
-    // projs.add( new Cave3DProjection( st, null, normal ) );
+    // N.B. the HullProjection has a vector that depends on setting mSplayProj (ie use splay as 3D vector or on the projection plane)
+    //      but its projection vector is indepenedent
+    // Vector3D right = new Vector3D( Math.sin( angles.a1 ), -Math.cos( angles.a1 ), 0 ); // normal to the right
+    // Vector3D left  = new Vector3D( Math.sin( angles.a2 ), -Math.cos( angles.a2 ), 0 ); // normal to the left
+    // Log.v("TopoGL-HULL", "compute projs ");
+    // angles.dump();
 
-    // compute projections center and refer projected vectors to the center
-    center = new Vector3D( 0, 0, 0 );
-    for ( Cave3DProjection p : projs ) {
-      center.add( p.proj );
+    for ( Cave3DShot splay : rays ) {
+      // int inside = angles.isInside( splay );
+      // if ( inside == 0 ) continue;
+      Vector3D v  = splay.toVector3D();
+      Vector3D pv = angles.projectSplay( splay, v );
+      if ( pv != null ) {
+        // projs.add( new HullProjection( st, splay, v, (inside == 1)? right : left ) ); 
+        projs.add( new HullProjection( st, splay, v, pv ) );
+      }
     }
+
+    // compute projections 3D center and refer projected vectors to the center
+    center = new Vector3D( 0, 0, 0 );
+    for ( HullProjection p : projs ) center.add( p.proj );
     center.scaleBy( 1.0f/projs.size() );
-    for ( Cave3DProjection p : projs ) {
-      p.proj.subtracted( center );
-    } 
+
+    for ( HullProjection p : projs ) p.proj.subtracted( center );
   }
  
-  private void computeAnglesAndSort( Vector3D ref, ArrayList< Cave3DProjection > projs )
+  // @param ref     reference unit (projection) vector
+  // @param projs   array of projections
+  // the projections "angle" are computed and the array is sorted by increasing angles
+  private void computeAnglesAndSort( Vector3D ref, ArrayList< HullProjection > projs )
   {
     // normalize projected vectors and compute the angles
     int s = projs.size();
-    for (int k=1; k<s; ++k ) 
+    for (int k=0; k<s; ++k ) 
     {
       Vector3D p1 = new Vector3D( projs.get(k).proj );
       p1.normalized();
-      projs.get(k).angle = angle( ref, p1 );
+      projs.get(k).angle = computeAngle( ref, p1 );
     }
     
-    // sort projs by the angle
+    // simple sort of the projections by the angle
     if ( s <= 1 ) return;
     boolean repeat = true;
     while ( repeat ) {
       repeat = false;
       for ( int k=0; k<s-1; ++k ) {
-        Cave3DProjection p1 = projs.get(k);
-        Cave3DProjection p2 = projs.get(k+1);
+        HullProjection p1 = projs.get(k);
+        HullProjection p2 = projs.get(k+1);
         if ( p1.angle > p2.angle ) {
           projs.set(k, p2 );
           projs.set(k+1, p1 );
@@ -206,23 +255,26 @@ class Cave3DHull
         }
       }
     }
+    for ( HullProjection proj : projs ) proj.dump();
   }
 
-  private void removeInsideProjs( ArrayList< Cave3DProjection > projs )
+  // @pre projections are sorted by the angle
+  // TODO it might be useful to allow a bit of concavity 
+  private void removeInsideProjs( ArrayList< HullProjection > projs )
   {
     int s = projs.size();
     if ( s <= 3 ) return;
     // int k1 = s - 1;
     int k2 = 0;
     int k3 = 1;
-    Cave3DProjection p1 = projs.get( s-1 );
-    Cave3DProjection p2 = projs.get( k2 );
+    HullProjection p1 = projs.get( s-1 );
+    HullProjection p2 = projs.get( k2 );
     while ( k2 < projs.size() && projs.size() > 3 ) {
-      Cave3DProjection p3 = projs.get( k3%projs.size() );
-      Vector3D v21 = p1.proj.difference( p2.proj );
-      Vector3D v23 = p3.proj.difference( p2.proj );
-      float d = normal.dotProduct( v21.crossProduct(v23) );
-      if ( d > 0 ) {
+      HullProjection p3 = projs.get( k3 % projs.size() );
+      Vector3D v21 = p1.proj.difference( p2.proj );  // P1 - P2
+      Vector3D v23 = p3.proj.difference( p2.proj );  // P3 - P2
+      double d = normal.dotProduct( v21.crossProduct(v23) );
+      if ( d > 0 ) {  // if the dot-product is positive P2 is inside the triangle (0,P1,P3) 
         projs.remove( k2 );
         // do not increase indices k2/k3
       } else {
@@ -234,15 +286,16 @@ class Cave3DHull
     }
   }
 
-
-  private float angle( Vector3D p0, Vector3D p1 )
+  // angle between two unit vectors in the projection plane - radians [0, 2 PI]
+  private double computeAngle( Vector3D p0, Vector3D p1 )
   {
-    float cc = p0.dotProduct(p1);
-    float ss = normal.dotProduct( p0.crossProduct( p1 ) );
+    Vector3D p = normal.crossProduct( p1 );
+    double cc = p0.dotProduct(p);
+    double ss = normal.dotProduct( p0.crossProduct( p ) );
     double a = Math.atan2( ss, cc );
     if ( a >= 2*Math.PI ) a -= 2*Math.PI;
     if ( a < 0 )          a += 2*Math.PI;
-    return (float)a;
+    return a;
   }
 
 

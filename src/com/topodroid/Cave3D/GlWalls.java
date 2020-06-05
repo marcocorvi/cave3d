@@ -42,25 +42,37 @@ class GlWalls extends GlShape
   ArrayList< GlTriangle3D > triangles;
 
   int triangleCount; // public for log
+  int sideCount; // public for log
 
   static final float[] mColor = { 1f, 1f, 1f, 0.7f };
   private static float mAlpha = 0.7f;
 
+  static final int WALL_FACE = 0;
+  static final int WALL_SIDE = 1;
+
+  private int mMode = WALL_FACE;
+
   final static int COORDS_PER_VERTEX = 3;
   final static int COORDS_PER_NORMAL = 3;
-  final static int STRIDE            = COORDS_PER_VERTEX + COORDS_PER_NORMAL; 
+  final static int STRIDE_FACE       = COORDS_PER_VERTEX + COORDS_PER_NORMAL; 
+  final static int STRIDE_SIDE       = COORDS_PER_VERTEX;
   final static int OFFSET_VERTEX     = 0;
   final static int OFFSET_NORMAL     = COORDS_PER_VERTEX;
-  final static int DATA_STRIDE       = STRIDE * Float.BYTES;
+  final static int DATA_STRIDE_FACE  = STRIDE_FACE * Float.BYTES;
+  final static int DATA_STRIDE_SIDE  = STRIDE_SIDE * Float.BYTES;
 
   // vertex data: ( X Y Z Nx, Ny, Nz )
-  GlWalls( Context ctx ) 
+  GlWalls( Context ctx, int mode ) 
   {
     super( ctx );
     // mColor = new float[4];
     // setColor( 1, 1, 1, 0.7f );
     triangles = new ArrayList< GlTriangle3D >();
+    mMode = mode;
+    Log.v("TopoGL", "walls mode " + mMode );
   }
+
+  void setMode( int mode ) { mMode = mode; }
 
   // w1, w2, w3 are in OpenGL frame
   // coords are already reduced
@@ -70,7 +82,7 @@ class GlWalls extends GlShape
   }
 
   // tr id survey frame, XYZ med in openGL frame
-  void addTriangle( Triangle3D tr, float xmed, float ymed, float zmed )
+  void addTriangle( Triangle3D tr, double xmed, double ymed, double zmed )
   {
     Triangle3D tr1 = tr.toOpenGL( xmed, ymed, zmed );
     int sz = tr1.size;
@@ -91,7 +103,7 @@ class GlWalls extends GlShape
   void logMinMax()
   {
     if ( triangles.size() == 0 ) return;
-    float xmin, xmax, ymin, ymax, zmin, zmax;
+    double xmin, xmax, ymin, ymax, zmin, zmax;
     Vector3D v0 = triangles.get(0).v1;
     xmin = xmax = v0.x;
     ymin = ymax = v0.y;
@@ -118,13 +130,21 @@ class GlWalls extends GlShape
   // -----------------------------------------------------------------
   // PROGRAM 
 
-  void initData() { initData( prepareData() ); }
+  void initData() 
+  { 
+    if ( mMode == WALL_FACE ) {
+      initData( prepareDataFaces() );
+    } else {
+      initData( prepareDataSides() );
+    }
+  }
 
-  private float[] prepareData()
+  private float[] prepareDataFaces()
   {
     triangleCount = triangles.size();
+    sideCount = triangleCount * 3;
     if ( triangles.size() == 0 ) return null;
-    // Log.v("TopoGL", "triangles " + triangleCount );
+    Log.v("TopoGL", "prepare faces: triangles " + triangleCount );
     // logMinMax();
 
     float[] data = new float[ triangleCount * 3 * 6 ]; // 6 vectors-3D, 3 float/vector
@@ -132,14 +152,66 @@ class GlWalls extends GlShape
     for ( GlTriangle3D tri : triangles ) {
       Vector3D n  = tri.normal;
       Vector3D w1 = tri.v1;
-      data[ k++ ] = w1.x; data[ k++ ] = w1.y; data[ k++ ] = w1.z;
-      data[ k++ ] = n.x; data[ k++ ] = n.y; data[ k++ ] = n.z; // data[ k++ ] = 1;
+      data[ k++ ] = (float)w1.x;
+      data[ k++ ] = (float)w1.y;
+      data[ k++ ] = (float)w1.z;
+      data[ k++ ] = (float)n.x;
+      data[ k++ ] = (float)n.y;
+      data[ k++ ] = (float)n.z; // data[ k++ ] = 1;
       Vector3D w2 = tri.v2;
-      data[ k++ ] = w2.x; data[ k++ ] = w2.y; data[ k++ ] = w2.z;
-      data[ k++ ] = n.x; data[ k++ ] = n.y; data[ k++ ] = n.z; // data[ k++ ] = 1;
+      data[ k++ ] = (float)w2.x;
+      data[ k++ ] = (float)w2.y;
+      data[ k++ ] = (float)w2.z;
+      data[ k++ ] = (float)n.x;
+      data[ k++ ] = (float)n.y;
+      data[ k++ ] = (float)n.z; // data[ k++ ] = 1;
       Vector3D w3 = tri.v3;
-      data[ k++ ] = w3.x; data[ k++ ] = w3.y; data[ k++ ] = w3.z;
-      data[ k++ ] = n.x; data[ k++ ] = n.y; data[ k++ ] = n.z; // data[ k++ ] = 1;
+      data[ k++ ] = (float)w3.x;
+      data[ k++ ] = (float)w3.y;
+      data[ k++ ] = (float)w3.z;
+      data[ k++ ] = (float)n.x;
+      data[ k++ ] = (float)n.y;
+      data[ k++ ] = (float)n.z; // data[ k++ ] = 1;
+    }
+    return data;
+  }
+
+  private float[] prepareDataSides()
+  {
+    triangleCount = triangles.size();
+    sideCount = triangleCount * 3;
+    if ( triangles.size() == 0 ) return null;
+    Log.v("TopoGL", "prepare sides: sides " + sideCount );
+    // logMinMax();
+
+    float[] data = new float[ sideCount * 6 ]; // 2 3-float/vector per side
+    int k = 0;
+    for ( GlTriangle3D tri : triangles ) {
+      Vector3D n  = tri.normal;
+      Vector3D w1 = tri.v1;
+      data[ k++ ] = (float)w1.x;
+      data[ k++ ] = (float)w1.y;
+      data[ k++ ] = (float)w1.z;
+      Vector3D w2 = tri.v2;
+      data[ k++ ] = (float)w2.x;
+      data[ k++ ] = (float)w2.y;
+      data[ k++ ] = (float)w2.z;
+
+      data[ k++ ] = (float)w2.x;
+      data[ k++ ] = (float)w2.y;
+      data[ k++ ] = (float)w2.z;
+      Vector3D w3 = tri.v3;
+      data[ k++ ] = (float)w3.x;
+      data[ k++ ] = (float)w3.y;
+      data[ k++ ] = (float)w3.z;
+
+      data[ k++ ] = (float)w3.x;
+      data[ k++ ] = (float)w3.y;
+      data[ k++ ] = (float)w3.z;
+
+      data[ k++ ] = (float)w1.x;
+      data[ k++ ] = (float)w1.y;
+      data[ k++ ] = (float)w1.z;
     }
     return data;
   }
@@ -156,25 +228,44 @@ class GlWalls extends GlShape
   void draw( float[] mvp_matrix, float[] mv_matrix_int_t, Vector3D light ) 
   {
     if ( triangleCount == 0 ) return;
-    // Log.v("TopoGL", "walls draw " + triangleCount );
-    GL.useProgram( mProgram );
-    bindData( mvp_matrix, mv_matrix_int_t, light );
-    GL.drawTriangle( 0, triangleCount );
-    // unbindData();
+    if ( mMode == WALL_FACE ) {
+      // Log.v("TopoGL", "walls draw " + triangleCount );
+      GL.useProgram( mProgramFace );
+      bindDataFace( mvp_matrix, mv_matrix_int_t, light );
+      GL.drawTriangle( 0, triangleCount );
+      // unbindData();
+    } else {
+      // Log.v("TopoGL", "walls draw " + sideCount );
+      GL.useProgram( mProgramSide );
+      bindDataSide( mvp_matrix, mv_matrix_int_t );
+      GL.drawLine( 0, sideCount );
+    }
   }
 
-  private void bindData( float[] mvpMatrix, float[] mv_matrix_int_t, Vector3D light )
+  private void bindDataFace( float[] mvpMatrix, float[] mv_matrix_int_t, Vector3D light )
   {
     GL.setUniformMatrix( mUMVPMatrix, mvpMatrix );
     GL.setUniformMatrix( mUMVMatrixInvT, mv_matrix_int_t );
 
-    GL.setAttributePointer( mAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, DATA_STRIDE );
-    GL.setAttributePointer( mANormal,   dataBuffer, OFFSET_NORMAL, COORDS_PER_NORMAL, DATA_STRIDE );
+    GL.setAttributePointer( mAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, DATA_STRIDE_FACE );
+    GL.setAttributePointer( mANormal,   dataBuffer, OFFSET_NORMAL, COORDS_PER_NORMAL, DATA_STRIDE_FACE );
 
     // GL.setUniform( mUPointSize, mPointSize );
     GL.setUniform( mUColor, mColor[0], mColor[1], mColor[2], mColor[3] );
-    GL.setUniform( mULight, light.x, light.y, light.z );
+    GL.setUniform( mULight, (float)light.x, (float)light.y, (float)light.z );
     GL.setUniform( mUAlpha, mAlpha );
+  }
+
+  private void bindDataSide( float[] mvpMatrix, float[] mv_matrix_int_t )
+  {
+    GL.setUniformMatrix( msUMVPMatrix, mvpMatrix );
+    GL.setUniformMatrix( msUMVMatrixInvT, mv_matrix_int_t );
+
+    GL.setAttributePointer( msAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, DATA_STRIDE_SIDE );
+
+    // GL.setUniform( msUPointSize, mPointSize );
+    GL.setUniform( msUColor, mColor[0], mColor[1], mColor[2], mColor[3] );
+    GL.setUniform( msUAlpha, mAlpha );
   }
 
   // ------------------------------------------------------------------
@@ -202,7 +293,8 @@ class GlWalls extends GlShape
   // -------------------------------------------------------------------
   // OpenGL
 
-  private static int mProgram;
+  private static int mProgramFace;
+  private static int mProgramSide;
 
   private static int mUMVPMatrix;
   private static int mUMVMatrixInvT;
@@ -212,13 +304,21 @@ class GlWalls extends GlShape
   private static int mUAlpha;
   private static int mULight;
 
+  private static int msUMVPMatrix;
+  private static int msUMVMatrixInvT;
+  private static int msAPosition;
+  private static int msUColor;
+  private static int msUAlpha;
+
   static void initGL( Context ctx )
   {
-    mProgram = GL.makeProgram( ctx, R.raw.triangle_vertex, R.raw.triangle_fragment );
-    setLocations( mProgram );
+    mProgramFace = GL.makeProgram( ctx, R.raw.triangle_vertex, R.raw.triangle_fragment );
+    setLocationsFace( mProgramFace );
+    mProgramSide = GL.makeProgram( ctx, R.raw.side_vertex, R.raw.side_fragment );
+    setLocationsSide( mProgramSide );
   }
 
-  private static void setLocations( int program )
+  private static void setLocationsFace( int program )
   {
     mUMVPMatrix    = GL.getUniform( program, GL.uMVPMatrix );
     mUMVMatrixInvT = GL.getUniform( program, GL.uMVMatrixInvT );
@@ -230,6 +330,18 @@ class GlWalls extends GlShape
     mUColor     = GL.getUniform(   program, GL.uColor );
     mULight     = GL.getUniform(   program, GL.uLight   ); // light (inverted) vector3
     mUAlpha     = GL.getUniform(   program, GL.uAlpha   ); // light (inverted) vector3
+  }
+
+  private static void setLocationsSide( int program )
+  {
+    msUMVPMatrix    = GL.getUniform( program, GL.uMVPMatrix );
+    msUMVMatrixInvT = GL.getUniform( program, GL.uMVMatrixInvT );
+
+    msAPosition  = GL.getAttribute( program, GL.aPosition );
+
+    // msUPointSize = GL.getUniform( program, GL.uPointSize );
+    msUColor     = GL.getUniform(   program, GL.uColor );
+    msUAlpha     = GL.getUniform(   program, GL.uAlpha   ); // light (inverted) vector3
   }
 
 }

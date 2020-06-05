@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 public class ParserLox extends TglParser
 {
-  private static float RAD2DEG = (float)(180/Math.PI);
+  private static double RAD2DEG = (180/Math.PI);
 
   public ParserLox( TopoGL app, String filename ) throws ParserException
   {
@@ -76,7 +76,7 @@ public class ParserLox extends TglParser
       String name = (survey != null)? st.name + "@" + survey.name : st.name;
       // String name = null;
       // for ( LoxSurvey s : lox_surveys ) if ( s.id == st.sid ) { name = s.name; break; } // no need to get the survey name
-      Cave3DStation station = new Cave3DStation( name, (float)st.x, (float)st.y, (float)st.z, st.id, st.sid, st.flag, st.comment );
+      Cave3DStation station = new Cave3DStation( name, st.x, st.y, st.z, st.id, st.sid, st.flag, st.comment );
       // Log.v("TopoGL", "station " + st.name + " " + st.x + " " + st.y + " " + st.z );
       stations.add( station );
       // Cave3DSurvey survey = getSurvey( st.sid );
@@ -92,7 +92,7 @@ public class ParserLox extends TglParser
       for ( int j = i+1; j< nst; ++j ) {
         Cave3DStation st2 = stations.get(j);
         if ( Math.abs( st1.x - st2.x ) < 0.01 && Math.abs( st1.y - st2.y ) < 0.01 && Math.abs( st1.z - st2.z ) < 0.01 ) {
-          Cave3DShot shot = new Cave3DShot( st1.name, st2.name, 0, 0, 0 );
+          Cave3DShot shot = new Cave3DShot( st1.name, st2.name, 0, 0, 0, 0, 0 );
           shot.from_station = st1;
           shot.to_station   = st2;
           shot.used = true;
@@ -105,15 +105,15 @@ public class ParserLox extends TglParser
       Cave3DStation f = getStation( sh.from );
       Cave3DStation t = getStation( sh.to );
       if ( f != null && t != null ) {
-        float de = t.x - f.x;
-        float dn = t.y - f.y;
-        float dz = t.z - f.z;
-        float len = (float)Math.sqrt( de*de + dn*dn + dz*dz );
-        float ber = (float)Math.atan2( de, dn ) * RAD2DEG;
+        double de = t.x - f.x;
+        double dn = t.y - f.y;
+        double dz = t.z - f.z;
+        double len = Math.sqrt( de*de + dn*dn + dz*dz );
+        double ber = Math.atan2( de, dn ) * RAD2DEG;
         if ( ber < 0 ) ber += 360;
-        float dh = (float)Math.sqrt( de*de + dn*dn );
-        float cln = (float)Math.atan2( dz, dh ) * RAD2DEG;
-        Cave3DShot shot = new Cave3DShot( f.name, t.name, len, ber, cln );
+        double dh = Math.sqrt( de*de + dn*dn );
+        double cln = Math.atan2( dz, dh ) * RAD2DEG;
+        Cave3DShot shot = new Cave3DShot( f.name, t.name, len, ber, cln, sh.flag, 0 );
         // Log.v("TopoGL", "shot " + f.name + " " + t.name + " : " + len + " " + ber + " " + cln );
         shot.from_station = f;
         shot.to_station   = t;
@@ -149,8 +149,8 @@ public class ParserLox extends TglParser
       int xoff = 0;
       int yoff = 0;
       int step = 1;
-      float e1 = surface.East1();  // west bound
-      float n1 = surface.North1(); // north bound (lox data are north to south but the coordinate is south)
+      double e1 = surface.East1();  // west bound
+      double n1 = surface.North1(); // north bound (lox data are north to south but the coordinate is south)
       int dim1 = surface.Width();
       int dim2 = surface.Height();
       // Log.v("TopoGL-LOX", "lox surface orig " + surface.East1() + " N " + surface.North1() );
@@ -173,8 +173,8 @@ public class ParserLox extends TglParser
           dim2 -= 2 * yoff;
         }
       }
-      float de = step * surface.DimEast();
-      float dn = step * surface.DimNorth();
+      double de = step * surface.DimEast();
+      double dn = step * surface.DimNorth();
       // Log.v("TopoGL-LOX", "lox surface " + dim1 + "x" + dim2 + " (max " + TopoGL.mDEMmaxsize + ") W-E " + e1 + " " + de + " N-S " + n1 + " " + dn );
       mSurface = new DEMsurface( e1, n1, de, dn, dim1, dim2 );
       mSurface.setGridData( surface.Grid(), xoff, yoff, step, surface.Width(), surface.Height() );

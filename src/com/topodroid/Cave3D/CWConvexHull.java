@@ -45,7 +45,7 @@ public class CWConvexHull
   private ArrayList< CWSide > mSide;
   ArrayList< CWTriangle > mFace;
   ArrayList< CWTriangle > mSplits;
-  float mVolume;
+  double mVolume;
   boolean hasVolume;
   
   public CWConvexHull( )
@@ -59,7 +59,7 @@ public class CWConvexHull
   }
 
   // public void create( ArrayList<Vector3D> pts,
-  //   float distance_concavity, float angle_concavity, float eps )
+  //   double distance_concavity, double angle_concavity, double eps )
   // {
   //   for ( Vector3D p : pts ) insertPoint( p );
   //   // dump();
@@ -88,7 +88,7 @@ public class CWConvexHull
 
     if ( GlModel.mSplitStretch ) {
       Vector3D vm = vt.difference( vf ); 
-      float lm = (float)vm.length();
+      double lm = vm.length();
       if ( lm < 0.0001f ) {
         Log.e( "TopoGL-CW", "ERROR leg too short");
         return;
@@ -234,7 +234,7 @@ public class CWConvexHull
     return ret;
   }
 
-  private static float volume( Vector3D p0, Vector3D p1, Vector3D p2, Vector3D p3 )
+  private static double volume( Vector3D p0, Vector3D p1, Vector3D p2, Vector3D p3 )
   {
     // return p0.x * ( p1.y * p2.z + p3.y * p1.z + p2.y * p3.z - p1.y * p3.z - p3.y * p2.z - p2.y * p1.z ) 
     //      - p0.y * ( p1.x * p2.z + p3.x * p1.z + p2.x * p3.z - p1.x * p3.z - p3.x * p2.z - p2.x * p1.z ) 
@@ -656,10 +656,10 @@ public class CWConvexHull
   // boolean checkPoint( Vector3D v )
   // {
   //   // Log.v( "TopoGL-CW", "Check vector " + v.x + " " + v.y + " " + v.z );
-  //   float totvol = 0;
+  //   double totvol = 0;
   //   boolean ret = true;
   //   for ( CWTriangle t : mFace ) {
-  //     float vol = t.volume( v );
+  //     double vol = t.volume( v );
   //     if ( vol <= -0.001f ) {
   //       // Log.v( "TopoGL-CW", "neg vol " + vol );
   //       // t.dump(); 
@@ -669,7 +669,7 @@ public class CWConvexHull
   //   }
   //   if ( ret ) {
   //     totvol = Math.round( totvol*100 )/100;
-  //     float angle = solidAngle( v, 0.0001f );
+  //     double angle = solidAngle( v, 0.0001f );
   //     Log.v( "TopoGL-CW", "Volume " + totvol + " " + ret + " angle " + angle );
   //   }
   //   return ret;
@@ -694,7 +694,7 @@ public class CWConvexHull
 
   // thr concavity threshold
   // eps point "coincidence" threshold
-  private void makeConcave( ArrayList< Vector3D > pts, double distance_thr, double angle_thr, float eps )
+  private void makeConcave( ArrayList< Vector3D > pts, double distance_thr, double angle_thr, double eps )
   {
     ArrayList<Vector3D> insidePts = new ArrayList<Vector3D>();
     for ( Vector3D p : pts ) {
@@ -781,14 +781,14 @@ public class CWConvexHull
     for ( CWPoint p : mVertex ) p.orderTriangles();
   }
   
-  private boolean isVertex( Vector3D p, float eps )
+  private boolean isVertex( Vector3D p, double eps )
   {
     for ( CWPoint v : mVertex ) if ( v.distance3D(p) < eps ) return true;
     return false;
   }
 
   
-  // private boolean isPointOnSurface( Vector3D p, float eps )
+  // private boolean isPointOnSurface( Vector3D p, double eps )
   // {
   //   for ( CWTriangle t : mFace ) if ( t.isInside( p ) ) return true;
   //   return false
@@ -797,27 +797,27 @@ public class CWConvexHull
   /**
    * @param eps surface uncertainty
    */
-  float solidAngle( Vector3D p, float eps )
+  double solidAngle( Vector3D p, double eps )
   {
     if ( isVertex(p, 0.0001f) ) return 0;
     if ( isOnSurface(p, eps) ) return 0;
-    float ret = 0;
+    double ret = 0;
     for ( CWTriangle f : mFace ) ret += f.solidAngle(p);
     if ( Math.abs( ret ) < 0.001 ) return 0;
-    return (float)Math.round(0.25 * ret / Math.PI);
+    return Math.round(0.25 * ret / Math.PI);
   }
 
   /** check if a point is inside this CW
    * @param p   point
    * @param eps
    */
-  boolean isPointInside( Vector3D p, float eps ) { return solidAngle(p, eps) > 0.4f; }
+  boolean isPointInside( Vector3D p, double eps ) { return solidAngle(p, eps) > 0.4f; }
 
   /** check if a point is on the surface of this CW (ie, inside a face)
    * @param p   point
    * @param eps
    */
-  boolean isOnSurface( Vector3D v, float eps )
+  boolean isOnSurface( Vector3D v, double eps )
   {
     for ( CWTriangle t : mFace ) {
       if ( t.isPointInside(v,eps) ) return true;
@@ -827,7 +827,7 @@ public class CWConvexHull
  
  
   // points of the other CW that are inside this CW 
-  List<CWPoint> computeInsidePoints( CWConvexHull cv, float eps )
+  List<CWPoint> computeInsidePoints( CWConvexHull cv, double eps )
   { 
     ArrayList<CWPoint> ret = new ArrayList<CWPoint>();
     for ( CWPoint p : cv.mVertex ) if ( isPointInside( p, eps ) ) ret.add( p );
@@ -904,7 +904,7 @@ public class CWConvexHull
    * @return true if at least one point has moved
    */
 /*
-  private boolean regularizePoints( CWConvexHull cv, float delta, float eps )
+  private boolean regularizePoints( CWConvexHull cv, double delta, double eps )
   {
     boolean ret = false;
     Vector3D c1 = getCenter();
@@ -919,22 +919,22 @@ public class CWConvexHull
     return ret;
   }
   
-  private boolean regularizeSides( CWConvexHull cv, float delta, float eps )
+  private boolean regularizeSides( CWConvexHull cv, double delta, double eps )
   {
     boolean ret = false;
     for ( CWSide s1 : mSide ) {
       Vector3D d1 = s1.p2.difference( s1.p1 );
-      float d11 = d1.dotProduct( d1 );
+      double d11 = d1.dotProduct( d1 );
       for ( CWSide s2 : cv.mSide ) {
         Vector3D q = s1.p1.difference( s2.p1 );
         Vector3D d2 = s2.p2.difference( s2.p1 );
-        float d22 = d2.dotProduct( d2 );
-        float d12 = d1.dotProduct( d2 );
-        float det = d11 * d22 - d12 * d12;
-        float q1 = q.dotProduct( d1 );
-        float q2 = q.dotProduct( d2 );
-        float a = ( -d22 * q1 + d12 * q2 )/det;
-        float b = ( -d12 * q1 + d11 * q2 )/det;
+        double d22 = d2.dotProduct( d2 );
+        double d12 = d1.dotProduct( d2 );
+        double det = d11 * d22 - d12 * d12;
+        double q1 = q.dotProduct( d1 );
+        double q2 = q.dotProduct( d2 );
+        double a = ( -d22 * q1 + d12 * q2 )/det;
+        double b = ( -d12 * q1 + d11 * q2 )/det;
         if ( a < 0 || a > 1 || b < 0 || b > 1 ) continue;
         Vector3D d = new Vector3D( q.x + a*d1.x - b*d2.x, q.y + a*d1.y - b*d2.y, q.z + a*d1.z - b*d2.z );
         
@@ -958,24 +958,24 @@ public class CWConvexHull
     return ret;
   }
   
-  private static boolean regularizePoints( CWConvexHull cv1, CWConvexHull cv2, float delta, float eps )
+  private static boolean regularizePoints( CWConvexHull cv1, CWConvexHull cv2, double delta, double eps )
   {
     return cv1.regularizePoints(cv2, delta, eps ) || cv2.regularizePoints(cv1, delta, eps );
   }
   
-  private static boolean regularizeSides( CWConvexHull cv1, CWConvexHull cv2, float delta, float eps )
+  private static boolean regularizeSides( CWConvexHull cv1, CWConvexHull cv2, double delta, double eps )
   {
     return cv1.regularizeSides(cv2, delta, eps ) || cv2.regularizeSides(cv1, delta, eps );
   }
   
-  static void regularize( CWConvexHull cv1, CWConvexHull cv2, float delta, float eps )
+  static void regularize( CWConvexHull cv1, CWConvexHull cv2, double delta, double eps )
   {
     while ( regularizePoints( cv1, cv2, delta, eps ) || regularizeSides( cv1, cv2, delta, eps  ) ) ;
   }
   
 */  
 
-  void randomizePoints( float delta )
+  void randomizePoints( double delta )
   {
     for ( CWPoint v : mVertex ) {
       v.randomize( delta );
@@ -984,11 +984,11 @@ public class CWConvexHull
     for ( CWSide s : mSide ) s.computeU12();
   }
 
-  private float computeVolume()
+  private double computeVolume()
   {
     if ( mVertex.size() < 4 ) return 0.0f;
     Vector3D cc = getCenter();
-    float vol = 0;
+    double vol = 0;
     for ( CWTriangle t : mFace ) {
       vol += t.volume( cc );
     }

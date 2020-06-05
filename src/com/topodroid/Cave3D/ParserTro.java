@@ -31,12 +31,12 @@ public class ParserTro extends TglParser
   static final int DATA_NORMAL    = 1;
   static final int DATA_DIMENSION = 2;
 
-  float declination = 0.0f;
+  double declination = 0.0;
   boolean dmb = false; // whether bearing is DD.MM
   boolean dmc = false;
-  float ul = 1;  // units factor [m]
-  float ub = 1;  // dec.deg
-  float uc = 1;  // dec.deg
+  double ul = 1;  // units factor [m]
+  double ub = 1;  // dec.deg
+  double uc = 1;  // dec.deg
   int dirw = 1;  // width direction
   int dirb = 1;  // bearing direction
   int dirc = 1;  // clino direction
@@ -53,7 +53,7 @@ public class ParserTro extends TglParser
   }
 
 
-  private float angle( float value, float unit, boolean dm )
+  private double angle( double value, double unit, boolean dm )
   {
     if ( dm ) {
       int sign = 1;
@@ -70,9 +70,9 @@ public class ParserTro extends TglParser
     if ( params.length >= 5 ) {
       String name = params[0].replaceAll(" ","_"); // cave name
       try { // FIXME coordinates NOT SURE THERE IS z
-        float x = Float.parseFloat( params[1] );
-        float y = Float.parseFloat( params[2] );
-        float z = Float.parseFloat( params[3] );
+        double x = Double.parseDouble( params[1] );
+        double y = Double.parseDouble( params[2] );
+        double z = Double.parseDouble( params[3] );
         String vt_cs = params[4]; // ccords system: must be present in VisualTopo registry
         fixes.add( new Cave3DFix( name, x, y, z, new Cave3DCS( vt_cs ) ) ); // FIXME
         return true;
@@ -100,6 +100,7 @@ public class ParserTro extends TglParser
 
     boolean splayAtFrom = true;
     String comment = "";
+    long millis = 0;
 
     String line = null;
     try {
@@ -189,7 +190,7 @@ public class ParserTro extends TglParser
                 // standard colors; ignore
               } else if ( k == 5 ) {
                 try {
-                  declination = angle( Float.parseFloat( vals[k] ), 1, true );
+                  declination = angle( Double.parseDouble( vals[k] ), 1, true );
                 } catch ( NumberFormatException e ) { }
               } else {
                 // ignore colors
@@ -217,34 +218,34 @@ public class ParserTro extends TglParser
 
                 try {
                   idx = nextIndex( vals, idx );
-                  float len = Float.parseFloat(vals[idx]) * ul;
+                  double len = Double.parseDouble(vals[idx]) * ul;
                   idx = nextIndex( vals, idx );
-                  float ber = angle( Float.parseFloat(vals[idx]), ub, dmb);
+                  double ber = angle( Double.parseDouble(vals[idx]), ub, dmb);
                   idx = nextIndex( vals, idx );
-                  float cln = angle( Float.parseFloat(vals[idx]), uc, dmc); 
+                  double cln = angle( Double.parseDouble(vals[idx]), uc, dmc); 
                   if ( splay ) {
-                    splays.add( new Cave3DShot( from, from + cnt_splay, len, ber, cln ) );
+                    splays.add( new Cave3DShot( from, from + cnt_splay, len, ber, cln, 0, millis ) );
                     ++ cnt_splay;
 
                   } else {
                     String station = ( (splayAtFrom || splay )? from : to );
-                    shots.add( new Cave3DShot( from, to, len, ber, cln ) );
+                    shots.add( new Cave3DShot( from, to, len, ber, cln, 0, millis ) );
                     ++ cnt_shot;
 
                     idx = nextIndex( vals, idx );
-	            len = vals[idx].equals("*")? -1 : Float.parseFloat(vals[idx]) * ul; 
-	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-L", len, ber-90, 0 ) );
+	            len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
+	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-L", len, ber-90, 0, 0, millis ) );
                     
                     idx = nextIndex( vals, idx );
-	            len = vals[idx].equals("*")? -1 : Float.parseFloat(vals[idx]) * ul; 
-	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-R", len, ber+90, 0 ) );
+	            len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
+	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-R", len, ber+90, 0, 0, millis ) );
                     idx = nextIndex( vals, idx );
-	            len = vals[idx].equals("*")? -1 : Float.parseFloat(vals[idx]) * ul; 
-	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-U", len, ber, 90 ) );
+	            len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
+	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-U", len, ber, 90, 0, millis ) );
                     
                     idx = nextIndex( vals, idx );
-	            len = vals[idx].equals("*")? -1 : Float.parseFloat(vals[idx]) * ul; 
-	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-D", len, ber, -90 ) );
+	            len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
+	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-D", len, ber, -90, 0, millis ) );
                     
                   }
                 } catch ( NumberFormatException e ) {

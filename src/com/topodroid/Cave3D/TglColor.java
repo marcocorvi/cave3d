@@ -80,6 +80,9 @@ class TglColor
   // FIXME evenually there will be a color dialog to let user set these ...
   static final float[] ColorStation    = { 0.0f, 0.7f, 0.5f, 1.0f }; // green
   static final float[] ColorLeg        = { 1.0f, 1.0f, 1.0f, 1.0f }; // white
+  static final float[] ColorLegS       = { 0.7f, 1.0f, 0.5f, 1.0f }; // 
+  static final float[] ColorLegD       = { 1.0f, 0.7f, 0.5f, 1.0f }; // 
+  static final float[] ColorLegC       = { 0.3f, 0.7f, 1.0f, 1.0f }; // 
   static final float[] ColorSplay      = { 0.7f, 0.7f, 0.7f, 1.0f }; // gray
   static final float[] ColorSurfaceLeg = { 0.0f, 0.3f, 1.0f, 1.0f };
   static final float[] ColorPlan       = { 1.0f, 0.0f, 0.8f, 1.0f }; // violet

@@ -69,7 +69,7 @@ class GlSurfaceView extends GLSurfaceView
         mApp.setTheTitle( mRenderer.getAngleString() );
       }
     } );
-    requestRender();
+    // requestRender();
   }
 
   private void doRotateLight( float dx, float dy )
@@ -102,6 +102,7 @@ class GlSurfaceView extends GLSurfaceView
   public boolean onTouchEvent( MotionEvent e) // override from SurfaceView
   {
     mApp.closeMenu();
+    if ( e == null ) return true;
     float x0, y0, x1, y1, dx, dy;
     switch (e.getAction()) {
       case MotionEvent.ACTION_DOWN:
@@ -132,7 +133,7 @@ class GlSurfaceView extends GLSurfaceView
               doRotateModel( dx, dy ); 
             }
           }
-          requestRender();
+          // requestRender();
           mPreviousX = x0;
           mPreviousY = y0;
           doRotate = true;

@@ -137,6 +137,23 @@
        />
 
     <android.preference.CheckBoxPreference
+       android:key="CAVE3D_SPLAY_PROJ"
+       android:title="@string/pref_splay_proj_title"
+       android:summary="@string/pref_splay_proj_summary"
+       android:dialogTitle="@string/pref_splay_proj_title"
+       />
+
+    <android.preference.EditTextPreference
+       android:key="CAVE3D_SPLAY_THR"
+       android:title="@string/pref_splay_thr_title"
+       android:summary="@string/pref_splay_thr_summary"
+       android:dialogTitle="@string/pref_splay_thr_title"
+       android:dialogMessage="@string/pref_splay_thr_summary"
+       android:inputType="numberDecimal|numberSigned"
+       />
+
+
+    <android.preference.CheckBoxPreference
        android:key="CAVE3D_SPLIT_TRIANGLES"
        android:title="@string/pref_split_triangles_title"
        android:summary="@string/pref_split_triangles_summary"

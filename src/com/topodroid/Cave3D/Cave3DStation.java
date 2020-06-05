@@ -13,6 +13,7 @@ package com.topodroid.Cave3D;
 
 // import android.util.Log;
 
+// 3D vcetor (E, N, Up)
 public class Cave3DStation extends Vector3D
 {
   static final int FLAG_NONE    = 0;
@@ -25,11 +26,12 @@ public class Cave3DStation extends Vector3D
   int mSid;       // survey id
   Cave3DSurvey mSurvey;
 
-  // float e, n, z;  // north east, vertical (upwards) : e=x, n=y, z=z
+  // double e, n, z;  // north east, vertical (upwards) : e=x, n=y, z=z
   String short_name;
   String name;
 
-  double depth;   // depth from Zmax: positive and scaled in [0,1] : 1.0 deepest
+  double depth;         // depth from Zmax: positive and scaled in [0,1] : 1.0 deepest
+  double surface_depth; // depth beneath the surface
   int flag;       // station flag (not used)
   String comment; // not used
 
@@ -37,26 +39,26 @@ public class Cave3DStation extends Vector3D
   Cave3DStation pathprev;
 
 
-  Cave3DStation( String nm, float e0, float n0, float z0 )
+  Cave3DStation( String nm, double e0, double n0, double z0 )
   {
     super( e0, n0, z0 );
     init( nm, -1, -1, null, FLAG_NONE, null );
   }
 
-  Cave3DStation( String nm, float e0, float n0, float z0, Cave3DSurvey survey )
+  Cave3DStation( String nm, double e0, double n0, double z0, Cave3DSurvey survey )
   {
     super( e0, n0, z0 );
     int sid = ( survey == null )? -1 : survey.mId;
     init ( nm, -1, sid, survey, FLAG_NONE, null );
   }
 
-  // Cave3DStation( String nm, float e0, float n0, float z0, Cave3DSurvey survey, int fl, String cmt )
+  // Cave3DStation( String nm, double e0, double n0, double z0, Cave3DSurvey survey, int fl, String cmt )
   // {
   //   super( e0, n0, z0 );
   //   init ( nm, survey, fl, cmt );
   // }
 
-  Cave3DStation( String nm, float e0, float n0, float z0, int id, int sid, int fl, String cmt )
+  Cave3DStation( String nm, double e0, double n0, double z0, int id, int sid, int fl, String cmt )
   {
     super( e0, n0, z0 );
     init( nm, id, sid, null, fl, cmt );
@@ -65,7 +67,7 @@ public class Cave3DStation extends Vector3D
   void setPathlength( double len, Cave3DStation prev ) { pathlength = len; pathprev = prev; }
 
   double getPathlength() { return pathlength; }
-  float getFinalPathlength() { return (pathprev == null)? -1.0f : (float)pathlength; }
+  double getFinalPathlength() { return (pathprev == null)? -1.0 : pathlength; }
   Cave3DStation getPathPrevious() { return pathprev; }
 
   Vector3D toVector3D() { return new Vector3D( x, y, z ); }
@@ -86,6 +88,7 @@ public class Cave3DStation extends Vector3D
     comment = cmt;
     pathlength = Float.MAX_VALUE;
     pathprev = null;
+    surface_depth = 0;
   }
 
   private void setName( String nm )

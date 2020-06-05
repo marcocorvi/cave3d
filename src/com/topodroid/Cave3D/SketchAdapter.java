@@ -80,7 +80,7 @@ class SketchAdapter extends ArrayAdapter< GlSketch >
 
     void setSketch( GlSketch b, int p )
     {
-      Log.v("TopoGL", "holder set sketch " + b.mName + " pos " + p );
+      // Log.v("TopoGL", "holder set sketch " + b.mName + " pos " + p );
       mSketch = b;
       pos     = p;
       tvName.setText( b.mName );
@@ -92,7 +92,7 @@ class SketchAdapter extends ArrayAdapter< GlSketch >
   @Override
   public View getView( int pos, View convertView, ViewGroup parent )
   {
-    Log.v("TopoGL", "sketch adapter get view " + pos );
+    // Log.v("TopoGL", "sketch adapter get view " + pos );
     GlSketch b = mItems.get( pos );
     ViewHolder holder = null;
     if ( convertView == null ) {

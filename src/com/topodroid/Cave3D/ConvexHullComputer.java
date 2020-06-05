@@ -89,9 +89,9 @@ class ConvexHullComputer
   }
 
 
-  float getVolume()
+  double getVolume()
   {
-    float vol = 0;
+    double vol = 0;
     for ( CWConvexHull cw : mWalls ) {
       vol += cw.getVolume();
     }

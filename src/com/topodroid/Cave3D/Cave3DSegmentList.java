@@ -65,9 +65,9 @@ class Cave3DSegmentList
     ++ size;
   }
 
-  float centerZ()
+  double centerZ()
   {
-    float ret = 0;
+    double ret = 0;
     for ( Cave3DSegment s = head; s != null; s = s.next ) {
       ret += s.v1.z;
       ret += s.v2.z;
@@ -75,9 +75,9 @@ class Cave3DSegmentList
     return ret/( 2 * size );
   }
 
-  float minZ()
+  double minZ()
   {
-    float ret = 0;
+    double ret = 0;
     for ( Cave3DSegment s = head; s != null; s = s.next ) {
       if ( s.v1.z < ret ) ret = s.v1.z;
       if ( s.v2.z < ret ) ret = s.v2.z;
@@ -85,9 +85,9 @@ class Cave3DSegmentList
     return ret;
   }
 
-  float maxZ()
+  double maxZ()
   {
-    float ret = 0;
+    double ret = 0;
     for ( Cave3DSegment s = head; s != null; s = s.next ) {
       if ( s.v1.z > ret ) ret = s.v1.z;
       if ( s.v2.z > ret ) ret = s.v2.z;

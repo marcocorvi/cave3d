@@ -18,7 +18,7 @@ class SketchPoint extends Vector3D
   String thname;
   int    idx;  // symbol index
 
-  SketchPoint( float x, float y, float z, String th )
+  SketchPoint( double x, double y, double z, String th )
   {
     super( x, y, z );
     thname = th;

@@ -49,7 +49,7 @@ public class OsmFactory
       for ( int k=1; k<size(); ++k ) {
         Point2D p2 = nodes.get( k );
         // draw line p1-p2
-        canvas.drawLine( p1.x, p1.y, p2.x, p2.y, paint );
+        canvas.drawLine( (float)p1.x, (float)p1.y, (float)p2.x, (float)p2.y, paint );
         p1 = p2;
       }
     }
@@ -98,28 +98,28 @@ public class OsmFactory
   // --------------------------------------------------------------------
 
   Cave3DFix mOrigin;
-  float x1, y1, x2, y2;
-  float s_radius;
-  float e_radius;
+  double x1, y1, x2, y2;
+  double s_radius;
+  double e_radius;
   // XmlPullParserFactory xmlParserFactory;
   int width;
   int height;
-  float mXres, mYres;
+  double mXres, mYres;
 
   OsmFactory( double xx1, double yy1, double xx2, double yy2, Cave3DFix origin )
   {
-    x1 = (float)( xx1 );
-    y1 = (float)( yy1 );
-    x2 = (float)( xx2 );
-    y2 = (float)( yy2 );
+    x1 = xx1;
+    y1 = yy1;
+    x2 = xx2;
+    y2 = yy2;
     mOrigin = origin;
     // Log.v("TopoGL-OSM", "origin " + origin.longitude + " " + origin.latitude + " X " + origin.x + " " + origin.y + " " + origin.z );
-    float PI_180 = (float)(Math.PI / 180);
-    float alat = (float)origin.latitude;
-    float a = ( alat < 0 )? -alat : alat;
+    double PI_180 = (Math.PI / 180);
+    double alat = origin.latitude;
+    double a = ( alat < 0 )? -alat : alat;
     // KML radius is already multiplied by PI/180
     s_radius = ((90 - a) * ExportKML.EARTH_RADIUS1 + a * ExportKML.EARTH_RADIUS2)/90;
-    e_radius = s_radius * (float)Math.cos( alat * PI_180 );
+    e_radius = s_radius * Math.cos( alat * PI_180 );
     // xmlParserFactory = XmlPullParserFactory.newInstance();
     mXres = mYres = 0.5f;
     width  = (int)( (x2 - x1 )/mXres );
@@ -127,10 +127,10 @@ public class OsmFactory
     // Log.v("TopoGL-OSM", "bitmap " + width + "x" + height );
   }
 
-  private float m2x( float m ) { return (float)(mOrigin.x + ( m - mOrigin.longitude ) * e_radius); }
-  private float p2y( float p ) { return (float)(mOrigin.y + ( p - mOrigin.latitude  ) * s_radius); }
-  private float x2m( float x ) { return (float)(mOrigin.longitude + ( x - mOrigin.x ) / e_radius); }
-  private float y2p( float y ) { return (float)(mOrigin.latitude  + ( y - mOrigin.y ) / s_radius); }
+  private double m2x( double m ) { return (mOrigin.x + ( m - mOrigin.longitude ) * e_radius); }
+  private double p2y( double p ) { return (mOrigin.y + ( p - mOrigin.latitude  ) * s_radius); }
+  private double x2m( double x ) { return (mOrigin.longitude + ( x - mOrigin.x ) / e_radius); }
+  private double y2p( double y ) { return (mOrigin.latitude  + ( y - mOrigin.y ) / s_radius); }
 
   private String getValue( String line, int pos )
   {
@@ -138,10 +138,10 @@ public class OsmFactory
     return line.substring( pos, end );
   }
 
-  private float getFloat( String line, int pos )
+  private double getDouble( String line, int pos )
   {
     try {
-      return Float.parseFloat( getValue( line, pos ) );
+      return Double.parseDouble( getValue( line, pos ) );
     } catch ( NumberFormatException e ) { }
     return 0;
   }
@@ -149,10 +149,10 @@ public class OsmFactory
   public Bitmap getBitmap( String path )
   {
     Bitmap bitmap = null;
-    float m1 = x2m( x1 );
-    float m2 = x2m( x2 );
-    float p1 = y2p( y1 );
-    float p2 = y2p( y2 );
+    double m1 = x2m( x1 );
+    double m2 = x2m( x2 );
+    double p1 = y2p( y1 );
+    double p2 = y2p( y2 );
     // Log.v("TopoGL-OSM", "bounds M " + m1 + " " + m2 + " P " + p1 + " " + p2 );
 
     for ( ; ; ) {
@@ -169,8 +169,8 @@ public class OsmFactory
 
     boolean inNode = false;
     String nodeId = null;
-    float lat = 0;
-    float lon = 0;
+    double lat = 0;
+    double lon = 0;
     Way way = null;
 
     HashMap<String, Point2D> nodes = new HashMap<>();
@@ -199,14 +199,14 @@ public class OsmFactory
           int idx = line.indexOf( " id=" );
           if ( idx > 0 ) nodeId = getValue( line, idx+5 );
           idx = line.indexOf( " lat=" );
-          if ( idx > 0 ) lat = getFloat( line, idx+6 );
+          if ( idx > 0 ) lat = getDouble( line, idx+6 );
           idx = line.indexOf( " lon=" );
-          if ( idx > 0 ) lon = getFloat( line, idx+6 );
+          if ( idx > 0 ) lon = getDouble( line, idx+6 );
         }
         if ( inNode && line.indexOf( "/>" ) >= 0 ) {
           if ( nodeId != null && lon >= m1 && lon <= m2 && lat >= p1 && lat <= p2 ) {
-            float x = (m2x( lon ) - x1) / mXres; // bitmap coordinates
-            float y = height - 1 - (p2y( lat ) - y1) / mYres;
+            double x = (m2x( lon ) - x1) / mXres; // bitmap coordinates
+            double y = height - 1 - (p2y( lat ) - y1) / mYres;
             nodes.put( nodeId, new Point2D( x, y ) ); 
           }       
           inNode = false;

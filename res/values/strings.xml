@@ -61,6 +61,16 @@
     <string name="info_north_value">S %1$.1f N %2$.1f</string>
     <string name="info_z_value">%1$.1f  %2$.1f</string>
 
+    <string name="legs_surface">Surface</string>
+    <string name="legs_duplicate">Duplicate</string>
+    <string name="legs_commented">Commented</string>
+
+    <string name="proj_perspective">Perspective parameters</string>
+    <string name="proj_orthographic">Orthographic parameters</string>
+    <string name="proj_focal">Focal</string>
+    <string name="proj_side">Side</string>
+    <!-- UNUSED string name="proj_near">Near</string -->
+    <!-- UNUSED string name="proj_far">Far</string -->
 
     <string name="query" formatted="false">Surveys: %d Shots: %d Stations: %d\nLength: %d Depth: %d</string>
     <string name="no_files">No files</string>
@@ -85,7 +95,7 @@
     <string name="texture_load">Load texture</string>
     <string name="texture_failed">Failed texture loading</string>
     <string name="texture_ok">Read texture file</string>
-    <string name="sketch_load">Load sketch</string>
+    <string name="sketch_load">Load</string>
     <string name="sketch_failed">Failed sketch loading</string>
     <string name="sketch_ok">Read sketch data</string>
 
@@ -94,6 +104,7 @@
     <string name="title_azimuth"> Azimuth: </string>
     <string name="title_surface_alpha">Surface transparency</string>
     <string name="title_sketches">Sketches</string>
+    <string name="title_legs">Legs visibility</string>
 
     <string name="survey_legs"> Legs: </string>
     <string name="survey_legs_length"> Legs length: </string>
@@ -145,6 +156,8 @@
 
     <string name="no_planview">No plan view</string>
     <string name="no_surface">No surface DEM</string>
+    <string name="no_model">No 3D model</string>
+    <string name="no_topodroid_model">Not a TopoDroid model</string>
 
     <string name="error_file_not_found">Error: file not found</string>
     <string name="error_file_not_readable">Error: file not readable</string>
@@ -168,6 +181,8 @@
     <string name="fail_convexhull">Failed convex-hull walls</string>
     <string name="done_powercrust">Done powercrust walls</string>
     <string name="fail_powercrust">Failed powercrust walls</string>
+    <string name="done_hull">Done simple-hull walls</string>
+    <string name="fail_hull">Failed simple-hull walls</string>
 
     <string name="no_database">No database\n</string>
     <string name="no_survey">No survey %1$s\n</string>
@@ -209,6 +224,10 @@
     <string name="pref_dem_reduce_summary">DEM reducing mode [shrink]</string>
     <string name="pref_all_splay_title">All splays</string>
     <string name="pref_all_splay_summary">Whether to use all the splays for the walls [y]</string>
+    <string name="pref_splay_proj_title">Projected splays</string>
+    <string name="pref_splay_proj_summary">Whether to use splays projected on a normal plane [n]</string>
+    <string name="pref_splay_thr_title">Splay threshold</string>
+    <string name="pref_splay_thr_summary">Splays outside the shot to keep [0.5]</string>
 
     <string name="pref_split_triangles_title">Split triangles</string>
     <string name="pref_split_triangles_summary">Whether to split intersecting wall triangles [y]</string>

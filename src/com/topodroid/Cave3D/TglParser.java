@@ -39,9 +39,9 @@ public class TglParser
   public static final int WALL_NONE       = 0;
   public static final int WALL_CW         = 1;
   public static final int WALL_POWERCRUST = 2;
-  public static final int WALL_DELAUNAY   = 3;
-  public static final int WALL_HULL       = 4;
-  public static final int WALL_MAX        = 3;
+  public static final int WALL_HULL       = 3;
+  public static final int WALL_DELAUNAY   = 4;
+  public static final int WALL_MAX        = 4;
 
   boolean do_render; // whether ready to render
   TopoGL mApp;
@@ -54,21 +54,25 @@ public class TglParser
 
   PowercrustComputer powercrustcomputer = null;
   ConvexHullComputer convexhullcomputer = null;
+  HullComputer hullcomputer = null;
 
   // private ArrayList< CWConvexHull > walls   = null;
   // private ArrayList< CWBorder >     borders = null;
 
   DEMsurface mSurface;
   LoxBitmap  mBitmap = null;
-  float mCaveLength;
+  double mCaveLength;
   String mName; // file base name
 
-  Cave3DStation mCenterStation = null;
+  // Cave3DStation mCenterStation = null;
   Cave3DStation mStartStation = null;
   protected Cave3DFix mOrigin = null; // coordinates of the origin station
 
   Cave3DFix getOrigin() { return mOrigin; }
   boolean hasOrigin() { return mOrigin != null; }
+  boolean isWGS84() { return mOrigin != null && mOrigin.isWGS84(); }
+  double getSNradius() { return ( mOrigin != null )? mOrigin.getSNradius() : 1.0f; }
+  double getWEradius() { return ( mOrigin != null )? mOrigin.getWEradius() : 1.0f; }
 
   // void setStartStation( Cave3DStation station ) { mStartStation = station; }
   void clearStartStation( ) { mStartStation = null; }
@@ -77,9 +81,9 @@ public class TglParser
   // ----------------------------------------------------------------
 
   // TODO VECTOR
-  protected float x0, y0, z0;       // model center coords (remain fixed)
+  protected double x0, y0, z0;       // model center coords (remain fixed)
 
-  public float emin, emax, nmin, nmax, zmin, zmax; // survey bounds
+  public double emin, emax, nmin, nmax, zmin, zmax; // survey bounds
 
   // ------------------------- LINE UTIL
   static Pattern pattern = Pattern.compile( "\\s+" );
@@ -92,17 +96,17 @@ public class TglParser
 
   String getName() { return mName; }
 
-  void centerAtStation( Cave3DStation st ) { mCenterStation = st; }
+  // void centerAtStation( Cave3DStation st ) { mCenterStation = st; }
    
   protected boolean mSurfaceFlipped = false; // somehow lox file cane be surface-flipped FIXME FIXME FIXME
   boolean surfaceFlipped() { return mSurfaceFlipped; }
 
-  // public float getEmin() { return emin; }
-  // public float getEmax() { return emax; }
-  // public float getNmin() { return nmin; }
-  // public float getNmax() { return nmax; }
-  // public float getVmin() { return zmin; }
-  // public float getVmax() { return zmax; }
+  // public double getEmin() { return emin; }
+  // public double getEmax() { return emax; }
+  // public double getNmin() { return nmin; }
+  // public double getNmax() { return nmax; }
+  // public double getVmin() { return zmin; }
+  // public double getVmax() { return zmax; }
 
   int getStationNumber() { return stations.size(); }
   int getShotNumber()    { return shots.size(); }
@@ -122,11 +126,12 @@ public class TglParser
   boolean hasWall() { return convexhullcomputer != null || ( powercrustcomputer != null && powercrustcomputer.hasTriangles() ); }
   boolean hasPlanview() { return powercrustcomputer != null && powercrustcomputer.hasPlanview(); }
 
-  float getConvexHullVolume() { return ( convexhullcomputer == null )? 0 : convexhullcomputer.getVolume(); }
-  float getPowercrustVolume() { return ( powercrustcomputer == null )? 0 : powercrustcomputer.getVolume(); }
+  double getConvexHullVolume() { return ( convexhullcomputer == null )? 0 : convexhullcomputer.getVolume(); }
+  double getPowercrustVolume() { return ( powercrustcomputer == null )? 0 : powercrustcomputer.getVolume(); }
 
   protected boolean checkPath( String path )
   {
+    if ( path == null ) return false;
     File file = new File( path );
     if ( ! file.exists() ) {
       Toast.makeText( mApp, mApp.getResources().getString( R.string.error_file_not_found ) + " " + path, Toast.LENGTH_LONG ).show();
@@ -198,13 +203,13 @@ public class TglParser
     return null;
   }
 
-  float getCaveZMin()   { return zmin; }
-  float getCaveDepth()  { return zmax - zmin; }
-  float getCaveLength() { return mCaveLength; }
+  double getCaveZMin()   { return zmin; }
+  double getCaveDepth()  { return zmax - zmin; }
+  double getCaveLength() { return mCaveLength; }
 
-  float[] getStationVertices()
+  double[] getStationVertices()
   {
-    float v[] = new float[ 3 * stations.size() ];
+    double v[] = new double[ 3 * stations.size() ];
     int k = 0;
     int k3 = 0;
     for ( Cave3DStation s : stations ) {
@@ -216,9 +221,9 @@ public class TglParser
     return v;
   }
 
-  float[] getSplaysEndpoints()
+  double[] getSplaysEndpoints()
   {
-    float v[] = new float[ 3 * splays.size() ];
+    double v[] = new double[ 3 * splays.size() ];
     int k3=0;
     for ( Cave3DShot sp : splays ) {
       Vector3D vv = sp.toPoint3D();
@@ -233,9 +238,9 @@ public class TglParser
  
   /** 3D vertices of the centerline shots
    */
-  // public float[] getShotVertices()
+  // public double[] getShotVertices()
   // {
-  //   float v[] = new float[ 3 * 2 * shots.size() ];
+  //   double v[] = new double[ 3 * 2 * shots.size() ];
   //   int k = 0;
   //   for ( Cave3DShot sh : shots ) {
   //     Cave3DStation sf = sh.from_station;
@@ -259,9 +264,9 @@ public class TglParser
 
   /** 3D vertices of the splay shots
    */
-  // public float[] getSplayVertices()
+  // public double[] getSplayVertices()
   // {
-  //   float v[] = new float[ 3 * 2 * splays.size() ];
+  //   double v[] = new double[ 3 * 2 * splays.size() ];
   //   int k = 0;
   //   for ( Cave3DShot sh : splays ) {
   //     Cave3DStation sf = sh.from_station;
@@ -294,7 +299,7 @@ public class TglParser
         if ( reverse ) {
           double b = shot.ber + Math.PI;
           if ( b > 2*Math.PI ) b -= 2*Math.PI;
-          ret.add( new Cave3DShot( station, shot.from_station, shot.len, (float)b, -shot.cln) );
+          ret.add( new Cave3DShot( station, shot.from_station, shot.len, b, -shot.cln, shot.mFlag, shot.mMillis) );
         } else {
         ret.add( shot );
         }
@@ -322,18 +327,41 @@ public class TglParser
           // Log.v( TAG, "add other shot " + shot.to + "-" + shot.from );
           double b = shot.ber + Math.PI;
           if ( b > 2*Math.PI ) b -= 2*Math.PI;
-          ret.add( new Cave3DShot( null, station, shot.len, (float)b, -shot.cln) ); // stations not important
+          ret.add( new Cave3DShot( null, station, shot.len, b, -shot.cln, shot.mFlag, shot.mMillis) ); // stations not important
         }
       } else if ( shot.to_station == station ) {
         if ( shot.from_station == other ) {
           // Log.v( TAG, "add reversed shot " + shot.to + "-" + shot.from );
           double b = shot.ber + Math.PI;
           if ( b > 2*Math.PI ) b -= 2*Math.PI;
-          ret.add( new Cave3DShot( null, station, shot.len, (float)b, -shot.cln) ); // stations not important
+          ret.add( new Cave3DShot( null, station, shot.len, b, -shot.cln, shot.mFlag, shot.mMillis) ); // stations not important
         } else {
           // Log.v( TAG, "add other shot " + shot.from + "-" + shot.to );
           ret.add( shot );
         }
+      }
+    }
+    return ret;
+  }
+
+  /** get the legs at "station" except the leg that connects to "other"
+   */
+  ArrayList< Cave3DShot > getLegsAtExcept( Cave3DStation station, Cave3DStation other )
+  {
+    // Log.v( TAG, "get legs at " + station.name + " other " + other.name );
+    ArrayList< Cave3DShot > ret = new ArrayList< Cave3DShot >();
+    for ( Cave3DShot shot : shots ) { // add survey legs too1
+      if ( shot.from_station == station ) {
+        if ( shot.to_station != other ) {
+          ret.add( shot );
+        } 
+      } else if ( shot.to_station == station ) {
+        if ( shot.from_station != other ) {
+          // Log.v( TAG, "add reversed shot " + shot.to + "-" + shot.from );
+          double b = shot.ber + Math.PI;
+          if ( b > 2*Math.PI ) b -= 2*Math.PI;
+          ret.add( new Cave3DShot( null, station, shot.len, b, -shot.cln, shot.mFlag, shot.mMillis) ); // stations not important
+        } 
       }
     }
     return ret;
@@ -354,7 +382,7 @@ public class TglParser
         } else if ( shot.to_station == station ) {
           double b = shot.ber + Math.PI;
           if ( b > 2*Math.PI ) b -= 2*Math.PI;
-          ret.add( new Cave3DShot( station, null, shot.len, (float)b, -shot.cln) ); // stations not important
+          ret.add( new Cave3DShot( station, null, shot.len, b, -shot.cln, shot.mFlag, shot.mMillis ) ); // stations not important
         }
       }
     }
@@ -363,7 +391,7 @@ public class TglParser
 
   protected void setStationDepths( )
   {
-    float deltaz = zmax - zmin + 0.001f;
+    double deltaz = zmax - zmin + 0.001f;
     int k = 0;
     for ( Cave3DStation s : stations ) {
       s.depth = (zmax - s.z)/deltaz; // Z depth
@@ -583,12 +611,12 @@ public class TglParser
     return true;
   }
 
-  protected float getGridSize()
+  protected double getGridSize()
   {
-    float dx = emax - emin;
-    float dy = nmax - nmin;
-    float d = (float)Math.sqrt( dx*dx + dy*dy );
-    float grid_size = d / 10;
+    double dx = emax - emin;
+    double dy = nmax - nmin;
+    double d = Math.sqrt( dx*dx + dy*dy );
+    double grid_size = d / 10;
     if ( grid_size > 50 ) { grid_size = 50; }
     else if ( grid_size > 20 ) { grid_size = 20; }
     else if ( grid_size > 10 ) { grid_size = 10; }
@@ -611,59 +639,41 @@ public class TglParser
       if ( WALL_CW < WALL_MAX /* && Cave3D.mWallConvexHull */ ) {
         convexhullcomputer = new ConvexHullComputer( this, shots );
         (new AsyncTask<Void, Void, Boolean>() {
-            public Boolean doInBackground( Void ... v ) {
-              return convexhullcomputer.computeConvexHull( );
-            }
-
-            public void onPostExecute( Boolean b )
-            {
-              if ( ! b ) convexhullcomputer = null;
-              if ( mApp != null ) mApp.notifyWall( WALL_CW, b );
-            }
+          public Boolean doInBackground( Void ... v ) {
+            return convexhullcomputer.computeConvexHull( );
+          }
+          public void onPostExecute( Boolean b )
+          {
+            if ( ! b ) convexhullcomputer = null;
+            if ( mApp != null ) mApp.notifyWall( WALL_CW, b );
+          }
         }).execute();
-
-
       }
       // if ( mCave3D != null ) mCave3D.toast( "computing convex hull walls" );
     }
     // if ( mApp != null ) mApp.setButtonWall(); // private
   }
 
-  /* // FIXME skip -------------------------- WALL_HULL triangles
-  public void makeHull()
+  // FIXME skip -------------------------- WALL_HULL triangles
+  public void makeHull( boolean clear )
   {
-    triangles_hull = null;
-    if ( WALL_HULL < WALL_MAX ) {
-      ArrayList< Cave3DHull > hulls = new ArrayList< Cave3DHull >();
-      for ( Cave3DShot sh : shots ) {
-        Cave3DStation sf = sh.from_station;
-        Cave3DStation st = sh.to_station;
-        if ( sf != null && st != null ) {
-          ArrayList< Cave3DShot > legs1 = getLegsAt( sf, st );
-          ArrayList< Cave3DShot > legs2 = getLegsAt( st, sf );
-          ArrayList< Cave3DShot > splays1 = getSplayAt( sf, false );
-          ArrayList< Cave3DShot > splays2 = getSplayAt( st, false );
-          // Log.v( TAG, "splays at " + sf.name + " " + splays1.size() + " at " + st.name + " " + splays2.size() );
-          // if ( splays1.size() > 0 && splays2.size() > 0 ) 
-          {
-            if ( WALL_HULL < WALL_MAX && Cave3D.mWallHull ) {
-              hulls.add( new Cave3DHull( sh, splays1, splays2, sf, st ) );
-            }
+    if ( ! clear ) {
+      if ( shots == null ) return;
+      if ( WALL_HULL < WALL_MAX ) {
+        hullcomputer = new HullComputer( this, shots );
+        (new AsyncTask< Void, Void, Boolean >() {
+          public Boolean doInBackground( Void ... v ) {
+            return hullcomputer.computeHull();
           }
-        }
-      }
-      triangles_hull = new ArrayList< Triangle3D >();
-      for ( Cave3DHull h : hulls ) {
-        if ( h.triangles != null ) {
-          for ( Triangle3D t : h.triangles ) {
-            triangles_hull.add( t );
-            // Log.v( TAG, t.toString() );
+          public void onPostExecute( Boolean b ) {
+            if ( ! b ) convexhullcomputer = null;
+            if ( mApp != null ) mApp.notifyWall( WALL_HULL, b );
           }
-        }
+        }).execute();
       }
     }
   }
-  */
+  
 
   /* // FIXME skip ------------------------- WALL_DELAUNAY triangles
   public void makeDelaunay()
@@ -679,8 +689,8 @@ public class TglParser
           Vector3D[] vec = new Vector3D[ns]; // vector of the splays at station "st"
           for ( int n=0; n<ns; ++n ) {
             Cave3DShot sh = station_splays.get( n );
-            float h = sh.len * (float)Math.cos( sh.cln );
-            vec[n] = new Vector3D( h * (float)Math.sin(sh.ber), h * (float)Math.cos(sh.ber), sh.len * (float)Math.sin(sh.cln) );
+            double h = sh.len * Math.cos( sh.cln );
+            vec[n] = new Vector3D( h * Math.sin(sh.ber), h * Math.cos(sh.ber), sh.len * Math.sin(sh.cln) );
           }
           Cave3DDelaunay delaunay = new Cave3DDelaunay( vec );
           delaunay.insertTrianglesIn( triangles_delaunay, st );

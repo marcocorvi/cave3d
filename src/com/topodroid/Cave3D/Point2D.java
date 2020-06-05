@@ -17,9 +17,9 @@ import java.io.PrintWriter;
 
 class Point2D
 {
-  float x, y;
+  double x, y;
 
-  Point2D( float xx, float yy )
+  Point2D( double xx, double yy )
   {
     x = xx;
     y = yy;
@@ -29,12 +29,12 @@ class Point2D
 
   double distance2D( Point2D p ) 
   { 
-    float dx = x - p.x;
-    float dy = y - p.y;
+    double dx = x - p.x;
+    double dy = y - p.y;
     return Math.sqrt( dx*dx + dy*dy );
   }
 
-  // boolean isDistinct2D( Point2D p, float eps ) 
+  // boolean isDistinct2D( Point2D p, double eps ) 
   // {
   //   return distance2D(p) > eps;
   // }

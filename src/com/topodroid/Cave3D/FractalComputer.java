@@ -35,12 +35,12 @@ class FractalComputer
   int ymin, ymax;
   int zmin, zmax;
   boolean mDoSplay; // whether to use splays as well
-  float   mCell;    // unit-cell size
+  double  mCell;    // unit-cell size
   int     mMode;    // counting mode: 0 total, 1 nghb
 
   static int getDim() { return DIM_ONE+DIM_TWO-1; }
 
-  FractalComputer( /* Context context, */ double x1, double x2, double y1, double y2, double z1, double z2, boolean splay, float cell, int mode )
+  FractalComputer( /* Context context, */ double x1, double x2, double y1, double y2, double z1, double z2, boolean splay, double cell, int mode )
   {
     // mContext = context;
     xmin = (int)(x1-1);
@@ -111,14 +111,14 @@ class FractalComputer
       shot = sh;
       p0 = sh.from_station;
       p1 = sh.to_station;
-      float x0 = p0.x;
-      float x1 = p1.x;
+      double x0 = p0.x;
+      double x1 = p1.x;
       if ( x0 > x1 ) { x0 = p1.x; x1 = p0.x; }
-      float y0 = p0.y;
-      float y1 = p1.y;
+      double y0 = p0.y;
+      double y1 = p1.y;
       if ( y0 > y1 ) { y0 = p1.y; y1 = p0.y; }
-      float z0 = p0.z;
-      float z1 = p1.z;
+      double z0 = p0.z;
+      double z1 = p1.z;
       if ( z0 > z1 ) { z0 = p1.z; z1 = p0.z; }
       dx = x1 - x0;
       dy = y1 - y0;
@@ -154,10 +154,10 @@ class FractalComputer
     private int nn, nyx; // total number of boxes
     // private boolean[] box;
     private TreeSet<Integer> box;
-    float side;     // boxes side
+    double side;     // boxes side
     int scale;      // boxes scale
 
-    SingleBox( int nnx, int nny, int nnz, float sd, int sc )
+    SingleBox( int nnx, int nny, int nnz, double sd, int sc )
     {
       nx = nnx;
       ny = nny;
@@ -240,10 +240,10 @@ class FractalComputer
     int DIM;
     private int mMode;
     // int nx0, ny0, nz0;
-    // float[] side;
+    // double[] side;
     private SingleBox[] box;
 
-    MultiBox( int dim, int nx, int ny, int nz, float base, int mode )
+    MultiBox( int dim, int nx, int ny, int nz, double base, int mode )
     {
       // Log.v( TAG, "create multibox " + nx + " " + ny + " " + nz + " base " + base );
       DIM   = dim;
@@ -252,7 +252,7 @@ class FractalComputer
       // ny0 = ny;
       // nz0 = nz;
       box = new SingleBox[DIM];
-      // side = new float[DIM];
+      // side = new double[DIM];
       int scale = 1;
       for ( int k=0; k<DIM; ++k ) {
         box[k] = new SingleBox( nx, ny, nz, base, scale );
@@ -267,7 +267,7 @@ class FractalComputer
 
     void set( int k, int x, int y, int z ) { box[k].set(x,y,z); }
 
-    float side(int k) { return box[k].side; }
+    double side(int k) { return box[k].side; }
     int scale(int k) { return box[k].scale; }
 
     // @param k        index of the current box in the multibox
@@ -333,8 +333,8 @@ class FractalComputer
     //            etc.
     int STEP = 2;
 
-    float one = mCell;
-    float two = mCell * (float)Math.sqrt(2.0);
+    double one = mCell;
+    double two = mCell * Math.sqrt(2.0);
 
     int dx = xmax - xmin;
     int dy = ymax - ymin;
@@ -385,9 +385,9 @@ class FractalComputer
 
     // for ( int k=0; k<DIM; ++k ) Log.v( TAG, "Count " + k + " " + counter[k] );
 
-    float invLogStep = 1.0f/(float)Math.log( Math.sqrt(2.0) );
+    double invLogStep = 1.0/Math.log( Math.sqrt(2.0) );
     for ( int k=0; k<SIZE; ++k ) {
-      float res = (float)Math.log((double)counter[k] / (double)counter[k+1]) * invLogStep;
+      double res = Math.log((double)counter[k] / (double)counter[k+1]) * invLogStep;
       FractalResult.setCount( k, res );
     }
 
@@ -407,7 +407,7 @@ class FractalComputer
   }
 
   // @param bs base scale
-  private void checkShot( Cave3DShot sh, MultiBox bb, float bs )
+  private void checkShot( Cave3DShot sh, MultiBox bb, double bs )
   {
 
     if ( sh.from_station == null || sh.to_station == null ) {
@@ -426,12 +426,12 @@ class FractalComputer
     for ( int x=x1; x<x2; ++x ) for ( int y=y1; y<y2; ++y ) for ( int z=z1; z < z2; ++z ) {
       for ( int k = bb.DIM; k>0; ) {
 	k--;
-	float sd = bb.side(k);
+	double sd = bb.side(k);
 	int sc = bb.scale(k); 
 	int x0 = (x / sc);    // box X index (at resolution k)
 	int y0 = (y / sc);
 	int z0 = (z / sc);
-	// float size = bs * sc; // box side length [m]
+	// double size = bs * sc; // box side length [m]
         Box b = new Box( xmin+x0*sd, ymin+y0*sd, zmin+z0*sd, sd );
         if ( intersection(b, line) ) {
           bb.set( k, x0, y0, z0 );

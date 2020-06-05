@@ -100,121 +100,38 @@ class LoxFile
   LoxSurface              GetSurface()  { return mSurface; }
   LoxBitmap               GetBitmap()   { return mBitmap; }
 
-
-  static private final int SIZEDBL = 8; // ( sizeof( double ) )
-  static private final int SIZE32  = 4; // ( sizeof( uint32_t ) )
-  static private final int SIZE_SURVEY  = ( ( 6 * SIZE32 + 0 * SIZEDBL ) );
-  static private final int SIZE_STATION = ( ( 7 * SIZE32 + 3 * SIZEDBL ) ); // 52 bytes
-  static private final int SIZE_SHOT    = ( ( 5 * SIZE32 + 9 * SIZEDBL ) );
-  static private final int SIZE_SCRAP   = ( ( 8 * SIZE32 + 0 * SIZEDBL ) );
-  static private final int SIZE_SURFACE = ( ( 5 * SIZE32 + 6 * SIZEDBL ) );
-
-// one can safely assume that all Android are little endian (after ARM-3)
-// #ifdef BIG_ENDIAN
-//   int toIntLEndian( byte val[] )  // int32 to int
-//   {
-//     return val[3] | ( ((int)val[2]) << 8 ) | ( ((int)(val[1])) << 16 ) | ( ((int)(val[0])) << 24 );
-//   }
-//   
-//   float toFloatFloatLEndian( byte val[] )
-//   {
-//     return (float)( val[3] | ( ((int)val[2]) << 8 ) | ( ((int)(val[1])) << 16 ) | ( ((int)(val[0])) << 24 ) );
-//   }
-// 
-//   double toDoubleLEndian( byte val[] )
-//   {
-//     return (double)(
-//       (long)(val[7]) | ( ((long)val[6]) << 8 ) | ( ((long)(val[5])) << 16 ) | ( ((long)(val[4])) << 24 ) |
-//       ( ((long)(val[3])<<32) ) | ( ((long)val[2]) << 40 ) | ( ((long)(val[1])) << 48 ) | ( ((long)(val[0])) << 56 ) );
-//   }
-// #else
-  int toIntLEndian( byte val[] ) 
-  {
-    // Log.v( "TopoGL-LOX", "toInt " + val[0] + " " + val[1] + " " + val[2] + " " + val[3] );
-    int r0 = ( val[0] < 0 )? 256+val[0] : val[0];
-    int r1 = ( val[1] < 0 )? 256+val[1] : val[1];
-    int r2 = ( val[2] < 0 )? 256+val[2] : val[2];
-    int r3 = ( val[3] < 0 )? 256+val[3] : val[3];
-    return r0 | ( r1 << 8 ) | ( r2 << 16 ) | ( r3 << 24 );
-  }
-
-  float toFloatLEndian( byte val[] ) 
-  {
-    return (float)( val[0] | ( ((int)val[1]) << 8 ) | ( ((int)(val[2])) << 16 ) | ( ((int)(val[3])) << 24 ) );
-  }
-
-  double toDoubleLEndian( byte val[] )
-  {
-    int r0 = ( val[0] < 0 )? 256+val[0] : val[0];
-    int r1 = ( val[1] < 0 )? 256+val[1] : val[1];
-    int r2 = ( val[2] < 0 )? 256+val[2] : val[2];
-    int r3 = ( val[3] < 0 )? 256+val[3] : val[3];
-    int r4 = ( val[4] < 0 )? 256+val[4] : val[4];
-    int r5 = ( val[5] < 0 )? 256+val[5] : val[5];
-    int r6 = ( val[6] < 0 )? 256+val[6] : val[6];
-    int r7 = ( val[7] < 0 )? 256+val[7] : val[7];
-    // reinterpret as double
-    return Double.longBitsToDouble(
-      (long)(r0) | ( ((long)r1) << 8 ) | ( ((long)r2) << 16 ) | ( ((long)r3) << 24 ) |
-      ( ((long)r4) << 32 ) | ( ((long)r5) << 40 ) | ( ((long)r6) << 48 ) | ( ((long)r7) << 56 ) 
-    );
-  }
-// #endif
-
-  int toIntLEndian( byte[] val, int off ) 
-  {
-    byte tmp[] = new byte[4];
-    for (int k=0; k<4; ++k ) tmp[k] = val[off+k];
-    return toIntLEndian( tmp );
-  }
-
-  double toDoubleLEndian( byte[] val, int off ) 
-  {
-    byte tmp[] = new byte[8];
-    for (int k=0; k<8; ++k ) tmp[k] = val[off+k];
-    return toDoubleLEndian( tmp );
-  }
-
-  // void convertToIntLEndian( byte[] val, int off )
-  // {
-  //   byte tmp = val[off+0]; val[off+0] = val[off+3]; val[off+3] = tmp;
-  //        tmp = val[off+1]; val[off+1] = val[off+2]; val[off+2] = tmp;
-  // }
-
-  // void convertToDoubleLEndian( byte[] val, int off )
-  // {
-  //   byte tmp = val[off+0]; val[off+0] = val[off+7]; val[off+7] = tmp;
-  //        tmp = val[off+1]; val[off+1] = val[off+6]; val[off+6] = tmp;
-  //        tmp = val[off+2]; val[off+2] = val[off+5]; val[off+5] = tmp;
-  //        tmp = val[off+3]; val[off+3] = val[off+4]; val[off+4] = tmp;
-  // }
+  static private final int SIZE_SURVEY  = ( ( 6 * Endian.SIZE32 + 0 * Endian.SIZEDBL ) );
+  static private final int SIZE_STATION = ( ( 7 * Endian.SIZE32 + 3 * Endian.SIZEDBL ) ); // 52 bytes
+  static private final int SIZE_SHOT    = ( ( 5 * Endian.SIZE32 + 9 * Endian.SIZEDBL ) );
+  static private final int SIZE_SCRAP   = ( ( 8 * Endian.SIZE32 + 0 * Endian.SIZEDBL ) );
+  static private final int SIZE_SURFACE = ( ( 5 * Endian.SIZE32 + 6 * Endian.SIZEDBL ) );
 
   private void readChunks( String filename ) throws ParserException
   {
     // Log.v(  "TopoGL-LOX", "read chunks " + filename );
     int type;
-    byte int32[] = new byte[ SIZE32 ];
+    byte int32[] = new byte[ Endian.SIZE32 ];
     FileInputStream fis = null;
     try {
       fis = new FileInputStream( filename );
       boolean done = false;
       while ( ! done ) {
 	++linenr;
-        int len = fis.read( int32, 0, SIZE32 );
+        int len = Endian.readInt32( fis, int32 );
         if ( len == -1 ) { // end of file
           done = true;
           continue;
         }
-        type = toIntLEndian( int32 );
+        type = Endian.toIntLEndian( int32 );
         if ( type < 1 || type > 6 ) {
           Log.w(  "TopoGL-LOX", "Unexpected chunk type " + type );
           done = true;
           continue;
         }
         Chunk_t c = new Chunk_t( type );
-        fis.read( int32, 0, SIZE32 ); c.rec_size  = toIntLEndian( int32 );
-        fis.read( int32, 0, SIZE32 ); c.rec_cnt   = toIntLEndian( int32 );
-        fis.read( int32, 0, SIZE32 ); c.data_size = toIntLEndian( int32 );
+        c.rec_size  = Endian.readInt( fis, int32 );
+        c.rec_cnt   = Endian.readInt( fis, int32 );
+        c.data_size = Endian.readInt( fis, int32 );
         // Log.v(  "TopoGL-LOX", "Type " + c.type + " RecSize " + c.rec_size + " RecCnt " + c.rec_cnt + " DataSize " + c.data_size );
         if ( c.rec_size > 0 ) {
           c.records = new byte[ c.rec_size ];
@@ -226,7 +143,7 @@ class LoxFile
           c.data = new byte[ c.data_size ];
           fis.read( c.data, 0, c.data_size );
         }
-        // Log.v( "TopoGL-LOX", "Read: bytes " + (4 * SIZE32 + c.rec_size + c.data_size) );
+        // Log.v( "TopoGL-LOX", "Read: bytes " + (4 * Endian.SIZE32 + c.rec_size + c.data_size) );
         switch ( type ) {
           case 1: // SURVEY
             HandleSurvey( c );
@@ -273,12 +190,12 @@ class LoxFile
     String name  = null;
     String title = null;
     for ( int i=0; i<n0; ++i ) {
-      int id = toIntLEndian( recs, 4*(6*i + 0) );
-      int np = toIntLEndian( recs, 4*(6*i + 1) );
-      int ns = toIntLEndian( recs, 4*(6*i + 2) );
-      int pnt= toIntLEndian( recs, 4*(6*i + 3) );
-      int tp = toIntLEndian( recs, 4*(6*i + 4) );
-      int ts = toIntLEndian( recs, 4*(6*i + 5) );
+      int id = Endian.toIntLEndian( recs, 4*(6*i + 0) );
+      int np = Endian.toIntLEndian( recs, 4*(6*i + 1) );
+      int ns = Endian.toIntLEndian( recs, 4*(6*i + 2) );
+      int pnt= Endian.toIntLEndian( recs, 4*(6*i + 3) );
+      int tp = Endian.toIntLEndian( recs, 4*(6*i + 4) );
+      int ts = Endian.toIntLEndian( recs, 4*(6*i + 5) );
       name  = getString( data, np, ns );
       title = getString( data, tp, ts );
       // Log.v( "TopoGL-LOX", i + "/" + n0 + ": Survey " + id + " (parent "+ pnt + ") Name " + name + " Title " + title );
@@ -305,16 +222,16 @@ class LoxFile
     String comment = null;
     for ( int i=0; i<n0; ++i ) {
       int off = ( i * SIZE_STATION );
-      int id = toIntLEndian( recs, off ); off += SIZE32;
-      int sid= toIntLEndian( recs, off ); off += SIZE32;
-      int np = toIntLEndian( recs, off ); off += SIZE32;
-      int ns = toIntLEndian( recs, off ); off += SIZE32;
-      int tp = toIntLEndian( recs, off ); off += SIZE32;
-      int ts = toIntLEndian( recs, off ); off += SIZE32;
-      int fl = toIntLEndian( recs, off ); off += SIZE32;
-      double c0 = toDoubleLEndian( recs, off ); off += SIZEDBL;
-      double c1 = toDoubleLEndian( recs, off ); off += SIZEDBL;
-      double c2 = toDoubleLEndian( recs, off ); off += SIZEDBL;
+      int id = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+      int sid= Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+      int np = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+      int ns = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+      int tp = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+      int ts = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+      int fl = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+      double c0 = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
+      double c1 = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
+      double c2 = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
       name    = getString( data, np, ns );
       comment = getString( data, tp, ts );
       mStations.add( new LoxStation( id, sid, name, comment, fl, c0, c1, c2 ) );
@@ -333,24 +250,24 @@ class LoxFile
     // byte[] data = chunk.data;    // as char
     for ( int i=0; i<n0; ++i ) {
       int off = i * SIZE_SHOT;
-      int fr = toIntLEndian( recs, off ); off += SIZE32;
-      int to = toIntLEndian( recs, off ); off += SIZE32;
-      double f0 = toDoubleLEndian( recs, off ); off += SIZEDBL;
-      double f1 = toDoubleLEndian( recs, off ); off += SIZEDBL;
-      double f2 = toDoubleLEndian( recs, off ); off += SIZEDBL;
-      double f3 = toDoubleLEndian( recs, off ); off += SIZEDBL;
-      double t0 = toDoubleLEndian( recs, off ); off += SIZEDBL;
-      double t1 = toDoubleLEndian( recs, off ); off += SIZEDBL;
-      double t2 = toDoubleLEndian( recs, off ); off += SIZEDBL;
-      double t3 = toDoubleLEndian( recs, off ); off += SIZEDBL;
+      int fr = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+      int to = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+      double f0 = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
+      double f1 = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
+      double f2 = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
+      double f3 = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
+      double t0 = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
+      double t1 = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
+      double t2 = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
+      double t3 = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
   
       // flag: SURFACE DUPLICATE NOT_VISIBLE NOT_LRUD SPLAY
-      int fl = toIntLEndian( recs, off ); off += SIZE32;
+      int fl = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
       // type: NONE OVAL SQUARE DIAMOND TUNNEL
-      int ty = toIntLEndian( recs, off ); off += SIZE32;
+      int ty = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
   
-      int sid= toIntLEndian( recs, off ); off += SIZE32;
-      double tr = toDoubleLEndian( recs, off ); off += SIZEDBL; // vthreshold
+      int sid= Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+      double tr = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL; // vthreshold
   
       // LOGI("Shot %d %d (%d) Flag %d Type %d thr %.2f", fr, to, sid, fl, ty, tr );
       // LOGI("  From-LRUD %.2f %.2f %.2f %.2f", f0, f1, f2, f3 );
@@ -372,29 +289,29 @@ class LoxFile
     byte[] data = chunk.data;    // as char
     for ( int i=0; i<n0; ++i ) {
       int off = i * SIZE_SCRAP;
-      int id = toIntLEndian( recs, off ); off += SIZE32;
-      int sid= toIntLEndian( recs, off ); off += SIZE32;
-      int np = toIntLEndian( recs, off ); off += SIZE32;
-      int pp = toIntLEndian( recs, off ); off += SIZE32;
-      int ps = toIntLEndian( recs, off ); off += SIZE32;
-      int na = toIntLEndian( recs, off ); off += SIZE32;
-      int ap = toIntLEndian( recs, off ); off += SIZE32;
-      int as = toIntLEndian( recs, off ); off += SIZE32;
+      int id = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+      int sid= Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+      int np = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+      int pp = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+      int ps = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+      int na = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+      int ap = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+      int as = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
       // LOGI("Scrap %d (Survey %d) N.pts %d %d %d N.ang %d %d %d Size %d",
       //   id, sid, np, pp, ps, na, ap, as, mScrapChunk.data_size );
       // assert( pp + np * 3 * sizeof(double) == ap );
       // assert( np * 3 * sizeof(double) == ps );
-      // assert( na * 3 * SIZE32 == as );
+      // assert( na * 3 * Endian.SIZE32 == as );
 
       // double * ptr = (double *)( data + pp );
       double ptr[] = new double[ 3*np ];
       for ( int j=0; j<3*np; ++j) {
-        ptr[j] = toDoubleLEndian( data, pp + j*SIZEDBL );
+        ptr[j] = Endian.toDoubleLEndian( data, pp + j*Endian.SIZEDBL );
       }
       // uint32_t * itr = (uint32_t *)( data + ap );
       int itr[] = new int[ 3*na ];
       for ( int k=0; k<3*na; ++k ) {
-        itr[k] = toIntLEndian( data, ap + k*SIZE32 );
+        itr[k] = Endian.toIntLEndian( data, ap + k*Endian.SIZE32 );
       }
   
       mScraps.add( new LoxScrap( id, sid, np, na, ptr, itr ) );
@@ -409,18 +326,18 @@ class LoxFile
     byte[] recs = chunk.records; // as int32
     byte[] data = chunk.data;    // as char
     int off = 0;
-    int id = toIntLEndian( recs, off ); off += SIZE32;
-    int ww = toIntLEndian( recs, off ); off += SIZE32;
-    int hh = toIntLEndian( recs, off ); off += SIZE32;
-    int dp = toIntLEndian( recs, off ); off += SIZE32;
-    int ds = toIntLEndian( recs, off ); off += SIZE32;  // size in bytes = ww * hh * 8 (8 bytes/double)
+    int id = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+    int ww = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+    int hh = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+    int dp = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+    int ds = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;  // size in bytes = ww * hh * 8 (8 bytes/double)
     double c[] = new double[6];
-    c[0]  = toDoubleLEndian( recs, off ); off += SIZEDBL; // e0
-    c[1]  = toDoubleLEndian( recs, off ); off += SIZEDBL; // n0
-    c[2]  = toDoubleLEndian( recs, off ); off += SIZEDBL; // e = e0 + C2 * i + C3 * j // not sure abot c3/c4
-    c[3]  = toDoubleLEndian( recs, off ); off += SIZEDBL;
-    c[4]  = toDoubleLEndian( recs, off ); off += SIZEDBL; // n = n0 + C4 * i + C5 * j
-    c[5]  = toDoubleLEndian( recs, off ); off += SIZEDBL;
+    c[0]  = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL; // e0
+    c[1]  = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL; // n0
+    c[2]  = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL; // e = e0 + C2 * i + C3 * j // not sure abot c3/c4
+    c[3]  = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
+    c[4]  = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL; // n = n0 + C4 * i + C5 * j
+    c[5]  = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
     // Log.v( "TopoGL-SURFACE", "id " + id + " " + ww + "x" + hh + " dp " + dp + " ds " + ds + " cal " + c[0] + " " + c[1] + " " + c[2] + " " + c[3] + " " + c[4] + " " + c[5] );
 
     int npts = ww * hh;
@@ -428,7 +345,7 @@ class LoxFile
     // double * ptr = (double *)( data + dp );
     double ptr[] = new double[ npts ];
     for ( int i=0; i< npts; ++i ) {
-      ptr[i] = toDoubleLEndian( data, dp + i*SIZEDBL );
+      ptr[i] = Endian.toDoubleLEndian( data, dp + i*Endian.SIZEDBL );
     }
     mSurface = new LoxSurface( id, ww, hh, c, ptr );
   }
@@ -440,17 +357,17 @@ class LoxFile
     byte[] recs = chunk.records; // as int32
     byte[] data = chunk.data;    // as char
     int off = 0;
-    int id = toIntLEndian( recs, off ); off += SIZE32; // surface id
-    int tp = toIntLEndian( recs, off ); off += SIZE32; // type: JPEG PNG
-    int dp = toIntLEndian( recs, off ); off += SIZE32;
-    int ds = toIntLEndian( recs, off ); off += SIZE32;
+    int id = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32; // surface id
+    int tp = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32; // type: JPEG PNG
+    int dp = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
+    int ds = Endian.toIntLEndian( recs, off ); off += Endian.SIZE32;
     double c[] = new double[6];
-    c[0] = toDoubleLEndian( recs, off ); off += SIZEDBL;
-    c[1] = toDoubleLEndian( recs, off ); off += SIZEDBL;
-    c[2] = toDoubleLEndian( recs, off ); off += SIZEDBL;
-    c[3] = toDoubleLEndian( recs, off ); off += SIZEDBL;
-    c[4] = toDoubleLEndian( recs, off ); off += SIZEDBL;
-    c[5] = toDoubleLEndian( recs, off ); off += SIZEDBL;
+    c[0] = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
+    c[1] = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
+    c[2] = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
+    c[3] = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
+    c[4] = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
+    c[5] = Endian.toDoubleLEndian( recs, off ); off += Endian.SIZEDBL;
     // Log.v("TopoGL-LOX", String.format("Bitmap %d Type %d Calib %.2f %.2f %.6f %.6f %.6f %.6f File off %d size %d", id, tp, c[0], c[1], c[2], c[3], c[4], c[5], dp, ds ) );
     // image file binary data
     // unsigned char * img = data + dp;

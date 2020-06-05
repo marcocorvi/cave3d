@@ -33,6 +33,9 @@ class ParserSketch
   ArrayList< SketchPoint > mPoints;
   ArrayList< SketchLine  > mLines;
   ArrayList< SketchLine  > mAreas;
+  double xoff, yoff, zoff; // sketch offset
+
+  // sketch points has model_coords: offset + sketch_vector
 
   // ------------------------------------------------- LOG
   void log()
@@ -48,6 +51,7 @@ class ParserSketch
   ParserSketch( String filename )
   {
     mFilename = filename;
+    xoff = yoff = zoff = 0;
   }
 
   boolean valid() { return mValid; }
@@ -69,17 +73,20 @@ class ParserSketch
       mName = vals[1];
       mType = Integer.parseInt( vals[2] );
       mAzimuth = Integer.parseInt( vals[3] );
-      float xoff = Float.parseFloat( vals[4] );
-      float yoff = Float.parseFloat( vals[5] );
-      float zoff = Float.parseFloat( vals[6] );
+      xoff = Double.parseDouble( vals[4] );
+      yoff = Double.parseDouble( vals[5] );
+      zoff = Double.parseDouble( vals[6] );
+      // Log.v("TopoGL-SKETCH", mName + " type " + mType + " offset " + xoff + " " + yoff + " " + zoff );
       while ( ( line = br.readLine() ) != null ) {
         line = line.trim().replaceAll( "\\s+", " " );
+        // Log.v("TopoGL-SKETCH", line );
         vals = line.split(" ");
         if ( line.startsWith( "LINE" ) || line.startsWith( "AREA" ) ) {
           float red   = Float.parseFloat( vals[2] );
           float green = Float.parseFloat( vals[3] );
           float blue  = Float.parseFloat( vals[4] );
-          float alpha = line.startsWith("AREA")? Float.parseFloat( vals[5] ) : 1.0f ;
+          boolean is_area = line.startsWith("AREA");
+          float alpha = is_area? Float.parseFloat( vals[5] ) : 1.0f ;
           SketchLine ln = new SketchLine( vals[1], red, green, blue, alpha );
           while ( ( line = br.readLine() ) != null ) {
             if ( line.startsWith( "ENDLINE" ) ) {
@@ -92,17 +99,18 @@ class ParserSketch
             }
             line = line.trim().replaceAll( "\\s+", " " );
             vals = line.split(" ");
-            float x = xoff + Float.parseFloat( vals[0] );
-            float y = yoff + Float.parseFloat( vals[1] );
-            float z = zoff + Float.parseFloat( vals[2] );
+            double x = Double.parseDouble( vals[0] );
+            double y = Double.parseDouble( vals[1] );
+            double z = Double.parseDouble( vals[2] );
+            // if ( is_area ) Log.v("TopoGL-AREA <", line + "> x " + x + " y " + y + " z " + z );
             ln.insertPoint( x, y, z );
           }
         } else if ( line.startsWith( "POINT" ) ) {
           String th = vals[1];
           // azimuth = vals[2]
-          float x = xoff + Float.parseFloat( vals[3] );
-          float y = yoff + Float.parseFloat( vals[4] );
-          float z = zoff + Float.parseFloat( vals[5] );
+          double x = Double.parseDouble( vals[3] );
+          double y = Double.parseDouble( vals[4] );
+          double z = Double.parseDouble( vals[5] );
           mPoints.add( new SketchPoint( x, y, z, th ) );
         }
       }

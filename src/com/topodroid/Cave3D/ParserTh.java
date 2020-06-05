@@ -19,9 +19,11 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.StringWriter;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import android.widget.Toast;
 
@@ -128,7 +130,7 @@ public class ParserTh extends TglParser
     StringWriter sw = new StringWriter();
     PrintWriter  pw = new PrintWriter( sw );
     pw.printf("Read file " + filename + "\n");
-    int res = readFile( filename, "", false, 0.0f, 1.0f, 1.0f, 1.0f, pw );
+    int res = readFile( filename, "", false, 0.0f, 1.0, 1.0, 1.0, pw );
     // Toast.makeText( mApp, sw.toString(), Toast.LENGTH_LONG ).show();
 
     if ( res == SUCCESS ) {
@@ -164,7 +166,7 @@ public class ParserTh extends TglParser
     }
   }
 
-  int readSurvey( String surveyname, String basepath, boolean usd, float sd, PrintWriter pw ) 
+  int readSurvey( String surveyname, String basepath, boolean usd, double sd, PrintWriter pw ) 
                   throws ParserException
   {
     if ( mData == null ) {
@@ -188,7 +190,7 @@ public class ParserTh extends TglParser
     }
 
     boolean use_centerline_declination = false;
-    float declination = 0.0f;
+    double declination = 0.0f;
     if ( info.hasDeclination() ) {
       use_centerline_declination = true;
       declination = info.declination;
@@ -205,64 +207,65 @@ public class ParserTh extends TglParser
 
     for ( DBlock blk : blks ) {
       if ( blk.mFrom.length() > 0 ) {
-        float ber = blk.mBearing + declination;
+        double ber = blk.mBearing + declination;
         if ( ber >= 360 ) ber -= 360; else if ( ber < 0 ) ber += 360;
         String from = makeName( blk.mFrom, path );
         if ( blk.mTo.length() > 0 ) {
           String to = makeName( blk.mTo, path );
-          shots.add( new Cave3DShot( from, to, blk.mLength, ber, blk.mClino ) );
+          shots.add( new Cave3DShot( from, to, blk.mLength, ber, blk.mClino, blk.mFlag, blk.mMillis ) );
         } else {
-          splays.add( new Cave3DShot( from, null, blk.mLength, ber, blk.mClino ) );
+          splays.add( new Cave3DShot( from, null, blk.mLength, ber, blk.mClino, blk.mFlag, blk.mMillis ) );
         }
       } else if ( blk.mTo.length() > 0 ) {
         String to = makeName( blk.mTo, path );
-        float ber = 180 + blk.mBearing + declination;
+        double ber = 180 + blk.mBearing + declination;
         if ( ber >= 360 ) ber -= 360;
-        splays.add( new Cave3DShot( to, null, blk.mLength, ber, -blk.mClino ) );
+        splays.add( new Cave3DShot( to, null, blk.mLength, ber, -blk.mClino, blk.mFlag, blk.mMillis ) );
       }
     }
 
     List<SurveyFixed> fixeds = mData.getSurveyFixeds( sid );
     // Log.v("Cave3D-TH", "survey fixed points " + fixeds.size() );
     if ( fixeds != null && fixeds.size() > 0 ) {
-      Cave3DCS cs0 = new Cave3DCS("WGS-84");
-      float PI_180 = (float)(Math.PI / 180);
+      Cave3DCS cs0 = new Cave3DCS( );
+      double PI_180 = (Math.PI / 180);
       for ( SurveyFixed fx : fixeds ) {
+        // fx.log();
         String name = makeName( fx.station, path );
-        float x0=0, y0=0, z0=0; // long-lat E,N,Z
-        float x1=0, y1=0, z1=0; // CS1 E,N,Z
+        double x0=0, y0=0, z0=0; // long-lat E,N,Z
+        double x1=0, y1=0, z1=0; // CS1 E,N,Z
 
-        float alat = (float)fx.mLatitude;
+        double alat = fx.mLatitude;
         if ( alat < 0 ) alat = -alat;
         // KML radius is already premultiplied by PI/180
-        float s_radius = ((90 - alat) * ExportKML.EARTH_RADIUS1 + alat * ExportKML.EARTH_RADIUS2)/90;
-        float e_radius = s_radius * (float)Math.cos( alat * PI_180 );
+        double s_radius = ((90 - alat) * ExportKML.EARTH_RADIUS1 + alat * ExportKML.EARTH_RADIUS2)/90;
+        double e_radius = s_radius * Math.cos( alat * PI_180 );
 
-        x0 = (float)fx.mLongitude * e_radius;
-        y0 = (float)fx.mLatitude * s_radius;
-        z0 = (float)fx.mAltitude;
-        // Log.v( "Cave3D-TH", "Fix Long-Lat " + x0 + " " + y0 + " " + z0 + " cs1 " + ((fx.mCsName!=null)?fx.mCsName:"null")  );
+        x0 = fx.mLongitude * e_radius;
+        y0 = fx.mLatitude * s_radius;
+        z0 = fx.mAltitude;
+        // Log.v( "TopoGL-TH", "Fix Long-Lat " + x0 + " " + y0 + " " + z0 + " cs1 <" + ((fx.mCsName!=null)?fx.mCsName:"null") + ">" );
         if ( mOrigin == null ) {
-          // Log.v( "Cave3D-TH", "Fix origin " + name + " " + x0 + " " + y0 + " " + z0 );
-          if ( fx.mCsName != null ) {
+          // Log.v( "TopoGL-TH", "Fix origin " + name + " " + x0 + " " + y0 + " " + z0 );
+          if ( fx.hasCS() ) {
             cs1 = new Cave3DCS( fx.mCsName );
-            x1 = (float)fx.mCsLongitude;
-            y1 = (float)fx.mCsLatitude;
-            z1 = (float)fx.mCsAltitude;
-            // Log.v( "Cave3D-TH", "FIX " + name + " CS1 " + fx.mCsName + " " + x1 + " " + y1 + " " + z1 );
+            x1 = fx.mCsLongitude;
+            y1 = fx.mCsLatitude;
+            z1 = fx.mCsAltitude;
+            // Log.v( "TopoGL-TH", "FIX " + name + " CS1 " + fx.mCsName + " " + x1 + " " + y1 + " " + z1 );
             mOrigin = new Cave3DFix( name, x1, y1, z1, cs1, fx.mLongitude, fx.mLatitude );
 	    fixes.add( mOrigin );
           } else {
-            // Log.v( "Cave3D-TH", "CS0 " + x0 + " " + y0 + " " + z0 );
+            // Log.v( "TopoGL-TH", "CS0 " + x0 + " " + y0 + " " + z0 );
             mOrigin = new Cave3DFix( name, x0, y0, z0, cs0, fx.mLongitude, fx.mLatitude );
 	    fixes.add( mOrigin );
           }
         } else {
           // Log.v( "Cave3D-TH", "Fix relative " + name + " " + x0 + " " + y0 + " " + z0 + " cs1 " + ((fx.mCsName!=null)?fx.mCsName:"null") );
-          if ( cs1 != null && cs1.name.equals( fx.mCsName ) ) {
-            x1 = (float)fx.mCsLongitude;
-            y1 = (float)fx.mCsLatitude;
-            z1 = (float)fx.mCsAltitude;
+          if ( cs1 != null && cs1.equals( fx.mCsName ) ) {
+            x1 = fx.mCsLongitude;
+            y1 = fx.mCsLatitude;
+            z1 = fx.mCsAltitude;
             // Log.v( "Cave3D-TH", "fix " + name + " using " + cs1.name + " " + x1 + " " + y1 + " " + z1 );
 	    fixes.add( new Cave3DFix( name, x1, y1, z1, cs1, fx.mLongitude, fx.mLatitude ) );
           } else {
@@ -285,8 +288,8 @@ public class ParserTh extends TglParser
    * @param uc units of clino
    */
   private int readFile( String filename, String basepath,
-                        boolean usd, float sd,
-                        float ul, float ub, float uc, PrintWriter pw )
+                        boolean usd, double sd,
+                        double ul, double ub, double uc, PrintWriter pw )
                   throws ParserException
   {
     if ( ! checkPath( filename ) ) {
@@ -312,13 +315,15 @@ public class ParserTh extends TglParser
     boolean in_map = false;
     boolean use_centerline_declination = false;
     boolean use_survey_declination = usd;
-    float centerline_declination = 0.0f;
-    float survey_declination = sd;
-    float units_len = ul;
-    float units_ber = ub;
-    float units_cln = uc;
-    float units_grid = 1; // default units meter
+    double centerline_declination = 0.0f;
+    double survey_declination = sd;
+    double units_len = ul;
+    double units_ber = ub;
+    double units_cln = uc;
+    double units_grid = 1; // default units meter
     int grid_flip = FLIP_NONE;
+    int flags = 0;
+    long millis = 0;
 
     try {
       String dirname = "./";
@@ -365,19 +370,41 @@ public class ParserTh extends TglParser
                 use_centerline_declination = false;
                 centerline_declination = 0.0f;
               } else if ( cmd.equals("date") ) {
-                idx = nextIndex( vals, idx );
-                if ( idx < vals.length ) {
+                if ( (idx = nextIndex( vals, idx )) < vals.length ) {
                   String date = vals[idx];
-                  // TODO
+                  int yy = Integer.parseInt( date.substring( 0, 4 ) );
+                  String m = date.substring(5,7);
+                  String d = date.substring(8,10);
+                  int mm = (m.charAt(0)-'0')*10 + (m.charAt(1)-'0');
+                  int dd = (d.charAt(0)-'0')*10 + (d.charAt(1)-'0');
+                  Calendar cal = new GregorianCalendar( yy, mm, dd );
+                  millis = cal.get( Calendar.MILLISECOND );
                 }
-              } else if ( cmd.equals("flags") ) { // skip
+              } else if ( cmd.equals("flags") ) { 
+                if ( (idx = nextIndex( vals, idx )) < vals.length ) {
+                  if ( vals[idx].equals("not") ) {
+                    if ( (idx = nextIndex( vals, idx )) < vals.length ) {
+                      if ( vals[idx].equals("duplicate") ) {
+                        flags &= ~0x00000001;
+                      } else if ( vals[idx].equals("surface") ) {
+                        flags &= ~0x00000002;
+                      }
+                    }
+                  } else {
+                    if ( vals[idx].equals("duplicate") ) {
+                      flags |= 0x00000001;
+                    } else if ( vals[idx].equals("surface") ) {
+                      flags |= 0x00000002;
+                    }
+                  }
+                }
               } else if ( cmd.equals("team") ) { // skip
               } else if ( cmd.equals("extend") ) { // skip
               } else if ( cmd.equals("declination") ) { 
                 idx = nextIndex( vals, idx );
                 if ( idx < vals.length ) {
                   try {
-                    float decl = Float.parseFloat( vals[idx] );
+                    double decl = Double.parseDouble( vals[idx] );
                     use_centerline_declination = true;
                     centerline_declination = decl;
                   } catch ( NumberFormatException e ) {
@@ -408,7 +435,7 @@ public class ParserTh extends TglParser
                   boolean isLength  = false;
                   boolean isBearing = false;
                   boolean isClino   = false;
-                  float factor = 1;
+                  double factor = 1;
                   for ( ; idx < vals.length; ++idx ) {
                     if ( vals[idx].equals("length") || vals[idx].equals("tape") ) { 
                       isLength = true;
@@ -428,7 +455,7 @@ public class ParserTh extends TglParser
                       if ( isClino )   uc = (factor*360)/400.0f;
                     } else if ( vals[idx].length() > 0 ) {
                       try {
-                        factor = Float.parseFloat( vals[idx] );
+                        factor = Double.parseDouble( vals[idx] );
                       } catch ( NumberFormatException e ) { 
                         Log.e( "Cave3D-TH", "Number error " + e.getMessage() );
                       }
@@ -449,15 +476,15 @@ public class ParserTh extends TglParser
                   try { 
                     idx = nextIndex( vals, idx );
                     if ( idx < vals.length ) {
-                      float x = Float.parseFloat( vals[idx] );
+                      double x = Double.parseDouble( vals[idx] );
                       // Log.v( "Cave3D-TH", " fix x " + x );
                       idx = nextIndex( vals, idx );
                       if ( idx < vals.length ) {
-                        float y = Float.parseFloat( vals[idx] );
+                        double y = Double.parseDouble( vals[idx] );
                         // Log.v( "Cave3D-TH", " fix y " + y );
                         idx = nextIndex( vals, idx );
                         if ( idx < vals.length ) {
-                          float z = Float.parseFloat( vals[idx] );
+                          double z = Double.parseDouble( vals[idx] );
 	                  fixes.add( new Cave3DFix( name, x, y, z, cs ) );
                           // Log.v( "Cave3D-TH", " adding fix " + x + " " + y + " " + z );
                         }
@@ -476,10 +503,10 @@ public class ParserTh extends TglParser
                     try {
                       idx = nextIndex( vals, idx );
                       if ( idx < vals.length ) {
-                        float len  = Float.parseFloat( vals[idx] ) * units_len;
+                        double len  = Double.parseDouble( vals[idx] ) * units_len;
                         idx = nextIndex( vals, idx );
                         if ( idx < vals.length ) {
-                          float ber  = Float.parseFloat( vals[idx] ) * units_len;
+                          double ber  = Double.parseDouble( vals[idx] ) * units_len;
                           if ( use_centerline_declination ) {
                             ber += centerline_declination;
                           } else if ( use_survey_declination ) {
@@ -487,13 +514,13 @@ public class ParserTh extends TglParser
                           }
                           idx = nextIndex( vals, idx );
                           if ( idx < vals.length ) {
-                            float cln  = Float.parseFloat( vals[idx] ) * units_len;
+                            double cln  = Double.parseDouble( vals[idx] ) * units_len;
                             // TODO add shot
                             if ( to.equals("-") || to.equals(".") ) {
                               // TODO splay shot
                               from = makeName( from, path );
                               to = null;
-                              splays.add( new Cave3DShot( from, to, len, ber, cln ) );
+                              splays.add( new Cave3DShot( from, to, len, ber, cln, flags, millis ) );
                             } else {
                               from = makeName( from, path );
                               to   = makeName( to, path );
@@ -501,7 +528,7 @@ public class ParserTh extends TglParser
                               // PrintWriter pw = new PrintWriter( sw );
                               // pw.format(Locale.US, "%s %s %.2f %.1f %.1f", from, to, len, ber, cln );
                               // Log.v("Cave3D-TH", sw.getBuffer().toString() );
-                              shots.add( new Cave3DShot( from, to, len, ber, cln ) );
+                              shots.add( new Cave3DShot( from, to, len, ber, cln, flags, millis ) );
                             }
                           }
                         }
@@ -523,21 +550,21 @@ public class ParserTh extends TglParser
                 mSurface = null;
 
                 try {
-                  float e1, n1, delta_e, delta_n;
+                  double e1, n1, delta_e, delta_n;
                   int c1, c2;
                   // parse grid metadata
                   idx = nextIndex( vals, idx );
                   if ( idx < vals.length ) {
-                    e1 = Float.parseFloat( vals[idx] );
+                    e1 = Double.parseDouble( vals[idx] );
                     idx = nextIndex( vals, idx );
                     if ( idx < vals.length ) {
-                      n1 = Float.parseFloat( vals[idx] );
+                      n1 = Double.parseDouble( vals[idx] );
                       idx = nextIndex( vals, idx );
                       if ( idx < vals.length ) {
-                        delta_e = Float.parseFloat( vals[idx] );
+                        delta_e = Double.parseDouble( vals[idx] );
                         idx = nextIndex( vals, idx );
                         if ( idx < vals.length ) {
-                          delta_n = Float.parseFloat( vals[idx] );
+                          delta_n = Double.parseDouble( vals[idx] );
                           idx = nextIndex( vals, idx );
                           if ( idx < vals.length ) {
                             c1 = Integer.parseInt( vals[idx] );
@@ -570,7 +597,7 @@ public class ParserTh extends TglParser
                 try {
                   idx = nextIndex( vals, idx );
                   if ( idx < vals.length ) {
-                    float value = Float.parseFloat( vals[idx] );
+                    double value = Double.parseDouble( vals[idx] );
                     idx = nextIndex( vals, idx );
                     if ( idx < vals.length ) {
                       // FIXME TODO
@@ -586,7 +613,7 @@ public class ParserTh extends TglParser
                 idx = nextIndex( vals, idx );
                 if ( idx < vals.length ) {
                   use_survey_declination = true;
-                  survey_declination = Float.parseFloat( vals[idx] );
+                  survey_declination = Double.parseDouble( vals[idx] );
                 }
               } catch ( NumberFormatException e ) {
                 Log.e( "Cave3D-TH", "survey declination " + e.getMessage() );
@@ -648,7 +675,7 @@ public class ParserTh extends TglParser
                     // pw.format(Locale.US, "EQUATE %s %s 0.00 0.0 0.0", from, to );
                     // Log.v( "Cave3D-TH", sw.getBuffer().toString() );
                     // Log.v( "Cave3D-TH", "Equate " + from + " " + to );
-                    shots.add( new Cave3DShot( from, to, 0.0f, 0.0f, 0.0f ) );
+                    shots.add( new Cave3DShot( from, to, 0.0f, 0.0f, 0.0f, 0, 0 ) );
                   }
                 }
               }

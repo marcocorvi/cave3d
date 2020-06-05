@@ -24,17 +24,19 @@ class Triangle3D
   Vector3D   normal;
   Vector3D   center;
   int direction;
+  int color; // DEBUG
 
-  Triangle3D( int sz )
+  Triangle3D( int sz, int col )
   {
     size = sz;
     vertex = new Vector3D[size];
     normal = null;
     center = null;
     direction = 0;
+    color = col;
   }
 
-  Triangle3D( Vector3D v0, Vector3D v1, Vector3D v2 )
+  Triangle3D( Vector3D v0, Vector3D v1, Vector3D v2, int col )
   {
     size = 3;
     vertex = new Vector3D[3];
@@ -43,11 +45,12 @@ class Triangle3D
     vertex[2] = v2;
     computeNormal();
     direction = 0;
+    color = col;
   }
   
-  Triangle3D toOpenGL( float x, float y, float z )
+  Triangle3D toOpenGL( double x, double y, double z )
   {
-    Triangle3D ret = new Triangle3D( size );
+    Triangle3D ret = new Triangle3D( size, color );
     for ( int k=0; k<size; ++k ) {
       ret.vertex[k] = new Vector3D( vertex[k].x - x, vertex[k].z - y, - vertex[k].y - z );
     }
@@ -107,21 +110,21 @@ class Triangle3D
   }
 
   // 6 times the volume of the three vectors
-  static float volume( Vector3D v1, Vector3D v2, Vector3D v3 )
+  static double volume( Vector3D v1, Vector3D v2, Vector3D v3 )
   {
     return v1.x * ( v2.y * v3.z - v2.z * v3.y )
          + v1.y * ( v2.z * v3.x - v2.x * v3.z )
          + v1.z * ( v2.x * v3.y - v2.y * v3.x );
   }
 
-  static float volume( Vector3D v0, Vector3D v1, Vector3D v2, Vector3D v3 )
+  static double volume( Vector3D v0, Vector3D v1, Vector3D v2, Vector3D v3 )
   {
     return volume( v1.difference(v0), v2.difference(v0), v3.difference(v0) );
   }
 
-  float volume( Vector3D v )
+  double volume( Vector3D v )
   {
-    float ret = 0;
+    double ret = 0;
     Vector3D v0 = vertex[0].difference(v);
     Vector3D v1 = vertex[1].difference(v);
     for ( int k=2; k<size; ++k ) {

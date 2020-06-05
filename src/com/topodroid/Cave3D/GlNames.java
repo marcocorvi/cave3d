@@ -62,7 +62,7 @@ class GlNames extends GlShape
     Vector3D pos; // XYZ OpenGL
     String   name;
     String   fullname;
-    GlName( float x, float y, float z, String n, String fn ) { pos = new Vector3D(x,y,z); name = n; fullname = fn; }
+    GlName( double x, double y, double z, String n, String fn ) { pos = new Vector3D(x,y,z); name = n; fullname = fn; }
   }
 
   final static float TEXT_SIZE  = 5.0f;
@@ -74,6 +74,14 @@ class GlNames extends GlShape
   private int mHighlight = -1;
   private void setHighlight( int hl ) { mHighlight = hl; }
   void clearHighlight() { mHighlight = -1; }
+
+  // get the vector of the highlighted station
+  Vector3D getCenter()
+  {
+    if ( mHighlight < 0 ) return null;
+    int k = 4 * mHighlight;
+    return new Vector3D( mData[k], mData[k+1], mData[k+2] );
+  }
 
   private static float mPointSize  = POINT_SIZE;
   private static float mPointSize4 = 2 * POINT_SIZE;
@@ -112,16 +120,23 @@ class GlNames extends GlShape
   private float[] mData;
   private int mTexId = -1;
   private Bitmap mBitmap = null;
+  static float[] mHLcolor = new float[4];
 
   GlNames( Context ctx ) 
   {
     super( ctx );
     // mPos   = new ArrayList< Vector3D >();
     mNames = new ArrayList< GlName >();
+    mHLcolor[0] = 1.0f;
+    mHLcolor[1] = 0.0f;
+    mHLcolor[2] = 0.0f;
+    mHLcolor[3] = 1.0f;
   }
 
+  static void setHLcolorG( float g ) { mHLcolor[1] = g; }
+
   // XYZ-med in OpenGL
-  void addName( Vector3D pos, String name, String fullname, float xmed, float ymed, float zmed )
+  void addName( Vector3D pos, String name, String fullname, double xmed, double ymed, double zmed )
   {
     // mNames.add( name );
     // mPos.add( new Vector3D( pos.x, pos.z, -pos.y) );
@@ -134,7 +149,7 @@ class GlNames extends GlShape
   void logMinMax()
   {
     if ( mNames.size() == 0 ) return;
-    float xmin, xmax, ymin, ymax, zmin, zmax;
+    double xmin, xmax, ymin, ymax, zmin, zmax;
     Vector3D v0 = mNames.get(0).pos;
     xmin = xmax = v0.x;
     ymin = ymax = v0.y;
@@ -171,7 +186,7 @@ class GlNames extends GlShape
     mTexId = -1;
   }
 
-  void draw( float[] mvpMatrix ) // , float[] inverseScaleMatrix )
+  void draw( float[] mvpMatrix )
   {
     if ( stationMode == STATION_NONE || mNames.size() == 0 ) return;
     if ( showStationNames() ) {
@@ -239,6 +254,7 @@ class GlNames extends GlShape
       GL.setUniform( mUTextSizeHL, mTextSizeO );
     }
     GL.setUniformMatrix( mUMVPMatrixHL, mvpMatrix );
+    GL.setUniformVector( mUColorHL, mHLcolor );
   }
 
   private void bindDataPos( float[] mvpMatrix )
@@ -255,6 +271,7 @@ class GlNames extends GlShape
     GL.setAttributePointer( mpAPositionHL, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, STRIDE_VERTEX*6 ); // one vertex every 6
     GL.setUniform( mpUPointSizeHL, mPointSize4 );
     // GL.setUniform( mpUColorHL, 1.0f, 0.0f, 0.0f, 1.0f );
+    GL.setUniformVector( mpUColorHL, mHLcolor );
     GL.setUniformMatrix( mpUMVPMatrixHL, mvpMatrix );
   }
 
@@ -284,7 +301,7 @@ class GlNames extends GlShape
   // x, y     canvas coordinates
   // matrix   MVP matrix
   // dim      minimum distance
-  String checkName( float x, float y, float[] matrix, float dmin, boolean highlight )
+  String checkName( float x, float y, float[] matrix, double dmin, boolean highlight )
   {
     if ( mNames.size() == 0 ) return null;
     dmin /= GlModel.mHalfWidth;
@@ -297,7 +314,7 @@ class GlNames extends GlShape
       Matrix.multiplyMV( w, 0, matrix, 0, mData, 4*i );
       w[0] = w[0]/w[3] - x;
       w[1] = w[1]/w[3] - y;
-      float d = (float)(Math.abs(w[0]) + Math.abs(w[1]) );
+      double d = (Math.abs(w[0]) + Math.abs(w[1]) );
       // sb.append( mNames[i] + " " + d );
       if ( d < dmin ) { dmin = d; idx = i; }
     }
@@ -306,23 +323,23 @@ class GlNames extends GlShape
 
   // zn, zf normalized (with w=1)
   // dmin distance in world space
-  String checkName( float[] zn, float[] zf, float dmin, boolean highlight )
-  {
-    if ( mNames.size() == 0 ) return null;
-    dmin = dmin * dmin;
-    int idx = -1;
-    final float[] dz = { zf[0] - zn[0], zf[1] - zn[1], zf[2] - zn[2] };
-    float len2 = Vector3D.lengthSquare( dz, 0 );
-    for ( int i=0; i<nameCount; ++ i ) {
-      float[] v = { mData[4*i+0] - zn[0], mData[4*i+1] - zn[1], mData[4*i+2] - zn[2] };
-      float cx = Vector3D.crossProductLengthSquare( dz, 0, v, 0 ) / len2;
-      if ( cx < dmin ) {
-        dmin = cx;
-        idx  = i;
-      }
-    }
-    return checkName( idx, highlight );
-  }
+  // String checkName( float[] zn, float[] zf, double dmin, boolean highlight )
+  // {
+  //   if ( mNames.size() == 0 ) return null;
+  //   dmin = dmin * dmin;
+  //   int idx = -1;
+  //   final float[] dz = { zf[0] - zn[0], zf[1] - zn[1], zf[2] - zn[2] };
+  //   double len2 = Vector3D.lengthSquare( dz, 0 );
+  //   for ( int i=0; i<nameCount; ++ i ) {
+  //     float[] v = { mData[4*i+0] - zn[0], mData[4*i+1] - zn[1], mData[4*i+2] - zn[2] };
+  //     double cx = Vector3D.crossProductLengthSquare( dz, 0, v, 0 ) / len2;
+  //     if ( cx < dmin ) {
+  //       dmin = cx;
+  //       idx  = i;
+  //     }
+  //   }
+  //   return checkName( idx, highlight );
+  // }
 
   // ------------------------------------------------------------------------------
   // dave Vector3D already in GL orientation (Y upward)
@@ -335,16 +352,16 @@ class GlNames extends GlShape
     for ( int i=0; i<nameCount; ++ i) {
       Vector3D vv = names.get( i ).pos;
       int off4 = 4 * i;
-      mData[off4+0] = vv.x; // save data vectors for the check 
-      mData[off4+1] = vv.y;
-      mData[off4+2] = vv.z;
+      mData[off4+0] = (float)vv.x; // save data vectors for the check 
+      mData[off4+1] = (float)vv.y;
+      mData[off4+2] = (float)vv.z;
       mData[off4+3] = 1;
 
       int off6 = 3 * NN * i;
       for (int j=0; j<NN; ++j ) {
-        data6[ off6++ ] = vv.x;
-        data6[ off6++ ] = vv.y;
-        data6[ off6++ ] = vv.z;
+        data6[ off6++ ] = (float)vv.x;
+        data6[ off6++ ] = (float)vv.y;
+        data6[ off6++ ] = (float)vv.z;
       }
     }
     dataBuffer = GL.getFloatBuffer( data6.length );
@@ -476,12 +493,13 @@ class GlNames extends GlShape
   private static int mAPositionHL;
   private static int mADeltaHL;
   private static int mUTextSizeHL;
+  private static int mUColorHL;
 
   // the point red highight has only the pointSize
   private static int mpUMVPMatrixHL;
   private static int mpAPositionHL;
   private static int mpUPointSizeHL;
-  // private static int mpUColorHL;
+  private static int mpUColorHL;
 
   static void initGL( Context ctx ) 
   {
@@ -518,7 +536,7 @@ class GlNames extends GlShape
   {
     mpAPositionHL  = GL.getAttribute( program, GL.aPosition );
     mpUPointSizeHL = GL.getUniform(   program, GL.uPointSize );
-    // mpUColorHL     = GL.getUniform(   program, GL.uColor );
+    mpUColorHL     = GL.getUniform(   program, GL.uColor );
     mpUMVPMatrixHL = GL.getUniform(   program, GL.uMVPMatrix );
   }
 
@@ -528,6 +546,7 @@ class GlNames extends GlShape
     mAPositionHL  = GL.getAttribute( program, GL.aPosition );
     mADeltaHL     = GL.getAttribute( program, GL.aDelta );
     mUTextSizeHL  = GL.getUniform(   program, GL.uTextSize );
+    mUColorHL     = GL.getUniform(   program, GL.uColor );
     mUMVPMatrixHL = GL.getUniform(   program, GL.uMVPMatrix );
   }
 }

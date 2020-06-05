@@ -87,11 +87,11 @@ public class ParserDat extends TglParser
           if ( vals.length >= 3 ) {
             try {
               int idx = nextIndex( vals, -1 );
-	      float x = Float.parseFloat( vals[idx] );
+	      double x = Double.parseDouble( vals[idx] );
               idx = nextIndex( vals, idx );
-	      float y = Float.parseFloat( vals[idx] );
+	      double y = Double.parseDouble( vals[idx] );
               idx = nextIndex( vals, idx );
-	      float z = Float.parseFloat( vals[idx] );
+	      double z = Double.parseDouble( vals[idx] );
 	      readFile( dirname + file, station, x, y, z );
 	    } catch ( NumberFormatException e ) {
 	      Log.e(  "TopoGL-DAT", "Error file " + filename + ":" + linenr );
@@ -113,7 +113,7 @@ public class ParserDat extends TglParser
 
   /** read input DAT file
    */
-  private boolean readFile( String filename, String station, float x, float y, float z )
+  private boolean readFile( String filename, String station, double x, double y, double z )
                   throws ParserException
   {
     if ( ! checkPath( filename ) ) return false;
@@ -127,13 +127,13 @@ public class ParserDat extends TglParser
     int ks = 0;
     boolean in_survey = false;
 
-    float declination = 0.0f;
-    float units_len = 0.3048f; // foot to meter
-    float units_ber = 1;
-    float units_cln = 1;
+    double declination = 0.0;
+    double units_len = 0.3048; // foot to meter
+    double units_ber = 1;
+    double units_cln = 1;
     int idx;
 
-    float length, bearing, clino, left, up, down, right, back_bearing, back_clino;
+    double length, bearing, clino, left, up, down, right, back_bearing, back_clino;
 
     String survey = null;
 
@@ -165,7 +165,7 @@ public class ParserDat extends TglParser
           idx = nextIndex( vals, -1 );
           idx = nextIndex( vals, idx );
 	  try {
-            declination = Float.parseFloat( vals[idx] );
+            declination = Double.parseDouble( vals[idx] );
 	    // Log.v(  "TopoGL-DAT "TopoGL-DAT" "declination " + declination );
 	  } catch ( NumberFormatException e ) { }
 	} else if ( line.contains("FROM") && line.contains("TO" ) ) {
@@ -184,38 +184,38 @@ public class ParserDat extends TglParser
             String[] vals = splitLine( line );
 	    if ( vals.length >= 5 ) { // FROM TO LEN BEAR INC L U D R FLAGS COMMENT
               idx = nextIndex( vals, -1 );
-              String f0   = vals[idx];
+              String f0   = vals[idx]; // remember FROM station
 	      String from = vals[idx] + survey;
 	      if ( station == null ) station = f0;
               idx = nextIndex( vals, idx );
               String to   = vals[idx] + survey;
 	      try {
                 idx = nextIndex( vals, idx );
-                length = Float.parseFloat( vals[idx] ) * units_len;
+                length = Double.parseDouble( vals[idx] ) * units_len;
                 idx = nextIndex( vals, idx );
-                bearing = Float.parseFloat( vals[idx] );
+                bearing = Double.parseDouble( vals[idx] );
                 idx = nextIndex( vals, idx );
-                clino = Float.parseFloat( vals[idx] );
+                clino = Double.parseDouble( vals[idx] );
                 left  = -999;
                 up    = -999;
                 down  = -999;
                 right = -999;
                 if ( vals.length >= 9 ) {
                   idx = nextIndex( vals, idx );
-		  left = Float.parseFloat( vals[idx] ); // LEFT
+		  left = Double.parseDouble( vals[idx] ) * units_len; // LEFT
                   idx = nextIndex( vals, idx );
-		  up = Float.parseFloat( vals[idx] ); // UP
+		  up = Double.parseDouble( vals[idx] ) * units_len; // UP
                   idx = nextIndex( vals, idx );
-		  down = Float.parseFloat( vals[idx] ); // DOWN
+		  down = Double.parseDouble( vals[idx] ) * units_len; // DOWN
                   idx = nextIndex( vals, idx );
-		  right = Float.parseFloat( vals[idx] ); // RIGHT
+		  right = Double.parseDouble( vals[idx] ) * units_len; // RIGHT
                   if ( vals.length >= 11 ) {
                     idx = nextIndex( vals, idx );
                     if (vals[idx].startsWith("#")) {
                       // mFlag = vals[idx];
                       // if ( k < kmax ) mComment = TDUtil.concat( vals, k );
                     } else if ( bearing < -900 || clino < -900 ) {
-                      back_bearing = Float.parseFloat(vals[idx]) + 180;
+                      back_bearing = Double.parseDouble(vals[idx]) + 180;
                       if ( back_bearing >= 360 ) back_bearing -= 360;
                       if ( bearing < -900 ) {
                         bearing = back_bearing;
@@ -228,7 +228,7 @@ public class ParserDat extends TglParser
                         }
                       }
                       idx = nextIndex( vals, idx );
-                      back_clino = Float.parseFloat(vals[idx]);
+                      back_clino = Double.parseDouble(vals[idx]);
                       if ( clino < -900 ) {
                         clino = - back_clino;
                       } else if ( back_clino >= -90 && back_clino <= 90 ) {
@@ -249,12 +249,14 @@ public class ParserDat extends TglParser
                 else if ( bearing < 0 ) bearing += 360;
 
                 bearing += declination;
-                shots.add( new Cave3DShot( from, to, length, bearing, clino ) );
+                shots.add( new Cave3DShot( from, to, length, bearing, clino, 0, 0 ) );
                 ++ cnt_shot;
-		if ( left > 0 ) splays.add( new Cave3DShot( from, f0+"-L"+survey, left, bearing-90, 0 ) );
-		if ( up > 0 ) splays.add( new Cave3DShot( from, f0+"-U"+survey, up, bearing, 90 ) );
-		if ( down > 0 ) splays.add( new Cave3DShot( from, f0+"-D"+survey, down, bearing, -90 ) );
-		if ( right > 0 ) splays.add( new Cave3DShot( from, f0+"-R"+survey, right, bearing+90, 0 ) );
+                double bleft = bearing - 90; if ( bleft < 0 ) bleft += 360;
+                double bright = bearing + 90; if ( bright >= 360  ) bright -= 360;
+		if ( left > 0 )  splays.add( new Cave3DShot( from, f0+"-L"+survey, left,  bleft,     0, 0, 0 ) );
+		if ( up > 0 )    splays.add( new Cave3DShot( from, f0+"-U"+survey, up,    bearing,  90, 0, 0 ) );
+		if ( down > 0 )  splays.add( new Cave3DShot( from, f0+"-D"+survey, down,  bearing, -90, 0, 0 ) );
+		if ( right > 0 ) splays.add( new Cave3DShot( from, f0+"-R"+survey, right, bright,    0, 0, 0 ) );
 
 	      } catch ( NumberFormatException e ) { }
 	    }

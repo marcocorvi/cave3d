@@ -23,7 +23,7 @@ public class CWFacet
   CWPoint v1, v2, v3;
   protected Vector3D u;  // (v2-v1)x(v3-v1): U points "inside"
   Vector3D un; // u normalized
-  protected float u22, u23, u33; // u2*u2 / det, ... etc
+  protected double u22, u23, u33; // u2*u2 / det, ... etc
   Vector3D u2; // v2-v1 
   Vector3D u3; // v3-v1
   Vector3D u1; // v3-v2
@@ -77,7 +77,7 @@ public class CWFacet
     u22 = u2.dotProduct(u2);
     u23 = u2.dotProduct(u3);
     u33 = u3.dotProduct(u3);
-    float udet = u22 * u33 - u23 * u23;
+    double udet = u22 * u33 - u23 * u23;
     u22 /= udet;
     u23 /= udet;
     u33 /= udet;
@@ -178,10 +178,10 @@ public class CWFacet
    */
   protected boolean isProjectionInside( Vector3D v0 )
   {
-    float v02 = v0.dotProduct( u2 );
-    float v03 = v0.dotProduct( u3 );
-    float a = u33 * v02 - u23 * v03;
-    float b = u22 * v03 - u23 * v02;
+    double v02 = v0.dotProduct( u2 );
+    double v03 = v0.dotProduct( u3 );
+    double a = u33 * v02 - u23 * v03;
+    double b = u22 * v03 - u23 * v02;
     return ( a >= 0 && b >= 0 && (a+b) <= 1 );
   }
   
@@ -192,13 +192,13 @@ public class CWFacet
    * @param p2  second segment endpoint (outside)
    * @return intersection point or null
    */
-  Vector3D intersection( Vector3D p1, Vector3D p2, Float res )
+  Vector3D intersection( Vector3D p1, Vector3D p2, Double res )
   {
 	  Vector3D dp = new Vector3D( p2.x-p1.x, p2.y-p1.y, p2.z-p1.z);
-	  float dpu = u.x * dp.x + u.y * dp.y + u.z * dp.z;
+	  double dpu = u.x * dp.x + u.y * dp.y + u.z * dp.z;
 	  // if ( Math.abs(dpu) < 0.001 ) return null;
 	  Vector3D vp = new Vector3D( v1.x-p1.x, v1.y-p1.y, v1.z-p1.z);
-	  float s = (u.x * vp.x + u.y * vp.y + u.z * vp.z)/dpu;
+	  double s = (u.x * vp.x + u.y * vp.y + u.z * vp.z)/dpu;
 	  res = s;
 	  if ( s < 0.0 || s > 1.0 ) return null;
 	  Vector3D j = new Vector3D( p1.x+s*dp.x, p1.y+s*dp.y, p1.z+s*dp.z); // intersection point
@@ -216,8 +216,8 @@ public class CWFacet
   {
 	Vector3D ret = new Vector3D();
 	Vector3D n = un.crossProduct( t.un );
-	float vn1 = v1.dotProduct(un);
-	float vn2 = t.v1.dotProduct(t.un);
+	double vn1 = v1.dotProduct(un);
+	double vn2 = t.v1.dotProduct(t.un);
 	if ( Math.abs(n.x) > Math.abs(n.y) ) {
 		if ( Math.abs(n.x) > Math.abs(n.z) ) { // solve Y-Z for X=0
 			ret.y = (   t.un.z * vn1 - un.z * vn2 ) / n.x;
@@ -243,13 +243,13 @@ public class CWFacet
   
   Vector3D intersectionDirection( CWFacet t ) { return un.crossProduct( t.un ); }
   
-  protected float beta1 ( Vector3D v, Vector3D n ) { return beta( n, u1, v2.difference(v) ); }
-  protected float beta2 ( Vector3D v, Vector3D n ) { return beta( n, u2, v1.difference(v) ); }
-  protected float beta3 ( Vector3D v, Vector3D n ) { return beta( n, u3, v1.difference(v) ); }
+  protected double beta1 ( Vector3D v, Vector3D n ) { return beta( n, u1, v2.difference(v) ); }
+  protected double beta2 ( Vector3D v, Vector3D n ) { return beta( n, u2, v1.difference(v) ); }
+  protected double beta3 ( Vector3D v, Vector3D n ) { return beta( n, u3, v1.difference(v) ); }
   
-  protected float alpha1 ( Vector3D v, Vector3D n ) { return alpha( n, u1, v2.difference(v) ); }
-  protected float alpha2 ( Vector3D v, Vector3D n ) { return alpha( n, u2, v1.difference(v) ); }
-  protected float alpha3 ( Vector3D v, Vector3D n ) { return alpha( n, u3, v1.difference(v) ); }
+  protected double alpha1 ( Vector3D v, Vector3D n ) { return alpha( n, u1, v2.difference(v) ); }
+  protected double alpha2 ( Vector3D v, Vector3D n ) { return alpha( n, u2, v1.difference(v) ); }
+  protected double alpha3 ( Vector3D v, Vector3D n ) { return alpha( n, u3, v1.difference(v) ); }
   
   /** compute line param for the intersection point of
    * V + alpha N and VV + beta U
@@ -265,23 +265,23 @@ public class CWFacet
    * @param vv
    * @return value of beta (if in [0,1] the intersection point is on the triangle side] 
    */
-  private float beta( Vector3D n, Vector3D u, Vector3D vv )
+  private double beta( Vector3D n, Vector3D u, Vector3D vv )
   {
-    float nu = n.dotProduct(u);
-    float nn = n.dotProduct(n);
-    float uu = u.dotProduct(u);
-    float nv = n.dotProduct( vv );
-    float uv = u.dotProduct( vv );
+    double nu = n.dotProduct(u);
+    double nn = n.dotProduct(n);
+    double uu = u.dotProduct(u);
+    double nv = n.dotProduct( vv );
+    double uv = u.dotProduct( vv );
     return ( nu * nv - nn * uv ) / ( nn * uu - nu * nu );
   }
   
-  private float alpha( Vector3D n, Vector3D u, Vector3D vv )
+  private double alpha( Vector3D n, Vector3D u, Vector3D vv )
   {
-    float nu = n.dotProduct(u);
-    float nn = n.dotProduct(n);
-    float uu = u.dotProduct(u);
-    float nv = n.dotProduct( vv );
-    float uv = u.dotProduct( vv );
+    double nu = n.dotProduct(u);
+    double nn = n.dotProduct(n);
+    double uu = u.dotProduct(u);
+    double nv = n.dotProduct( vv );
+    double uv = u.dotProduct( vv );
     return ( uu * nv - nu * uv ) / ( nn * uu - nu * nu );
   }
   

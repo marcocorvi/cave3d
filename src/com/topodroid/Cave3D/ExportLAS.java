@@ -44,14 +44,14 @@ public class ExportLAS
   { 
     if ( data == null ) return false;
 
-    float[] v = data.getSplaysEndpoints();
+    double[] v = data.getSplaysEndpoints();
     int nr_pts = data.getSplayNumber();
     // Log.v( "TopoGL-LAS", "Number of points " + nr_pts );
     int fmt = FMT1_SIZE;
     int nr_vlr = 0;
 
-    float minx, miny, minz;
-    float maxx, maxy, maxz;
+    double minx, miny, minz;
+    double maxx, maxy, maxz;
     if ( nr_pts == 0 ) return false;
     minx = maxx = v[0];
     miny = maxy = v[1];

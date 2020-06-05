@@ -33,16 +33,16 @@ class Cave3DSite extends Vector3D
     }
   }
 
-  Cave3DSite( float x, float y, float z ) // create a site with empty list
+  Cave3DSite( double x, double y, double z ) // create a site with empty list
   {
     super( x, y, z );
     angle = null;
     poly  = null;
   }
 
-  // float distance2D( Cave3DSite s ) 
+  // double distance2D( Cave3DSite s ) 
   // {
-  //   return (float)Math.sqrt( (x - s.x)*(x - s.x) + (y - s.y)*(y - s.y) );
+  //   return Math.sqrt( (x - s.x)*(x - s.x) + (y - s.y)*(y - s.y) );
   // }
 
   private void unlink( Angle b ) 

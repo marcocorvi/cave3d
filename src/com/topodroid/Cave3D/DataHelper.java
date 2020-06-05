@@ -161,13 +161,13 @@ class DataHelper extends DataSetObservable
   {
     blk.mId = cursor.getLong(0);
     blk.mSurveyId = sid;
-    blk.mTime    = cursor.getLong( 1 );
+    blk.mMillis  = cursor.getLong( 1 );
     blk.mFrom = cursor.getString(2);
     blk.mTo   = cursor.getString(3);
     // blk.backshot = (leg == LegType.BACK) );  // from - to
-    blk.mLength       = (float)( cursor.getDouble(4) );  // length [meters]
-    blk.mBearing      = (float)( cursor.getDouble(5) );  // bearing [degrees]
-    blk.mClino        = (float)( cursor.getDouble(6) );  // clino [degrees]
+    blk.mLength       = cursor.getDouble(4);  // length [meters]
+    blk.mBearing      = cursor.getDouble(5);  // bearing [degrees]
+    blk.mClino        = cursor.getDouble(6);  // clino [degrees]
     blk.mFlag         = (int)( cursor.getLong(7) ); 
   }
   
@@ -188,7 +188,7 @@ class DataHelper extends DataSetObservable
       info.name    = cursor.getString( 1 );
       info.date    = cursor.getString( 2 );
       info.team    = cursor.getString( 3 );
-      info.declination = (float)(cursor.getDouble( 4 ));
+      info.declination = cursor.getDouble( 4 );
     }
     if ( /* cursor != null && */ !cursor.isClosed()) cursor.close();
     return info;

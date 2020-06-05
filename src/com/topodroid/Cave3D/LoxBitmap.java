@@ -82,7 +82,7 @@ class LoxBitmap
     return calib_inv[1] + calib_inv[3] * e + calib_inv[5] * n;
   }
 
-  Bitmap getBitmap( float e1, float n1, float e2, float n2 )
+  Bitmap getBitmap( double e1, double n1, double e2, double n2 )
   { 
     // Log.v("TopoGL-BITMAP", "create E " + e1 + " " + e2 + " N " + n1 + " " + n2 );
     int d1 = width;
@@ -92,13 +92,13 @@ class LoxBitmap
       Log.e("TopoGL", "Failed create bitmap " + d1 + "x" + d2 );
       return null;
     }
-    float dx = (e2-e1)/(d1-1);
-    float dy = (n2-n1)/(d2-1);
+    double dx = (e2-e1)/(d1-1);
+    double dy = (n2-n1)/(d2-1);
 
     for ( int y = 0; y < d2; ++y ) {
-      float n = n1 + y * dy;
+      double n = n1 + y * dy;
       for ( int x = 0; x < d1; ++x ) {
-        float e = e1 + x * dx;
+        double e = e1 + x * dx;
         int i = (int)ENtoI( e, n );
         if ( i < 0 || i >= width ) {
           ret.setPixel( x, y, 0 );

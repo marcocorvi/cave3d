@@ -11,7 +11,7 @@
  */
 package com.topodroid.Cave3D;
 
-// import android.util.Log;
+import android.util.Log;
 
 class SurveyFixed
 {
@@ -25,8 +25,15 @@ class SurveyFixed
   double mCsLatitude;
   double mCsAltitude;
 
+  void log()
+  { 
+    Log.v("TopoGL","fix " + station + " " + mLongitude + " " + mLatitude + " <" + ((mCsName != null)? mCsName : "null" ) + ">" );
+  }
+
   SurveyFixed( String name )
   {
     station = name;
   }
+
+  boolean hasCS() { return ( mCsName != null ) && ( mCsName.length() > 0 ); }
 }

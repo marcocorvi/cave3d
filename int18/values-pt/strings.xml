@@ -85,6 +85,9 @@
     <!-- TODO string name="texture_load">load texture</string -->
     <!-- TODO string name="texture_failed">Failed texture loading</string -->
     <!-- TODO string name="texture_ok">Read texture file</string -->
+    <!-- TODO string name="sketch_load">Load</string -->
+    <!-- TODO string name="sketch_failed">Failed sketch loading</string -->
+    <!-- TODO string name="sketch_ok">Read sketch data</string -->
 
     <string name="title">%1$s  inclinação: %2$.0f  Azimute: %3$.0f</string>
     <string name="title_clino"> Inclinação: </string>
@@ -163,6 +166,8 @@
     <!-- TODO string name="fail_convexhull">Failed convex-hull walls</string -->
     <!-- TODO string name="done_powercrust">Done powercrust walls</string -->
     <!-- TODO string name="fail_powercrust">Failed powercrust walls</string -->
+    <!-- TODO string name="done_hull">Done simple-hull walls</string -->
+    <!-- TODO string name="fail_hull">Failed simple-hull walls</string -->
 
     <!-- TODO string name="no_database">No database\n</string -->
     <!-- TODO string name="no_survey">No survey %1$s\n</string -->
@@ -208,6 +213,10 @@
   
     <string name="pref_all_splay_title">Todas medidas auxiliares</string>
     <string name="pref_all_splay_summary">Todas as medidas auxialires</string>
+    <!-- TODO string name="pref_splay_proj_title">Projected splays</string -->
+    <!-- TODO string name="pref_splay_proj_summary">Whether to use splays projected on a normal plane [n]</string -->
+    <!-- TODO string name="pref_splay_thr_title">Splay threshold</string -->
+    <!-- TODO string name="pref_splay_thr_summary">Splays outside the shot to keep [0.5]</string -->
 
     <string name="pref_split_triangles_title">Partir triângulos</string>
     <string name="pref_split_triangles_summary">Partir triângulos das paredes</string>

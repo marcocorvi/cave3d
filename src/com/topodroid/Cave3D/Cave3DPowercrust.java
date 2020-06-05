@@ -48,6 +48,8 @@ class Cave3DPowercrust
     System.loadLibrary( "powercrust" );
   }
 
+  int color; // DEBUG
+
   Cave3DPowercrust()
   {
     // Log.v( "TopoGL-POWERCRUST", "powercrust cstr");
@@ -55,18 +57,19 @@ class Cave3DPowercrust
     resetSites( 3 );
     np = 0;
     nf = 0;
+    color = 0xffcccccc; // DEBUG
   }
 
   Cave3DSite[] insertTrianglesIn( ArrayList< Triangle3D > triangles )
   {
-    float x, y, z;
+    double x, y, z;
     np = nrPoles();
     // Log.v( "TopoGL-POWERCRUST", "Nr. poles " + np + " Creating vertices ...");
     Cave3DSite poles[] = new Cave3DSite[ np ];
     for ( int k=0; k<np; ++k ) {
-      x = (float)(poleX());
-      y = (float)(poleY());
-      z = (float)(poleZ());
+      x = poleX();
+      y = poleY();
+      z = poleZ();
       poles[k] = new Cave3DSite( x, y, z );
       if ( nextPole() == 0 ) break;
     }
@@ -80,7 +83,7 @@ class Cave3DPowercrust
       int nn = faceSize();
       if ( nn > 2 && nn < 32 ) { // FIXME hard upper bound to the size of a face
         boolean ok = true;
-        Triangle3D tri = new Triangle3D( nn );
+        Triangle3D tri = new Triangle3D( nn, color );
         for ( int k = 0; k < nn; ++k ) {
           int idx = faceVertex( k );
           if ( idx < 0 || idx >= np ) { ok = false; break; }

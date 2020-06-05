@@ -18,7 +18,7 @@ class Cave3DSegment
 {
   Cave3DIntersection v1, v2;
   Cave3DSegment next;
-  float s;
+  double s;
 
   Cave3DSegment( Cave3DIntersection q1, Cave3DIntersection q2 )
   {
@@ -28,19 +28,19 @@ class Cave3DSegment
     next = null;
   }
 /*
-  int hasEndPoint( Vector3D v, float eps )
+  int hasEndPoint( Vector3D v, double eps )
   {
     if ( v1.coincide( v, eps ) ) return 1;
     if ( v2.coincide( v, eps ) ) return 2;
     return 0;
   }
 
-  boolean touches( Cave3DSegment s, float eps ) 
+  boolean touches( Cave3DSegment s, double eps ) 
   {
     return hasEndPoint( s.v1, eps ) != 0 || hasEndPoint( s.v2, eps  ) != 0;
   }
 */
 
-  float s() { return s; }
+  double s() { return s; }
 
 }

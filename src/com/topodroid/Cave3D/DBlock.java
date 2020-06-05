@@ -21,22 +21,22 @@ import java.util.Locale;
 class DBlock
 {
   long   mId;
-  long   mTime;
+  long   mMillis;
   long   mSurveyId;
   String mFrom;    // N.B. mfrom and mTo must be not null
   String mTo;
-  float mLength;   // meters
-  float mBearing;  // degrees
-  float mClino;    // degrees
+  double mLength;   // meters
+  double mBearing;  // degrees
+  double mClino;    // degrees
   int   mFlag;
 
   // used by PocketTopo parser only
-  DBlock( long id, long sid, long time, String f, String t, float d, float b, float c, int flag )
+  DBlock( long id, long sid, long millis, String f, String t, double d, double b, double c, int flag )
   {
     // assert( f != null && t != null );
     mId   = id;
     mSurveyId = sid;
-    mTime = time;
+    mMillis = millis;
     // mName = "";
     mFrom = f;
     mTo   = t;
@@ -49,7 +49,7 @@ class DBlock
   DBlock()
   {
     mId = 0;
-    mTime = 0;
+    mMillis = 0;
     mSurveyId = 0;
     // mName = "";
     mFrom = "";

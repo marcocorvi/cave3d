@@ -46,7 +46,7 @@ class PowercrustComputer
 
   boolean computePowercrust( )
   {
-    float delta = GlModel.mPowercrustDelta;
+    double delta = GlModel.mPowercrustDelta;
     try {
       // mCave3D.toast( "computing the powercrust" );
       powercrust = new Cave3DPowercrust( );
@@ -161,7 +161,7 @@ class PowercrustComputer
   private void computePowercrustPlanView( )
   {
     mPlanview = null;
-    float eps = 0.01f;
+    double eps = 0.01f;
     int nup = 0;
     for ( Triangle3D t : mTriangles ) {
       if ( t.normal.z < 0 ) {
@@ -244,26 +244,26 @@ class PowercrustComputer
       if ( sh2 != null ) { // ... (st1)--- sh1 ---(st)--- sh2 ---(st2) ...
         Cave3DStation st1 = ( sh1.from_station == st )? sh1.to_station : sh1.from_station;
         Cave3DStation st2 = ( sh2.from_station == st )? sh2.to_station : sh2.from_station;
-        float dx1 = st1.x - st.x;
-        float dy1 = st1.y - st.y;
-        float d1  = (float)Math.sqrt( dx1*dx1 + dy1*dy1 );
+        double dx1 = st1.x - st.x;
+        double dy1 = st1.y - st.y;
+        double d1  = Math.sqrt( dx1*dx1 + dy1*dy1 );
         dx1 /= d1; // unit vector along sh1 (in the horizontal plane)
         dy1 /= d1;
-        float dx2 = st2.x - st.x;
-        float dy2 = st2.y - st.y;
-        float d2  = (float)Math.sqrt( dx2*dx2 + dy2*dy2 );
+        double dx2 = st2.x - st.x;
+        double dy2 = st2.y - st.y;
+        double d2  = Math.sqrt( dx2*dx2 + dy2*dy2 );
         dx2 /= d2; // unit vector along sh2 (in the horizontal plane)
         dy2 /= d2;
-        float dx = dx1 + dx2;
-        float dy = dy1 + dy2;
-        // float d   = (float)Math.sqrt( dx*dx + dy*dy );
+        double dx = dx1 + dx2;
+        double dy = dy1 + dy2;
+        // double d   = Math.sqrt( dx*dx + dy*dy );
         // B[k] = new Point2D( dx/d, dy/d );
         B[k] = new Point2D( dx, dy ); // bisecant (no need to normalize)
       } else if ( sh1 != null ) { // end-station: ... (st1)--- sh1 ---(st)
         Cave3DStation st1 = ( sh1.from_station == st )? sh1.to_station : sh1.from_station;
-        float dx1 = st1.x - st.x;
-        float dy1 = st1.y - st.y;
-        // float d1  = (float)Math.sqrt( dx1*dx1 + dy1*dy1 );
+        double dx1 = st1.x - st.x;
+        double dy1 = st1.y - st.y;
+        // double d1  = Math.sqrt( dx1*dx1 + dy1*dy1 );
         // B[k] = new Point2D( dy1/d1, -dx1/d1 );
         B[k] = new Point2D( dy1, -dx1 ); // orthogonal: no need to normalize
       } else { // ERROR unattached station
@@ -293,11 +293,11 @@ class PowercrustComputer
       //   to + b2 * s
       // ie  b1.x t - b2.x s = to.x - fr.x
       //     b1.y t - b2.y s = to.y - fr.y
-      float a11 = b1.x;  float a12 = -b2.x;  float c1 = to.x - fr.x;
-      float a21 = b1.y;  float a22 = -b2.y;  float c2 = to.y - fr.y;
-      float det = a11 * a22 - a12 * a21;
-      float t = ( a22 * c1 - a12 * c2 ) / det;
-      // float s = ( a11 * c2 - a21 * c1 ) / det;
+      double a11 = b1.x;  double a12 = -b2.x;  double c1 = to.x - fr.x;
+      double a21 = b1.y;  double a22 = -b2.y;  double c2 = to.y - fr.y;
+      double det = a11 * a22 - a12 * a21;
+      double t = ( a22 * c1 - a12 * c2 ) / det;
+      // double s = ( a11 * c2 - a21 * c1 ) / det;
       P[k] = new Point2D( fr.x + a11 * t, fr.y + a21 * t );
     }
 
@@ -319,7 +319,7 @@ class PowercrustComputer
         Cave3DIntersection q1 = null;
         Cave3DIntersection q2 = null;
         Cave3DSite s1 = (Cave3DSite)t.vertex[nn-1];
-        float z1=1;
+        double z1=1;
         for ( int kk=0; kk<nn; ++kk ) {
           Cave3DSite s2 = (Cave3DSite)t.vertex[kk];
           Cave3DIntersection qq = intersect2D( p1, p2, s1, s2 );
@@ -381,14 +381,14 @@ class PowercrustComputer
     // now make polygons from segments ???
   }
 
-  float getVolume()
+  double getVolume()
   {
     if ( mTriangles == null || mVertices == null ) return 0;
     Vector3D cm = new Vector3D();
     int nv = mVertices.length;
     for ( int k = 0; k < nv; ++k ) cm.add( mVertices[k] );
     cm.scaleBy( 1.0f / nv );
-    float vol = 0;
+    double vol = 0;
     for ( Triangle3D t : mTriangles ) vol += t.volume( cm );
     return vol / 6;
   }
@@ -403,15 +403,15 @@ class PowercrustComputer
   //     (p2y-p1y) * s + (q1y-q2y) * t == q1y - p1y
   //   det = (p2x-p1x)*(q1y-q2y) - (q1x-q2x)*(p2y-p1y)
   //
-  // private float intersectZ = 0;
+  // private double intersectZ = 0;
 
   private Cave3DIntersection intersect2D( Vector3D p1, Vector3D p2, Vector3D q1, Vector3D q2 )
   {
-    float det = (p2.x-p1.x)*(q1.y-q2.y) - (q1.x-q2.x)*(p2.y-p1.y);
+    double det = (p2.x-p1.x)*(q1.y-q2.y) - (q1.x-q2.x)*(p2.y-p1.y);
     if ( det == 0f ) return null;
 
-    float s = ( (q1.y-q2.y) * (q1.x - p1.x) - (q1.x-q2.x) * (q1.y - p1.y) )/ det;
-    float t = (-(p2.y-p1.y) * (q1.x - p1.x) + (p2.x-p1.x) * (q1.y - p1.y) )/ det;
+    double s = ( (q1.y-q2.y) * (q1.x - p1.x) - (q1.x-q2.x) * (q1.y - p1.y) )/ det;
+    double t = (-(p2.y-p1.y) * (q1.x - p1.x) + (p2.x-p1.x) * (q1.y - p1.y) )/ det;
     if ( t >= 0 && t < 1 ) {
       // intersectZ = s;
       return new Cave3DIntersection( Vector3D.sum( q1.scaledBy(1-t), q2.scaledBy(t) ), s );
@@ -426,36 +426,36 @@ class PowercrustComputer
   private Cave3DSegment getSegment( Vector3D p1, Vector3D p2, Cave3DIntersection q1, Cave3DIntersection q2 )
   {
     if ( q1.s == q2.s ) return null;
-    float t1 = ( 0 - q2.s ) / ( q1.s - q2.s );
-    float t2 = ( 1 - q2.s ) / ( q1.s - q2.s );
+    double t1 = ( 0 - q2.s ) / ( q1.s - q2.s );
+    double t2 = ( 1 - q2.s ) / ( q1.s - q2.s );
 
     if ( q1.s <= 0 ) {
       if ( q2.s <= 0 ) return null;
-      float z1 = q2.z + t1 * ( q1.z - q2.z );
+      double z1 = q2.z + t1 * ( q1.z - q2.z );
       if ( q2.s <= 1 ) { // p1--q2
         return new Cave3DSegment( new Cave3DIntersection( p1.x, p1.y, z1, 0 ), q2 );
       }
       // q2.s > 1
-      float z2 = q2.z + t2 * ( q1.z - q2.z );
+      double z2 = q2.z + t2 * ( q1.z - q2.z );
       return new Cave3DSegment( new Cave3DIntersection( p1.x, p1.y, z1, 0 ), new Cave3DIntersection( p2.x, p2.y, z2, 1 ) );
     }  
     if ( q1.s >= 1 ) {
       if ( q2.s >= 1 ) return null;
-      float z2 = q2.z + t2 * ( q1.z - q2.z );
+      double z2 = q2.z + t2 * ( q1.z - q2.z );
       if ( q2.s >= 0 ) { // q2-p2
         return new Cave3DSegment( q2, new Cave3DIntersection( p2.x, p2.y, z2, 1 ) );
       }
       // q2.s < 0
-      float z1 = q2.z + t1 * ( q1.z - q2.z );
+      double z1 = q2.z + t1 * ( q1.z - q2.z );
       return new Cave3DSegment( new Cave3DIntersection( p1.x, p1.y, z1, 0 ), new Cave3DIntersection( p2.x, p2.y, z2, 1 ) );
     }  
     // 0 < q1.s < 1
     if ( q2.s < 0 ) { // p1-q1
-      float z1 = q2.z + t1 * ( q1.z - q2.z );
+      double z1 = q2.z + t1 * ( q1.z - q2.z );
       return new Cave3DSegment( new Cave3DIntersection( p1.x, p1.y, z1, 0 ), q1 );
     }
     if ( q2.s > 1 ) { // q1-p2
-      float z2 = q2.z + t2 * ( q1.z - q2.z );
+      double z2 = q2.z + t2 * ( q1.z - q2.z );
       return new Cave3DSegment( q1, new Cave3DIntersection( p2.x, p2.y, z2, 1 ) );
     }
     // 0 <= q2.s <= 1

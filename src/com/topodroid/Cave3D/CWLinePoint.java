@@ -18,7 +18,7 @@ import java.util.Locale;
 
 public class CWLinePoint extends Vector3D 
 {
-  float mAlpha;  // line abscissa
+  double mAlpha;  // line abscissa
   CWSide mSide;    // side to which the point belongs
   CWTriangle mTri; // triangle to which the side belongs
   
@@ -30,7 +30,7 @@ public class CWLinePoint extends Vector3D
     mTri  = null;
   }
   
-  CWLinePoint( float a, CWSide s, CWTriangle t, float x, float y, float z )
+  CWLinePoint( double a, CWSide s, CWTriangle t, double x, double y, double z )
   {
     super( x,y,z);
     mAlpha = a;
@@ -38,7 +38,7 @@ public class CWLinePoint extends Vector3D
     mTri  = t;
   }
   
-  CWLinePoint( float a, CWSide s, CWTriangle t, Vector3D v )
+  CWLinePoint( double a, CWSide s, CWTriangle t, Vector3D v )
   {
     super(v.x, v.y, v.z );
     mAlpha = a;
@@ -46,7 +46,7 @@ public class CWLinePoint extends Vector3D
     mTri  = t;
   }
   
-  void copy( float a, CWSide s, CWTriangle t, Vector3D v )
+  void copy( double a, CWSide s, CWTriangle t, Vector3D v )
   {
     mAlpha = a;
     mSide = s;

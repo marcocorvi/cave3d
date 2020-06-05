@@ -1,0 +1,282 @@
+/** @file Parser3d.java
+ *
+ * @author marco corvi
+ * @date nov 2011
+ *
+ * @brief loch file parser 
+ * --------------------------------------------------------
+ *  Copyright This sowftare is distributed under GPL-3.0 or later
+ *  See the file COPYING.
+ * --------------------------------------------------------
+ */
+package com.topodroid.Cave3D;
+
+import android.util.Log;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.BufferedInputStream;
+
+
+import java.util.ArrayList;
+
+public class Parser3d extends TglParser
+{
+  private StringBuffer mLabel;
+  private byte[] int32;
+  private byte[] int16;
+  private int mDays1, mDays2;
+  private int mLegs;
+  private double mLength;
+  private double mErrorE, mErrorH, mErrorV;
+  private double mLeft, mRight, mUp, mDown;
+
+  public Parser3d( TopoGL app, String filename ) throws ParserException
+  {
+    super( app, filename );
+    mLabel = new StringBuffer();
+    int32 = new byte[4];
+    int16 = new byte[2];
+    readfile( filename );
+  }
+
+  private void moveTo( double x, double y, double z )
+  {
+    // Log.v("TopoGL-3D", "move <" + mLabel.toString() + "> " + x + " " + y + " " + z );
+  }
+
+  private void lineTo( double x, double y, double z, int flag )
+  {
+    // Log.v("TopoGL-3D", "line <" + mLabel.toString() + "> " + x + " " + y + " " + z + " flag " + flag );
+  }
+
+  private void labelAt( double x, double y, double z, int flag )
+  {
+    Log.v("TopoGL-3D", "label <" + mLabel.toString() + "> " + x + " " + y + " " + z + " flag " + flag );
+  }
+
+
+  // --------------------------------------------------------
+  private double cm2m16( int cm ) { return ((cm & 0xffff) == 0xffff)? -1 : cm * 0.01; }
+  private double cm2m32( int cm ) { return ((cm & 0xffffffff) == 0xffffffff)? -1 : cm * 0.01; }
+
+  private String readline( FileInputStream fis ) throws IOException
+  {
+    StringBuffer sb = new StringBuffer();
+    for ( ; ; ) {
+      int ch = fis.read();
+      if ( ch == 0x0a ) break;
+      sb.append( (char)ch );
+    }
+    return sb.toString().trim();
+  }
+
+  private void readfile( String filename ) throws ParserException
+  {
+    FileInputStream fis = null;
+    try {
+      fis = new FileInputStream( filename );
+      BufferedInputStream bis = new BufferedInputStream( fis );
+
+      String line = readline( fis );
+      line.trim();
+      Log.v("TopoGL-3D", line ); // Survey 3D Image File
+      line = readline( fis );
+      Log.v("TopoGL-3D <ver.>", line ); // v8
+      // line = readline( fis );
+      // Log.v("TopoGL-3D <title>", line ); // <title>
+      // line = readline( fis );
+      // Log.v("TopoGL-3D <proj4>", line ); // <proj4>
+      for ( ; ; ) {
+        line = readline( fis );
+        if ( line.startsWith("@") ) break;
+        Log.v("TopoGL-3D", line ); // <proj4>
+      } 
+      String millis_str = line.substring(1);
+      long millis = Long.parseLong( millis_str );
+      Log.v("TopoGL-3D", "millis " + millis );
+
+      int flag = fis.read();  // read one byte file-wide flag
+
+      for ( ; ; ) {
+        int code = fis.read();
+        if ( code == 0 ) break;
+        int ccode = code & 0xf0;
+        if ( ccode == 0x00 ) { // survey mode
+          handleSurvey( fis, code );
+        } else if ( ccode == 0x10 ) { // date
+          handleDate( fis, code );
+        } else if ( ccode == 0x30 ) { // xsect
+          handleXSect( fis, code );
+        // } else if ( ccode == 0x20 ) { // label omitted: falls in the next case
+        } else if ( ccode <= 0x70 ) { // line
+          handleLine( fis, code );
+        } else if ( ccode >= 0x80 ) { // label
+          handleLabel( fis, code );
+        }
+      }
+    } catch ( IOException e ) { }
+    if ( fis != null ) {
+      try { fis.close(); } catch (IOException e ) {} 
+    }
+  }
+
+  private void handleSurvey( FileInputStream fis, int code ) throws IOException
+  {
+    switch ( code & 0xf ) {
+      case 0x01: // diving
+        break;
+      case 0x02: // cartesian
+        break;
+      case 0x03: // cylpolar
+        break;
+      case 0x04: // nosurvey
+        break;
+      case 0x0f: // moveTo
+        double x = cm2m32( Endian.readInt( fis, int32 ) );
+        double y = cm2m32( Endian.readInt( fis, int32 ) );
+        double z = cm2m32( Endian.readInt( fis, int32 ) );
+        moveTo( x, y, z );
+        break;
+    }
+  }  
+
+  private void handleDate( FileInputStream fis, int code ) throws IOException
+  {
+    switch ( code & 0xf ) {
+      case 0x00: // nothing
+        break;
+      case 0x01: // days
+        mDays1 = Endian.readShort( fis, int16 );
+        mDays2 = mDays1;
+        break;
+      case 0x02: // days, span
+        mDays1 = Endian.readShort( fis, int16 );
+        int span = Endian.readShort( fis, int16 );
+        mDays2 = mDays1 + span;
+        break;
+      case 0x03: // days, days
+        mDays1 = Endian.readShort( fis, int16 );
+        mDays2 = Endian.readShort( fis, int16 );
+        break;
+      case 0x0f: // error
+        mLegs = Endian.readInt( fis, int32 );
+        mLength = cm2m32( Endian.readInt( fis, int32 ) );
+        mErrorE = cm2m32( Endian.readInt( fis, int32 ) );
+        mErrorH = cm2m32( Endian.readInt( fis, int32 ) );
+        mErrorV = cm2m32( Endian.readInt( fis, int32 ) );
+        break;
+    }
+  }  
+
+  private boolean handleXSect( FileInputStream fis, int code ) throws IOException
+  {
+    boolean is_last = false;
+    int label = 0;
+    switch ( code & 0xf ) {
+      case 0x01: 
+        is_last = true;
+      case 0x00:
+        // label = Endian.readInt( fis, int32 );
+        doHandleLabel( label, fis );
+        mLeft  = cm2m16( Endian.readShort( fis, int16 ) );
+        mRight = cm2m16( Endian.readShort( fis, int16 ) );
+        mUp    = cm2m16( Endian.readShort( fis, int16 ) );
+        mDown  = cm2m16( Endian.readShort( fis, int16 ) );
+        break;
+      case 0x02: 
+        is_last = true;
+      case 0x03:
+        // label = Endian.readInt( fis, int32 );
+        doHandleLabel( label, fis );
+        mLeft  = cm2m32( Endian.readInt( fis, int32 ) );
+        mRight = cm2m32( Endian.readInt( fis, int32 ) );
+        mUp    = cm2m32( Endian.readInt( fis, int32 ) );
+        mDown  = cm2m32( Endian.readInt( fis, int32 ) );
+        break;
+    }
+    return is_last;
+  }  
+
+  private void handleLine( FileInputStream fis, int code ) throws IOException
+  {
+    int flag = code & 0x0f;
+    // 0x01  surface
+    // 0x02  duplicate
+    // 0x04  splay
+    int label = 0;
+    if ( ( code & 0x20 ) != 0x20 ) { // label not omitted
+      // int label = Endian.readInt( fis, int32 );
+      doHandleLabel( label, fis );
+    }
+    double x = cm2m32( Endian.readInt( fis, int32 ) );
+    double y = cm2m32( Endian.readInt( fis, int32 ) );
+    double z = cm2m32( Endian.readInt( fis, int32 ) );
+    lineTo( x, y, z, flag );
+  }  
+
+  private void handleLabel( FileInputStream fis, int code ) throws IOException
+  {
+    int flag = code & 0x7f;
+    // 0x01  on leg above ground
+    // 0x02  on cave leg
+    // 0x04  entrance
+    // 0x08  exported (connecting point)
+    // 0x10  fixed
+    // 0x20  anonymous
+    // 0x40  on wall
+    int label = 0;
+    // label = Endian.readInt( fis, int32 );
+    doHandleLabel( label, fis );
+    double x = cm2m32( Endian.readInt( fis, int32 ) );
+    double y = cm2m32( Endian.readInt( fis, int32 ) );
+    double z = cm2m32( Endian.readInt( fis, int32 ) );
+    labelAt( x, y, z, flag );
+  }  
+
+  private void doHandleLabel( int label, FileInputStream fis ) throws IOException
+  {
+    if ( label == 0xffff ) return; // label omitted
+    int B = fis.read();
+    int D = 0;
+    int A = 0;
+    int B1 = -1;
+    int B2 = -1;
+    if ( B != 0 ) {
+      D = B >> 4;
+      A = B & 0x0f;
+    } else {
+      B1 = fis.read();
+      if ( B1 != 0xff ) {
+        D = B1;
+      } else {
+        D = Endian.readInt( fis, int32 );
+      }
+      B2 = fis.read();
+      if ( B2 != 0xff ) {
+        A = B2;
+      } else {
+        A = Endian.readInt( fis, int32 );
+      }
+    }  
+    if ( D > 0 ) {
+      int len = mLabel.length();
+      if ( len > D ) {
+        mLabel = mLabel.delete( len - D, len );
+      } else {
+        mLabel = new StringBuffer();
+      }
+    }
+    if ( A > 0 ) {
+      byte[] data = new byte[A];
+      int read = fis.read( data );
+      String str = new String( data );
+      // assert( read == A );
+      mLabel.append( str.toCharArray() );
+    }
+    Log.v("TopoGL-3D", "LABEL " + B + ": " + D + " " + A + " .. " + B1 + " " + B2 + " <" + mLabel.toString() + ">" );
+  }
+      
+}
+

@@ -15,12 +15,12 @@ import android.util.Log;
 
 class Vector3D
 {
-  float x, y, z;
+  double x, y, z;
 
   // -------------------- CSTR
   Vector3D() { x=0f; y=0f; z=0f; }
 
-  Vector3D( float xx, float yy, float zz )
+  Vector3D( double xx, double yy, double zz )
   {
     x = xx;
     y = yy;
@@ -58,9 +58,9 @@ class Vector3D
  
   void toArray( float[] data, int offset )
   {
-    data[offset]   = x;
-    data[offset+1] = y;
-    data[offset+2] = z;
+    data[offset]   = (float)x;
+    data[offset+1] = (float)y;
+    data[offset+2] = (float)z;
   }
 
   void copy( Vector3D v ) 
@@ -79,7 +79,7 @@ class Vector3D
     return true;
   }
     
-  boolean coincide( float x0, float y0, float z0, double eps )
+  boolean coincide( double x0, double y0, double z0, double eps )
   {
     if ( Math.abs(x - x0) > eps ) return false;
     if ( Math.abs(y - y0) > eps ) return false;
@@ -88,14 +88,14 @@ class Vector3D
   }
 
   // ------------------- LENGTH 
-  float lengthSquare()
+  double lengthSquare()
   {
     return x*x + y*y + z*z;
   }
 
-  static float lengthSquare( Vector3D v ) { return v.lengthSquare(); }
+  static double lengthSquare( Vector3D v ) { return v.lengthSquare(); }
 
-  static float lengthSquare( float[] v, int off ) { return v[off+0]*v[off+0] + v[off+1]*v[off+1] + v[off+2]*v[off+2]; }
+  static double lengthSquare( float[] v, int off ) { return v[off+0]*v[off+0] + v[off+1]*v[off+1] + v[off+2]*v[off+2]; }
 
   double length() { return Math.sqrt( lengthSquare() ); }
 
@@ -104,42 +104,42 @@ class Vector3D
   static double length( float[] v, int off ) { return Math.sqrt( v[off+0]*v[off+0] + v[off+1]*v[off+1] + v[off+2]*v[off+2] ); }
 
   // ------------------- DISTANCE
-  float squareDistance3D( Vector3D v )
+  double squareDistance3D( Vector3D v )
   {
-    float a = x - v.x;
-    float b = y - v.y;
-    float c = z - v.z;
+    double a = x - v.x;
+    double b = y - v.y;
+    double c = z - v.z;
     return ( a*a + b*b + c*c );
   }
 
   double distance3D( Vector3D v ) { return Math.sqrt( squareDistance3D( v ) ); }
 
-  static float squareDistance3D( Vector3D v1, Vector3D v2 ) { return v1.squareDistance3D( v2 ); }
+  static double squareDistance3D( Vector3D v1, Vector3D v2 ) { return v1.squareDistance3D( v2 ); }
 
   static double distance3D( Vector3D v1, Vector3D v2 ) { return Math.sqrt( v1.squareDistance3D( v2 ) ); }
 
   // ------------------- SCALE
-  void scaleBy( float f ) // mul
+  void scaleBy( double f ) // mul
   {
     x *= f;
     y *= f;
     z *= f;
   }
 
-  Vector3D scaledBy( float f ) // this.times( c )
+  Vector3D scaledBy( double f ) // this.times( c )
   { 
     return new Vector3D( x*f, y*f, z*f);
   }
 
   void normalized() 
   {
-    float d = (float)length();
+    double d = length();
     if ( d > 0f ) scaleBy( 1f/d );
   }
 
   static void normalize( float[] v, int off )
   {
-    float d = (float)length( v, off );
+    double d = length( v, off );
     if ( d > 0f ) {
       v[0] /= d;
       v[1] /= d;
@@ -186,7 +186,7 @@ class Vector3D
     return new Vector3D( x - v[off], y - v[off+1], z - v[off+2] ); 
   }
 
-  Vector3D difference( float x0, float y0, float z0 )
+  Vector3D difference( double x0, double y0, double z0 )
   {
     return new Vector3D( x - x0, y - y0, z - z0 ); 
   }
@@ -211,7 +211,7 @@ class Vector3D
     z += v.z;
   }
 
-  void add( Vector3D v, float c ) // this.plus( v, c )
+  void add( Vector3D v, double c ) // this.plus( v, c )
   {
     x += v.x * c;
     y += v.y * c;
@@ -228,7 +228,7 @@ class Vector3D
     return new Vector3D( x + v[off], y + v[off+1], z + v[off+2] ); 
   }
 
-  Vector3D sum( float x0, float y0, float z0 )
+  Vector3D sum( double x0, double y0, double z0 )
   {
     return new Vector3D( x + x0, y + y0, z + z0 ); 
   }
@@ -246,27 +246,27 @@ class Vector3D
   }
 
   // ---------------------- DOT PRODUCT
-  float dotProduct( Vector3D v )
+  double dotProduct( Vector3D v )
   {
     return x * v.x + y * v.y + z * v.z;
   }
   
-  static float dotProduct( Vector3D v1, Vector3D v2 )
+  static double dotProduct( Vector3D v1, Vector3D v2 )
   {
     return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
   }
 
-  float dotProduct( float[] v, int off )
+  double dotProduct( float[] v, int off )
   {
     return x * v[off] + y * v[off+1] + z * v[off+2];
   }
 
   // ---------------------- CROSS PRODUCT
-  static float crossProductLengthSquare( float[] v1, int off1, float[] v2, int off2 )
+  static double crossProductLengthSquare( float[] v1, int off1, float[] v2, int off2 )
   {
-    float x = v1[off1+1] * v2[off2+2] - v1[off1+2] * v2[off2+1];
-    float y = v1[off1+2] * v2[off2+0] - v1[off1+0] * v2[off2+2];
-    float z = v1[off1+0] * v2[off2+1] - v1[off1+1] * v2[off2+0];
+    double x = v1[off1+1] * v2[off2+2] - v1[off1+2] * v2[off2+1];
+    double y = v1[off1+2] * v2[off2+0] - v1[off1+0] * v2[off2+2];
+    double z = v1[off1+0] * v2[off2+1] - v1[off1+1] * v2[off2+0];
     return ( x*x + y*y + z*z );
   }
 
@@ -305,9 +305,9 @@ class Vector3D
   // ----------------------- 
   void randomize( double delta )
   {
-    x += (float)( delta * ( Math.random() - 0.5 ) );
-    y += (float)( delta * ( Math.random() - 0.5 ) );
-    z += (float)( delta * ( Math.random() - 0.5 ) );
+    x += ( delta * ( Math.random() - 0.5 ) );
+    y += ( delta * ( Math.random() - 0.5 ) );
+    z += ( delta * ( Math.random() - 0.5 ) );
   }
 
   Point2D projectXY( ) { return new Point2D( x, y ); }

@@ -32,10 +32,10 @@ public class CWBorder
   ArrayList< CWIntersection > mInts;
   List<CWPoint> pts2in1;  // points of the second CW inside the first CW
   List<CWPoint> pts1in2;  // points of the first CW inside the second CW
-  float mVolume;
+  double mVolume;
   boolean hasVolume;
   
-  CWBorder( CWConvexHull cv1, CWConvexHull cv2, float eps )
+  CWBorder( CWConvexHull cv1, CWConvexHull cv2, double eps )
   {
     mCnt = cnt ++;
     mCV1 = cv1;
@@ -48,7 +48,7 @@ public class CWBorder
     hasVolume = false;
   }
 
-  float getVolume()
+  double getVolume()
   {
     if ( ! hasVolume ) {
       mVolume = computeVolume( 0.00001f );
@@ -145,19 +145,19 @@ public class CWBorder
       ret.y += ii.mV1.y + ii.mV2.y;
       ret.z += ii.mV1.z + ii.mV2.z;
     }
-    float div = 1.0f/(2.0f*mInts.size());
+    double div = 1.0/(2.0*mInts.size());
     ret.x *= div;
     ret.y *= div;
     ret.z *= div;
     return ret;
   }
   
-  static private float volume( Vector3D v0, Vector3D v1, Vector3D v2, Vector3D v3 )
+  static private double volume( Vector3D v0, Vector3D v1, Vector3D v2, Vector3D v3 )
   {
     Vector3D u1 = v1.difference(v0);
     Vector3D u2 = v2.difference(v0);
     Vector3D u3 = v3.difference(v0);
-    return (float)Math.abs( u1.crossProduct(u2).dotProduct(u3) );
+    return Math.abs( u1.crossProduct(u2).dotProduct(u3) );
   }
 
   /** Compute the volume (*6) of the triangles than enter the first CW
@@ -166,9 +166,9 @@ public class CWBorder
    * @param p21  points of the second CW inside the first
    * @return volume (*6)
    */
-  private float computeVolumeOf( List<CWTriangle> t21, List<CWPoint> p21, Vector3D cc )
+  private double computeVolumeOf( List<CWTriangle> t21, List<CWPoint> p21, Vector3D cc )
   {
-    float vol =0;
+    double vol =0;
     CWPoint pts[] = new CWPoint[3];
     for ( CWTriangle t2 : t21 ) {
       switch ( t2.countVertexIn( p21, pts ) ) {
@@ -192,7 +192,7 @@ public class CWBorder
           }
           break;
         case 3:
-          vol += (float)( Math.abs( t2.volume( cc ) ) );
+          vol += Math.abs( t2.volume( cc ) );
           break;
       }
     }
@@ -204,7 +204,7 @@ public class CWBorder
    * @param eps
    * @return volume (*6)
    */
-  private float computeVolume( float eps )
+  private double computeVolume( double eps )
   {
     Vector3D cc = getCenter();
     if ( cc == null ) return 0;
@@ -214,7 +214,7 @@ public class CWBorder
     // Log.v(TAG, "Pts1in2 " + pts1in2.size() + " Pts2in1 " + pts2in1.size() );
     
     if ( pts1in2.size() == 0 && pts2in1.size() == 0 ) return 0;
-    float vol = 0;
+    double vol = 0;
     
     List< CWTriangle > t1in2 = new ArrayList<CWTriangle>();
     List< CWTriangle > t2in1 = new ArrayList<CWTriangle>();

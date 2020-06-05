@@ -131,7 +131,7 @@ class GlSketch extends GlShape
   void logMinMax()
   {
     if ( mPoints.size() == 0 ) return;
-    float xmin, xmax, ymin, ymax, zmin, zmax;
+    double xmin, xmax, ymin, ymax, zmin, zmax;
     Vector3D v0 = mPoints.get(0);
     xmin = xmax = v0.x;
     ymin = ymax = v0.y;
@@ -160,7 +160,12 @@ class GlSketch extends GlShape
   // ----------------------------------------------------
   // PROGRAM
 
-  void initData( float xmed, float ymed, float zmed )
+  // (X,Y,Z)med = Xmed - sketch.Xoff
+  //              Ymed - sketch.Zoff
+  //              Zmed + sketch.Yoff
+  // MED: model midpoint
+  // OFF: sketch offset
+  void initData( double xmed, double ymed, double zmed, double xoff, double yoff, double zoff )
   {
     pointCount = mPoints.size();
 
@@ -176,6 +181,10 @@ class GlSketch extends GlShape
       return;
     }
     mEmpty = false;
+
+    xmed -= xoff;
+    ymed -= zoff;
+    zmed += yoff;
     initBuffer( xmed, ymed, zmed );
   }
       
@@ -290,7 +299,7 @@ class GlSketch extends GlShape
   // ------------------------------------------------------------------------------
   class Point2D
   {
-    float x, y;
+    double x, y;
     int idx;    // index in the area boundary
     Point2D( Vector3D v, int i ) { x = v.x; y = v.y; idx = i; }
   }
@@ -405,7 +414,7 @@ class GlSketch extends GlShape
   // ------------------------------------------------------------------------------
   // point Vector3D NOT in GL orientation (Y upward)
 
-  private void initBuffer( float xmed, float ymed, float zmed )
+  private void initBuffer( double xmed, double ymed, double zmed )
   {
     float x2 = 144.0f / GlModel.mWidth;
     float y2 = 144.0f / GlModel.mHeight;
@@ -427,9 +436,9 @@ class GlSketch extends GlShape
       float t1 = t2 + dt;
 
       for (int j=0; j<NN; ++j ) {
-        data6[ off6++ ] =   pt.x - xmed;
-        data6[ off6++ ] =   pt.z - ymed;
-        data6[ off6++ ] = - pt.y - zmed;
+        data6[ off6++ ] = (float)(  pt.x - xmed);
+        data6[ off6++ ] = (float)(  pt.z - ymed);
+        data6[ off6++ ] = (float)(- pt.y - zmed);
       }
       pos[off++] =-x2; pos[off++] =-y2; pos[off++] = s1; pos[off++] = t1; 
       pos[off++] =-x2; pos[off++] = y2; pos[off++] = s1; pos[off++] = t2; 
@@ -440,10 +449,11 @@ class GlSketch extends GlShape
       pos[off++] = x2; pos[off++] =-y2; pos[off++] = s2; pos[off++] = t1; 
     }
     dataBuffer = GL.getFloatBuffer( data6.length );
-    dataBuffer.put( data6 );
+    dataBuffer.put( data6, 0, data6.length );
 
     pointBuffer = GL.getFloatBuffer( pointCount * 4 * NN );
     pointBuffer.put( pos, 0, pointCount * 4 * NN );
+    // Log.v("TopoGL-SKETCH", "pointCount " + pointCount + " x 24 " + off + " x 18 " + off6 + " " + data6.length );
 
     
     float[] data2 = new float[ lineCount * 6 * 2 ]; // X,Y,Z R,G,B
@@ -454,15 +464,15 @@ class GlSketch extends GlShape
         Vector3D v1 = line.pts.get( 0 );
         for ( int k=1; k<sz; ++k ) {
           Vector3D v2 = line.pts.get(k);
-          data2[ off2++ ] =   v1.x - xmed;
-          data2[ off2++ ] =   v1.z - ymed;
-          data2[ off2++ ] = - v1.y - zmed;
+          data2[ off2++ ] = (float)(  v1.x - xmed);
+          data2[ off2++ ] = (float)(  v1.z - ymed);
+          data2[ off2++ ] = (float)(- v1.y - zmed);
           data2[ off2++ ] = line.red;
           data2[ off2++ ] = line.green;
           data2[ off2++ ] = line.blue;
-          data2[ off2++ ] =   v2.x - xmed;
-          data2[ off2++ ] =   v2.z - ymed;
-          data2[ off2++ ] = - v2.y - zmed;
+          data2[ off2++ ] = (float)(  v2.x - xmed);
+          data2[ off2++ ] = (float)(  v2.z - ymed);
+          data2[ off2++ ] = (float)(- v2.y - zmed);
           data2[ off2++ ] = line.red;
           data2[ off2++ ] = line.green;
           data2[ off2++ ] = line.blue;
@@ -472,6 +482,7 @@ class GlSketch extends GlShape
     }
     lineBuffer = GL.getFloatBuffer( lineCount * 6 * 2 );
     lineBuffer.put( data2, 0, lineCount * 6 * 2 );
+    // Log.v("TopoGL-SKETCH", "lineCount " + lineCount + " x 12 " + off2 );
     
     float[] data3 = new float[ areaCount * 7 * 3 ]; // X,Y,Z R,G,B,A
     int off3 = 0;
@@ -483,17 +494,18 @@ class GlSketch extends GlShape
         for ( int k=0; k < idx.length; ++k ) {
           Vector3D v0 = area.pts.get( idx[k] );
           // if ( (k%3) == 1 ) Log.v("TopoGL-SKETCH", "VERTEX " + v0.x + " " + v0.y + " " + v0.z );
-          data3[ off3++ ] =   v0.x - xmed;
-          data3[ off3++ ] =   v0.z - ymed;
-          data3[ off3++ ] = - v0.y - zmed;
+          data3[ off3++ ] = (float)(  v0.x - xmed);
+          data3[ off3++ ] = (float)(  v0.z - ymed);
+          data3[ off3++ ] = (float)(- v0.y - zmed);
           data3[ off3++ ] = area.red;
           data3[ off3++ ] = area.green;
           data3[ off3++ ] = area.blue;
           data3[ off3++ ] = area.alpha;
+          // Log.v("TopoGL-SKETCH", "Area point " + idx[k] + " z " + v0.y + " " + zmed + " " + (-v0.y-zmed) );
         }
       }
     }
-    // Log.v("TopoGL-SKETCH", "areaCount " + areaCount + " " + off3 );
+    // Log.v("TopoGL-SKETCH", "areaCount " + areaCount + " x 21 " + off3 );
     areaCount = off3/21;
     areaBuffer = GL.getFloatBuffer( off3 );
     areaBuffer.put( data3, 0, off3 );
@@ -502,7 +514,9 @@ class GlSketch extends GlShape
   // --------------------------------------------------------------------
   // UTILITIES
 
-  int size() { return pointCount; }
+  int countPoint() { return pointCount; }
+  int countLine()  { return lineCount; }
+  int countArea()  { return areaCount; }
 
   // --------------------------------------------------------------------
   // OpenGL

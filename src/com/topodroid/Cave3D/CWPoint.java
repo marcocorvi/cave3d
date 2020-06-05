@@ -28,14 +28,14 @@ public class CWPoint extends Vector3D
   int mCnt;
   ArrayList<CWTriangle> mTriangle;
 
-  CWPoint( float x, float y, float z )
+  CWPoint( double x, double y, double z )
   {
     super( x, y, z );
     mCnt = cnt++;
     mTriangle = new ArrayList<CWTriangle>();
   }
 
-  CWPoint( int tag, float x, float y, float z )
+  CWPoint( int tag, double x, double y, double z )
   {
     super( x, y, z );
     mCnt = tag;
