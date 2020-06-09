@@ -57,16 +57,16 @@
     <string name="info_north_value">S %1$.1f N %2$.1f</string>
     <string name="info_z_value">%1$.1f  %2$.1f</string>
 
-    <!-- TODO string name="legs_surface">Surface</string -->
-    <!-- TODO string name="legs_duplicate">Duplicate</string -->
-    <!-- TODO string name="legs_commented">Commented</string -->
+    <string name="legs_surface">Поверхность</string>
+    <string name="legs_duplicate">Дубликат</string>
+    <string name="legs_commented">Закоментированный</string>
 
-    <!-- TODO string name="proj_perspective">Perspective parameters</string -->
-    <!-- UNUSED string name="proj_orthographic">Orthographic parameters</string -->
-    <!-- TODO string name="proj_focal">Focal</string -->
-    <!-- UNUSED string name="proj_side">Side</string -->
-    <!-- UNUSED string name="proj_near">Near</string -->
-    <!-- UNUSED string name="proj_far">Far</string -->
+    <string name="proj_perspective">Настройки перспективы</string>
+    <!-- UNUSED string name="proj_orthographic">Настройки орографической проекции</string -->
+    <tring name="proj_focal">Фокальный</string>
+    <!-- UNUSED string name="proj_side">Сбоку</string -->
+    <!-- UNUSED string name="proj_near">Вблизи</string -->
+    <!-- UNUSED string name="proj_far">Вдали</string -->
 
     <string name="query" formatted="false">Съёмки: %d Замеры: %d Пикеты: %d\nДлина: %d Глубина: %d</string>
     <string name="no_files">Нет файлов</string>
@@ -92,16 +92,16 @@
     <string name="texture_load">загрузить текстуру</string>
     <string name="texture_failed">Ошибка загрузки текстуры</string>
     <string name="texture_ok">Прочитать файл текстуры</string>
-    <!-- TODO string name="sketch_load">Load</string -->
-    <!-- TODO string name="sketch_failed">Failed sketch loading</string -->
-    <!-- TODO string name="sketch_ok">Read sketch data</string -->
+    <string name="sketch_load">Загрузка</string>
+    <string name="sketch_failed">Ошибка загрузки абрисов</string>
+    <string name="sketch_ok">Прочитаны данные абрисов</string>
 
     <string name="title">%1$s  Наклон: %2$.0f  Азимут: %3$.0f</string>
     <string name="title_clino"> Наклон: </string>
     <string name="title_azimuth"> Азимут: </string>
     <string name="title_surface_alpha">Прозрачность поверхности</string>
-    <!-- TODO string name="title_sketches">Sketches</string -->
-    <!-- TODO string name="title_legs">Legs visibility</string -->
+    <string name="title_sketches">Абрисы</string>
+    <string name="title_legs">Видимость нитки хода</string>
 
     <string name="survey_legs"> Замеры: </string>
     <string name="survey_legs_length"> Длинна замеров: </string>
@@ -154,8 +154,8 @@
 
     <string name="no_planview">Нет проекции плана</string>
     <string name="no_surface">Нет DEM поверхности</string>
-    <!-- TODO string name="no_model">No 3D model</string -->
-    <!-- TODO string name="no_topodroid_model">Not a TopoDroid model</string -->
+    <string name="no_model">Нет 3D модели</string>
+    <string name="no_topodroid_model">Модель не из TopoDroid</string>
 
     <string name="error_file_not_found">Ошибка: файл не обнаружен</string>
     <string name="error_file_not_readable">Ошибка: файл не читается</string>
@@ -177,8 +177,8 @@
     <string name="fail_convexhull">Ошибка convex-hull стены</string>
     <string name="done_powercrust">Завершено powercrust стены</string>
     <string name="fail_powercrust">Ошибка powercrust стены</string>
-    <!-- TODO string name="done_hull">Done simple-hull walls</string -->
-    <!-- TODO string name="fail_hull">Failed simple-hull walls</string -->
+    <string name="done_hull">Завершено simple-hull стены</string>
+    <string name="fail_hull">Ошибка simple-hull стены</string>
 
     <string name="no_database">Отсутсвует база данных\n</string>
     <string name="no_survey">Отсутсвует съёмка %1$s\n</string>
@@ -223,10 +223,10 @@
   
     <string name="pref_all_splay_title">Все сплеи</string>
     <string name="pref_all_splay_summary">Все сплеи для стен</string>
-    <!-- TODO string name="pref_splay_proj_title">Projected splays</string -->
-    <!-- TODO string name="pref_splay_proj_summary">Whether to use splays projected on a normal plane [n]</string -->
-    <!-- TODO string name="pref_splay_thr_title">Splay threshold</string -->
-    <!-- TODO string name="pref_splay_thr_summary">Splays outside the shot to keep [0.5]</string -->
+    <string name="pref_splay_proj_title">Проекция сплеев</string>
+    <string name="pref_splay_proj_summary">Использовать сплеи спроецированные на нормальную плоскость [n]</string>
+    <string name="pref_splay_thr_title">Порог сплеев</string>
+    <string name="pref_splay_thr_summary">Сплеи вне замера, которые следует использовать [0.5]</string>
 
     <string name="pref_split_triangles_title">Разделить треугольники</string>
     <string name="pref_split_triangles_summary">Разделить треугольники стен</string>
