@@ -391,6 +391,11 @@ public class GlRenderer implements Renderer
     mDXO -= dy / (mHalfHeight);
     mDYO -= dx / (mHalfHeight);
 
+    if ( mCenter != null ) {
+      mOffset[0] -= dy / (mHalfHeight);
+      mOffset[1] -= dx / (mHalfHeight);
+    }
+
     mScaleO *= scale;
     if ( mScaleO < 0.05f ) {
       mScaleO = 0.05f;
@@ -575,6 +580,12 @@ public class GlRenderer implements Renderer
 
   // ---------------------------------------------------------------------------
   // CENTER
+
+  // boolean clearCenter()
+  // {
+  //   mCenter = null;
+  //   return false;
+  // }
 
   boolean setCenter()
   {

@@ -91,7 +91,7 @@ public class Cave3DStation extends Vector3D
     surface_depth = 0;
   }
 
-  private void setName( String nm )
+  void setName( String nm )
   {
     name = nm;
     if ( name != null ) {

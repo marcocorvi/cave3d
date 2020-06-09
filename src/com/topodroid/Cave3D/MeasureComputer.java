@@ -66,7 +66,8 @@ class MeasureComputer extends AsyncTask< Void, Void, Integer >
       return new Integer( MEASURE_NO_START );
     }
 
-    if ( ! mApp.mMeasureStation.isChecked() ) return new Integer( MEASURE_SKIP ); // do not measure
+    // if ( ! mApp.mMeasureStation.isChecked() ) return new Integer( MEASURE_SKIP ); // do not measure
+    if ( ! mApp.isMeasuring ) return new Integer( MEASURE_SKIP ); // do not measure
 
     Cave3DStation station = mParser.getStation( mFullname );
     if ( station == null ) return new Integer( MEASURE_NO_STATION ); // null station

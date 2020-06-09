@@ -96,6 +96,11 @@ public class TopoGL extends Activity
 
   boolean doSketches = false;
 
+  private BitmapDrawable mBMmeasureOn;
+  private BitmapDrawable mBMmeasureOff;
+  private BitmapDrawable mBMfixOn;;
+  private BitmapDrawable mBMfixOff;
+
   // reset app base path
   void checkAppBasePath()
   {
@@ -135,7 +140,10 @@ public class TopoGL extends Activity
 
   private LinearLayout mLayoutStation;
   private Button mCurrentStation;
-  CheckBox mMeasureStation;
+  Button mMeasureStation;
+  Button mFixStation;
+  boolean isMeasuring = false;
+  boolean isFixed = false;
 
   // used also by DialogSurface
   boolean hasSurface() { return ( mRenderer != null ) && mRenderer.hasSurface(); }
@@ -172,8 +180,13 @@ public class TopoGL extends Activity
     mLayoutStation = (LinearLayout) findViewById( R.id.layout_station );
     mCurrentStation = (Button) findViewById( R.id.current_station );
     mCurrentStation.setOnClickListener( this );
-    mCurrentStation.setOnLongClickListener( this );
-    mMeasureStation = (CheckBox) findViewById( R.id.measure_station );
+    // mCurrentStation.setOnLongClickListener( this );
+
+    mMeasureStation = (Button) findViewById( R.id.measure_station );
+    mFixStation = (Button) findViewById( R.id.fix_station );
+    mMeasureStation.setOnClickListener( this );
+    mFixStation.setOnClickListener( this );
+
     mLayoutStation.setVisibility( View.GONE );
     
     // setWallButton( mRenderer.wall_mode );
@@ -643,16 +656,21 @@ public class TopoGL extends Activity
 
     // mButton1[ BTN_WALL ].setOnClickListener( this );
     // mButton1[ BTN_SURFACE ].setOnClickListener( this );
+
+    mBMmeasureOn  = MyButton.getButtonBackground( this, size, R.drawable.iz_measure_on );
+    mBMmeasureOff = MyButton.getButtonBackground( this, size, R.drawable.iz_measure_off );
+    mBMfixOn      = MyButton.getButtonBackground( this, size, R.drawable.iz_station_on );
+    mBMfixOff     = MyButton.getButtonBackground( this, size, R.drawable.iz_station_off );
   }
 
   // only for BTN_STATION
   @Override 
   public boolean onLongClick( View v ) 
   {
-    if ( v.getId() == R.id.current_station ) {
-      centerAtCurrentStation();
-      return true;
-    }
+    // if ( v.getId() == R.id.current_station ) {
+    //   centerAtCurrentStation();
+    //   return true;
+    // }
 
     Button b = (Button) v;
     if ( b == mButton1[1] ) {
@@ -799,22 +817,29 @@ public class TopoGL extends Activity
   {
     mCurrentStation.setText( text );
     mLayoutStation.setVisibility( View.VISIBLE );
+    isMeasuring = false;
+    isFixed = false;
+    mMeasureStation.setBackground( mBMmeasureOff );
+    mFixStation.setBackground( mBMfixOff );
   }
  
   void closeCurrentStation()
   {
     mLayoutStation.setVisibility( View.GONE );
+    isMeasuring = false;
+    isFixed = false;
     if ( mRenderer != null ) mRenderer.clearStationHighlight();
     if ( mParser   != null ) mParser.clearStartStation();
     GlNames.setHLcolorG( 0.0f );
   }
 
-  void centerAtCurrentStation()
+  boolean centerAtCurrentStation( )
   {
     boolean res = false;
     if ( mRenderer != null ) res = mRenderer.setCenter();
     // Toast.makeText( this, res ? R.string.center_set : R.string.center_clear, Toast.LENGTH_SHORT ).show();
     GlNames.setHLcolorG( res ? 0.5f : 0.0f );
+    return res;
   }
 
   @Override
@@ -873,6 +898,22 @@ public class TopoGL extends Activity
       if ( mRenderer != null ) {
         mRenderer.toggleFrameMode();
         setButtonFrame();
+      }
+    } else if ( b0 == mMeasureStation ) {
+      if ( isMeasuring ) {
+        mMeasureStation.setBackground( mBMmeasureOff );
+        isMeasuring = false;
+      } else {
+        mMeasureStation.setBackground( mBMmeasureOn );
+        isMeasuring = true;
+      }
+    } else if ( b0 == mFixStation ) {
+      if ( centerAtCurrentStation() ) {
+        mFixStation.setBackground( mBMfixOn );
+        isFixed = true;
+      } else {
+        mFixStation.setBackground( mBMfixOff );
+        isFixed = false;
       }
     }
   }

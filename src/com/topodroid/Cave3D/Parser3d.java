@@ -23,6 +23,10 @@ import java.util.ArrayList;
 
 public class Parser3d extends TglParser
 {
+  final static int LINE_SURFACE   = 0x01;
+  final static int LINE_DUPLICATE = 0x02;
+  final static int LINE_SPLAY     = 0x04;
+
   private StringBuffer mLabel;
   private byte[] int32;
   private byte[] int16;
@@ -32,28 +36,131 @@ public class Parser3d extends TglParser
   private double mErrorE, mErrorH, mErrorV;
   private double mLeft, mRight, mUp, mDown;
 
+  double x0, y0, z0; // saved point
+
   public Parser3d( TopoGL app, String filename ) throws ParserException
   {
     super( app, filename );
     mLabel = new StringBuffer();
     int32 = new byte[4];
     int16 = new byte[2];
+    x0 = y0 = z0 = 0;
     readfile( filename );
+    setShotsNames();
   }
+
+  private void setShotsNames()
+  {
+    for (Cave3DShot sp : splays ) {
+      sp.from = sp.from_station.name;
+    }
+    for (Cave3DShot sh : shots ) {
+      sh.from = sh.from_station.name;
+      sh.to   = sh.to_station.name;
+    }
+  }
+
+  private Cave3DStation from0 = null;
 
   private void moveTo( double x, double y, double z )
   {
     // Log.v("TopoGL-3D", "move <" + mLabel.toString() + "> " + x + " " + y + " " + z );
+    x0 = x;
+    y0 = y;
+    z0 = z;
+
+    String survey_name = mLabel.toString();
+    Cave3DSurvey survey = getSurvey( survey_name );
+    if ( survey == null ) {
+      survey = new Cave3DSurvey( survey_name );
+      surveys.add( survey );
+    }
+
+    from0 = getStationAt( x0, y0, z0 );
+    if ( from0 == null ) {
+      from0 = new Cave3DStation( "", x0, y0, z0 );
+      survey.addStation( from0 );
+      stations.add( from0 );
+    }
+  }
+
+  Cave3DStation getStationAt( double x, double y, double z )
+  {
+    for ( Cave3DStation st : stations ) {
+      if ( Math.abs( x - st.x ) < 1.e-7 && Math.abs( y - st.y ) < 1.e-7 && Math.abs( z - st.z ) < 1.e-7 ) return st;
+    }
+    return null;
   }
 
   private void lineTo( double x, double y, double z, int flag )
   {
-    // Log.v("TopoGL-3D", "line <" + mLabel.toString() + "> " + x + " " + y + " " + z + " flag " + flag );
+
+    double len = Math.sqrt( (x-x0)*(x-x0) + (y-y0)*(y-y0) + (z-z0)*(z-z0) );
+    double ber = Math.atan2( x-x0, y-y0 );
+    if ( ber < 0 ) ber += Math.PI;
+    double h = Math.sqrt( (x-x0)*(x-x0) + (y-y0)*(y-y0) );
+    double cln = Math.atan2( z-z0, h );
+
+    String survey_name = mLabel.toString();
+    Cave3DSurvey survey = getSurvey( survey_name );
+    if ( survey == null ) {
+      survey = new Cave3DSurvey( survey_name );
+      surveys.add( survey );
+    }
+
+    Cave3DStation to = null;
+
+    if ( ( flag & LINE_SPLAY ) == LINE_SPLAY ) {
+      to = getStationAt( x, y, z );
+      Cave3DShot splay = new Cave3DShot( from0, null, len, ber, cln, 0, 0 );
+      splays.add( splay );
+      splay.mSurvey = survey;
+      splay.mSurveyNr = survey.number;
+      if ( to != null ) {
+        from0 = to;
+      }
+    } else {
+      // Log.v("TopoGL-3D", "leg <" + mLabel.toString() + "> " + x + " " + y + " " + z + " flag " + flag );
+      long fl = ( flag & 0x03); // LINE_SURFACE | LINE_DUPLICATE
+      to = getStationAt( x, y, z );
+      if ( to == null ) {
+        to = new Cave3DStation( "", x, y, z );
+        survey.addStation( to );
+        stations.add( to );
+      }
+      Cave3DShot shot = new Cave3DShot( from0, to, len, ber, cln, fl, 0 );
+      shots.add( shot );
+      shot.mSurvey = survey;
+      shot.mSurveyNr = survey.number;
+      from0 = to;
+    }
+    x0 = x;
+    y0 = y;
+    z0 = z;
   }
 
   private void labelAt( double x, double y, double z, int flag )
   {
-    Log.v("TopoGL-3D", "label <" + mLabel.toString() + "> " + x + " " + y + " " + z + " flag " + flag );
+    if ( mLabel.length() > 0 ) {
+      int pos = mLabel.lastIndexOf(".");
+      String station_name = mLabel.substring( pos+1 );
+      String survey_name  = mLabel.substring( 0, pos );
+      Cave3DSurvey survey = getSurvey( survey_name );
+      if ( survey == null ) {
+        survey = new Cave3DSurvey( survey_name );
+        surveys.add( survey );
+      }
+      String fullname = station_name + "@" + survey_name;
+      Cave3DStation station = getStationAt( x, y, z );
+      if ( station == null ) {
+        Log.v("TopoGL-3D", "station <" + mLabel.toString() + "> " + x + " " + y + " " + z + " flag " + flag );
+        station = new Cave3DStation( fullname, x, y, z, survey );
+        stations.add( station );
+        survey.addStation( station );
+      } else {
+        station.setName( fullname );
+      }
+    }
   }
 
 
@@ -275,7 +382,7 @@ public class Parser3d extends TglParser
       // assert( read == A );
       mLabel.append( str.toCharArray() );
     }
-    Log.v("TopoGL-3D", "LABEL " + B + ": " + D + " " + A + " .. " + B1 + " " + B2 + " <" + mLabel.toString() + ">" );
+    // Log.v("TopoGL-3D", "LABEL " + B + ": " + D + " " + A + " .. " + B1 + " " + B2 + " <" + mLabel.toString() + ">" );
   }
       
 }

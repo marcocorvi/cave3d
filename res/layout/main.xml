@@ -89,17 +89,33 @@
       android:background="#990066cc"
       android:textColor="#ffffffff"
     />
-    <CheckBox android:id="@+id/measure_station"
+    <Button android:id="@+id/fix_station"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:paddingLeft="5dp"
-      android:paddingRight="10dp"
+      android:paddingRight="5dp"
+      android:background="@drawable/iz_station_off"
+      /><!--
       android:layout_gravity="right"
       android:gravity="right"
       android:text="@string/measure"
       android:background="#990099ff"
       android:textColor="#ffffffff"
-    />
+    / -->
+    <Button android:id="@+id/measure_station"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:paddingLeft="5dp"
+      android:paddingRight="10dp"
+      android:background="@drawable/iz_measure_off"
+      /><!--
+      android:layout_gravity="right"
+      android:gravity="right"
+      android:text="@string/measure"
+      android:background="#990099ff"
+      android:textColor="#ffffffff"
+    / -->
+
   </LinearLayout>
 
 </FrameLayout>
