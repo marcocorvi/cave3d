@@ -236,13 +236,12 @@ public class ParserTh extends TglParser
         double x1=0, y1=0, z1=0; // CS1 E,N,Z
 
         double alat = fx.mLatitude;
-        if ( alat < 0 ) alat = -alat;
         // KML radius is already premultiplied by PI/180
-        double s_radius = ((90 - alat) * ExportKML.EARTH_RADIUS1 + alat * ExportKML.EARTH_RADIUS2)/90;
-        double e_radius = s_radius * Math.cos( alat * PI_180 );
+        double s_radius = Geodetic.meridianRadiusApprox( alat );
+        double e_radius = Geodetic.parallelRadiusApprox( alat );
 
         x0 = fx.mLongitude * e_radius;
-        y0 = fx.mLatitude * s_radius;
+        y0 = fx.mLatitude  * s_radius;
         z0 = fx.mAltitude;
         // Log.v( "TopoGL-TH", "Fix Long-Lat " + x0 + " " + y0 + " " + z0 + " cs1 <" + ((fx.mCsName!=null)?fx.mCsName:"null") + ">" );
         if ( mOrigin == null ) {

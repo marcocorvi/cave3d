@@ -17,17 +17,6 @@ import android.util.Log;
 
 class Cave3DFix extends Vector3D
 {
-  // private static final String TAG = "Cave3D";
-  static private final double EARTH_RADIUS1 = (6378137 * Math.PI / 180.0f); // semimajor axis [m]
-  static private final double EARTH_RADIUS2 = (6356752 * Math.PI / 180.0f);
-
-  static private final double EARTH_A = 6378137;
-  static private final double EARTH_B = 6356752;
-  static private final double EARTH_C = Math.sqrt( EARTH_A * EARTH_A - EARTH_B * EARTH_B );
-  static private final double EARTH_E = EARTH_C / EARTH_A;
-  static private final double EARTH_E2 = EARTH_E * EARTH_E;
-  static private final double EARTH_1E2 = 1.0 - EARTH_E2; // (1- e^2)
-
   /** fix station:
    * fix stations are supposed to be referred to the same coord system
    */
@@ -70,27 +59,12 @@ class Cave3DFix extends Vector3D
 
   double getSNradius() 
   { 
-    if ( isWGS84() ) {
-      // double s = Math.sin( latitude * Math.PI/180 );
-      // double W = Math.sqrt( 1 - EARTH_E2 * s * s );
-      // return EARTH_A * EARTH_1E2 / W;
-      double alat = Math.abs( latitude );
-      return ((90 - alat) * EARTH_RADIUS1 + alat * EARTH_RADIUS2)/90;
-    }
-    return 1.0;
+    return isWGS84()? Geodetic.meridianRadiusApprox( latitude ) : 1.0;
   }
 
   double getWEradius() 
   {
-    if ( isWGS84() ) {
-      // double s = Math.sin( latitude * Math.PI/180 );
-      // double W = Math.sqrt( 1 - EARTH_E2 * s * s );
-      // return EARTH_A / W;
-      double alat = Math.abs( latitude );
-      double s_radius = ((90 - alat) * EARTH_RADIUS1 + alat * EARTH_RADIUS2)/90;
-      return s_radius * Math.cos( alat * Math.PI / 180 );
-    }
-    return 1.0;
+    return isWGS84()? Geodetic.parallelRadiusApprox( latitude ) : 1.0;
   }
 
 }

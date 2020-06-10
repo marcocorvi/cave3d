@@ -46,19 +46,20 @@ public class ExportKML
      mFacets.add( new CWFacet( v1, v2, v3 ) );
   }
 
-  static double EARTH_RADIUS1 = (6378137 * Math.PI / 180.0f); // semimajor axis [m]
-  static double EARTH_RADIUS2 = (6356752 * Math.PI / 180.0f);
-
   private boolean getGeolocalizedData( TglParser data, double decl, double asl_factor )
   {
     // Log.v( "TopoGL-KML", "get geoloc. data. Decl " + decl );
     List< Cave3DFix > fixes = data.getFixes();
-    if ( fixes.size() == 0 ) return false;
+    if ( fixes.size() == 0 ) {
+      // Log.v( "TopoGL-KML", "no geolocalization");
+      return false;
+    }
 
     Cave3DFix origin = null;
     for ( Cave3DFix fix : fixes ) {
-      if ( fix.cs == null ) continue;
-      if ( ! fix.cs.name.equals("long-lat") ) continue;
+      if ( ! fix.hasWGS84 ) continue;
+      // if ( fix.cs == null ) continue;
+      // if ( ! fix.cs.name.equals("long-lat") ) continue;
       for ( Cave3DStation st : data.getStations() ) {
         if ( st.name.equals( fix.name ) ) {
           origin = fix;
@@ -75,17 +76,13 @@ public class ExportKML
 
     // origin has coordinates ( e, n, z ) these are assumed lat-long
     // altitude is assumed wgs84
-    lat = origin.y;
-    lng = origin.x;
+    lat = origin.latitude;
+    lng = origin.longitude;
     asl = origin.z; // KML uses Geoid altitude (unless altitudeMode is set)
     // Log.v( "TopoGL-KML", "origin " + lat + " N " + lng + " E " + asl );
-    double alat = ( lat > 0 )? lat : - lat;
 
-    s_radius = ((90 - alat) * EARTH_RADIUS1 + alat * EARTH_RADIUS2)/90;
-    e_radius = s_radius * Math.cos( alat * Math.PI / 180.0 );
-
-    s_radius = 1 / s_radius;
-    e_radius = 1 / e_radius;
+    s_radius = 1.0 / Geodetic.meridianRadiusApprox( lat );
+    e_radius = 1.0 / Geodetic.parallelRadiusApprox( lat );
 
     return true;
   }

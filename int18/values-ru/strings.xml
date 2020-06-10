@@ -63,7 +63,7 @@
 
     <string name="proj_perspective">Настройки перспективы</string>
     <!-- UNUSED string name="proj_orthographic">Настройки орографической проекции</string -->
-    <tring name="proj_focal">Фокальный</string>
+    <string name="proj_focal">Фокальный</string>
     <!-- UNUSED string name="proj_side">Сбоку</string -->
     <!-- UNUSED string name="proj_near">Вблизи</string -->
     <!-- UNUSED string name="proj_far">Вдали</string -->

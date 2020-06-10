@@ -190,9 +190,9 @@ class GlLines extends GlShape
     for ( Cave3DShot leg : legs ) {
       Cave3DStation f = leg.from_station;
       Cave3DStation t = leg.to_station;
-      col[k] = (float)f.surface_depth;
+      col[k] = /* (f == null)? 0 : */ (float)f.surface_depth;
       ++k;
-      col[k] = (float)t.surface_depth;
+      col[k] = /* (t == null)? 0 : */ (float)t.surface_depth;
       ++k;
     }
     // Log.v("TopoGL-SURFACE", "depth buffer count " + count + " k " + k );

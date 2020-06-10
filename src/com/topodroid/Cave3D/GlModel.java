@@ -720,6 +720,9 @@ public class GlModel
 
     // Log.v("TopoGL", "create model. shots " + parser.getShotNumber() + "/" + parser.getSplayNumber() + " stations " + parser.getStationNumber() );
     for ( Cave3DShot leg : parser.getShots() ) {
+      // make sure legs have stations
+      if ( leg.from_station == null || leg.to_station == null ) continue;
+
       if ( leg.isSurvey() ) {
         legsSurvey.add( leg );
         legs.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, true ); // leg.mSurveyNr = color-index
@@ -774,20 +777,23 @@ public class GlModel
     }
     // names.logMinMax();
 
+    boolean valid_surface = false;
     DEMsurface surface = parser.getSurface();
     if ( surface != null ) {
       mSurfaceBounds = surface.getBounds();
       // Log.v("TopoGL", "parser has surface");
       GlSurface gl_surface = new GlSurface( mContext );
-      gl_surface.initData( surface, mXmed, mYmed, mZmed, parser.surfaceFlipped() );
-      if ( parser.mBitmap != null ) {
-        Bitmap texture = parser.mBitmap.getBitmap( surface.mEast1, surface.mNorth1, surface.mEast2, surface.mNorth2 );
-        if ( texture != null ) {
-          gl_surface.setBitmap( texture );
+      valid_surface = gl_surface.initData( surface, mXmed, mYmed, mZmed, parser.surfaceFlipped() );
+      if ( valid_surface ) {
+        if ( parser.mBitmap != null ) {
+          Bitmap texture = parser.mBitmap.getBitmap( surface.mEast1, surface.mNorth1, surface.mEast2, surface.mNorth2 );
+          if ( texture != null ) {
+            gl_surface.setBitmap( texture );
+          }
         }
+        synchronized( this ) { glSurface = gl_surface; }
+        prepareSurfaceLegs( parser, surface );
       }
-      synchronized( this ) { glSurface = gl_surface; }
-      prepareSurfaceLegs( parser, surface );
     }
 
     legsS.initData( );
@@ -799,7 +805,7 @@ public class GlModel
     float grid_size = (float)parser.getGridSize();
     prepareGridAndFrame( legs, grid_size, mGridExtent*grid_size );
 
-    if ( surface != null ) {
+    if ( valid_surface /* && surface != null */ ) {
       double surface_zmax = prepareStationSurfaceDepth( parser, surface );
       legs.prepareDepthBuffer(  legsSurvey );
       legsS.prepareDepthBuffer( legsSurface );

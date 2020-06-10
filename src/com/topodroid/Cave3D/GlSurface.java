@@ -53,12 +53,14 @@ class GlSurface extends GlShape
   static void setAlpha( float a ) { mAlpha = ( a < 0 )? 0f : ( a > 1 )? 1f : a; }
  
   private Bitmap mBitmap = null;
+  boolean isValid;
 
   // texture: bitmap resource
   // data[] comps: X-east, Y-up, Z-south
   GlSurface( Context ctx ) 
   {
     super( ctx );
+    isValid = false;
   }
 
   
@@ -67,28 +69,29 @@ class GlSurface extends GlShape
   // PROGRAM
 
   // DEM data in survey frame, XYZ med in OpenGL
-  void initData( ParserDEM dem, double xmed, double ymed, double zmed )
+  boolean initData( ParserDEM dem, double xmed, double ymed, double zmed )
   {
     int nx = dem.dimX();
     int ny = dem.dimY();
-    if ( nx <= 1 || ny <= 1 ) return;
+    if ( nx <= 1 || ny <= 1 ) return false;
     float dx = (float)( dem.cellXSize() );
     float dy = (float)( dem.cellYSize() );
     float x0 = (float)( dem.west() - xmed );
     float y0 = (float)( dem.south() + zmed );
     // Log.v("TopoGL", "DEM " + nx + "x" + ny + " W " + dem.west() + " S " + dem.south() );
-    initDataBuffer( dem.data(), nx, ny, dx, dy, x0, y0, (float)ymed ); // ymed = survey data medium elevation
+    isValid = initDataBuffer( dem.data(), nx, ny, dx, dy, x0, y0, (float)ymed ); // ymed = survey data medium elevation
     // logData( dem.data(), nx, ny, x0, (x0+nx*dx), y0, (y0+ny*dy) );
+    return isValid;
   }
 
   // Lox/Therion DEM data in survey frame, XYZ med in OpenGL
   // therion grid data are for ( east .. west ) for ( north .. south ) 
   // N.B. value are already in E-N frame, therefore "add" zmed (which is south)
-  void initData( DEMsurface surface, double xmed, double ymed, double zmed, boolean flip )
+  boolean  initData( DEMsurface surface, double xmed, double ymed, double zmed, boolean flip )
   {
     int nx = surface.mNr1;
     int nz = surface.mNr2;
-    if ( nx <= 1 || nz <= 1 ) return;
+    if ( nx <= 1 || nz <= 1 ) return false;
     float dx = (float)( surface.mDim1 );
     float x0 = (float)( surface.mEast1  - xmed );
    
@@ -99,8 +102,9 @@ class GlSurface extends GlShape
 
     // Log.v("TopoGL", "surface " + nx + "x" + nz + " E " + surface.mEast1 + " " + surface.mEast2 + " " + x0 + " N " + surface.mNorth1 + " " + surface.mNorth2 + " " + z0 + " Dx " + dx + " Dz " + dz );
     // Log.v("TopoGL", "Z " + surface.mZ[0] + " " + surface.mZ[1] + " " + surface.mZ[2] + " " + surface.mZ[3] + " " + surface.mZ[4] + " " + surface.mZ[5] + " " + surface.mZ[6] + " ... ");
-    initDataBuffer( surface.mZ, nx, nz, dx, dz, x0, z0, (float)ymed ); // ymed = survey data medium elevation
+    isValid = initDataBuffer( surface.mZ, nx, nz, dx, dz, x0, z0, (float)ymed ); // ymed = survey data medium elevation
     // logData( surface.mZ, nx, nz, x0, (x0+nx*dx), z0, (z0+nz*dz) );
+    return isValid;
   }
 
   // take ownership of the bitmap
@@ -243,10 +247,10 @@ class GlSurface extends GlShape
     buffer[boff+2] = z/d;
   }
 
-  private void initDataBuffer( float[] data, int nx, int nz, float dx, float dz, float xx, float zz, float ymed )
+  private boolean initDataBuffer( float[] data, int nx, int nz, float dx, float dz, float xx, float zz, float ymed )
   {
     triangleCount = vertexCount = 0;
-    if ( nx <= 1 || nz <= 1 ) return;
+    if ( nx <= 1 || nz <= 1 ) return false;
     triangleCount = (nx-1) * (nz-1) * 2;
     vertexCount   = triangleCount * 3;
     float[] tmp = new float[ STRIDE * vertexCount ];
@@ -289,6 +293,7 @@ class GlSurface extends GlShape
     // Log.v("TopoGL", "tmp length " + tmp.length );
     dataBuffer = GL.getFloatBuffer( tmp.length );
     dataBuffer.put( tmp );
+    return true;
   }
       
 /* TODO
