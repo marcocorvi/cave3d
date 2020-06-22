@@ -13,11 +13,11 @@
     <string name="btn_zoom_out">Зум -</string>
 
     <string name="menu_open">Открыть файл</string>
-    <string name="menu_options">Опции</string>
+    <string name="menu_options">Настройки</string>
     <string name="menu_reset">Сброс</string>
     <!-- UNUSED string name="menu_zoom_one">Зум 1</string -->
 
-    <string name="menu_alpha">Прозрачность DEM</string>
+    <string name="menu_alpha">Параметры рельефа DEM</string>
     <string name="menu_viewpoint">Точка просмотра</string>
     <string name="menu_files">Съёмки</string>
     <string name="menu_export">Экспорт</string>
@@ -32,7 +32,7 @@
     <string name="fractal_title">Кол-во фракталов</string>
     <string name="info_title">ИНФО</string>
     <string name="info_axes">Оси: синий Север, зеленый Восток</string>
-    <string name="info_grid">Сетка рамки [м]</string>
+    <string name="info_grid">Шаг сетки [м]</string>
     <string name="info_view">Точка просмотра</string>
     <string name="info_surveys">Съёмки</string>
     <string name="info_shot">Замеры</string>
@@ -104,9 +104,9 @@
     <string name="title_legs">Видимость нитки хода</string>
 
     <string name="survey_legs"> Замеры: </string>
-    <string name="survey_legs_length"> Длинна замеров: </string>
+    <string name="survey_legs_length"> Длина замеров: </string>
     <string name="survey_splays"> Сплеи: </string>
-    <string name="survey_splays_length"> Длинна сплеев: </string>
+    <string name="survey_splays_length"> Длина сплеев: </string>
 
     <string name="cave_east"> E: %1$.1f</string>
     <string name="cave_north"> N: %1$.1f</string>
@@ -114,11 +114,11 @@
 
     <string name="cave_distance"> 3D расстояние: %1$.2f</string>
     <string name="horz_distance"> 2D гоизонтальное проложение: %1$.1f</string>
-    <string name="cave_length"> Длинна пещеры: %1$.2f</string>
+    <string name="cave_length"> Длина пещеры: %1$.2f</string>
     <string name="cave_angle"> Азимут: %1$.0f  Уклон: %2$.0f</string>
 
     <string name="SURVEYS">С Ъ Ё М К И</string>
-    <string name="INFO">И Н Ф О</string>
+    <string name="INFO">И Н Ф О Р М А Ц И Я</string>
     <string name="EXPORT">Э К С П О Р Т</string>
     <string name="STATION">П И К Е Т</string>
     <string name="STATIONS_DISTANCE">УДАЛЁННОСТЬ ПИКЕТОВ</string>
@@ -136,7 +136,7 @@
     <string name="view_north">Север</string>
     <string name="view_west">Запад</string>
     <string name="view_south">Юг</string>
-    <string name="view_point">Точка просмотра</string>
+    <string name="view_point">Точка обзора</string>
     <string name="view_zoom">Зум 1</string>
 
     <string name="walls_title">СТЕНЫ</string>
@@ -218,7 +218,7 @@
    
     <string name="pref_dem_maxsize_title">Максимальный размер DEM</string>
     <string name="pref_dem_maxsize_summary">Максимальное число ячеек сетки [400]</string>
-    <string name="pref_dem_reduce_title">уменьшить DEM</string>
+    <string name="pref_dem_reduce_title">Уменьшение DEM</string>
     <string name="pref_dem_reduce_summary">режим уменьшения DEM [сократить]</string>
   
     <string name="pref_all_splay_title">Все сплеи</string>
