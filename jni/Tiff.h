@@ -53,9 +53,14 @@ typedef struct Tiff
   uint16 mDirectoryKey;
   
   uint32 * mImage;
-  
+
   double mXpos,  mYpos;
   double mXcell, mYcell;
+
+  // used in read scanline with palette (colormap)
+  unsigned char * mPaletteRed;
+  unsigned char * mPaletteGreen;
+  unsigned char * mPaletteBlue;
 
 } TiffStruct;
 
@@ -106,6 +111,10 @@ void copyTile( TiffStruct * tiff, unsigned char * ret, uint32 x1, uint32 y1, uin
                unsigned char * tile, uint32 x2, uint32 y2, uint32 nxx, uint32 nyy );
 void copyTilePlane( TiffStruct * tiff, unsigned char * ret, uint32 x1, uint32 y1, uint32 width,
                     unsigned char * tile, uint32 x2, uint32 y2, uint32 nxx, uint32 nyy, uint16 s );
+
+int readPalette( TiffStruct * tiff );
+void releasePalette( TiffStruct * tiff );
+void resetPalette( TiffStruct * tiff );
 
 #ifdef __cplusplus
 }

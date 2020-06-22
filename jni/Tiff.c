@@ -163,13 +163,23 @@ getSubImage( const char * filename, double x1, double y1, double x2, double y2 )
   unsigned char * ret = (unsigned char *)malloc( size ); // BPP bytes per pixel
   memset( ret, 0xff, size ); // init white
 
-  // these are faster than imageRead
-  if ( tiff->mStripRows == 1 ) {
-    scanlineRead( tiff, xoff, yoff, xend, yend, ret, xstart, ystart, mImageWidth );
+  resetPalette( tiff );
+  if ( tiff->mCompression == 1 && tiff->mPhotometric == 2 ) {
+    if ( tiff->mStripRows == 1 ) {
+      scanlineRead( tiff, xoff, yoff, xend, yend, ret, xstart, ystart, mImageWidth );
+    } else {
+      stripRead( tiff, xoff, yoff, xend, yend, ret, xstart, ystart, mImageWidth );
+    }
+  } else if ( tiff->mPhotometric == 3 && readPalette( tiff ) == 1 ) {
+    if ( tiff->mStripRows == 1 ) {
+      scanlineRead( tiff, xoff, yoff, xend, yend, ret, xstart, ystart, mImageWidth );
+    } else {
+      stripRead( tiff, xoff, yoff, xend, yend, ret, xstart, ystart, mImageWidth );
+    }
+    releasePalette( tiff );
   } else {
-    stripRead( tiff, xoff, yoff, xend, yend, ret, xstart, ystart, mImageWidth );
+    imageRead( tiff, xoff, yoff, xend, yend, ret, xstart, ystart, mImageWidth );
   }
-  // imageRead( tiff, xoff, yoff, xend, yend, ret, xstart, ystart, mImageWidth );
 
   // uint32 linewidth = (mWidth * mBps + 7 ) / 8; // 8 bits per byte
   // assert( linewidth <= mSLSize );
@@ -181,6 +191,48 @@ getSubImage( const char * filename, double x1, double y1, double x2, double y2 )
 
   return ret;
 }
+
+int
+readPalette( TiffStruct * tiff )
+{
+  uint16 * red;
+  uint16 * green;
+  uint16 * blue;
+  // tiff->mPaletteRed   = NULL; // not necessary
+  // tiff->mPaletteGreen = NULL;
+  // tiff->mPaletteBlue  = NULL;
+  if ( TIFFGetField( tiff->tif, TIFFTAG_COLORMAP, &red, &green, &blue ) ) {
+    uint16 nColors = 1U << tiff->mBps;
+    tiff->mPaletteRed   = (unsigned char *)malloc( nColors * sizeof(unsigned char) );
+    tiff->mPaletteGreen = (unsigned char *)malloc( nColors * sizeof(unsigned char) );
+    tiff->mPaletteBlue  = (unsigned char *)malloc( nColors * sizeof(unsigned char) );
+    for ( uint16 k = 0; k < nColors; ++k ) {
+      tiff->mPaletteRed[k]   = (unsigned char)( red[k]   >> 8 );
+      tiff->mPaletteGreen[k] = (unsigned char)( green[k] >> 8 );
+      tiff->mPaletteBlue[k]  = (unsigned char)( blue[k]  >> 8 );
+    }
+    return 1;
+  }
+  return 0;
+}
+
+void
+releasePalette( TiffStruct * tiff )
+{
+  if ( tiff->mPaletteRed   != NULL ) free( tiff->mPaletteRed );
+  if ( tiff->mPaletteGreen != NULL ) free( tiff->mPaletteGreen );
+  if ( tiff->mPaletteBlue  != NULL ) free( tiff->mPaletteBlue );
+}
+
+void
+resetPalette( TiffStruct * tiff )
+{
+  tiff->mPaletteRed   = NULL;
+  tiff->mPaletteGreen = NULL;
+  tiff->mPaletteBlue  = NULL;
+}
+
+
 
 // -----------------------------------------------------------------
 // to use TIFFReadRGBAImage
@@ -248,20 +300,38 @@ imageRead2( TiffStruct * tiff, uint32 xoff, uint32 yoff, uint32 xend, uint32 yen
 void
 copyScanline( TiffStruct * tiff, unsigned char * ret, uint32 start, unsigned char * buf, uint32 xoff, uint32 ww )
 {
-  for ( uint32 i = 0; i < ww; ++i ) {
-    uint32 x1 = BPP*(start+i) + (BPP - tiff->mBpp); // red
-    uint32 x2 = tiff->mBpp*(xoff+i);
-    for ( uint16 b = 0; b<tiff->mBpp; ++b ) ret[x1++] = buf[x2++];
+  if ( tiff->mPaletteRed != NULL ) {
+    for ( uint32 i = 0; i < ww; ++i ) {
+      uint32 x1 = BPP*(start+i);
+      uint32 x2 = buf[ xoff+i ];
+      ret[x1++] = tiff->mPaletteRed[ x2 ];
+      ret[x1++] = tiff->mPaletteGreen[ x2 ];
+      ret[x1  ] = tiff->mPaletteBlue[ x2 ];
+    }
+  } else {
+    for ( uint32 i = 0; i < ww; ++i ) {
+      uint32 x1 = BPP*(start+i) + (BPP - tiff->mBpp); // red
+      uint32 x2 = tiff->mBpp*(xoff+i);
+      for ( uint16 b = 0; b<tiff->mBpp; ++b ) ret[x1++] = buf[x2++];
+    }
   }
 }
 
 void
 copyScanPlane( TiffStruct * tiff, unsigned char * ret, uint32 start, unsigned char * buf, uint32 xoff, uint32 ww, uint16 plane )
 {
-  for ( uint32 i = 0; i < ww; ++i ) {
-    uint32 x1 = BPP*(start+i) + (BPP - tiff->mBpp) + plane; // red
-    uint32 x2 = xoff + i;
-    ret[x1] = buf[x2];
+  if ( tiff->mPaletteRed != NULL ) {
+    unsigned char * palette = ( plane == 0 )? tiff->mPaletteRed : (plane == 1)? tiff->mPaletteGreen : tiff->mPaletteBlue;
+    for ( uint32 i = 0; i < ww; ++i ) {
+      ret[ BPP*(start+i) + plane ] = palette[ buf[ xoff+i ] ];
+    }
+
+  } else {
+    for ( uint32 i = 0; i < ww; ++i ) {
+      uint32 x1 = BPP*(start+i) + (BPP - tiff->mBpp) + plane; // red
+      uint32 x2 = xoff + i;
+      ret[x1] = buf[x2];
+    }
   }
 }
 
@@ -452,7 +522,9 @@ void
 closeTiff( TiffStruct * tiff )
 {
   if ( tiff->tif != NULL ) {
-    TIFFClose( tiff->tif );
+    // FIXME  tif should be closed but this produces a segfault
+    // TIFFClose( tiff->tif );
+    tiff->tif = NULL;
   }
 }
 

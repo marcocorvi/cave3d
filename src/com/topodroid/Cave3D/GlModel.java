@@ -531,6 +531,7 @@ public class GlModel
     // Log.v("TopoGL", "prepare surface legs. Shots " + parser.getShots().size() );
     GlLines surface_legs = new GlLines( mContext, TglColor.ColorSurfaceLeg );
     for ( Cave3DShot leg : parser.getShots() ) {
+      if ( leg.from_station == null || leg.to_station == null ) continue; // skip fake-legs
       Vector3D v1 = new Vector3D( leg.from_station );
       Vector3D v2 = new Vector3D( leg.to_station );
       v1.z = surface.computeZ( v1.x, v1.y );
@@ -720,9 +721,7 @@ public class GlModel
 
     // Log.v("TopoGL", "create model. shots " + parser.getShotNumber() + "/" + parser.getSplayNumber() + " stations " + parser.getStationNumber() );
     for ( Cave3DShot leg : parser.getShots() ) {
-      // make sure legs have stations
-      if ( leg.from_station == null || leg.to_station == null ) continue;
-
+      if ( leg.from_station == null || leg.to_station == null ) continue; // skip fake-legs
       if ( leg.isSurvey() ) {
         legsSurvey.add( leg );
         legs.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, true ); // leg.mSurveyNr = color-index
