@@ -134,11 +134,11 @@ public class TglParser
     if ( path == null ) return false;
     File file = new File( path );
     if ( ! file.exists() ) {
-      Toast.makeText( mApp, mApp.getResources().getString( R.string.error_file_not_found ) + " " + path, Toast.LENGTH_LONG ).show();
+      if ( mApp != null ) mApp.toast( R.string.error_file_not_found, path, true );
       return false;
     }
     if ( ! file.canRead() ) {
-      Toast.makeText( mApp, mApp.getResources().getString( R.string.error_file_not_readable ) + " " + path, Toast.LENGTH_LONG ).show();
+      if ( mApp != null ) mApp.toast( R.string.error_file_not_readable, path, true );
       return false;
     }
     return true;
@@ -585,9 +585,9 @@ public class TglParser
           // TODO
         }
       } catch ( FileNotFoundException e ) { 
-        if ( mApp != null ) mApp.toast( R.string.error_file_not_found, true );
+        if ( mApp != null ) mApp.toast( R.string.error_file_not_found, filename, true );
       } catch ( IOException e ) {
-        if ( mApp != null ) mApp.toast( R.string.error_io_exception, true );
+        if ( mApp != null ) mApp.toast( R.string.error_io_exception, filename, true );
       } finally {
         if ( fw != null ) {
           try {

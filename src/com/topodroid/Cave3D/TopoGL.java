@@ -84,9 +84,9 @@ public class TopoGL extends Activity
 
   static String EXTERNAL_STORAGE_PATH =  // app base path
     NOT_ANDROID_11 ? Environment.getExternalStorageDirectory().getAbsolutePath()
-                   : null; 
-                   // : Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+                   : Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
                    // : "/sdcard";
+                   // : null; 
 
   static String HOME_PATH = EXTERNAL_STORAGE_PATH;
                           // "/sdcard/Android/data/com.topodroid.Cave3D/files";

@@ -159,9 +159,9 @@
     <string name="no_model">No 3D model</string>
     <string name="no_topodroid_model">Not a TopoDroid model</string>
 
-    <string name="error_file_not_found">Error: file not found</string>
-    <string name="error_file_not_readable">Error: file not readable</string>
-    <string name="error_io_exception">Error: IO exception</string>
+    <string name="error_file_not_found">Error: file not found %1$s</string>
+    <string name="error_file_not_readable">Error: file not readable %1$s</string>
+    <string name="error_io_exception">Error: IO exception %1$s</string>
     <string name="error_parser_error">Error: parser error %1$s</string>
     <string name="error_export_failed">Error: failed export %1$s</string>
 
