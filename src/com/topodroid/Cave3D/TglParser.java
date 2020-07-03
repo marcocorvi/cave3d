@@ -134,11 +134,11 @@ public class TglParser
     if ( path == null ) return false;
     File file = new File( path );
     if ( ! file.exists() ) {
-      if ( mApp != null ) mApp.toast( R.string.error_file_not_found, path, true );
+      if ( mApp != null ) mApp.uiToast( R.string.error_file_not_found, path, true );
       return false;
     }
     if ( ! file.canRead() ) {
-      if ( mApp != null ) mApp.toast( R.string.error_file_not_readable, path, true );
+      if ( mApp != null ) mApp.uiToast( R.string.error_file_not_readable, path, true );
       return false;
     }
     return true;
@@ -505,7 +505,7 @@ public class TglParser
               }
             }
           } else if ( powercrustcomputer == null || ! powercrustcomputer.hasTriangles() ) {
-            if ( mApp != null ) mApp.toast(R.string.powercrust_dxf_not_supported, pathname, true );
+            if ( mApp != null ) mApp.uiToast(R.string.powercrust_dxf_not_supported, pathname, true );
             return;
           }
         }
@@ -558,9 +558,9 @@ public class TglParser
       }
       if ( mApp != null ) { // CRASH here - this should not be necessary
         if ( ret ) {
-          mApp.toast(R.string.ok_export, pathname);
+          mApp.uiToast(R.string.ok_export, pathname, false);
         } else {
-          mApp.toast(R.string.error_export_failed, pathname, true );
+          mApp.uiToast(R.string.error_export_failed, pathname, true );
         }
       }
     }
@@ -585,9 +585,9 @@ public class TglParser
           // TODO
         }
       } catch ( FileNotFoundException e ) { 
-        if ( mApp != null ) mApp.toast( R.string.error_file_not_found, filename, true );
+        if ( mApp != null ) mApp.uiToast( R.string.error_file_not_found, filename, true );
       } catch ( IOException e ) {
-        if ( mApp != null ) mApp.toast( R.string.error_io_exception, filename, true );
+        if ( mApp != null ) mApp.uiToast( R.string.error_io_exception, filename, true );
       } finally {
         if ( fw != null ) {
           try {
@@ -597,7 +597,7 @@ public class TglParser
         }
       }
     // } else  {
-    //   if ( mApp != null ) mApp.toast( "ConvexHull walls are disabled" );
+    //   if ( mApp != null ) mApp.uiToast( "ConvexHull walls are disabled" );
     // }
   }
 
@@ -605,7 +605,7 @@ public class TglParser
   {
     // Log.v( "Cave3D-CHECK", "Check file " + pathname + " overwrite " + overwrite );
     if ( (new File(pathname)).exists() && ! overwrite ) {
-      if ( mApp != null ) mApp.toast(R.string.warning_not_overwrite, pathname);
+      if ( mApp != null ) mApp.uiToast(R.string.warning_not_overwrite, pathname, false);
       return false;
     }
     return true;
@@ -649,7 +649,7 @@ public class TglParser
           }
         }).execute();
       }
-      // if ( mCave3D != null ) mCave3D.toast( "computing convex hull walls" );
+      // if ( mApp != null ) mApp.uiToast( "computing convex hull walls" );
     }
     // if ( mApp != null ) mApp.setButtonWall(); // private
   }

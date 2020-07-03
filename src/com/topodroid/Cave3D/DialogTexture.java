@@ -27,7 +27,6 @@ import android.widget.ListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -118,7 +117,7 @@ class DialogTexture extends Dialog
       }
     } else {
       // should never comes here
-      Toast.makeText( mContext, R.string.warning_no_cwd, Toast.LENGTH_LONG ).show();
+      if ( mApp != null ) mApp.uiToast( R.string.warning_no_cwd, true );
     }
   }
 
@@ -137,7 +136,7 @@ class DialogTexture extends Dialog
         mBaseDir = parent_dir;
         updateList( mBaseDir );
       } else {
-        Toast.makeText( mContext, R.string.warning_no_parent, Toast.LENGTH_LONG ).show();
+        if ( mApp != null ) mApp.uiToast( R.string.warning_no_parent, true );
       }
       return;
     }

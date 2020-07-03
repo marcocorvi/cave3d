@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.TreeSet;
 
 // import android.content.Context;
-// import android.widget.Toast;
 
 import android.util.Log;
 
@@ -391,7 +390,6 @@ class FractalComputer
       FractalResult.setCount( k, res );
     }
 
-    // Toast.makeText( mContext, "Fractal compute finished", Toast.LENGTH_SHORT ).show();
     // Log.v( TAG, "processed finished");
 
     FractalResult.releaseComputer();

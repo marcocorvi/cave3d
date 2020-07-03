@@ -98,7 +98,7 @@ class MeasureComputer extends AsyncTask< Void, Void, Integer >
       case MEASURE_OK:
       case MEASURE_NO_PATH:
         if ( TopoGL.mMeasureToast ) {
-          Toast.makeText( mApp, mMeasure.getString(), Toast.LENGTH_LONG ).show();
+          if ( mApp != null ) mApp.uiToast( mMeasure.getString(), false );
         } else {
           (new DialogMeasure( mApp, mMeasure )).show();
         }
@@ -127,7 +127,7 @@ class MeasureComputer extends AsyncTask< Void, Void, Integer >
               }
             }
             mApp.showCurrentStation( msg );
-            // Toast.makeText( mApp, msg, Toast.LENGTH_SHORT ).show();
+            // if ( mApp != null ) mApp.uiToast( msg, false );
           }
         }
         break;

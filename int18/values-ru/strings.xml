@@ -159,6 +159,8 @@
 
     <string name="error_file_not_found">Ошибка: файл не обнаружен %1$s</string>
     <string name="error_file_not_readable">Ошибка: файл не читается %1$s</string>
+    <!-- TODO string name="error_file_read">Error: file %1$s failed read</string -->
+    <!-- TODO string name="error_survey_read">Error: survey %1$s failed read</string -->
     <string name="error_io_exception">Ошибка: IO ввода-вывода %1$s</string>
     <string name="error_parser_error">Ошибка: ошибка парсера %1$s</string>
     <string name="error_export_failed">Ошибка: неудачный экспорт %1$s</string>
@@ -210,7 +212,7 @@
     <string name="pref_grid_above_title">Сетка сверху</string>
     <string name="pref_grid_above_summary">Сетка сверху</string>
     <string name="pref_grid_extent_title">Размер сетки</string>
-    <string name="pref_grid_extend_summary">Размер поля сетки вокруг съёмки</string>
+    <!-- UNUSED string name="pref_grid_extend_summary">Размер поля сетки вокруг съёмки</string -->
     <string name="pref_neg_clino_title">Обзор снизу вверх</string>
     <string name="pref_neg_clino_summary">Разрешить точки обзора ниже горизонта</string>
     <string name="pref_dem_buffer_title">Буфер DEM</string>

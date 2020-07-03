@@ -35,7 +35,6 @@ import android.widget.EditText;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.CheckBox;
-import android.widget.Toast;
 
 public class DialogExport extends Dialog 
                           implements View.OnClickListener
@@ -160,7 +159,7 @@ public class DialogExport extends Dialog
       } } );
 
     if ( files == null || files.length == 0 ) {
-      Toast.makeText( mContext, R.string.no_files, Toast.LENGTH_SHORT ).show();
+      if ( mApp != null ) mApp.uiToast( R.string.no_files, false );
       return;
     }
     ArrayList<String> dirs  = new ArrayList<String>();

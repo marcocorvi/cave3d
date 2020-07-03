@@ -34,7 +34,6 @@ import android.widget.TextView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.Toast;
 
 class DialogOpenFile extends Dialog
                      implements OnItemClickListener
@@ -112,7 +111,7 @@ class DialogOpenFile extends Dialog
       String[] dirs  = dir.list( new MyDirnameFilter() );
       String[] files = dir.list( new MyFilenameFilter() );
       if ( dirs == null && files == null ) {
-        Toast.makeText( mContext, R.string.warning_empty_cwd, Toast.LENGTH_LONG ).show();
+        if ( mApp != null ) mApp.uiToast( R.string.warning_empty_cwd, true );
         return false;
       }
       mArrayAdapter.clear();
@@ -129,12 +128,12 @@ class DialogOpenFile extends Dialog
           mArrayAdapter.add( item, false );
         }
       } else {
-        Toast.makeText( mContext, R.string.warning_no_file, Toast.LENGTH_LONG ).show();
+        if ( mApp != null ) mApp.uiToast( R.string.warning_no_file, true );
       }
       return true;
     } else {
       // should never comes here
-      Toast.makeText( mContext, R.string.warning_no_cwd, Toast.LENGTH_LONG ).show();
+      if ( mApp != null ) mApp.uiToast( R.string.warning_no_cwd, true );
       return false;
     }
   }
@@ -155,7 +154,7 @@ class DialogOpenFile extends Dialog
           mApp.mAppBasePath = parent_dir;
         }
       } else {
-        Toast.makeText( mContext, R.string.warning_no_parent, Toast.LENGTH_LONG ).show();
+        if ( mApp != null ) mApp.uiToast( R.string.warning_no_parent, true );
       }
       return;
     }

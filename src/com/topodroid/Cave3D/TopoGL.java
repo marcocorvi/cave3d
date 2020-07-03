@@ -1516,6 +1516,65 @@ public class TopoGL extends Activity
     Toast.makeText( this, msg, Toast.LENGTH_SHORT).show();
   }
 
+  void uiToast( final String r, final boolean loong ) 
+  {
+    final Context ctx = this;
+    runOnUiThread( new Runnable() {
+        public void run() {
+          if ( loong ) {
+            Toast.makeText( ctx, r, Toast.LENGTH_LONG ).show();
+          } else {
+            Toast.makeText( ctx, r, Toast.LENGTH_SHORT ).show();
+          }
+        }
+    } );
+  }
+
+  void uiToast( final int r, final boolean loong ) 
+  {
+    final Context ctx = this;
+    runOnUiThread( new Runnable() {
+        public void run() {
+          if ( loong ) {
+            Toast.makeText( ctx, r, Toast.LENGTH_LONG ).show();
+          } else {
+            Toast.makeText( ctx, r, Toast.LENGTH_SHORT ).show();
+          }
+        }
+    } );
+  }
+
+  void uiToast( final int r, final String str, final boolean loong ) 
+  {
+    final Context ctx = this;
+    String msg = String.format( getResources().getString( r ), str );
+    runOnUiThread( new Runnable() {
+        public void run() {
+          if ( loong ) {
+            Toast.makeText( ctx, msg, Toast.LENGTH_LONG ).show();
+          } else {
+            Toast.makeText( ctx, msg, Toast.LENGTH_SHORT ).show();
+          }
+        }
+    } );
+  }
+
+  void uiToast( final String r, final String str, final boolean loong ) 
+  {
+    final Context ctx = this;
+    String msg = String.format( r, str );
+    runOnUiThread( new Runnable() {
+        public void run() {
+          if ( loong ) {
+            Toast.makeText( ctx, msg, Toast.LENGTH_LONG ).show();
+          } else {
+            Toast.makeText( ctx, msg, Toast.LENGTH_SHORT ).show();
+          }
+        }
+    } );
+  }
+
+
   // ------------------------------------------------------------------
 
   private boolean initRendering( String survey, String base ) 

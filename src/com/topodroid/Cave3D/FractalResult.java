@@ -15,7 +15,6 @@ package com.topodroid.Cave3D;
 import android.os.AsyncTask;
 import android.content.Context;
 
-import android.widget.Toast;
 import android.graphics.Bitmap;
 
 class FractalResult
@@ -40,7 +39,7 @@ class FractalResult
 
         public void onPostExecute( Void v )
         {
-          Toast.makeText( mContext, R.string.done_fractals, Toast.LENGTH_SHORT ).show();
+          if ( mApp != null ) mApp.toast( R.string.done_fractals, false );
         }
     }).execute();
     return 0;
@@ -49,13 +48,7 @@ class FractalResult
   static void releaseComputer()
   {
     computer = null;
-    if ( mApp != null ) {
-      mApp.runOnUiThread( new Runnable() {
-        public void run() {
-          Toast.makeText( mContext, "Fractal compute finished", Toast.LENGTH_SHORT ).show();
-        }
-      } );
-    }
+    if ( mApp != null ) mApp.uiToast( "Fractal compute finished", false );
   }
 
   static void setCount(int k, double val) { mCount[k] = val; }

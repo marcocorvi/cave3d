@@ -98,9 +98,9 @@ public class ParserTh extends TglParser
 
     StringWriter sw = new StringWriter();
     PrintWriter  pw = new PrintWriter( sw );
-    pw.printf("Read survey " + surveyname + "\n");
+    pw.printf( String.format( mApp.getResources().getString( R.string.read_survey ), surveyname ) );
     int res = readSurvey( surveyname, "", false, 0, pw );
-    Toast.makeText( mApp, sw.toString(), Toast.LENGTH_LONG ).show();
+    if ( mApp != null ) mApp.uiToast( sw.toString(), false );
 
     if ( res == SUCCESS ) {
       processShots();
@@ -629,7 +629,7 @@ public class ParserTh extends TglParser
                                    units_len, units_ber, units_cln, pw );
                   if ( res != SUCCESS ) {
                     Log.e( "Cave3D-TH", "read file " + filename + " failed. Error code " + res );
-                    Toast.makeText( mApp, "Failed read file " + filename + " code " + res, Toast.LENGTH_LONG ).show();
+                    if ( mApp != null ) mApp.uiToast( R.string.error_file_read, filename, true );
                   }
                 } else {
                   Log.e( "Cave3D-TH", "Input file <" + filename + "> has no .th extension");
@@ -658,7 +658,7 @@ public class ParserTh extends TglParser
                 int res = readSurvey( filename, path, use_survey_declination, survey_declination, pw );
                 if ( res != SUCCESS ) {
                   Log.e( "Cave3D-TH", "read survey " + filename + " failed. Error code " + res );
-                  Toast.makeText( mApp, "Failed read survey " + filename + " code " + res, Toast.LENGTH_LONG ).show();
+                  if ( mApp != null ) mApp.uiToast( R.string.error_survey_read, filename, true );
                 }
               }
             } else if ( cmd.equals("equate") ) {
