@@ -159,8 +159,8 @@
 
     <string name="error_file_not_found">Ошибка: файл не обнаружен %1$s</string>
     <string name="error_file_not_readable">Ошибка: файл не читается %1$s</string>
-    <!-- TODO string name="error_file_read">Error: file %1$s failed read</string -->
-    <!-- TODO string name="error_survey_read">Error: survey %1$s failed read</string -->
+    <string name="error_file_read">Ошибка: не удалось прочитать файл %1$s </string>
+    <string name="error_survey_read">Ошибка: не удалось прочитать съёмку %1$s </string>
     <string name="error_io_exception">Ошибка: IO ввода-вывода %1$s</string>
     <string name="error_parser_error">Ошибка: ошибка парсера %1$s</string>
     <string name="error_export_failed">Ошибка: неудачный экспорт %1$s</string>
