@@ -30,7 +30,6 @@ class GlSurface extends GlShape
 
   static int   mStyle = STYLE_FILL; // TODO to be used
 
-
   final static int COORDS_PER_VERTEX = 3;
   final static int COORDS_PER_NORMAL = 3;
   final static int COORDS_PER_TEXEL  = 2;
@@ -62,8 +61,6 @@ class GlSurface extends GlShape
     super( ctx );
     isValid = false;
   }
-
-  
 
   // ------------------------------------------------------
   // PROGRAM

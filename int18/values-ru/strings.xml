@@ -84,6 +84,9 @@
     <string name="style_fill">Заливка</string>
     <string name="surface_projection">Проекция на DEM</string>
     <string name="surface_texture">Текстура поверхности</string>
+    <!-- TODO string name="surface_gps">GPS track</string -->
+    <!-- TODO string name="surface_east">East</string -->
+    <!-- TODO string name="surface_north">North</string -->
     <string name="dem_file">DEM %1$s</string>
     <string name="dem_load">загрузить</string>
     <string name="dem_failed">Ошибка загрузки DEM</string>

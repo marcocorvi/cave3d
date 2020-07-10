@@ -653,6 +653,12 @@ public class GlRenderer implements Renderer
     }
   }
 
+  double getDEM_Z( double e, double n )
+  {
+    if ( mDEM == null ) return -1;
+    return mDEM.computeZ( e, n );
+  }
+
   void notifyTexture( Bitmap bitmap )
   {
     if ( mModel != null && bitmap != null ) {
@@ -675,6 +681,12 @@ public class GlRenderer implements Renderer
   {
     if ( mModel != null ) return mModel.getSketches();
     return null;
+  }
+
+  // user null vector to clear location
+  void setLocation( Vector3D v )
+  {
+    if ( mModel != null ) mModel.setLocation( v );
   }
 
 }

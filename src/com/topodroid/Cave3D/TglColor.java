@@ -86,5 +86,6 @@ class TglColor
   static final float[] ColorSplay      = { 0.7f, 0.7f, 0.7f, 1.0f }; // gray
   static final float[] ColorSurfaceLeg = { 0.0f, 0.3f, 1.0f, 1.0f };
   static final float[] ColorPlan       = { 1.0f, 0.0f, 0.8f, 1.0f }; // violet
+  static final float[] ColorGPS        = { 1.0f, 0.7f, 0.0f, 1.0f }; // yellow
 
 }

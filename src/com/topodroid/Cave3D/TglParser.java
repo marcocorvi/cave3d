@@ -73,6 +73,8 @@ public class TglParser
   boolean isWGS84() { return mOrigin != null && mOrigin.isWGS84(); }
   double getSNradius() { return ( mOrigin != null )? mOrigin.getSNradius() : 1.0f; }
   double getWEradius() { return ( mOrigin != null )? mOrigin.getWEradius() : 1.0f; }
+  double lngToEast( double lng, double lat ) { return (mOrigin != null)? mOrigin.lngToEast( lng, lat ) : 0.0; }
+  double latToNorth( double lat ) { return (mOrigin != null)? mOrigin.latToNorth( lat ) : 0.0; }
 
   // void setStartStation( Cave3DStation station ) { mStartStation = station; }
   void clearStartStation( ) { mStartStation = null; }

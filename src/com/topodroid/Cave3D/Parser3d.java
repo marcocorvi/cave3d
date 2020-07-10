@@ -3,7 +3,7 @@
  * @author marco corvi
  * @date nov 2011
  *
- * @brief loch file parser 
+ * @brief 3d file parser 
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
@@ -46,6 +46,7 @@ public class Parser3d extends TglParser
     int16 = new byte[2];
     x0 = y0 = z0 = 0;
     readfile( filename );
+    // Log.v("TopoGL-3d", "read " + filename + " shots " + shots.size() + " " + splays.size() );
     setShotsNames();
   }
 
@@ -64,7 +65,7 @@ public class Parser3d extends TglParser
 
   private void moveTo( double x, double y, double z )
   {
-    // Log.v("TopoGL-3D", "move <" + mLabel.toString() + "> " + x + " " + y + " " + z );
+    // Log.v("TopoGL-3d", "move <" + mLabel.toString() + "> " + x + " " + y + " " + z );
     x0 = x;
     y0 = y;
     z0 = z;
@@ -120,7 +121,7 @@ public class Parser3d extends TglParser
         from0 = to;
       }
     } else {
-      // Log.v("TopoGL-3D", "leg <" + mLabel.toString() + "> " + x + " " + y + " " + z + " flag " + flag );
+      // Log.v("TopoGL-3d", "leg <" + mLabel.toString() + "> " + x + " " + y + " " + z + " flag " + flag );
       long fl = ( flag & 0x03); // LINE_SURFACE | LINE_DUPLICATE
       to = getStationAt( x, y, z );
       if ( to == null ) {
@@ -153,7 +154,7 @@ public class Parser3d extends TglParser
       String fullname = station_name + "@" + survey_name;
       Cave3DStation station = getStationAt( x, y, z );
       if ( station == null ) {
-        Log.v("TopoGL-3D", "station <" + mLabel.toString() + "> " + x + " " + y + " " + z + " flag " + flag );
+        // Log.v("TopoGL-3d", "station <" + mLabel.toString() + "> " + x + " " + y + " " + z + " flag " + flag );
         station = new Cave3DStation( fullname, x, y, z, survey );
         stations.add( station );
         survey.addStation( station );
@@ -184,31 +185,40 @@ public class Parser3d extends TglParser
     FileInputStream fis = null;
     try {
       fis = new FileInputStream( filename );
-      BufferedInputStream bis = new BufferedInputStream( fis );
+      // BufferedInputStream bis = new BufferedInputStream( fis );
 
       String line = readline( fis );
       line.trim();
-      Log.v("TopoGL-3D", line ); // Survey 3D Image File
+      // Log.v("TopoGL-3d", line ); // Survey 3D Image File
       line = readline( fis );
-      Log.v("TopoGL-3D <ver.>", line ); // v8
+      // Log.v("TopoGL-3d <ver.>", line ); // v8
+      if ( ! line.equals( "v8" ) ) {
+        fis.close(); 
+        throw new ParserException( filename, 2 );
+      }
       // line = readline( fis );
-      // Log.v("TopoGL-3D <title>", line ); // <title>
+      // Log.v("TopoGL-3d <title>", line ); // <title>
       // line = readline( fis );
-      // Log.v("TopoGL-3D <proj4>", line ); // <proj4>
+      // Log.v("TopoGL-3d <proj4>", line ); // <proj4>
       for ( ; ; ) {
         line = readline( fis );
+        // Log.v("TopoGL-3d", "@ " + line ); // <proj4>
         if ( line.startsWith("@") ) break;
-        Log.v("TopoGL-3D", line ); // <proj4>
       } 
+
       String millis_str = line.substring(1);
       long millis = Long.parseLong( millis_str );
-      Log.v("TopoGL-3D", "millis " + millis );
+      // Log.v("TopoGL-3d", "millis " + millis );
 
       int flag = fis.read();  // read one byte file-wide flag
+      // Log.v("TopoGL-3d", "flag " + flag );
 
       for ( ; ; ) {
         int code = fis.read();
-        if ( code == 0 ) break;
+        // Log.v("TopoGL-3d", "code " + code );
+
+        // if ( code == 0 ) break; // apparently code-0 appears before the end of data
+        if ( code == -1 ) break;
         int ccode = code & 0xf0;
         if ( ccode == 0x00 ) { // survey mode
           handleSurvey( fis, code );
@@ -223,9 +233,9 @@ public class Parser3d extends TglParser
           handleLabel( fis, code );
         }
       }
-    } catch ( IOException e ) { }
-    if ( fis != null ) {
-      try { fis.close(); } catch (IOException e ) {} 
+      if ( fis != null ) fis.close(); 
+    } catch ( IOException e ) { 
+      Log.e("TopoGL-3d", "error " + e.getMessage() );
     }
   }
 
@@ -233,18 +243,23 @@ public class Parser3d extends TglParser
   {
     switch ( code & 0xf ) {
       case 0x01: // diving
+        // Log.v("TopoGL-3d", "diving format");
         break;
       case 0x02: // cartesian
+        // Log.v("TopoGL-3d", "cartesian format");
         break;
       case 0x03: // cylpolar
+        // Log.v("TopoGL-3d", "cylpolar format");
         break;
       case 0x04: // nosurvey
+        // Log.v("TopoGL-3d", "nosurvey format");
         break;
       case 0x0f: // moveTo
         double x = cm2m32( Endian.readInt( fis, int32 ) );
         double y = cm2m32( Endian.readInt( fis, int32 ) );
         double z = cm2m32( Endian.readInt( fis, int32 ) );
         moveTo( x, y, z );
+        // Log.v("TopoGL-3d", "moveto " + x + " " + y + " " + z );
         break;
     }
   }  
@@ -253,19 +268,23 @@ public class Parser3d extends TglParser
   {
     switch ( code & 0xf ) {
       case 0x00: // nothing
+        // Log.v("TopoGL-3d", "Date none" );
         break;
       case 0x01: // days
         mDays1 = Endian.readShort( fis, int16 );
         mDays2 = mDays1;
+        // Log.v("TopoGL-3d", "Date days 1" );
         break;
       case 0x02: // days, span
         mDays1 = Endian.readShort( fis, int16 );
         int span = Endian.readShort( fis, int16 );
         mDays2 = mDays1 + span;
+        // Log.v("TopoGL-3d", "Date days 2" );
         break;
       case 0x03: // days, days
         mDays1 = Endian.readShort( fis, int16 );
         mDays2 = Endian.readShort( fis, int16 );
+        // Log.v("TopoGL-3d", "Date days 3" );
         break;
       case 0x0f: // error
         mLegs = Endian.readInt( fis, int32 );
@@ -273,6 +292,7 @@ public class Parser3d extends TglParser
         mErrorE = cm2m32( Endian.readInt( fis, int32 ) );
         mErrorH = cm2m32( Endian.readInt( fis, int32 ) );
         mErrorV = cm2m32( Endian.readInt( fis, int32 ) );
+        // Log.v("TopoGL-3d", "Date Errors Nr legs " + mLegs );
         break;
     }
   }  
@@ -283,6 +303,7 @@ public class Parser3d extends TglParser
     int label = 0;
     switch ( code & 0xf ) {
       case 0x01: 
+        // Log.v("TopoGL-3d", "XSect 1" );
         is_last = true;
       case 0x00:
         // label = Endian.readInt( fis, int32 );
@@ -291,9 +312,11 @@ public class Parser3d extends TglParser
         mRight = cm2m16( Endian.readShort( fis, int16 ) );
         mUp    = cm2m16( Endian.readShort( fis, int16 ) );
         mDown  = cm2m16( Endian.readShort( fis, int16 ) );
+        // Log.v("TopoGL-3d", "XSect " + mLeft + " " + mRight + " " + mUp + " " + mDown );
         break;
       case 0x02: 
         is_last = true;
+        // Log.v("TopoGL-3d", "XSect 2" );
       case 0x03:
         // label = Endian.readInt( fis, int32 );
         doHandleLabel( label, fis );
@@ -301,6 +324,7 @@ public class Parser3d extends TglParser
         mRight = cm2m32( Endian.readInt( fis, int32 ) );
         mUp    = cm2m32( Endian.readInt( fis, int32 ) );
         mDown  = cm2m32( Endian.readInt( fis, int32 ) );
+        // Log.v("TopoGL-3d", "XSect " + mLeft + " " + mRight + " " + mUp + " " + mDown );
         break;
     }
     return is_last;
@@ -321,6 +345,7 @@ public class Parser3d extends TglParser
     double y = cm2m32( Endian.readInt( fis, int32 ) );
     double z = cm2m32( Endian.readInt( fis, int32 ) );
     lineTo( x, y, z, flag );
+    // Log.v("TopoGL-3d", "Line to " + x + " " + y + " " + z );
   }  
 
   private void handleLabel( FileInputStream fis, int code ) throws IOException
@@ -340,6 +365,7 @@ public class Parser3d extends TglParser
     double y = cm2m32( Endian.readInt( fis, int32 ) );
     double z = cm2m32( Endian.readInt( fis, int32 ) );
     labelAt( x, y, z, flag );
+    // Log.v("TopoGL-3d", "Label at " + x + " " + y + " " + z );
   }  
 
   private void doHandleLabel( int label, FileInputStream fis ) throws IOException
@@ -382,7 +408,7 @@ public class Parser3d extends TglParser
       // assert( read == A );
       mLabel.append( str.toCharArray() );
     }
-    // Log.v("TopoGL-3D", "LABEL " + B + ": " + D + " " + A + " .. " + B1 + " " + B2 + " <" + mLabel.toString() + ">" );
+    // Log.v("TopoGL-3d", "LABEL " + B + ": " + D + " " + A + " .. " + B1 + " " + B2 + " <" + mLabel.toString() + ">" );
   }
       
 }

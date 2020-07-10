@@ -49,6 +49,7 @@ public class GlModel
 
   GlSurface glSurface = null; // surface
   GlNames glNames   = null; // stations
+  GlPoint glPoint   = null; // GPS point
   GlLines glLegs    = null;
   GlLines glLegsS   = null; // surface
   GlLines glLegsD   = null; // duplicate
@@ -62,6 +63,23 @@ public class GlModel
   GlLines glProfile = null;
   GlPath  glPath    = null;
 
+  // -----------------------------------------------------------------
+  // GPS LOCATION
+  
+  // use null vector to clear location
+  synchronized void setLocation( Vector3D v ) // e, n, z
+  {
+    if ( glPoint != null ) {
+      if ( v != null ) {
+        glPoint.setLocation( v, mXmed, mYmed, mZmed );
+      } else {
+        glPoint.clearLocation();
+      }
+    }
+  }
+
+  // synchronized void clearLocation( ) { if ( glPoint != null ) glPoint.clearLocation(); }
+
   // --------------------------------------------------------------
   // MAINTENANCE
 
@@ -73,6 +91,7 @@ public class GlModel
   {
     // if ( glNames != null ) glNames.resetTexture(); // nothing to do
   }
+
 
   void unbindTextures()
   {
@@ -107,6 +126,7 @@ public class GlModel
     glLegsC   = null;
     glPath    = null;
     mParser   = null;
+    glPoint   = null;
   }
 
   static void setWidthAndHeight( float w, float h ) 
@@ -124,6 +144,7 @@ public class GlModel
     GlWalls.initGL( mContext );
     GlPath.initGL( mContext );
     GlSketch.initGL( mContext );
+    GlPoint.initGL( mContext );
   }
 
   // ----------------------------------------------------------------------------------
@@ -236,11 +257,15 @@ public class GlModel
   { 
     if ( ! modelCreated ) return;
 
+    boolean with_surface = false;
     GL.enableDepth( true );
     if ( surfaceMode ) {
       GlSurface gl_surface = null;
       synchronized( this ) { gl_surface = glSurface; }
-      if ( gl_surface != null ) gl_surface.draw( mvp_matrix, mv_matrix, light );
+      if ( gl_surface != null ) {
+        with_surface = true;
+        gl_surface.draw( mvp_matrix, mv_matrix, light );
+      }
     }
 
     if ( frameMode == FRAME_GRID ) { 
@@ -289,6 +314,12 @@ public class GlModel
       }
     }
     GL.enableDepth( false );
+
+    if ( with_surface ) {
+      GlPoint point = null;
+      synchronized( this ) { point = glPoint; }
+      if ( point != null ) point.draw( mvp_matrix );
+    }
 
     if ( surfaceLegsMode ) {
       GlLines surface_legs = null;
@@ -542,6 +573,8 @@ public class GlModel
     // surface_legs.logMinMax();
     surface_legs.initData();
     synchronized( this ) { glSurfaceLegs = surface_legs; }
+    GlPoint point = new GlPoint( mContext );
+    synchronized( this ) { glPoint = point; }
   }
 
   void prepareTexture( Bitmap texture )
@@ -743,12 +776,14 @@ public class GlModel
     mXmed = (legs.getXmin() + legs.getXmax())/2;
     mYmed = (legs.getYmin() + legs.getYmax())/2;
     mZmed = (legs.getZmin() + legs.getZmax())/2;
-    // Log.v("TopoGL-MODEL", "center " + mXmed + " " + mYmed + " " + mZmed );
+
     legs.reduceData( mXmed, mYmed, mZmed );
     legsS.reduceData( mXmed, mYmed, mZmed );
     legsD.reduceData( mXmed, mYmed, mZmed );
     legsC.reduceData( mXmed, mYmed, mZmed );
-    // legs.logMinMax();
+
+    Log.v("TopoGL-MODEL", "center " + mXmed + " " + mYmed + " " + mZmed );
+    legs.logMinMax();
     
     for ( Cave3DShot splay : parser.getSplays() ) {
       if ( splay.from_station != null ) {

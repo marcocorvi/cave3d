@@ -21,6 +21,7 @@ import java.util.ArrayList;
 
 import android.os.Environment;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.Context;
@@ -73,6 +74,7 @@ public class TopoGL extends Activity
                     , OnLongClickListener
                     , OnItemClickListener
                     , OnSharedPreferenceChangeListener
+                    , GPS.GPSListener
 {
   // android P (9) is API 28
   final static boolean NOT_ANDROID_10 = ( Build.VERSION.SDK_INT <= Build.VERSION_CODES.P );
@@ -150,6 +152,8 @@ public class TopoGL extends Activity
 
   boolean withOsm() { return mParser != null && mParser.hasOrigin(); }
 
+  GPS mGPS = null;
+
   // ---------------------------------------------------------------
   // LIFECYCLE
 
@@ -204,6 +208,7 @@ public class TopoGL extends Activity
     // Log.v("TopoGL", "on create mid");
     mParser = null; // new TglParser( this, filename );
 
+
     if ( mCheckPerms >= 0 ) {
       // Log.v("TopoGL", "check perms" );
       boolean file_dialog = true;
@@ -235,6 +240,9 @@ public class TopoGL extends Activity
           }
         }          
       }
+
+      mGPS = new GPS( this );
+
       if ( file_dialog ) { 
         // Log.v("TopoGL", "open file dialog");
         (new DialogOpenFile( this, this )).show();
@@ -242,7 +250,7 @@ public class TopoGL extends Activity
       }
     } else {
       Log.e( "TopoGL-PERM", "finishing activity ... perms " + mCheckPerms );
-      if ( perms_dialog != null ) perms_dialog.dismiss();
+      // if ( perms_dialog != null ) perms_dialog.dismiss();
       finish();
     }
     // Log.v("TopoGL", "on create mid");
@@ -1180,7 +1188,7 @@ public class TopoGL extends Activity
   }
 
   // ---------------------------------------- PERMISSIONS
-  TglPerms perms_dialog = null;
+  // TglPerms perms_dialog = null;
 
   private void checkPermissions()
   {
@@ -1197,8 +1205,9 @@ public class TopoGL extends Activity
 
     mCheckPerms = FeatureChecker.checkPermissions( this );
     if ( mCheckPerms != 0 ) {
-      perms_dialog = new TglPerms( this, mCheckPerms );
-      perms_dialog.show();
+      // perms_dialog = new TglPerms( this, mCheckPerms );
+      // perms_dialog.show();
+      TglPerms.toast( this, mCheckPerms );
     }
   }
 
@@ -1505,6 +1514,7 @@ public class TopoGL extends Activity
   void toast( int r, String str, boolean loong )
   {
     String msg = String.format( getResources().getString( r ), str );
+    Log.v("TopoGL", "toast " + msg );
     if ( loong ) { Toast.makeText( this, msg, Toast.LENGTH_LONG).show(); } else { Toast.makeText( this, msg, Toast.LENGTH_SHORT).show(); }
   }
 
@@ -1600,7 +1610,7 @@ public class TopoGL extends Activity
 
   private boolean initRendering( String filename )
   {
-    // Log.v("TopoGL", "init rendering " + filename );
+    Log.v("TopoGL", "init rendering " + filename );
     doSketches = false;
     try {
       mParser = null;
@@ -1626,13 +1636,14 @@ public class TopoGL extends Activity
       // if ( mRenderer != null ) mRenderer.setParser( mParser );
       // Log.v( "TopoGL", "Station " + mParser.getStationNumber() + " shot " + mParser.getShotNumber() );
     } catch ( ParserException e ) {
-      toast(R.string.error_parser_error, filename + " " + e.msg(), true );
+      // Log.e( "TopoGL", "parser exception " + e.msg() );
+      uiToast(R.string.error_parser_error, e.msg(), true );
       mParser = null;
-      // Log.v( "TopoGL", "parser exception " + filename );
     }
     return (mParser != null);
   }
 
+  // run on onPostExecute
   void notifyWall( int type, boolean result )
   {
     if (type == TglParser.WALL_CW ) {
@@ -1671,4 +1682,112 @@ public class TopoGL extends Activity
   {
     new DialogSketch( this, this ).show();
   }
+
+  public void notifyLocation( double lng, double lat )
+  {
+    Log.v("TopoGL-GPS", "notified location " + lng + " " + lat );
+    // TODO
+    // [1] convert to model CRS
+    if ( mParser != null && mParser.isWGS84() ) {
+      double e = mParser.lngToEast( lng, lat );
+      double n = mParser.latToNorth( lat );
+      // [2] get Z from surface
+      // [3] mRenderer.setLocation( new Vector3D( e, n, z ) );
+      addGPSpoint( e, n );
+    }
+  }
+
+/* ------------
+  final static int CRS_CONVERSION_REQUEST = 2;
+  final static int CRS_INPUT_REQUEST = 3; 
+
+  void doProj4Conversion( String cs_to, double lng, double lat )
+  {
+    double alt = 0;
+    // if ( cs_to == null ) return;
+    try {
+      Intent intent = new Intent( "Proj4.intent.action.Launch" );
+      // Intent intent = new Intent( Intent.ACTION_DEFAULT, "com.topodroid.Proj4.intent.action.Launch" );
+      intent.putExtra( "version", "1.1" );      // Proj4 version
+      intent.putExtra( "request", "CRS_CONVERSION_REQUEST" ); // Proj4 request
+      intent.putExtra( "cs_from", "Long-Lat" ); // NOTE MUST USE SAME NAME AS Proj4
+      intent.putExtra( "cs_to", cs_to ); 
+      intent.putExtra( "longitude", lng );
+      intent.putExtra( "latitude",  lat );
+      intent.putExtra( "altitude",  alt );
+      startActivityForResult( intent, CRS_CONVERSION_REQUEST );
+    } catch ( ActivityNotFoundException e ) {
+      // TODO TDToast.makeBad( R.string.no_proj4 );
+    }
+  }
+
+  void getProj4Coords( )
+  {
+    try {
+      Intent intent = new Intent( "Proj4.intent.action.Launch" );
+      // Intent intent = new Intent( Intent.ACTION_DEFAULT, "com.topodroid.Proj4.intent.action.Launch" );
+      intent.putExtra( "version", "1.1" );      // Proj4 version
+      intent.putExtra( "request", "CRS_INPUT_REQUEST" ); // Proj4 request
+      startActivityForResult( intent, CRS_INPUT_REQUEST );
+    } catch ( ActivityNotFoundException e ) {
+      // TODO TDToast.makeBad( R.string.no_proj4 );
+    }
+  }
+
+  public void onActivityResult( int reqCode, int resCode, Intent intent )
+  {
+    // mApp.resetLocale(); // OK-LOCALE
+    if ( resCode == Activity.RESULT_OK ) {
+      if ( reqCode == CRS_CONVERSION_REQUEST ) {
+        Bundle bundle = intent.getExtras();
+        if ( bundle != null ) {
+          String cs = bundle.getString( "cs_to" );
+          double e  = bundle.getDouble( "longitude");
+          double n = bundle.getDouble( "latitude");
+          // double alt = bundle.getDouble( "altitude");
+	  // long   n_dec = bundle.containsKey( "decimals" )? bundle.getLong( "decimals" ) : 2;
+          addGPSpoint( e, n );
+        }
+      } else if ( reqCode == CRS_INPUT_REQUEST ) {
+        Bundle bundle = intent.getExtras();
+        if ( bundle != null ) {
+          // bundle.getDouble( "longitude" )
+          // bundle.getDouble( "latitude" )
+          // bundle.getDouble( "altitude" )
+        }
+      }
+    }
+  }
+------------ */
+
+  void setGPSstatus( boolean status )
+  {
+    // Log.v("TopoGL-GPS", "set GPS status " + status );
+    if ( mGPS == null ) return;
+    if ( status ) {
+      mGPS.setGPSon();
+      mGPS.setListener( this );
+    } else {
+      mGPS.setGPSoff();
+      mGPS.setListener( null );
+    }
+  }
+  
+  boolean getGPSstatus()
+  {
+    return mGPS != null && mGPS.mIsLocating;
+  }
+
+  void addGPSpoint( double e, double n )
+  {
+    double z = mRenderer.getDEM_Z( e, n );
+    if ( z > 0 ) {
+      z += 0.1; // add 0.1 meter
+      // Log.v("TopoGL-GPS", "set location " + e + " " + n + " " + z );
+      mRenderer.setLocation( new Vector3D( e, n, z ) );
+    } else {
+      Log.e("TopoGL-GPS", "location " + e + " " + n + " out of DEM" );
+    }
+  }
+
 }

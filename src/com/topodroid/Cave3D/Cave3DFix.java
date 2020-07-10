@@ -67,4 +67,17 @@ class Cave3DFix extends Vector3D
     return isWGS84()? Geodetic.parallelRadiusApprox( latitude ) : 1.0;
   }
 
+  // lat WGS84 latitude
+  double latToNorth( double lat ) 
+  {
+    double s_radius = Geodetic.meridianRadiusApprox( lat );
+    return isWGS84()? (lat - latitude) * Cave3DShot.DEG2RAD * s_radius : 0.0;
+  }
+
+  double lngToEast( double lng, double lat )
+  {
+    double e_radius = Geodetic.parallelRadiusApprox( lat );
+    return isWGS84()? (lng - longitude) * Cave3DShot.DEG2RAD * e_radius : 0.0;
+  }
+
 }

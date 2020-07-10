@@ -21,7 +21,7 @@
         android:gravity="left"
         android:text="@string/dem_load"
         />
-      <EditText android:id="@+id/dem_file"
+      <TextView android:id="@+id/dem_file"
         android:layout_width="0dp" 
         android:layout_weight="50" 
         android:layout_height="wrap_content" 
@@ -46,7 +46,7 @@
         android:gravity="left"
         android:text="@string/texture_load"
         />
-      <EditText android:id="@+id/texture_file"
+      <TextView android:id="@+id/texture_file"
         android:layout_width="0dp" 
         android:layout_weight="50" 
         android:layout_height="wrap_content" 
@@ -80,6 +80,38 @@
       android:layout_margin="10dp"
       android:text="@string/surface_texture"
       />
+
+    <CheckBox android:id="@+id/gps"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_margin="10dp"
+      android:text="@string/surface_gps"
+      />
+
+    <LinearLayout
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="10dp"
+      android:orientation="horizontal"
+      >
+      <EditText android:id="@+id/east"
+        android:layout_width="0dp" 
+        android:layout_weight="50" 
+        android:layout_height="wrap_content"
+        android:layout_marginRight="10dp"
+        android:hint="@string/surface_east"
+        android:inputType="numberSigned|numberDecimal"
+        />
+      <EditText android:id="@+id/north"
+        android:layout_width="0dp" 
+        android:layout_weight="50" 
+        android:layout_height="wrap_content"
+        android:layout_marginRight="10dp"
+        android:hint="@string/surface_north"
+        android:inputType="numberSigned|numberDecimal"
+        />
+    </LinearLayout>
+
     <LinearLayout
       android:layout_width="fill_parent" 
       android:layout_height="wrap_content"

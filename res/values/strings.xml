@@ -88,6 +88,9 @@
     <string name="style_fill">Fill</string>
     <string name="surface_projection">Projection on surface</string>
     <string name="surface_texture">Surface texture</string>
+    <string name="surface_gps">GPS track</string>
+    <string name="surface_east">East</string>
+    <string name="surface_north">North</string>
     <string name="dem_file">%1$s</string>
     <string name="dem_load">Load DEM</string>
     <string name="dem_failed">Failed DEM loading</string>
@@ -251,8 +254,8 @@
 -->
 
     <string name="TopoGLPerms">Permissions</string>
-    <string name="perms_mandatory">Cave3D cannot run without these permissions:</string>
-    <string name="perms_optional">Cave3D may fail without these permissions:</string>
+    <string name="perms_mandatory">Cave3D cannot run without:</string>
+    <string name="perms_optional">Cave3D not fully-functional without:</string>
     <string name="welcome_title">Cave3D %1$s</string>
     <string name="help_title">Cave3D %1$s Help</string>
 

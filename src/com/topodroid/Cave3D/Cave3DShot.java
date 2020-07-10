@@ -15,7 +15,7 @@ package com.topodroid.Cave3D;
 
 public class Cave3DShot
 {
-  private static final double DEG2RAD = (Math.PI/180);
+  static final double DEG2RAD = (Math.PI/180);
 
   static final long FLAG_SURVEY     =  0; // flags
   static final long FLAG_SURFACE    =  1;

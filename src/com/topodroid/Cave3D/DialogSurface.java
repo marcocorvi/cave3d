@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.SeekBar;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.graphics.Paint;
@@ -35,11 +36,14 @@ class DialogSurface extends Dialog
   // private Button mBtnLoadTexture;
   private CheckBox mCBproj;
   private CheckBox mCBtexture;
+  private CheckBox mCBgps;
+  private EditText mEast;
+  private EditText mNorth;
   // private EditText mDemFile;
   // private EditText mTextureFile;
 
   private TopoGL mApp;
-  // private Cave3DRenderer mRenderer;
+  private boolean mHasLocation;
 
 
   public DialogSurface( Context ctx, TopoGL app )
@@ -47,6 +51,7 @@ class DialogSurface extends Dialog
     super( ctx );
     mContext = ctx;
     mApp  = app;
+    mHasLocation = FeatureChecker.checkLocation( ctx );
   }
 
   @Override
@@ -59,7 +64,7 @@ class DialogSurface extends Dialog
     mETalpha = ( SeekBar ) findViewById(R.id.alpha);
     mETalpha.setProgress( (int)(GlSurface.mAlpha * 255) );
 
-    EditText mDemFile = (EditText) findViewById( R.id.dem_file );
+    TextView mDemFile = (TextView) findViewById( R.id.dem_file );
     
     if ( mApp.mDEMname != null ) {
       mDemFile.setText( String.format( mContext.getResources().getString( R.string.dem_file ), mApp.mDEMname ) );
@@ -67,7 +72,13 @@ class DialogSurface extends Dialog
       mDemFile.setVisibility( View.GONE );
     }
 
-    EditText mTextureFile = (EditText) findViewById( R.id.texture_file );
+    mCBproj = (CheckBox) findViewById( R.id.projection );
+    mCBtexture = (CheckBox) findViewById( R.id.texture );
+    mCBgps = (CheckBox) findViewById( R.id.gps );
+    mEast  = (EditText) findViewById( R.id.east );
+    mNorth = (EditText) findViewById( R.id.north );
+
+    TextView mTextureFile = (TextView) findViewById( R.id.texture_file );
     Button btn_texture = (Button)findViewById( R.id.texture_load );
     if ( mApp.hasSurface() ) {
       if ( mApp.mTextureName != null ) {
@@ -79,12 +90,18 @@ class DialogSurface extends Dialog
     } else {
       mTextureFile.setVisibility( View.GONE );
       btn_texture.setVisibility( View.GONE );
+      mCBgps.setVisibility( View.GONE );
+      mEast.setVisibility( View.GONE );
+      mNorth.setVisibility( View.GONE );
     }
 
-    mCBproj = (CheckBox) findViewById( R.id.projection );
-    mCBtexture = (CheckBox) findViewById( R.id.texture );
     mCBproj.setChecked( GlModel.surfaceLegsMode );
     mCBtexture.setChecked( GlModel.surfaceTexture );
+    if ( mHasLocation ) {
+      mCBgps.setChecked( mApp.getGPSstatus() );
+    } else {
+      mCBgps.setVisibility( View.GONE );
+    }
 
     findViewById( R.id.button_ok ).setOnClickListener( this );
     findViewById( R.id.button_cancel ).setOnClickListener( this );
@@ -102,7 +119,17 @@ class DialogSurface extends Dialog
     } else if ( view.getId() == R.id.button_ok ) {
       GlModel.surfaceLegsMode = mCBproj.isChecked();
       GlModel.surfaceTexture  = mCBtexture.isChecked();
+      if ( mHasLocation ) {
+        mApp.setGPSstatus( mCBgps.isChecked() );
+      }
 
+      if ( mEast.getText() != null && mNorth.getText() != null ) {
+        try {
+          double e = Double.parseDouble( mEast.getText().toString() );
+          double n = Double.parseDouble( mNorth.getText().toString() );
+          mApp.addGPSpoint( e, n );
+        } catch ( NumberFormatException e ) { }
+      }
       // Log.v( "TopoGL-ALPHA, "onClick()" );
       int alpha = mETalpha.getProgress();
       if ( 0 < alpha && alpha < 256 ) GlSurface.setAlpha( alpha/255.0f );

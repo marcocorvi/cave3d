@@ -12,31 +12,37 @@
  */
 package com.topodroid.Cave3D;
 
+import android.util.Log;
+
 import android.content.Context;
 // import android.content.Intent;
 
-import android.app.Dialog;
-import android.widget.Button;
-import android.widget.TextView;
-import android.view.View;
-import android.view.View.OnClickListener;
+// import android.app.Dialog;
+// import android.widget.Button;
+// import android.widget.TextView;
+// import android.view.View;
+// import android.view.View.OnClickListener;
+
 // import android.view.ViewGroup.LayoutParams;
 // import android.net.Uri;
 
-// import android.widget.Toast;
+import android.widget.Toast;
 
-class TglPerms extends Dialog
-                  implements OnClickListener
+class TglPerms // extends Dialog
+               // implements OnClickListener
 {
   // private Button mBTok;
   // private Context mContext; // INHERITED
 
-  TglPerms( Context context, int check_perms )
+  // TglPerms( Context context, int check_perms )
+  static void toast( Context context, int check_perms )
   {
-    super( context );
+    // super( context );
     // mContext = context;
-    setContentView( R.layout.cave3d_perms );
-    setTitle( String.format( context.getResources().getString(R.string.welcome_title), TopoGL.VERSION ) );
+    // Log.v("TopoGL-PERM", "dialog " + check_perms );
+
+    // setContentView( R.layout.cave3d_perms );
+    // setTitle( String.format( context.getResources().getString(R.string.welcome_title), TopoGL.VERSION ) );
 
     StringBuilder sb = new StringBuilder();
     if ( check_perms < 0 ) {
@@ -44,18 +50,21 @@ class TglPerms extends Dialog
       sb.append( "\nWRITE_EXTERNAL_STORAGE" );
     } else if ( check_perms > 0 ) {
       sb.append( context.getResources().getString( R.string.perms_optional ) );
+      sb.append( "\nACCESS_FILE_LOCATION" );
     }
-    TextView tv = (TextView)findViewById( R.id.text_perms );
-    tv.setText( sb.toString() );
+    Toast.makeText( context, sb.toString(), Toast.LENGTH_LONG ).show();
 
-    Button btn_ok = (Button)findViewById(R.id.btn_ok);
-    btn_ok.setOnClickListener( this );
+    // TextView tv = (TextView)findViewById( R.id.text_perms );
+    // tv.setText( sb.toString() );
+
+    // Button btn_ok = (Button)findViewById(R.id.btn_ok);
+    // btn_ok.setOnClickListener( this );
   }
 
-  @Override
-  public void onClick( View v )
-  {
-    dismiss();
-  }
+  // @Override
+  // public void onClick( View v )
+  // {
+  //   dismiss();
+  // }
   
 }

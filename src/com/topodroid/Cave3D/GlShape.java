@@ -22,7 +22,7 @@ import android.content.Context;
 
 class GlShape
 {
-  protected FloatBuffer dataBuffer;
+  protected FloatBuffer dataBuffer = null;
   protected ShortBuffer orderBuffer;
 
   protected Context mContext;

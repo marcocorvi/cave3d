@@ -28,10 +28,11 @@ class FeatureChecker
       android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
       // android.Manifest.permission.READ_EXTERNAL_STORAGE,
       // android.Manifest.permission.INTERNET,
+      android.Manifest.permission.ACCESS_FINE_LOCATION,
   };
 
   static final private int NR_PERMS_D = 1;
-  static final private int NR_PERMS   = 1;
+  static final private int NR_PERMS   = 2;
 
   /** app specific code - for callback in MainWindow
    */
@@ -42,7 +43,7 @@ class FeatureChecker
 
   static void createPermissions( Context context, Activity activity )
   {
-    // Log.v( "TopoGL-PERM", "create permissions" );
+    Log.v( "TopoGL-PERM", "create permissions" );
     MustRestart = false;
     // FIXME-23
     if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.M ) return;
@@ -53,8 +54,9 @@ class FeatureChecker
       GrantedPermission[k] = ( context.checkSelfPermission( perms[k] ) == PackageManager.PERMISSION_GRANTED );
       // FIXME-16 GrantedPermission[k] = true;
       // Log.v("TopoGL-PERM", "FC perm " + k + " granted " + GrantedPermission[k] );
-      if ( ! GrantedPermission[k] ) MustRestart = true;
+      if ( ! GrantedPermission[k] && k < NR_PERMS_D ) MustRestart = true;
     }
+
     if ( MustRestart ) { // if a permission has not been granted request it
       // Log.v("TopoGL-PERM", "FC must restart now");
       /* FIXME-23 */
@@ -72,6 +74,7 @@ class FeatureChecker
    */
   static int checkPermissions( Context context )
   {
+    Log.v( "TopoGL-PERM", "check permissions" );
     int k;
     for ( k=0; k<NR_PERMS_D; ++k ) {
       int res = context.checkCallingOrSelfPermission( perms[k] );
@@ -91,9 +94,15 @@ class FeatureChecker
       }
       flag *= 2;
     }
-    // Log.v( "TopoGL-PERM", "check permission: return " + ret );
+    Log.v( "TopoGL-PERM", "check permission: return " + ret );
     return ret;
   }
+
+  static boolean checkLocation( Context context )
+  {
+    return ( context.checkSelfPermission( android.Manifest.permission.ACCESS_FINE_LOCATION ) == PackageManager.PERMISSION_GRANTED );
+  }
+
 
   // static boolean checkMultitouch( Context context )
   // {
