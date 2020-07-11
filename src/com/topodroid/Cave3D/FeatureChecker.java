@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 // import android.content.pm.FeatureInfo;
+import android.location.LocationManager;
 
 class FeatureChecker
 {
@@ -43,7 +44,7 @@ class FeatureChecker
 
   static void createPermissions( Context context, Activity activity )
   {
-    Log.v( "TopoGL-PERM", "create permissions" );
+    // Log.v( "TopoGL-PERM", "create permissions" );
     MustRestart = false;
     // FIXME-23
     if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.M ) return;
@@ -74,7 +75,7 @@ class FeatureChecker
    */
   static int checkPermissions( Context context )
   {
-    Log.v( "TopoGL-PERM", "check permissions" );
+    // Log.v( "TopoGL-PERM", "check permissions" );
     int k;
     for ( k=0; k<NR_PERMS_D; ++k ) {
       int res = context.checkCallingOrSelfPermission( perms[k] );
@@ -94,13 +95,22 @@ class FeatureChecker
       }
       flag *= 2;
     }
-    Log.v( "TopoGL-PERM", "check permission: return " + ret );
+    // Log.v( "TopoGL-PERM", "check permission: return " + ret );
     return ret;
   }
 
   static boolean checkLocation( Context context )
   {
-    return ( context.checkSelfPermission( android.Manifest.permission.ACCESS_FINE_LOCATION ) == PackageManager.PERMISSION_GRANTED );
+    PackageManager pm = context.getPackageManager();
+    if ( ( context.checkCallingOrSelfPermission( android.Manifest.permission.ACCESS_FINE_LOCATION ) == PackageManager.PERMISSION_GRANTED )
+        && pm.hasSystemFeature(PackageManager.FEATURE_LOCATION)
+        && pm.hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS) ) {
+      LocationManager lm = (LocationManager)(context.getSystemService( Context.LOCATION_SERVICE ) );
+      if ( lm != null && lm.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+        return true;
+      }
+    }
+    return false;
   }
 
 

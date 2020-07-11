@@ -782,8 +782,8 @@ public class GlModel
     legsD.reduceData( mXmed, mYmed, mZmed );
     legsC.reduceData( mXmed, mYmed, mZmed );
 
-    Log.v("TopoGL-MODEL", "center " + mXmed + " " + mYmed + " " + mZmed );
-    legs.logMinMax();
+    // Log.v("TopoGL-MODEL", "center " + mXmed + " " + mYmed + " " + mZmed );
+    // legs.logMinMax();
     
     for ( Cave3DShot splay : parser.getSplays() ) {
       if ( splay.from_station != null ) {

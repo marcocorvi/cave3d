@@ -69,7 +69,7 @@ class GlWalls extends GlShape
     // setColor( 1, 1, 1, 0.7f );
     triangles = new ArrayList< GlTriangle3D >();
     mMode = mode;
-    Log.v("TopoGL", "walls mode " + mMode );
+    // Log.v("TopoGL", "walls mode " + mMode );
   }
 
   void setMode( int mode ) { mMode = mode; }
@@ -144,7 +144,7 @@ class GlWalls extends GlShape
     triangleCount = triangles.size();
     sideCount = triangleCount * 3;
     if ( triangles.size() == 0 ) return null;
-    Log.v("TopoGL", "prepare faces: triangles " + triangleCount );
+    // Log.v("TopoGL", "prepare faces: triangles " + triangleCount );
     // logMinMax();
 
     float[] data = new float[ triangleCount * 3 * 6 ]; // 6 vectors-3D, 3 float/vector
@@ -181,7 +181,7 @@ class GlWalls extends GlShape
     triangleCount = triangles.size();
     sideCount = triangleCount * 3;
     if ( triangles.size() == 0 ) return null;
-    Log.v("TopoGL", "prepare sides: sides " + sideCount );
+    // Log.v("TopoGL", "prepare sides: sides " + sideCount );
     // logMinMax();
 
     float[] data = new float[ sideCount * 6 ]; // 2 3-float/vector per side

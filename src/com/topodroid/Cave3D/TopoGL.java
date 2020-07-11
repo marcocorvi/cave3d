@@ -1074,8 +1074,8 @@ public class TopoGL extends Activity
     } else if ( pathname.endsWith( ".asc" ) || pathname.endsWith(".ascii") ) {
       Cave3DFix origin = mParser.getOrigin();
       // origin.log();
-      double xunit = mParser.getWEradius();
-      double yunit = mParser.getSNradius();
+      double xunit = mParser.getWEradius(); // radius * PI/180
+      double yunit = mParser.getSNradius(); // radius * PI/180
       // Log.v("TopoGL", "xunit " + xunit + " yunit " + yunit );
       dem = new DEMasciiParser( pathname, mDEMmaxsize, false, xunit, yunit ); // false: flip horz
     } else { 
@@ -1514,7 +1514,7 @@ public class TopoGL extends Activity
   void toast( int r, String str, boolean loong )
   {
     String msg = String.format( getResources().getString( r ), str );
-    Log.v("TopoGL", "toast " + msg );
+    // Log.v("TopoGL", "toast " + msg );
     if ( loong ) { Toast.makeText( this, msg, Toast.LENGTH_LONG).show(); } else { Toast.makeText( this, msg, Toast.LENGTH_SHORT).show(); }
   }
 
@@ -1610,7 +1610,7 @@ public class TopoGL extends Activity
 
   private boolean initRendering( String filename )
   {
-    Log.v("TopoGL", "init rendering " + filename );
+    // Log.v("TopoGL", "init rendering " + filename );
     doSketches = false;
     try {
       mParser = null;
@@ -1685,12 +1685,13 @@ public class TopoGL extends Activity
 
   public void notifyLocation( double lng, double lat )
   {
-    Log.v("TopoGL-GPS", "notified location " + lng + " " + lat );
+    // Log.v("TopoGL-GPS", "notified location " + lng + " " + lat );
     // TODO
     // [1] convert to model CRS
-    if ( mParser != null && mParser.isWGS84() ) {
+    if ( mParser != null && mParser.hasWGS84() ) {
       double e = mParser.lngToEast( lng, lat );
       double n = mParser.latToNorth( lat );
+      // Log.v("TopoGL-GPS", "has origin " + mParser.hasOrigin() + " location " + e + " " + n );
       // [2] get Z from surface
       // [3] mRenderer.setLocation( new Vector3D( e, n, z ) );
       addGPSpoint( e, n );

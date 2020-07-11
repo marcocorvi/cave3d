@@ -105,7 +105,7 @@ class DialogOpenFile extends Dialog
   private boolean updateList( String basedir )
   {
     if ( basedir == null ) return false;
-    Log.v("TopoGL", "update list files " + basedir );
+    // Log.v("TopoGL", "update list files " + basedir );
     File dir = new File( basedir );
     if ( dir.exists() ) {
       String[] dirs  = dir.list( new MyDirnameFilter() );

@@ -48,11 +48,11 @@ class TglPerms // extends Dialog
     if ( check_perms < 0 ) {
       sb.append( context.getResources().getString( R.string.perms_mandatory ));
       sb.append( "\nWRITE_EXTERNAL_STORAGE" );
-    } else if ( check_perms > 0 ) {
-      sb.append( context.getResources().getString( R.string.perms_optional ) );
-      sb.append( "\nACCESS_FILE_LOCATION" );
+      Toast.makeText( context, sb.toString(), Toast.LENGTH_LONG ).show();
+    // } else if ( check_perms > 0 ) {
+    //   sb.append( context.getResources().getString( R.string.perms_optional ) );
+    //   sb.append( "\nACCESS_FILE_LOCATION" );
     }
-    Toast.makeText( context, sb.toString(), Toast.LENGTH_LONG ).show();
 
     // TextView tv = (TextView)findViewById( R.id.text_perms );
     // tv.setText( sb.toString() );

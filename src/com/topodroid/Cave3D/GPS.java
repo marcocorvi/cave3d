@@ -34,13 +34,17 @@ class GPS implements LocationListener
   private GpsStatus mStatus;
 
   boolean mIsLocating;
-  boolean mHasLocation;
+  // boolean mHasLocation;
   private double mLat  = 0;  // decimal degrees
   private double mLng  = 0;  // decimal degrees
-  private double mLat0 = 0;  // decimal degrees
-  private double mLng0 = 0;  // decimal degrees
+  // private double mLat0 = 0;  // decimal degrees
+  // private double mLng0 = 0;  // decimal degrees
+  private int mLocCount;
+  private double mLatSum;
+  private double mLngSum;
 
-  private double mErr2 = -1; // location error [m]
+
+  // private double mErr2 = -1; // location error [m]
   private int mNrSatellites = 0;
   private double mDelta;
 
@@ -68,7 +72,7 @@ class GPS implements LocationListener
 
   GPS( Context ctx )
   {
-    mDelta = 1.0e-6;
+    mDelta = 1.0e-7;
     mIsLocating = false;
     // mNrSatellites = 0;
     if ( checkLocation( ctx ) ) { // CHECK_PERMISSIONS
@@ -77,19 +81,42 @@ class GPS implements LocationListener
         mStatus = locManager.getGpsStatus( null );
       }
     }
-    mHasLocation = false;
+    // mHasLocation = false;
   }
 
-  private final double mW0 = 0.8;
-  private final double mW1 = 1 - mW0;
-  private final double mW2 = mW1 / mW0;
-  private final double DEG2RAD = Math.PI/180.0;
+  // private final double mW0 = 0.8;
+  // private final double mW1 = 1 - mW0;
+  // private final double mW2 = mW1 / mW0;
+  // private final double DEG2RAD = Math.PI/180.0;
   private final double EARTH_A = 6378137.0; // approx earth radius [meter]
 
+  private final double DELTA   = 5 * 180.0 / (Math.PI * EARTH_A);  // 4 meters
 
   // location is stored in decimal degrees 
   private void assignLocation( Location loc ) 
   {
+    double lat = loc.getLatitude();  // decimal degree
+    double lng = loc.getLongitude();
+    if ( Math.abs( lat - mLat ) + Math.abs( lng - mLng ) > DELTA ) {
+      mLocCount ++;
+      mLatSum += lat;
+      mLngSum += lng;
+      if ( mLocCount > 10 ) {
+        mLat = mLatSum / mLocCount;
+        mLng = mLngSum / mLocCount;
+        mLocCount = 0;
+        mLatSum = 0;
+        mLngSum = 0;
+        if ( mListener != null ) mListener.notifyLocation( mLng, mLat );
+      }
+    } else {
+      mLocCount = 0;
+      mLatSum = 0;
+      mLngSum = 0;
+    }
+  }
+
+/*
     if ( mErr2 < 0 ) {	  
       mLat  = loc.getLatitude();  // decimal degree
       mLng  = loc.getLongitude();
@@ -105,12 +132,12 @@ class GPS implements LocationListener
       double dlat = (lat0-mLat) * EARTH_A * DEG2RAD;
       double dlng = (lng0-mLng) * EARTH_A * DEG2RAD * Math.cos( mLat * DEG2RAD );
       // double dhel = hel0 - mHEll;
-      double err2 = ( dlat*dlat + dlng*dlng /* + dhel*dhel */ );
+      double err2 = ( dlat*dlat + dlng*dlng ); // + dhel*dhel  
       mErr2 = mW0 * mErr2 + mW2 * err2;
       mLat  = lat;
       mLng  = lng;
       // mHEll = hell;
-      if ( Math.sqrt( mErr2 ) < 1 ) {
+      if ( Math.sqrt( mErr2 ) < 4 ) {
         if ( ! mHasLocation ) {
           mLng0 = mLng;
           mLat0 = mLat;
@@ -127,7 +154,7 @@ class GPS implements LocationListener
         mErr2 = -1;
       }
     }
-  }
+*/
 
   // boolean getLocation( Vector3D v )
   // {
@@ -147,14 +174,17 @@ class GPS implements LocationListener
       locManager.removeGpsStatusListener( this );
     }
     mIsLocating = false;
-    mHasLocation = false;
+    // mHasLocation = false;
   }
 
   @SuppressLint("MissingPermission")
   boolean setGPSon()
   {
-    mHasLocation = false;
-    mErr2 = -1; // restart location averaging
+    // mHasLocation = false;
+    // mErr2 = -1; // restart location averaging
+    mLocCount = 0;
+    mLatSum = 0;
+    mLngSum = 0;
     if ( locManager == null ) return false;
     locManager.addGpsStatusListener( this );
     locManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 1000, 0, this );
@@ -201,7 +231,7 @@ class GPS implements LocationListener
       if ( locManager == null ) return;
       mNrSatellites = getNrSatellites();
       // Log.v("TopoGL-GPS", "GPS Status Changed nr satellites used in fix " + mNrSatellites );
-      if ( mNrSatellites > 3 ) {
+      if ( mNrSatellites > 4 ) {
         try {
           Location loc = locManager.getLastKnownLocation( LocationManager.GPS_PROVIDER );
           if ( loc != null ) assignLocation( loc );
