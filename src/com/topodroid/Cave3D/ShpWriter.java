@@ -24,6 +24,7 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;   
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -517,9 +518,17 @@ class ShpPolylinez extends ShpObject
     super( mShpType, path, files );
   }
 
-  boolean writeShots( List< Cave3DShot > lns, String name ) throws IOException
+  boolean writeShots( List< Cave3DShot > lns0, String name ) throws IOException
   {
-    int nr = ( lns != null )? lns.size() : 0;
+    if ( lns0 == null ) return false;
+
+    // guarantee shots have FROM and TO stations
+    ArrayList< Cave3DShot > lns = new ArrayList<>();
+    for ( Cave3DShot ln : lns0 ) { 
+      if ( ln.from_station != null && ln.to_station != null ) lns.add( ln );
+    }
+
+    int nr = lns.size();
     if ( nr == 0 ) return false;
 
     int n_fld = 3; // type from to // flag comment
@@ -691,9 +700,17 @@ class ShpPolygonz extends ShpObject
     return area / 2;
   }
 
-  boolean writeFacets( List< CWFacet > lns ) throws IOException
+  boolean writeFacets( List< CWFacet > lns0 ) throws IOException
   {
-    int nr = ( lns != null )? lns.size() : 0;
+    if ( lns0 == null ) return false;
+
+    // guarantee facets have three points
+    ArrayList< CWFacet > lns = new ArrayList<>();
+    for ( CWFacet ln : lns0 ) {
+      if ( ln.v1 != null && ln.v2 != null && ln.v3 != null ) lns.add( ln );
+    }
+
+    int nr = lns.size();
     if ( nr == 0 ) return false;
 
     int n_fld = 3; // type from to // flag comment
@@ -827,9 +844,17 @@ class ShpPolygonz extends ShpObject
     return area / 2;
   }
 
-  boolean writeTriangles( List< Triangle3D > lns ) throws IOException
+  boolean writeTriangles( List< Triangle3D > lns0 ) throws IOException
   {
-    int nr = ( lns != null )? lns.size() : 0;
+    if ( lns0 == null ) return false;
+
+    // guarantee triangle have three vertices
+    ArrayList< Triangle3D > lns = new ArrayList<>();
+    for ( Triangle3D ln : lns0 ) {
+      if ( ln.vertex[0] != null && ln.vertex[1] != null && ln.vertex[2] != null ) lns.add( ln );
+    }
+
+    int nr = lns.size();
     if ( nr == 0 ) return false;
 
     int n_fld = 3; // type from to // flag comment
