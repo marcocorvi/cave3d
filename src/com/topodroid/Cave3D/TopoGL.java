@@ -1634,7 +1634,7 @@ public class TopoGL extends Activity
       }
       // CWConvexHull.resetCounters();
       // if ( mRenderer != null ) mRenderer.setParser( mParser );
-      // Log.v( "TopoGL", "Station " + mParser.getStationNumber() + " shot " + mParser.getShotNumber() );
+      // Log.v( "TopoGL", "Station " + mParser.getStationNumber() + " shot " + mParser.getShotNumber() + " splay " + mParser.getSplayNumber() + " surveys " + mParser.getSurveyNumber() );
     } catch ( ParserException e ) {
       // Log.e( "TopoGL", "parser exception " + e.msg() );
       uiToast(R.string.error_parser_error, e.msg(), true );

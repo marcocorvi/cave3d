@@ -52,8 +52,19 @@ public class ParserTro extends TglParser
     setStationDepths();
   }
 
+  // private static boolean isDuplicate( String flag )
+  // {
+  //   if ( flag == null ) return false;
+  //   return ( flag.indexOf('L') >= 0 );
+  // }
 
-  private double angle( double value, double unit, boolean dm )
+  // private static boolean isSurface( String flag )
+  // {
+  //   if ( flag == null ) return false;
+  //   return ( flag.indexOf('X') >= 0 );
+  // }
+
+  private static double angle( double value, double unit, boolean dm )
   {
     if ( dm ) {
       int sign = 1;
@@ -69,12 +80,14 @@ public class ParserTro extends TglParser
     String[] params = coords.split(",");
     if ( params.length >= 5 ) {
       String name = params[0].replaceAll(" ","_"); // cave name
+      // Log.v("TopoGL-TRO", "entrance " + entrance + " coords " + coords );
       try { // FIXME coordinates NOT SURE THERE IS z
         double x = Double.parseDouble( params[1] );
         double y = Double.parseDouble( params[2] );
         double z = Double.parseDouble( params[3] );
+        // Log.v("TopoGL-TRO", "XYZ " + x + " " + y + " " + z );
         String vt_cs = params[4]; // ccords system: must be present in VisualTopo registry
-        fixes.add( new Cave3DFix( name, x, y, z, new Cave3DCS( vt_cs ) ) ); // FIXME
+        fixes.add( new Cave3DFix( entrance, x, y, z, new Cave3DCS( vt_cs ) ) ); // FIXME
         return true;
       } catch ( NumberFormatException e ) { }
     }
@@ -120,12 +133,14 @@ public class ParserTro extends TglParser
 
       int cnt_shot = 0;
       int cnt_splay = 0;
-      ++linenr;
-      line = br.readLine();
-      while ( line != null ) {
-        line = line.trim();
+      for ( ; ; ) {
+        ++linenr;
+        line = br.readLine();
+        if ( line == null ) break;
+        line = line.trim().replaceAll("\\s+", " ");
+        if ( line.length() == 0 ) continue;
+        if ( line.startsWith("[Configuration") ) break;
         // Log.v( "TopoGL-TRO", "LINE: " + line );
-        if ( line.startsWith("[Configuration]") ) break;
 
         int pos = line.indexOf(";");
         if ( pos >= 0 ) {
@@ -136,129 +151,126 @@ public class ParserTro extends TglParser
           comment = "";
         }
 
-        if ( line.length() == 0 ) {    // comment
-        } else {
-          String[] vals = splitLine( line ); 
-          int idx = nextIndex( vals, -1 );
-          if ( line.startsWith("Version") ) {
-            // IGNORE
-          } else if ( line.startsWith("Trou") ) { 
-            if ( entrance == null || !  setTroFix( entrance, line.substring(5) ) ) {
-              coords = line.substring(5);
-            }
-          } else if ( vals[idx].equals("Param") ) {
-            for ( int k = idx+1; k < vals.length; ++k ) {
-              if ( vals[k].equals("Deca") ) {
-                if ( ++k < vals.length ) {
-                  ub = 1;
-                  dmb = false;
-                  if ( vals[k].equals("Deg") ) {
-                    dmb = true;
-                  } else if ( vals[k].equals("Gra" ) ) {
-                    ub = 0.9f; // 360/400
-                  } else { // if ( vals[k].equals("Degd" ) 
-                    /* nothing */
-                  }
+        if ( line.length() == 0 ) continue;    // comment
+        
+        String[] vals = splitLine( line ); 
+        int idx = nextIndex( vals, -1 );
+        if ( line.startsWith("Version") ) {
+          // IGNORE
+        } else if ( line.startsWith("Trou") ) { 
+          coords = line.substring(5); // save 
+          if ( entrance != null ) setTroFix( entrance, coords );
+        } else if ( vals[idx].equals("Param") ) {
+          for ( int k = idx+1; k < vals.length; ++k ) {
+            if ( vals[k].equals("Deca") ) {
+              if ( ++k < vals.length ) {
+                ub = 1;
+                dmb = false;
+                if ( vals[k].equals("Deg") ) {
+                  dmb = true;
+                } else if ( vals[k].equals("Gra" ) ) {
+                  ub = 0.9f; // 360/400
+                } else { // if ( vals[k].equals("Degd" ) 
+                  /* nothing: dmb = false */
                 }
-              } else if ( vals[k].equals("Clino") ) {
-                if ( ++k < vals.length ) {
-                  uc = 1;
-                  dmc = false;
-                  if ( vals[k].equals("Deg") ) {
-                    dmc = true;
-                  } else if ( vals[k].equals("Gra" ) ) {
-                    uc = 0.9f; // 360/400
-                  } else { // if ( vals[k].equals("Degd" ) 
-                    /* nothing */
-                  }
-                }
-              } else if ( vals[k].startsWith("Dir") || vals[k].startsWith("Inv") ) {
-                String[] dirs = vals[k].split(",");
-                if ( dirs.length == 3 ) {
-                  dirb = ( dirs[0].equals("Dir") )? 1 : -1;
-                  dirc = ( dirs[1].equals("Dir") )? 1 : -1;
-                  dirw = ( dirs[2].equals("Dir") )? 1 : -1;
-                }
-              } else if ( vals[k].equals("Inc") ) {
-                // FIXME splay at next station: Which ???
-                splayAtFrom = false;
-              } else if ( vals[k].equals("Dep") ) {
-                splayAtFrom = true;
-              } else if ( vals[k].equals("Arr") ) {
-                splayAtFrom = false;
-              } else if ( vals[k].equals("Std") ) {
-                // standard colors; ignore
-              } else if ( k == 5 ) {
-                try {
-                  declination = angle( Double.parseDouble( vals[k] ), 1, true );
-                } catch ( NumberFormatException e ) { }
-              } else {
-                // ignore colors
               }
-            }
-          } else if ( vals[idx].equals("Entree") ) { // entrance station
-            if ( vals.length > 1 ) {
-              if ( coords == null || ! setTroFix( vals[1], coords ) ) {
-                entrance = vals[1];
-              }
-            }
-          } else if ( vals[idx].equals("Club") ) {  // team and caving club
-            // IGNORE mTeam = line.substring(5);
-          } else if ( vals[idx].equals("Couleur") ) { 
-            // IGNORE
-          } else if ( vals[idx].equals("Surface") ) {
-            // IGNORE
-          } else { // survey data
-            if ( vals.length >= 5 ) {
-              String from = vals[idx];
-              idx = nextIndex( vals, idx );
-              String to   = vals[idx];
-              if ( ! from.equals( to ) ) {
-                boolean splay = ( to.equals( "*" ) );
-
-                try {
-                  idx = nextIndex( vals, idx );
-                  double len = Double.parseDouble(vals[idx]) * ul;
-                  idx = nextIndex( vals, idx );
-                  double ber = angle( Double.parseDouble(vals[idx]), ub, dmb);
-                  idx = nextIndex( vals, idx );
-                  double cln = angle( Double.parseDouble(vals[idx]), uc, dmc); 
-                  if ( splay ) {
-                    splays.add( new Cave3DShot( from, from + cnt_splay, len, ber, cln, 0, millis ) );
-                    ++ cnt_splay;
-
-                  } else {
-                    String station = ( (splayAtFrom || splay )? from : to );
-                    shots.add( new Cave3DShot( from, to, len, ber, cln, 0, millis ) );
-                    ++ cnt_shot;
-
-                    idx = nextIndex( vals, idx );
-	            len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
-	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-L", len, ber-90, 0, 0, millis ) );
-                    
-                    idx = nextIndex( vals, idx );
-	            len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
-	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-R", len, ber+90, 0, 0, millis ) );
-                    idx = nextIndex( vals, idx );
-	            len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
-	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-U", len, ber, 90, 0, millis ) );
-                    
-                    idx = nextIndex( vals, idx );
-	            len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
-	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-D", len, ber, -90, 0, millis ) );
-                    
-                  }
-                } catch ( NumberFormatException e ) {
-                  Log.e( "TopoGL-TRO", "Error " + linenr + ": " + line + " " + e.getMessage() );
+            } else if ( vals[k].equals("Clino") ) {
+              if ( ++k < vals.length ) {
+                uc = 1;
+                dmc = false;
+                if ( vals[k].equals("Deg") ) {
+                  dmc = true;
+                } else if ( vals[k].equals("Gra" ) ) {
+                  uc = 0.9f; // 360/400
+                } else { // if ( vals[k].equals("Degd" ) 
+                  /* nothing */
                 }
+              }
+            } else if ( vals[k].startsWith("Dir") || vals[k].startsWith("Inv") ) {
+              String[] dirs = vals[k].split(",");
+              if ( dirs.length == 3 ) {
+                dirb = ( dirs[0].equals("Dir") )? 1 : -1;
+                dirc = ( dirs[1].equals("Dir") )? 1 : -1;
+                dirw = ( dirs[2].equals("Dir") )? 1 : -1;
+              }
+            } else if ( vals[k].equals("Inc") ) {
+              // FIXME splay at next station: Which ???
+              splayAtFrom = false;
+            } else if ( vals[k].equals("Dep") ) {
+              splayAtFrom = true;
+            } else if ( vals[k].equals("Arr") ) {
+              splayAtFrom = false;
+            } else if ( vals[k].equals("Std") ) {
+              // standard colors; ignore
+            } else if ( k == 5 ) {
+              try {
+                declination = angle( Double.parseDouble( vals[k] ), 1, true );
+              } catch ( NumberFormatException e ) { }
+            } else {
+              // ignore colors
+            }
+          }
+        } else if ( vals[idx].equals("Entree") ) { // entrance station
+          if ( vals.length > 1 ) {
+            entrance = vals[1];
+            if ( coords != null ) setTroFix( entrance, coords );
+          }
+        } else if ( vals[idx].equals("Club") ) {  // team and caving club
+          // IGNORE mTeam = line.substring(5);
+        } else if ( vals[idx].equals("Couleur") ) { 
+          // IGNORE
+        } else if ( vals[idx].equals("Surface") ) {
+          // IGNORE
+        } else { // survey data
+          if ( vals.length >= 5 ) {
+            String from = vals[idx];
+            if ( from.equals( entrance ) ) Log.v("TopoGL-TRO", line );
+
+            idx = nextIndex( vals, idx );
+            String to   = vals[idx];
+            if ( ! from.equals( to ) ) {
+              boolean splay = ( to.equals( "*" ) );
+
+              try {
+                idx = nextIndex( vals, idx );
+                double len = Double.parseDouble(vals[idx]) * ul;
+                idx = nextIndex( vals, idx );
+                double ber = angle( Double.parseDouble(vals[idx]), ub, dmb);
+                idx = nextIndex( vals, idx );
+                double cln = angle( Double.parseDouble(vals[idx]), uc, dmc); 
+                if ( splay ) {
+                  splays.add( new Cave3DShot( from, from + cnt_splay, len, ber, cln, 0, millis ) );
+                  ++ cnt_splay;
+
+                } else {
+                  String station = ( (splayAtFrom || splay )? from : to );
+                  shots.add( new Cave3DShot( from, to, len, ber, cln, 0, millis ) );
+                  ++ cnt_shot;
+
+                  idx = nextIndex( vals, idx );
+	          len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
+	          if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-L", len, ber-90, 0, 0, millis ) );
+                  
+                  idx = nextIndex( vals, idx );
+	          len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
+	          if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-R", len, ber+90, 0, 0, millis ) );
+                  idx = nextIndex( vals, idx );
+	          len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
+	          if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-U", len, ber, 90, 0, millis ) );
+                  
+                  idx = nextIndex( vals, idx );
+	          len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
+	          if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-D", len, ber, -90, 0, millis ) );
+                  
+                }
+              } catch ( NumberFormatException e ) {
+                Log.e( "TopoGL-TRO", "Error " + linenr + ": " + line + " " + e.getMessage() );
               }
             }
           }
         }
-        ++linenr;
-        line = br.readLine();
+        
       }
-
     } catch ( IOException e ) {
       Log.e( "TopoGL-TRO", "I/O error " + e.getMessage() );
       throw new ParserException( filename, linenr );
