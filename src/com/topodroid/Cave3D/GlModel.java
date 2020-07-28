@@ -253,6 +253,26 @@ public class GlModel
     glSketches = Collections.synchronizedList(new ArrayList< GlSketch >());
   }
 
+  void hideOrShow( List< Cave3DSurvey > surveys )
+  {
+    int max = 0;
+    for ( Cave3DSurvey survey : surveys ) if ( survey.number > max ) max = survey.number;
+    boolean[] visible = new boolean[ max + 1 ];
+    StringBuilder sb = new StringBuilder();
+    for ( Cave3DSurvey survey : surveys ) {
+      visible[ survey.number ] = survey.visible;
+      sb.append( (survey.visible? " V" : " H") );
+    }
+    Log.v("TopoGL", "hide of show " + surveys.size() + " max " + max + sb.toString() );
+
+    synchronized( this ) {
+      // glLegsS.hideOrShow( visible );
+      // glLegsD.hideOrShow( visible );
+      // glLegsC.hideOrShow( visible );
+      glLegs.hideOrShow( visible );
+    }
+  }
+
   void draw( float[] mvp_matrix, float[] mv_matrix, Vector3D light ) 
   { 
     if ( ! modelCreated ) return;
@@ -518,7 +538,7 @@ public class GlModel
           for ( int k = 1; k < nn; ++k ) {
             Vector3D p2 = new Vector3D( poly.get( k ) );
             p2.z = mZ0Min;
-            plan.addLine( p1, p2, 4, false, mXmed, mYmed, mZmed );
+            plan.addLine( p1, p2, 4, -1, false, mXmed, mYmed, mZmed );
             p1 = p2;
           }
         }
@@ -529,7 +549,7 @@ public class GlModel
     if ( computer.hasProfilearcs() ) {
       GlLines profile = new GlLines( mContext, TglColor.ColorPlan );
       for ( Cave3DSegment sgm : computer.getProfilearcs() ) {
-        profile.addLine( sgm.v1, sgm.v2, 4, false, mXmed, mYmed, mZmed );
+        profile.addLine( sgm.v1, sgm.v2, 4, -1, false, mXmed, mYmed, mZmed );
       }
       profile.initData();
       synchronized( this ) { glProfile = profile; }
@@ -567,7 +587,7 @@ public class GlModel
       Vector3D v2 = new Vector3D( leg.to_station );
       v1.z = surface.computeZ( v1.x, v1.y );
       v2.z = surface.computeZ( v2.x, v2.y );
-      surface_legs.addLine( v1, v2, 3, false, mXmed, mYmed, mZmed ); // 3: color_index, false: fixed colors
+      surface_legs.addLine( v1, v2, 3, leg.mSurveyNr, false, mXmed, mYmed, mZmed ); // 3: color_index, false: fixed colors
     }
     surface_legs.computeBBox();
     // surface_legs.logMinMax();
@@ -757,19 +777,19 @@ public class GlModel
       if ( leg.from_station == null || leg.to_station == null ) continue; // skip fake-legs
       if ( leg.isSurvey() ) {
         legsSurvey.add( leg );
-        legs.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, true ); // leg.mSurveyNr = color-index
+        legs.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, leg.mSurveyNr, true ); // leg.mSurveyNr = color-index
       } else if ( leg.isSurface() ) {
         legsSurface.add( leg );
-        legsS.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, true );
+        legsS.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, leg.mSurveyNr, true );
       } else if ( leg.isDuplicate() ) {
         legsDuplicate.add( leg );
-        legsD.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, true );
+        legsD.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, leg.mSurveyNr, true );
       } else if ( leg.isCommented() ) {
         legsCommented.add( leg );
-        legsC.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, true );
+        legsC.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, leg.mSurveyNr, true );
       } else {
         legsSurvey.add( leg );
-        legs.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, true ); 
+        legs.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, leg.mSurveyNr, true ); 
       }
     }
     // legs.logMinMax();
@@ -787,9 +807,9 @@ public class GlModel
     
     for ( Cave3DShot splay : parser.getSplays() ) {
       if ( splay.from_station != null ) {
-        splays.addLine( splay.from_station, splay.toPoint3D(), splay.mSurveyNr, true, mXmed, mYmed, mZmed );
+        splays.addLine( splay.from_station, splay.toPoint3D(), splay.mSurveyNr, splay.mSurveyNr, true, mXmed, mYmed, mZmed );
       } else if ( splay.to_station != null ) {
-        splays.addLine( splay.to_station, splay.toPoint3D(), splay.mSurveyNr, true, mXmed, mYmed, mZmed );
+        splays.addLine( splay.to_station, splay.toPoint3D(), splay.mSurveyNr, splay.mSurveyNr, true, mXmed, mYmed, mZmed );
       }
     }
     splays.computeBBox();

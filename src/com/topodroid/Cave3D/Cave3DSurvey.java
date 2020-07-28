@@ -20,10 +20,11 @@ public class Cave3DSurvey
 {
   private static int count = 0;
 
-  int number;
-  int mId;  // id 
-  int mPid; // parend Id
+  int number; // survey index
+  int mId;    // id 
+  int mPid;   // parend Id
   String name;
+  boolean visible;
 
   ArrayList< Cave3DShot > mShots;
   ArrayList< Cave3DShot > mSplays;
@@ -176,6 +177,7 @@ public class Cave3DSurvey
     mId  = id;
     mPid = pid;
     name = n;
+    visible = true;
     // mNrShots  = 0;
     // mNrSplays = 0;
     mShots    = new ArrayList< Cave3DShot >();

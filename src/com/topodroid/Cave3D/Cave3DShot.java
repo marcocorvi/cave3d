@@ -52,7 +52,7 @@ public class Cave3DShot
     used = false;
     from_station = null;
     to_station   = null;
-    mSurvey = null;
+    mSurvey = null; // survey and surveyNr are updated when the shot is added to a survey
     mSurveyNr = 0;
     mFlag = flag;
     mMillis = millis;
@@ -70,7 +70,7 @@ public class Cave3DShot
     used = false;
     from_station = f;
     to_station   = t;
-    mSurvey   = null;
+    mSurvey   = null; // survey and surveyNr are updated when the shot is added to a survey
     mSurveyNr = 0;
     mFlag = flag;
     mMillis = millis;

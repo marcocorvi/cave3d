@@ -689,4 +689,8 @@ public class GlRenderer implements Renderer
     if ( mModel != null ) mModel.setLocation( v );
   }
 
+  void hideOrShow( List< Cave3DSurvey > surveys )
+  {
+    if ( mModel != null ) mModel.hideOrShow( surveys );
+  }
 }

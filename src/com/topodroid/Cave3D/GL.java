@@ -40,6 +40,7 @@ class GL
   final static String aPosition  = "aPosition";
   final static String aNormal    = "aNormal";
   final static String aColor     = "aColor";
+  final static String aDColor    = "aDColor";
   final static String aTexCoord  = "aTexCoord";
   final static String aDelta     = "aDelta";
 

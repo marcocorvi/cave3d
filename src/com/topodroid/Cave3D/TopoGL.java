@@ -18,6 +18,7 @@ import java.io.PrintWriter;
 import java.io.File;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.os.Environment;
 import android.app.Activity;
@@ -618,6 +619,7 @@ public class TopoGL extends Activity
     mButton1[ 1 ].setOnLongClickListener( this ); // projection params
     mButton1[ 2 ].setOnLongClickListener( this ); // stations
     mButton1[ 3 ].setOnLongClickListener( this ); // splays
+    mButton1[ 6 ].setOnLongClickListener( this ); // surveys
 
     mBMlight = mButton1[BTN_MOVE].mBitmap;
     mBMturn = MyButton.getButtonBackground( this, size, R.drawable.iz_turn );
@@ -681,16 +683,19 @@ public class TopoGL extends Activity
     // }
 
     Button b = (Button) v;
-    if ( b == mButton1[1] ) {
+    if ( b == mButton1[ BTN_PROJECT ] ) {
       if ( mRenderer.projectionMode != GlRenderer.PROJ_PERSPECTIVE ) return false;
       new DialogProjection( this, mRenderer ).show();
-    } else if ( b == mButton1[2] ) {
+    } else if ( b == mButton1[ BTN_STATION ] ) {
       mSelectStation = ! mSelectStation;
       // Log.v("TopoGL", "on long click " + mSelectStation );
       setButtonStation();
       closeCurrentStation();
-    } else if ( b == mButton1[3] ) {
+    } else if ( b == mButton1[ BTN_SPLAYS ] ) {
       new DialogLegs( this ).show();
+    } else if ( b == mButton1[ BTN_COLOR ] ) {
+      if ( mParser == null || mParser.getSurveyNumber() < 2 ) return false;
+      new DialogSurveys( this, this, mParser.getSurveys() ).show();
     }
     return true;
   }
@@ -1788,6 +1793,13 @@ public class TopoGL extends Activity
       mRenderer.setLocation( new Vector3D( e, n, z ) );
     } else {
       Log.e("TopoGL-GPS", "location " + e + " " + n + " out of DEM" );
+    }
+  }
+
+  void hideOrShow( List< Cave3DSurvey > surveys )
+  {
+    if ( mRenderer != null ) {
+      mRenderer.hideOrShow( surveys );
     }
   }
 

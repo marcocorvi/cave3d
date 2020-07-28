@@ -41,25 +41,28 @@ class GlLines extends GlShape
     Vector3D v1;
     Vector3D v2;
     int      color; // color index 
-    boolean  survey; // survey or axis
+    int      survey; // survey index in Parser survey list
+    boolean  isSurvey; // survey or axis
 
     // w1, w2 in survey frame
-    Line3D( Vector3D w1, Vector3D w2, int c, boolean s ) 
+    Line3D( Vector3D w1, Vector3D w2, int c, int s, boolean is ) 
     { 
        v1 = new Vector3D( w1.x, w1.z, -w1.y );
        v2 = new Vector3D( w2.x, w2.z, -w2.y );
-       color=c;
-       survey=s;
+       color  = c;
+       survey = s;
+       isSurvey = is;
     }
 
     // w1, w2 in survey frame
     // XYZ med in OpenGL
-    Line3D( Vector3D w1, Vector3D w2, int c, boolean s, double xmed, double ymed, double zmed ) 
+    Line3D( Vector3D w1, Vector3D w2, int c, int s, boolean is, double xmed, double ymed, double zmed ) 
     { 
        v1 = new Vector3D( w1.x-xmed, w1.z-ymed, -w1.y-zmed );
        v2 = new Vector3D( w2.x-xmed, w2.z-ymed, -w2.y-zmed );
-       color=c;
-       survey=s;
+       color  = c;
+       survey = s;
+       isSurvey = is;
      }
 
     // XYZ med in OpenGL
@@ -153,14 +156,14 @@ class GlLines extends GlShape
 
   // survey = survey or fixed (axis) color
   // color  = color index: [0-12) for survey, [0-5) for fixed
-  void addLine( Vector3D w1, Vector3D w2, int color, boolean survey ) 
+  void addLine( Vector3D w1, Vector3D w2, int color, int survey, boolean is_survey ) 
   { 
     if ( w1 == null || w2 == null ) return; // should not happen, but it did:
        // TopoGL.onStart() calls makeSurface() which calls
        // GlRenderer.setParser() if the parser is not null
        // this calls GlRenderer.prepareModel() which calls addLine() on the legs
        // Legs should not have null stations ... [2020-05-23]
-    lines.add( new Line3D( w1, w2, color, survey ) ); 
+    lines.add( new Line3D( w1, w2, color, survey, is_survey ) ); 
     if ( lines.size() == 1 ) {
       xmin = xmax = w1.x;
       ymin = ymax = w1.z;
@@ -174,10 +177,10 @@ class GlLines extends GlShape
   // survey = index of survey in Cave3DSurvey list
   // w1, w2 in survey frame
   // XYZ med n OpenGlL
-  void addLine( Vector3D w1, Vector3D w2, int color, boolean survey, double xmed, double ymed, double zmed ) 
+  void addLine( Vector3D w1, Vector3D w2, int color, int survey, boolean is_survey, double xmed, double ymed, double zmed ) 
   { 
     if ( w1 == null || w2 == null ) return; // should not happen
-    lines.add( new Line3D( w1, w2, color, survey, xmed, ymed, zmed ) ); 
+    lines.add( new Line3D( w1, w2, color, survey, is_survey, xmed, ymed, zmed ) ); 
   }
 
   void prepareDepthBuffer( List<Cave3DShot> legs )
@@ -239,7 +242,30 @@ class GlLines extends GlShape
     }
     Log.i("TopoGL-LINE", "lines " + lines.size() + " X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
   }
-  //
+  
+  void hideOrShow( boolean[] visible )
+  {
+    // Log.v("TopoGL", "hide/show " + lineCount + " vis " + visible.length );
+    int k = 6; // index in the dataBuffer
+    for ( int i = 0; i<lineCount; ++i ) {
+      Line3D line = lines.get( i );
+      // if ( line.isSurvey ) 
+      if ( line.survey >= 0 && line.survey < visible.length ) {
+        if ( visible[ line.survey ] ) {
+          // Log.v("TopoGL", "show " + line.v1.x + " " + line.v1.y + " " + line.survey + " " + line.isSurvey );
+          dataBuffer.put( k, 1.0f ); k += 7;
+          dataBuffer.put( k, 1.0f ); k += 7;
+        } else {
+          // Log.v("TopoGL", "hide " + line.v1.x + " " + line.v1.y + " " + line.survey + " " + line.isSurvey );
+          dataBuffer.put( k, 0.0f ); k += 7;
+          dataBuffer.put( k, 0.0f ); k += 7;
+        }
+      } else {
+        // Log.v("TopoGL", "skip " + line.v1.x + " " + line.v1.y + " " + line.survey + " " + line.isSurvey );
+        k += 14;
+      }
+    }
+  }
 
   // must be called only on legs - for the others use addLine with reduced XYZ med
   // X,Y,Z openGL
@@ -258,13 +284,13 @@ class GlLines extends GlShape
     float[] data  = new float[ vertexCount * STRIDE ];
     float[] color = new float[ COORDS_PER_COLOR ];
     TglColor.getSurveyColor( lines.get(0).color, color );
-    // Log.v("TopoGL-LINES", "prepare lines " + lineCount + " color " + color[0] + " " + color[1] + " " + color[2] + " " + color[3] );
+    Log.v("TopoGL-LINES", "prepare lines " + lineCount + " color " + color[0] + " " + color[1] + " " + color[2] + " " + color[3] );
     // Log.v("TopoGL-LINES", "prepare lines " + lineCount + " zmin " + zmin );
     int k = 0;
     for ( Line3D line : lines ) {
       Vector3D w1 = line.v1;
       Vector3D w2 = line.v2;
-      if ( line.survey ) {
+      if ( line.isSurvey ) {
         TglColor.getSurveyColor( line.color, color );
       } else {
         TglColor.getAxisColor( line.color, color );
@@ -398,6 +424,7 @@ class GlLines extends GlShape
     GL.setUniformMatrix( muUMVPMatrix, mvpMatrix );
     GL.setUniform( muUPointSize, mPointSize );
     GL.setAttributePointer( muAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, BYTE_STRIDE );
+    GL.setAttributePointer( muAColor,    dataBuffer, OFFSET_COLOR,  COORDS_PER_COLOR,  BYTE_STRIDE );
     GL.setUniform( muUColor, color[0], color[1], color[2], color[3] );
   }
 
@@ -415,6 +442,7 @@ class GlLines extends GlShape
     GL.setUniformMatrix( mzUMVPMatrix, mvpMatrix );
     GL.setUniform( mzUPointSize, mPointSize );
     GL.setAttributePointer( mzAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, BYTE_STRIDE );
+    GL.setAttributePointer( mzAColor,    dataBuffer, OFFSET_COLOR,  COORDS_PER_COLOR,  BYTE_STRIDE );
     GL.setUniform( mzUZMin,   (float)GlModel.mZMin );
     GL.setUniform( mzUZDelta, (float)GlModel.mZDelta );
     GL.setUniform( mzUColor, color[0], color[1], color[2], color[3] );
@@ -425,7 +453,8 @@ class GlLines extends GlShape
     GL.setUniformMatrix( msUMVPMatrix, mvpMatrix );
     GL.setUniform( msUPointSize, mPointSize );
     GL.setAttributePointer( msAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, BYTE_STRIDE );
-    GL.setAttributePointer( msAColor, depthBuffer, 0, 1, 4 );
+    GL.setAttributePointer( msAColor,    dataBuffer, OFFSET_COLOR,  COORDS_PER_COLOR,  BYTE_STRIDE );
+    GL.setAttributePointer( msADColor, depthBuffer, 0, 1, 4 );
   }
 
   // ------------------------------------------------------------
@@ -471,10 +500,13 @@ class GlLines extends GlShape
   private static int mstAPosition;
 
   private static int maAColor;
+  private static int muAColor;
   private static int muUColor;
+  private static int mzAColor;
   private static int mzUColor;
   private static int mstUColor;
   private static int msAColor;
+  private static int msADColor;
   private static int maUAlpha;
   
   private static int maUMVPMatrix;
@@ -518,6 +550,7 @@ class GlLines extends GlShape
     msUPointSize = GL.getUniform(   program, GL.uPointSize );
     msAPosition  = GL.getAttribute( program, GL.aPosition );  // variable names must coincide with those in fragments
     msAColor     = GL.getAttribute( program, GL.aColor );
+    msADColor    = GL.getAttribute( program, GL.aDColor );
     // Log.v("TopoGL", "Line-A " + maUPointSize + " " + maAPosition + " " + maAColor + " " + maUAlpha );
   }
   private static void setLocationsAColor( int program )
@@ -534,6 +567,7 @@ class GlLines extends GlShape
     muUMVPMatrix = GL.getUniform(   program, GL.uMVPMatrix );
     muUPointSize = GL.getUniform(   program, GL.uPointSize );
     muAPosition  = GL.getAttribute( program, GL.aPosition );  // variable names must coincide with those in fragments
+    muAColor     = GL.getAttribute( program, GL.aColor );
     muUColor     = GL.getUniform(   program, GL.uColor );
     // Log.v("TopoGL", "Line-U " + muUPointSize + " " + muAPosition + " " + muUColor );
   }
@@ -554,6 +588,7 @@ class GlLines extends GlShape
     mzUZMin      = GL.getUniform(   program, GL.uZMin );
     mzUZDelta    = GL.getUniform(   program, GL.uZDelta );
     mzUColor     = GL.getUniform(   program, GL.uColor );
+    mzAColor     = GL.getAttribute( program, GL.aColor );
     // Log.v("TopoGL", "Line-Z " + mzUPointSize + " " + mzAPosition + " " + mzUColor + " " + mzUZMin + " " + mzUZDelta );
   }
 }

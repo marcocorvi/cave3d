@@ -110,6 +110,7 @@
     <string name="title_sketches">Sketches</string>
     <string name="title_legs">Legs visibility</string>
 
+    <string name="survey_list">SURVEYS</string>
     <string name="survey_legs"> Legs: </string>
     <string name="survey_legs_length"> Legs length: </string>
     <string name="survey_splays"> Splays: </string>

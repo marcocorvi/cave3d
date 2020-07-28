@@ -174,6 +174,8 @@ public class ParserTh extends TglParser
       return ERR_NO_DB; 
     }
 
+    // Log.v("TopoGL-PARSER", "survey " + surveyname );
+
     // Toast.makeText( mApp, "Reading " + surveyname, Toast.LENGTH_SHORT ).show();
 
     SurveyInfo info = mData.getSurveyInfo( surveyname );
@@ -225,7 +227,8 @@ public class ParserTh extends TglParser
     }
 
     List<SurveyFixed> fixeds = mData.getSurveyFixeds( sid );
-    // Log.v("Cave3D-TH", "survey fixed points " + fixeds.size() );
+    // Log.v("TopoGL-TH", "survey fixed points " + fixeds.size() + " shots " + shots.size() + " splays " + splays.size() );
+
     if ( fixeds != null && fixeds.size() > 0 ) {
       Cave3DCS cs0 = new Cave3DCS( );
       double PI_180 = (Math.PI / 180);
@@ -275,7 +278,7 @@ public class ParserTh extends TglParser
       }
     }
 
-    // Log.v("Cave3D-TH", "fixes " + fixes.size() );
+    // Log.v("TopoGL-TH", "fixes " + fixes.size() );
     return SUCCESS;
   }
   
@@ -704,7 +707,7 @@ public class ParserTh extends TglParser
       Log.e( "Cave3D-TH", "I/O error " + e.getMessage() );
       throw new ParserException( filename, linenr );
     }
-    // Log.v( "Cave3D-TH", "Done readFile " + filename );
+    // Log.v( "TopoGL-TH", "Done readFile " + filename );
 
     if ( shots.size() <= 0 ) {
       pw.printf( String.format( mApp.getResources().getString( R.string.empty_survey ), surveyname ) );
