@@ -95,7 +95,7 @@ public class GlModel
 
   void unbindTextures()
   {
-    Log.w("TopoGL", "unbind textures");
+    // Log.w("TopoGL", "unbind textures");
     if ( glNames != null ) glNames.unbindTexture();
   }
 
@@ -263,7 +263,7 @@ public class GlModel
       visible[ survey.number ] = survey.visible;
       sb.append( (survey.visible? " V" : " H") );
     }
-    Log.v("TopoGL", "hide of show " + surveys.size() + " max " + max + sb.toString() );
+    // Log.v("TopoGL", "hide of show " + surveys.size() + " max " + max + sb.toString() );
 
     synchronized( this ) {
       // glLegsS.hideOrShow( visible );

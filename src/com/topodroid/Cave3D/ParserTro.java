@@ -110,7 +110,7 @@ public class ParserTro extends TglParser
 
     // String survey = null; // UNUSED
 
-
+    String last_to = "";
     boolean splayAtFrom = true;
     String comment = "";
     long millis = 0;
@@ -225,9 +225,11 @@ public class ParserTro extends TglParser
           if ( vals.length >= 5 ) {
             String from = vals[idx];
             if ( from.equals( entrance ) ) Log.v("TopoGL-TRO", line );
+            if ( from.equals("*") ) from = last_to;
 
             idx = nextIndex( vals, idx );
             String to   = vals[idx];
+            if ( ! to.equals("*") ) last_to = to;
             if ( ! from.equals( to ) ) {
               boolean splay = ( to.equals( "*" ) );
 

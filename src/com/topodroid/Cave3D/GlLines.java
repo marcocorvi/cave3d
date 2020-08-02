@@ -284,7 +284,7 @@ class GlLines extends GlShape
     float[] data  = new float[ vertexCount * STRIDE ];
     float[] color = new float[ COORDS_PER_COLOR ];
     TglColor.getSurveyColor( lines.get(0).color, color );
-    Log.v("TopoGL-LINES", "prepare lines " + lineCount + " color " + color[0] + " " + color[1] + " " + color[2] + " " + color[3] );
+    // Log.v("TopoGL-LINES", "prepare lines " + lineCount + " color " + color[0] + " " + color[1] + " " + color[2] + " " + color[3] );
     // Log.v("TopoGL-LINES", "prepare lines " + lineCount + " zmin " + zmin );
     int k = 0;
     for ( Line3D line : lines ) {
