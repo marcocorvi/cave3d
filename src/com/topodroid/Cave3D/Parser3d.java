@@ -145,7 +145,7 @@ public class Parser3d extends TglParser
     if ( mLabel.length() > 0 ) {
       int pos = mLabel.lastIndexOf(".");
       String station_name = mLabel.substring( pos+1 );
-      String survey_name  = mLabel.substring( 0, pos );
+      String survey_name  = (pos > 0)? mLabel.substring( 0, pos ) : " "; // default survey-name is " " (empty space)
       Cave3DSurvey survey = getSurvey( survey_name );
       if ( survey == null ) {
         survey = new Cave3DSurvey( survey_name );
