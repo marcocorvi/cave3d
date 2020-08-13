@@ -81,6 +81,7 @@
       android:text="@string/surface_texture"
       />
 
+    <!-- WITH-GPS -->
     <CheckBox android:id="@+id/gps"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"

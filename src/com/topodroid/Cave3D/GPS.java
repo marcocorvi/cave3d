@@ -11,6 +11,7 @@
  */
 package com.topodroid.Cave3D;
 
+// WITH-GPS
 import android.util.Log;
 
 import android.location.Location;
@@ -116,45 +117,43 @@ class GPS implements LocationListener
     }
   }
 
-/*
-    if ( mErr2 < 0 ) {	  
-      mLat  = loc.getLatitude();  // decimal degree
-      mLng  = loc.getLongitude();
-      // mHEll = loc.getAltitude();  // meter
-      mErr2 = 10000;              // start with a large value
-    } else {
-      double lat0 = loc.getLatitude();
-      double lng0 = loc.getLongitude();
-      // double hel0 = loc.getAltitude();
-      double lat  = mW1 * lat0 + mW0 * mLat;
-      double lng  = mW1 * lng0 + mW0 * mLng;
-      // double hell = mW1 * hel0 + mW0 * mHEll;
-      double dlat = (lat0-mLat) * EARTH_A * DEG2RAD;
-      double dlng = (lng0-mLng) * EARTH_A * DEG2RAD * Math.cos( mLat * DEG2RAD );
-      // double dhel = hel0 - mHEll;
-      double err2 = ( dlat*dlat + dlng*dlng ); // + dhel*dhel  
-      mErr2 = mW0 * mErr2 + mW2 * err2;
-      mLat  = lat;
-      mLng  = lng;
-      // mHEll = hell;
-      if ( Math.sqrt( mErr2 ) < 4 ) {
-        if ( ! mHasLocation ) {
-          mLng0 = mLng;
-          mLat0 = mLat;
-          mHasLocation = true;
-          if ( mListener != null ) mListener.notifyLocation( mLng, mLat );
-        } else {
-          if ( Math.abs( mLat - mLat0 ) + Math.abs( mLng - mLng0 ) > mDelta ) {
-            mLng0 = mLng;
-            mLat0 = mLat;
-            if ( mListener != null ) mListener.notifyLocation( mLng, mLat );
-            mHasLocation = true;
-          }
-        }
-        mErr2 = -1;
-      }
-    }
-*/
+//   if ( mErr2 < 0 ) {	  
+//     mLat  = loc.getLatitude();  // decimal degree
+//     mLng  = loc.getLongitude();
+//     // mHEll = loc.getAltitude();  // meter
+//     mErr2 = 10000;              // start with a large value
+//   } else {
+//     double lat0 = loc.getLatitude();
+//     double lng0 = loc.getLongitude();
+//     // double hel0 = loc.getAltitude();
+//     double lat  = mW1 * lat0 + mW0 * mLat;
+//     double lng  = mW1 * lng0 + mW0 * mLng;
+//     // double hell = mW1 * hel0 + mW0 * mHEll;
+//     double dlat = (lat0-mLat) * EARTH_A * DEG2RAD;
+//     double dlng = (lng0-mLng) * EARTH_A * DEG2RAD * Math.cos( mLat * DEG2RAD );
+//     // double dhel = hel0 - mHEll;
+//     double err2 = ( dlat*dlat + dlng*dlng ); // + dhel*dhel  
+//     mErr2 = mW0 * mErr2 + mW2 * err2;
+//     mLat  = lat;
+//     mLng  = lng;
+//     // mHEll = hell;
+//     if ( Math.sqrt( mErr2 ) < 4 ) {
+//       if ( ! mHasLocation ) {
+//         mLng0 = mLng;
+//         mLat0 = mLat;
+//         mHasLocation = true;
+//         if ( mListener != null ) mListener.notifyLocation( mLng, mLat );
+//       } else {
+//         if ( Math.abs( mLat - mLat0 ) + Math.abs( mLng - mLng0 ) > mDelta ) {
+//           mLng0 = mLng;
+//           mLat0 = mLat;
+//           if ( mListener != null ) mListener.notifyLocation( mLng, mLat );
+//           mHasLocation = true;
+//         }
+//       }
+//       mErr2 = -1;
+//     }
+//   }
 
   // boolean getLocation( Vector3D v )
   // {
@@ -245,3 +244,5 @@ class GPS implements LocationListener
   }
 
 }
+
+// end WITH-GPS

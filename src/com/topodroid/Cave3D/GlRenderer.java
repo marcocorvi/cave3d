@@ -684,7 +684,7 @@ public class GlRenderer implements Renderer
   }
 
   // user null vector to clear location
-  void setLocation( Vector3D v )
+  void setLocation( Vector3D v ) // WITH-GPS
   {
     if ( mModel != null ) mModel.setLocation( v );
   }

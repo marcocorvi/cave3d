@@ -49,7 +49,7 @@ public class GlModel
 
   GlSurface glSurface = null; // surface
   GlNames glNames   = null; // stations
-  GlPoint glPoint   = null; // GPS point
+  GlPoint glPoint   = null; // GPS point // WITH-GPS
   GlLines glLegs    = null;
   GlLines glLegsS   = null; // surface
   GlLines glLegsD   = null; // duplicate
@@ -64,7 +64,7 @@ public class GlModel
   GlPath  glPath    = null;
 
   // -----------------------------------------------------------------
-  // GPS LOCATION
+  // WITH-GPS GPS LOCATION
   
   // use null vector to clear location
   synchronized void setLocation( Vector3D v ) // e, n, z
@@ -126,7 +126,7 @@ public class GlModel
     glLegsC   = null;
     glPath    = null;
     mParser   = null;
-    glPoint   = null;
+    glPoint   = null; // WITH-GPS
   }
 
   static void setWidthAndHeight( float w, float h ) 
@@ -335,7 +335,7 @@ public class GlModel
     }
     GL.enableDepth( false );
 
-    if ( with_surface ) {
+    if ( with_surface ) { // WITH-GPS
       GlPoint point = null;
       synchronized( this ) { point = glPoint; }
       if ( point != null ) point.draw( mvp_matrix );
@@ -593,7 +593,8 @@ public class GlModel
     // surface_legs.logMinMax();
     surface_legs.initData();
     synchronized( this ) { glSurfaceLegs = surface_legs; }
-    GlPoint point = new GlPoint( mContext );
+
+    GlPoint point = new GlPoint( mContext ); // WITH-GPS
     synchronized( this ) { glPoint = point; }
   }
 

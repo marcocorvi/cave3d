@@ -75,7 +75,7 @@ public class TopoGL extends Activity
                     , OnLongClickListener
                     , OnItemClickListener
                     , OnSharedPreferenceChangeListener
-                    , GPS.GPSListener
+                    , GPS.GPSListener // WITH-GPS 
 {
   // android P (9) is API 28
   final static boolean NOT_ANDROID_10 = ( Build.VERSION.SDK_INT <= Build.VERSION_CODES.P );
@@ -153,7 +153,7 @@ public class TopoGL extends Activity
 
   boolean withOsm() { return mParser != null && mParser.hasOrigin(); }
 
-  GPS mGPS = null;
+  GPS mGPS = null; // WITH-GPS
 
   // ---------------------------------------------------------------
   // LIFECYCLE
@@ -242,7 +242,7 @@ public class TopoGL extends Activity
         }          
       }
 
-      mGPS = new GPS( this );
+      mGPS = new GPS( this ); // WITH-GPS
 
       if ( file_dialog ) { 
         // Log.v("TopoGL", "open file dialog");
@@ -1688,6 +1688,7 @@ public class TopoGL extends Activity
     new DialogSketch( this, this ).show();
   }
 
+  // WITH-GPS
   public void notifyLocation( double lng, double lat )
   {
     // Log.v("TopoGL-GPS", "notified location " + lng + " " + lat );
@@ -1766,6 +1767,7 @@ public class TopoGL extends Activity
   }
 ------------ */
 
+  // WITH-GPS
   void setGPSstatus( boolean status )
   {
     // Log.v("TopoGL-GPS", "set GPS status " + status );
@@ -1795,6 +1797,7 @@ public class TopoGL extends Activity
       Log.e("TopoGL-GPS", "location " + e + " " + n + " out of DEM" );
     }
   }
+  // end WITH-GPS
 
   void hideOrShow( List< Cave3DSurvey > surveys )
   {

@@ -36,14 +36,15 @@ class DialogSurface extends Dialog
   // private Button mBtnLoadTexture;
   private CheckBox mCBproj;
   private CheckBox mCBtexture;
-  private CheckBox mCBgps;
-  private EditText mEast;
-  private EditText mNorth;
   // private EditText mDemFile;
   // private EditText mTextureFile;
 
   private TopoGL mApp;
-  private boolean mHasLocation;
+
+  private boolean mHasLocation; // WITH-GPS
+  private CheckBox mCBgps;
+  private EditText mEast;
+  private EditText mNorth;
 
 
   public DialogSurface( Context ctx, TopoGL app )
@@ -51,7 +52,7 @@ class DialogSurface extends Dialog
     super( ctx );
     mContext = ctx;
     mApp  = app;
-    mHasLocation = FeatureChecker.checkLocation( ctx );
+    mHasLocation = FeatureChecker.checkLocation( ctx ); // WITH-GPS
   }
 
   @Override
@@ -74,7 +75,8 @@ class DialogSurface extends Dialog
 
     mCBproj = (CheckBox) findViewById( R.id.projection );
     mCBtexture = (CheckBox) findViewById( R.id.texture );
-    mCBgps = (CheckBox) findViewById( R.id.gps );
+
+    mCBgps = (CheckBox) findViewById( R.id.gps ); // WITH-GPS
     mEast  = (EditText) findViewById( R.id.east );
     mNorth = (EditText) findViewById( R.id.north );
 
@@ -90,14 +92,14 @@ class DialogSurface extends Dialog
     } else {
       mTextureFile.setVisibility( View.GONE );
       btn_texture.setVisibility( View.GONE );
-      mCBgps.setVisibility( View.GONE );
+      mCBgps.setVisibility( View.GONE ); // WITH-GPS
       mEast.setVisibility( View.GONE );
       mNorth.setVisibility( View.GONE );
     }
 
     mCBproj.setChecked( GlModel.surfaceLegsMode );
     mCBtexture.setChecked( GlModel.surfaceTexture );
-    if ( mHasLocation ) {
+    if ( mHasLocation ) { // WITH-GPS
       mCBgps.setChecked( mApp.getGPSstatus() );
     } else {
       mCBgps.setVisibility( View.GONE );
@@ -119,10 +121,10 @@ class DialogSurface extends Dialog
     } else if ( view.getId() == R.id.button_ok ) {
       GlModel.surfaceLegsMode = mCBproj.isChecked();
       GlModel.surfaceTexture  = mCBtexture.isChecked();
-      if ( mHasLocation ) {
+
+      if ( mHasLocation ) { // WITH-GPS
         mApp.setGPSstatus( mCBgps.isChecked() );
       }
-
       if ( mEast.getText() != null && mNorth.getText() != null ) {
         try {
           double e = Double.parseDouble( mEast.getText().toString() );
@@ -130,6 +132,7 @@ class DialogSurface extends Dialog
           mApp.addGPSpoint( e, n );
         } catch ( NumberFormatException e ) { }
       }
+
       // Log.v( "TopoGL-ALPHA, "onClick()" );
       int alpha = mETalpha.getProgress();
       if ( 0 < alpha && alpha < 256 ) GlSurface.setAlpha( alpha/255.0f );

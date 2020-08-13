@@ -29,11 +29,11 @@ class FeatureChecker
       android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
       // android.Manifest.permission.READ_EXTERNAL_STORAGE,
       // android.Manifest.permission.INTERNET,
-      android.Manifest.permission.ACCESS_FINE_LOCATION,
+      android.Manifest.permission.ACCESS_FINE_LOCATION, // WITH-GPS
   };
 
   static final private int NR_PERMS_D = 1;
-  static final private int NR_PERMS   = 2;
+  static final private int NR_PERMS   = 2; // WITH-GPS ( 1 with no GPS )
 
   /** app specific code - for callback in MainWindow
    */
@@ -99,6 +99,7 @@ class FeatureChecker
     return ret;
   }
 
+  // WITH-GPS
   static boolean checkLocation( Context context )
   {
     PackageManager pm = context.getPackageManager();
