@@ -5,8 +5,8 @@
      <item name="large">Veľké</item>
   </string-array>
 
-  <!-- TODO string-array name="demReduce">
-     <item name="shrink">Subsample</item>
-     <item name="cut">Clip</item>
+  <string-array name="demReduce">
+     <item name="shrink">Podvzorka</item>
+     <item name="cut">Strih</item>
   </string-array -->
 </resources>
