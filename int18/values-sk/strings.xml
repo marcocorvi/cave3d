@@ -36,7 +36,7 @@
     <string name="info_axes">Osi: modrá = Sever, zelená = Východ</string>
     <string name="info_grid">Rám mriežky [m]</string>
     <string name="info_view">Pohľad z</string>
-    <string name="info_surveys">Jaskyne</string>
+    <string name="info_survey">Jaskyne</string>
     <string name="info_shot">Zámery</string>
     <string name="info_station">Staničenia</string>
     <string name="info_length">Dĺžka</string>
