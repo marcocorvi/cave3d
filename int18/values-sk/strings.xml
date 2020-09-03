@@ -158,7 +158,10 @@
     <!-- UNUSED string name="warning_not_cgal">Warning: not CGAL text file %1$s</string -->
     <!-- UNUSED string name="warning_not_stl">Warning: not stl file %1$s</string -->
     <string name="warning_no_cwd">Varovanie: Chybná cesta k adresáru</string>
+    <!-- TODO string name="warning_no_file">Warning: no 3d file found</string -->
+    <!-- TODO string name="warning_empty_cwd">Warning: empty base path</string -->
     <string name="warning_no_parent">Varovanie: Nedá sa ísť do nadradeného priečinka</string>
+    <!-- TODO string name="no_permissions">The app cannot run without the required permissions</string -->
 
     <string name="done_fractals">Dokončené fraktály</string>
     <string name="done_convexhull">Dokončené convex-hull walls</string>

@@ -245,11 +245,12 @@ public class TopoGL extends Activity
       mGPS = new GPS( this ); // WITH-GPS
 
       if ( file_dialog ) { 
-        // Log.v("TopoGL", "open file dialog");
-        (new DialogOpenFile( this, this )).show();
-        // openFile();
+        // // Log.v("TopoGL", "open file dialog");
+        // (new DialogOpenFile( this, this )).show();
+        // // openFile();
       }
     } else {
+      Toast.makeText( this, R.string.no_permissions, Toast.LENGTH_LONG ).show();
       Log.e( "TopoGL-PERM", "finishing activity ... perms " + mCheckPerms );
       // if ( perms_dialog != null ) perms_dialog.dismiss();
       finish();
