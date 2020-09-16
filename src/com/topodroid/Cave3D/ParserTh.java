@@ -374,13 +374,15 @@ public class ParserTh extends TglParser
               } else if ( cmd.equals("date") ) {
                 if ( (idx = nextIndex( vals, idx )) < vals.length ) {
                   String date = vals[idx];
-                  int yy = Integer.parseInt( date.substring( 0, 4 ) );
-                  String m = date.substring(5,7);
-                  String d = date.substring(8,10);
-                  int mm = (m.charAt(0)-'0')*10 + (m.charAt(1)-'0');
-                  int dd = (d.charAt(0)-'0')*10 + (d.charAt(1)-'0');
-                  Calendar cal = new GregorianCalendar( yy, mm, dd );
-                  millis = cal.get( Calendar.MILLISECOND );
+                  if ( date.length() >= 10 ) {
+                    int yy = Integer.parseInt( date.substring( 0, 4 ) );
+                    String m = date.substring(5,7);
+                    String d = date.substring(8,10);
+                    int mm = (m.charAt(0)-'0')*10 + (m.charAt(1)-'0');
+                    int dd = (d.charAt(0)-'0')*10 + (d.charAt(1)-'0');
+                    Calendar cal = new GregorianCalendar( yy, mm, dd );
+                    millis = cal.get( Calendar.MILLISECOND );
+                  }
                 }
               } else if ( cmd.equals("flags") ) { 
                 if ( (idx = nextIndex( vals, idx )) < vals.length ) {

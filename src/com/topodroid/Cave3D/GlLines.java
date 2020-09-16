@@ -200,7 +200,9 @@ class GlLines extends GlShape
     }
     // Log.v("TopoGL-SURFACE", "depth buffer count " + count + " k " + k );
     depthBuffer = GL.getFloatBuffer( count );
-    depthBuffer.put( col );
+    if ( depthBuffer != null ) {
+      depthBuffer.put( col );
+    }
   }
 
   // compute BBox in OpenGL frame
@@ -454,7 +456,9 @@ class GlLines extends GlShape
     GL.setUniform( msUPointSize, mPointSize );
     GL.setAttributePointer( msAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, BYTE_STRIDE );
     GL.setAttributePointer( msAColor,    dataBuffer, OFFSET_COLOR,  COORDS_PER_COLOR,  BYTE_STRIDE );
-    GL.setAttributePointer( msADColor, depthBuffer, 0, 1, 4 );
+    if ( depthBuffer != null ) {
+      GL.setAttributePointer( msADColor, depthBuffer, 0, 1, 4 );
+    }
   }
 
   // ------------------------------------------------------------

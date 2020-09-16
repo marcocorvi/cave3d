@@ -424,18 +424,25 @@ class GL
     GLES20.glDeleteTextures( 1, texId, 0 );
   }
 
-  static ShortBuffer getShortBuffer( int count )
-  {
-    ByteBuffer ob = ByteBuffer.allocateDirect( count * 2 ); // 2 bytes / short
-    ob.order( ByteOrder.nativeOrder() );
-    return ob.asShortBuffer();
-  }
+  // UNUSED
+  // static ShortBuffer getShortBuffer( int count )
+  // {
+  //   try {
+  //     ByteBuffer ob = ByteBuffer.allocateDirect( count * 2 ); // 2 bytes / short
+  //     ob.order( ByteOrder.nativeOrder() );
+  //     return ob.asShortBuffer();
+  //   } catch ( OutOfMemoryError e ) { }
+  //   return null;
+  // }
 
   static FloatBuffer getFloatBuffer( int count )
   {
-    ByteBuffer ob = ByteBuffer.allocateDirect( count * 4 ); // 4 bytes / float
-    ob.order( ByteOrder.nativeOrder() );
-    return ob.asFloatBuffer();
+    try {
+      ByteBuffer ob = ByteBuffer.allocateDirect( count * 4 ); // 4 bytes / float
+      ob.order( ByteOrder.nativeOrder() );
+      return ob.asFloatBuffer();
+    } catch ( OutOfMemoryError e ) { }
+    return null;
   }
 
 

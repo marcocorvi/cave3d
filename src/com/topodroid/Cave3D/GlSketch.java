@@ -80,9 +80,9 @@ class GlSketch extends GlShape
   private int areaCount; // number of area segments
 
   // private FloatBuffer nameBuffer = null; // textures
-  private FloatBuffer pointBuffer;
-  private FloatBuffer lineBuffer;
-  private FloatBuffer areaBuffer;
+  private FloatBuffer pointBuffer = null;
+  private FloatBuffer lineBuffer = null;
+  private FloatBuffer areaBuffer = null;
 
   final static float SYMBOL_SIZE = 10.0f;
 
@@ -244,9 +244,13 @@ class GlSketch extends GlShape
 
   private void bindData( float[] mvpMatrix )
   {
-    GL.setAttributePointer( mAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX,  STRIDE_VERTEX );
-    GL.setAttributePointer( mADelta,    pointBuffer, OFFSET_DELTA,  COORDS_PER_DELTA,  STRIDE_TEXEL );
-    GL.setAttributePointer( mATexCoord, pointBuffer, OFFSET_TEXEL,  COORDS_PER_TEXEL,  STRIDE_TEXEL );
+    if ( dataBuffer != null ) {
+      GL.setAttributePointer( mAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX,  STRIDE_VERTEX );
+    }
+    if ( pointBuffer != null ) {
+      GL.setAttributePointer( mADelta,    pointBuffer, OFFSET_DELTA,  COORDS_PER_DELTA,  STRIDE_TEXEL );
+      GL.setAttributePointer( mATexCoord, pointBuffer, OFFSET_TEXEL,  COORDS_PER_TEXEL,  STRIDE_TEXEL );
+    }
     if ( GlRenderer.projectionMode == GlRenderer.PROJ_PERSPECTIVE ) {
       GL.setUniform( mUTextSize, mSymbolSizeP );
     } else {
@@ -274,8 +278,10 @@ class GlSketch extends GlShape
 
   private void bindDataLine( float[] mvpMatrix )
   {
-    GL.setAttributePointer( mlAPosition, lineBuffer,  OFFSET_VERTEX, COORDS_PER_VERTEX, STRIDE_LINE_VERTEX );
-    GL.setAttributePointer( mlAColor,    lineBuffer,  OFFSET_COLOR,  COORDS_PER_COLOR,  STRIDE_LINE_VERTEX );
+    if ( lineBuffer != null ) {
+      GL.setAttributePointer( mlAPosition, lineBuffer,  OFFSET_VERTEX, COORDS_PER_VERTEX, STRIDE_LINE_VERTEX );
+      GL.setAttributePointer( mlAColor,    lineBuffer,  OFFSET_COLOR,  COORDS_PER_COLOR,  STRIDE_LINE_VERTEX );
+    }
     GL.setUniform( mlUPointSize, 10f );
     GL.setUniform( mlUAlpha, 1.0f );
     GL.setUniformMatrix( mlUMVPMatrix, mvpMatrix );
@@ -283,8 +289,10 @@ class GlSketch extends GlShape
 
   private void bindDataArea( float[] mvpMatrix )
   {
-    GL.setAttributePointer( maAPosition, areaBuffer,  OFFSET_VERTEX, COORDS_PER_VERTEX, STRIDE_AREA_VERTEX );
-    GL.setAttributePointer( maAColor,    areaBuffer,  OFFSET_ACOLOR, COORDS_PER_ACOLOR, STRIDE_AREA_VERTEX );
+    if ( areaBuffer != null ) {
+      GL.setAttributePointer( maAPosition, areaBuffer,  OFFSET_VERTEX, COORDS_PER_VERTEX, STRIDE_AREA_VERTEX );
+      GL.setAttributePointer( maAColor,    areaBuffer,  OFFSET_ACOLOR, COORDS_PER_ACOLOR, STRIDE_AREA_VERTEX );
+    }
     // GL.setUniform( maUPointSize, 10f );
     GL.setUniformMatrix( maUMVPMatrix, mvpMatrix );
   }
@@ -449,10 +457,14 @@ class GlSketch extends GlShape
       pos[off++] = x2; pos[off++] =-y2; pos[off++] = s2; pos[off++] = t1; 
     }
     dataBuffer = GL.getFloatBuffer( data6.length );
-    dataBuffer.put( data6, 0, data6.length );
+    if ( dataBuffer != null ) {
+      dataBuffer.put( data6, 0, data6.length );
+    }
 
     pointBuffer = GL.getFloatBuffer( pointCount * 4 * NN );
-    pointBuffer.put( pos, 0, pointCount * 4 * NN );
+    if ( pointBuffer != null ) {
+      pointBuffer.put( pos, 0, pointCount * 4 * NN );
+    }
     // Log.v("TopoGL-SKETCH", "pointCount " + pointCount + " x 24 " + off + " x 18 " + off6 + " " + data6.length );
 
     
@@ -481,7 +493,9 @@ class GlSketch extends GlShape
       }
     }
     lineBuffer = GL.getFloatBuffer( lineCount * 6 * 2 );
-    lineBuffer.put( data2, 0, lineCount * 6 * 2 );
+    if ( lineBuffer != null ) {
+      lineBuffer.put( data2, 0, lineCount * 6 * 2 );
+    }
     // Log.v("TopoGL-SKETCH", "lineCount " + lineCount + " x 12 " + off2 );
     
     float[] data3 = new float[ areaCount * 7 * 3 ]; // X,Y,Z R,G,B,A
@@ -508,7 +522,9 @@ class GlSketch extends GlShape
     // Log.v("TopoGL-SKETCH", "areaCount " + areaCount + " x 21 " + off3 );
     areaCount = off3/21;
     areaBuffer = GL.getFloatBuffer( off3 );
-    areaBuffer.put( data3, 0, off3 );
+    if ( areaBuffer != null ) {
+      areaBuffer.put( data3, 0, off3 );
+    }
   }
 
   // --------------------------------------------------------------------

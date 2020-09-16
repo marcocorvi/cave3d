@@ -227,9 +227,13 @@ class GlNames extends GlShape
 
   private void bindData( float[] mvpMatrix )
   {
-    GL.setAttributePointer( mAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, STRIDE_VERTEX );
-    GL.setAttributePointer( mADelta,    nameBuffer, OFFSET_DELTA,  COORDS_PER_DELTA,  STRIDE_TEXEL );
-    GL.setAttributePointer( mATexCoord, nameBuffer, OFFSET_TEXEL,  COORDS_PER_TEXEL,  STRIDE_TEXEL );
+    if ( dataBuffer != null ) {
+      GL.setAttributePointer( mAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, STRIDE_VERTEX );
+    }
+    if ( nameBuffer != null ) {
+      GL.setAttributePointer( mADelta,    nameBuffer, OFFSET_DELTA,  COORDS_PER_DELTA,  STRIDE_TEXEL );
+      GL.setAttributePointer( mATexCoord, nameBuffer, OFFSET_TEXEL,  COORDS_PER_TEXEL,  STRIDE_TEXEL );
+    }
     if ( GlRenderer.projectionMode == GlRenderer.PROJ_PERSPECTIVE ) {
       GL.setUniform( mUTextSize, mTextSizeP );
     } else {
@@ -246,8 +250,12 @@ class GlNames extends GlShape
 
   private void bindDataHL( float[] mvpMatrix ) 
   {
-    GL.setAttributePointer( mAPositionHL, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, STRIDE_VERTEX );
-    GL.setAttributePointer( mADeltaHL,    nameBuffer, OFFSET_DELTA,  COORDS_PER_DELTA,  STRIDE_TEXEL );
+    if ( dataBuffer != null ) {
+      GL.setAttributePointer( mAPositionHL, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, STRIDE_VERTEX );
+    }
+    if ( nameBuffer != null ) {
+      GL.setAttributePointer( mADeltaHL,    nameBuffer, OFFSET_DELTA,  COORDS_PER_DELTA,  STRIDE_TEXEL );
+    }
     if ( GlRenderer.projectionMode == GlRenderer.PROJ_PERSPECTIVE ) {
       GL.setUniform( mUTextSizeHL, mTextSizeP );
     } else {
@@ -260,7 +268,9 @@ class GlNames extends GlShape
   private void bindDataPos( float[] mvpMatrix )
   {
     float[] color = TglColor.ColorStation;
-    GL.setAttributePointer( mpAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, STRIDE_VERTEX*6 ); // one vertex every 6
+    if ( dataBuffer != null ) {
+      GL.setAttributePointer( mpAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, STRIDE_VERTEX*6 ); // one vertex every 6
+    }
     GL.setUniform( mpUPointSize, mPointSize );
     GL.setUniform( mpUColor, color[0], color[1], color[2], color[3] );
     GL.setUniformMatrix( mpUMVPMatrix, mvpMatrix );
@@ -268,7 +278,9 @@ class GlNames extends GlShape
 
   private void bindDataPosHL( float[] mvpMatrix ) 
   {
-    GL.setAttributePointer( mpAPositionHL, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, STRIDE_VERTEX*6 ); // one vertex every 6
+    if ( dataBuffer != null ) {
+      GL.setAttributePointer( mpAPositionHL, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, STRIDE_VERTEX*6 ); // one vertex every 6
+    }
     GL.setUniform( mpUPointSizeHL, mPointSize4 );
     // GL.setUniform( mpUColorHL, 1.0f, 0.0f, 0.0f, 1.0f );
     GL.setUniformVector( mpUColorHL, mHLcolor );
@@ -365,7 +377,9 @@ class GlNames extends GlShape
       }
     }
     dataBuffer = GL.getFloatBuffer( data6.length );
-    dataBuffer.put( data6 );
+    if ( dataBuffer != null ) {
+      dataBuffer.put( data6 );
+    }
 
     // ---------- TEXT BITMAP
     // Log.v("TopoGL", "Names init width " + GlModel.mWidth );
@@ -457,7 +471,9 @@ class GlNames extends GlShape
       nameBuffer  = null;
     } else {
       nameBuffer = GL.getFloatBuffer( nameCount * 4 * NN );
-      nameBuffer.put( pos, 0, nameCount * 4 * NN );
+      if ( nameBuffer != null ) {
+        nameBuffer.put( pos, 0, nameCount * 4 * NN );
+      }
     }
     mBitmap = bitmap0;
   }

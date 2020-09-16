@@ -34,7 +34,9 @@ class GlShape
   void initDataBuffer( float[] data )
   {
     dataBuffer = GL.getFloatBuffer( data.length );
-    dataBuffer.put( data );
+    if ( dataBuffer != null ) {
+      dataBuffer.put( data );
+    }
   }
 
 }

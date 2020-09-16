@@ -125,8 +125,10 @@ class GlSurface extends GlShape
   {
     GL.setUniformMatrix( mbUMVPMatrix, mvp_matrix );
     GL.setUniformMatrix( mbUMVMatrixInvT, mv_matrix_int_t );
-    GL.setAttributePointer( mbAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, BYTE_STRIDE );
-    GL.setAttributePointer( mbANormal,   dataBuffer, OFFSET_NORMAL, COORDS_PER_NORMAL, BYTE_STRIDE );
+    if ( dataBuffer != null ) {
+      GL.setAttributePointer( mbAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, BYTE_STRIDE );
+      GL.setAttributePointer( mbANormal,   dataBuffer, OFFSET_NORMAL, COORDS_PER_NORMAL, BYTE_STRIDE );
+    }
     GL.setUniform( mbULight, (float)light.x, (float)light.y, (float)light.z );
 
     // mUTexUnit   = GL.getUniform( mProgram, GL.uTexUnit ); // texture units
@@ -134,7 +136,9 @@ class GlSurface extends GlShape
     GL.setUniformTexture( mbUTexUnit, 1 );
     GLES20.glActiveTexture( GLES20.GL_TEXTURE1 );
     GLES20.glBindTexture( GLES20.GL_TEXTURE_2D, mTexId ); // texture-id from load-texture
-    GL.setAttributePointer( mbATexCoord, dataBuffer, OFFSET_TEXEL,  COORDS_PER_TEXEL,  BYTE_STRIDE );
+    if ( dataBuffer != null ) {
+      GL.setAttributePointer( mbATexCoord, dataBuffer, OFFSET_TEXEL,  COORDS_PER_TEXEL,  BYTE_STRIDE );
+    }
     GL.setUniform( mbUAlpha, mAlpha ); // UNUSED
   }
 
@@ -144,8 +148,10 @@ class GlSurface extends GlShape
 
     GL.setUniformMatrix( mgUMVPMatrix, mvp_matrix );
     GL.setUniformMatrix( mgUMVMatrixInvT, mv_matrix_int_t );
-    GL.setAttributePointer( mgAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, BYTE_STRIDE );
-    GL.setAttributePointer( mgANormal,   dataBuffer, OFFSET_NORMAL, COORDS_PER_NORMAL, BYTE_STRIDE );
+    if ( dataBuffer != null ) {
+      GL.setAttributePointer( mgAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, BYTE_STRIDE );
+      GL.setAttributePointer( mgANormal,   dataBuffer, OFFSET_NORMAL, COORDS_PER_NORMAL, BYTE_STRIDE );
+    }
     GL.setUniform( mgULight, (float)light.x, (float)light.y, (float)light.z );
 
     GL.setUniform( mgUColor, mColor[0], mColor[1], mColor[2], mColor[3] );
@@ -289,6 +295,7 @@ class GlSurface extends GlShape
     }
     // Log.v("TopoGL", "tmp length " + tmp.length );
     dataBuffer = GL.getFloatBuffer( tmp.length );
+    if ( dataBuffer == null ) return false;
     dataBuffer.put( tmp );
     return true;
   }
@@ -311,7 +318,9 @@ class GlSurface extends GlShape
       }
     }
     dataBuffer = GL.getFloatBuffer( tmp.length );
-    dataBuffer.put( tmp );
+    iF ( dataBuffer != null ) {
+      dataBuffer.put( tmp );
+    }
     short[] order = new short[ 3 * triangleCount ];
     k = 0;
     for ( int j=0; j<ny-1; ++j ) {
@@ -329,7 +338,9 @@ class GlSurface extends GlShape
       }
     }
     orderBuffer = GL.getShortBuffer( order.length );
-    orderBuffer.put( order );
+    if ( orderBuffer != null ) {
+      orderBuffer.put( order );
+    }
   }
 */
   // ---------------------------------------------------------------------

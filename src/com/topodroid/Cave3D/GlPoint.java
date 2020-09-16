@@ -39,7 +39,7 @@ class GlPoint extends GlShape
 
   final static int MAX_COUNT = 10;
 
-  FloatBuffer colorBuffer;
+  FloatBuffer colorBuffer = null;
 
   // XYZ loc in OpenGL
   float [] mLoc;
@@ -62,14 +62,15 @@ class GlPoint extends GlShape
     mLoc = new float[COORDS_PER_VERTEX * MAX_COUNT];
 
     colorBuffer = GL.getFloatBuffer( COORDS_PER_COLOR * MAX_COUNT ); // get color buffer and init colors
-    for ( int k=0; k<MAX_COUNT; ++k ) {
-      float a = (float)(MAX_COUNT - k) / (float)(MAX_COUNT);
-      for ( int j=0; j<3 /* COORD_PER_COLOR */; ++j ) {
-        colorBuffer.put( k*COORDS_PER_COLOR + j, a * TglColor.ColorGPS[j] );
+    if ( colorBuffer != null ) {
+      for ( int k=0; k<MAX_COUNT; ++k ) {
+        float a = (float)(MAX_COUNT - k) / (float)(MAX_COUNT);
+        for ( int j=0; j<3 /* COORD_PER_COLOR */; ++j ) {
+          colorBuffer.put( k*COORDS_PER_COLOR + j, a * TglColor.ColorGPS[j] );
+        }
+        colorBuffer.put( k*COORDS_PER_COLOR + 3, 1.0f );
       }
-      colorBuffer.put( k*COORDS_PER_COLOR + 3, 1.0f );
     }
-
     mCount = 0;
   }
 
@@ -149,8 +150,12 @@ class GlPoint extends GlShape
   private void bindData( float[] mvpMatrix )
   {
     // float[] color = TglColor.ColorGPS;
-    GL.setAttributePointer( mAPosition, dataBuffer,  0, COORDS_PER_VERTEX, BYTE_STRIDE_VERTEX );
-    GL.setAttributePointer( mAColor,    colorBuffer, 0, COORDS_PER_COLOR,  BYTE_STRIDE_COLOR ); 
+    if ( dataBuffer != null ) {
+      GL.setAttributePointer( mAPosition, dataBuffer,  0, COORDS_PER_VERTEX, BYTE_STRIDE_VERTEX );
+    }
+    if ( colorBuffer != null ) {
+      GL.setAttributePointer( mAColor,    colorBuffer, 0, COORDS_PER_COLOR,  BYTE_STRIDE_COLOR ); 
+    }
     GL.setUniform( mUPointSize, mPointSize );
     GL.setUniformMatrix( mUMVPMatrix, mvpMatrix );
   }
