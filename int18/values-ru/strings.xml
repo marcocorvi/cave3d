@@ -84,9 +84,9 @@
     <string name="style_fill">Заливка</string>
     <string name="surface_projection">Проекция на DEM</string>
     <string name="surface_texture">Текстура поверхности</string>
-    <!-- TODO string name="surface_gps">GPS track</string -->
-    <!-- TODO string name="surface_east">East</string -->
-    <!-- TODO string name="surface_north">North</string -->
+    <string name="surface_gps">GPS трек</string>
+    <string name="surface_east">Восток</string>
+    <string name="surface_north">Север</string>
     <string name="dem_file">DEM %1$s</string>
     <string name="dem_load">загрузить</string>
     <string name="dem_failed">Ошибка загрузки DEM</string>
@@ -175,10 +175,10 @@
     <!-- UNUSED string name="warning_not_cgal">Warning: not CGAL text file %1$s</string -->
     <!-- UNUSED string name="warning_not_stl">Warning: not stl file %1$s</string -->
     <string name="warning_no_cwd">Внимание: отсутствует начальная директория</string>
-    <!-- TODO string name="warning_no_file">Warning: no 3d file found</string -->
-    <!-- TODO string name="warning_empty_cwd">Warning: empty base path</string -->
+    <string name="warning_no_file">Внимание: 3d файл не обнаружен</string>
+    <string name="warning_empty_cwd">Внимание: не задан рабочий каталог</string>
     <string name="warning_no_parent">Внимание: невозможно перейти на каталог выше</string>
-    <!-- TODO string name="no_permissions">The app cannot run without the required permissions</string -->
+    <string name="no_permissions">Приложение не может работать без необходимых разрешений</string>
 
     <string name="done_fractals">Завершено fractals dims</string>
     <string name="done_convexhull">Завершено convex-hull стены</string>
