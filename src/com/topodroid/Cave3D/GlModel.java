@@ -755,7 +755,7 @@ public class GlModel
   void prepareModel( TglParser parser )
   {
     modelCreated = false;
-    if ( parser.getShotNumber() == 0 ) {
+    if ( parser == null || parser.getShotNumber() == 0 ) {
       Log.e("TopoGL", "Error. Cannot create model witout shots");
       return;
     }

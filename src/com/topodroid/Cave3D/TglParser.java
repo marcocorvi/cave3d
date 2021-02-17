@@ -641,16 +641,20 @@ public class TglParser
       if ( shots == null ) return;
       if ( WALL_CW < WALL_MAX /* && Cave3D.mWallConvexHull */ ) {
         convexhullcomputer = new ConvexHullComputer( this, shots );
-        (new AsyncTask<Void, Void, Boolean>() {
-          public Boolean doInBackground( Void ... v ) {
-            return convexhullcomputer.computeConvexHull( );
-          }
-          public void onPostExecute( Boolean b )
-          {
-            if ( ! b ) convexhullcomputer = null;
-            if ( mApp != null ) mApp.notifyWall( WALL_CW, b );
-          }
-        }).execute();
+        if ( convexhullcomputer != null ) {
+          (new AsyncTask<Void, Void, Boolean>() {
+            public Boolean doInBackground( Void ... v ) {
+              return convexhullcomputer.computeConvexHull( );
+            }
+            public void onPostExecute( Boolean b )
+            {
+              if ( ! b ) convexhullcomputer = null;
+              if ( mApp != null ) mApp.notifyWall( WALL_CW, b );
+            }
+          }).execute();
+        } else {
+          // if ( mApp != null ) mApp.uiToast( "failed to create convex hull object" );
+        }
       }
       // if ( mApp != null ) mApp.uiToast( "computing convex hull walls" );
     }
@@ -664,15 +668,19 @@ public class TglParser
       if ( shots == null ) return;
       if ( WALL_HULL < WALL_MAX ) {
         hullcomputer = new HullComputer( this, shots );
-        (new AsyncTask< Void, Void, Boolean >() {
-          public Boolean doInBackground( Void ... v ) {
-            return hullcomputer.computeHull();
-          }
-          public void onPostExecute( Boolean b ) {
-            if ( ! b ) convexhullcomputer = null;
-            if ( mApp != null ) mApp.notifyWall( WALL_HULL, b );
-          }
-        }).execute();
+        if ( hullcomputer != null ) {
+          (new AsyncTask< Void, Void, Boolean >() {
+            public Boolean doInBackground( Void ... v ) {
+              return hullcomputer.computeHull();
+            }
+            public void onPostExecute( Boolean b ) {
+              if ( ! b ) convexhullcomputer = null;
+              if ( mApp != null ) mApp.notifyWall( WALL_HULL, b );
+            }
+          }).execute();
+        } else {
+          // if ( mApp != null ) mApp.uiToast( "failed to create hull object" );
+        }
       }
     }
   }
