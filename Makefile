@@ -43,7 +43,8 @@ VERSION = `grep versionName AndroidManifest.xml | sed -e 's/ *android:versionNam
 
 release:
 	ant release
-	mv bin/Cave3D-release.apk Cave3D-$(VERSION).apk
+
+#	mv bin/Cave3D-release.apk Cave3D-$(VERSION).apk
 
 install:
 	adb install -r bin/Cave3D-debug.apk
