@@ -36,6 +36,12 @@ class GlLines extends GlShape
   final static int OFFSET_VERTEX = 0;
   final static int OFFSET_COLOR  = 3; // COORDS_PER_VERTEX;
 
+  private float[] mData;
+
+  static int getVertexSize() { return COORDS_PER_VERTEX; }
+  static int getVertexStride() { return STRIDE; }
+  float[] getVertexData() { return mData; }
+
   private class Line3D
   {
     Vector3D v1;
@@ -283,7 +289,8 @@ class GlLines extends GlShape
     lineCount   = lines.size();
     // Log.v("TopoGL", "lines " + lineCount + " X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
     int vertexCount = lineCount * 2;
-    float[] data  = new float[ vertexCount * STRIDE ];
+    // float[] data  = new float[ vertexCount * STRIDE ];
+    mData  = new float[ vertexCount * STRIDE ];
     float[] color = new float[ COORDS_PER_COLOR ];
     TglColor.getSurveyColor( lines.get(0).color, color );
     // Log.v("TopoGL-LINES", "prepare lines " + lineCount + " color " + color[0] + " " + color[1] + " " + color[2] + " " + color[3] );
@@ -297,22 +304,22 @@ class GlLines extends GlShape
       } else {
         TglColor.getAxisColor( line.color, color );
       }
-      data[k++] = (float)w1.x;
-      data[k++] = (float)w1.y;
-      data[k++] = (float)w1.z;
-      data[k++] = color[0];
-      data[k++] = color[1];
-      data[k++] = color[2];
-      data[k++] = 1.0f; // alpha;
-      data[k++] = (float)w2.x;
-      data[k++] = (float)w2.y;
-      data[k++] = (float)w2.z;
-      data[k++] = color[0];
-      data[k++] = color[1];
-      data[k++] = color[2];
-      data[k++] = 1.0f; // alpha;
+      mData[k++] = (float)w1.x;
+      mData[k++] = (float)w1.y;
+      mData[k++] = (float)w1.z;
+      mData[k++] = color[0];
+      mData[k++] = color[1];
+      mData[k++] = color[2];
+      mData[k++] = 1.0f; // alpha;
+      mData[k++] = (float)w2.x;
+      mData[k++] = (float)w2.y;
+      mData[k++] = (float)w2.z;
+      mData[k++] = color[0];
+      mData[k++] = color[1];
+      mData[k++] = color[2];
+      mData[k++] = 1.0f; // alpha;
     }
-    return data;
+    return mData;
   }
 
   void initData( ) { initData( prepareData(), lines.size() ); }

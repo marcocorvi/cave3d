@@ -22,5 +22,6 @@ public class ModelType
   static final int LAS_BINARY = 5;
   static final int DXF_ASCII  = 6;
   static final int SHP_ASCII  = 7;
+  static final int GLTF       = 8;
 }
 

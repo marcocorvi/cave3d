@@ -122,6 +122,10 @@ class GlNames extends GlShape
   private Bitmap mBitmap = null;
   static float[] mHLcolor = new float[4];
 
+  float[] getVertexData() { return mData; }
+  static int getVertexSize()     { return 3; } // 3 floats per vertex
+  static int getVertexStride()   { return 4; } // 3 floats per vertex
+
   GlNames( Context ctx ) 
   {
     super( ctx );
@@ -149,7 +153,6 @@ class GlNames extends GlShape
   void logMinMax()
   {
     if ( mNames.size() == 0 ) return;
-    double xmin, xmax, ymin, ymax, zmin, zmax;
     Vector3D v0 = mNames.get(0).pos;
     xmin = xmax = v0.x;
     ymin = ymax = v0.y;
@@ -163,6 +166,30 @@ class GlNames extends GlShape
     Log.i("TopoGL-NAME", "size " + mNames.size() + " X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
   }
   */
+  double xmin, xmax, ymin, ymax, zmin, zmax;
+  
+  double getXmin() { return xmin; }
+  double getXmax() { return xmax; }
+  double getYmin() { return ymin; }
+  double getYmax() { return ymax; }
+  double getZmin() { return zmin; }
+  double getZmax() { return zmax; }
+
+  void computeBBox()
+  {
+    xmin = xmax = ymin = ymax = zmin = zmax = 0;
+    if ( mNames.size() == 0 ) return;
+    Vector3D v0 = mNames.get(0).pos;
+    xmin = xmax = v0.x;
+    ymin = ymax = v0.y;
+    zmin = zmax = v0.z;
+    for ( GlName name : mNames ) {
+      Vector3D v = name.pos;
+      if ( v.x < xmin ) { xmin = v.x; } else if ( v.x > xmax ) { xmax = v.x; }
+      if ( v.y < ymin ) { ymin = v.y; } else if ( v.y > ymax ) { ymax = v.y; }
+      if ( v.z < zmin ) { zmin = v.z; } else if ( v.z > zmax ) { zmax = v.z; }
+    }
+  }
 
   // ----------------------------------------------------
   // PROGRAM

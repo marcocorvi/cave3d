@@ -1807,4 +1807,29 @@ public class TopoGL extends Activity
     }
   }
 
+  // ---------------------------------------- EXPORT
+  void exportModel( int type, final String pathname, boolean b_splays, boolean b_walls, boolean b_surface, boolean overwrite )
+  { 
+    if ( type == ModelType.GLTF ) {
+      String filename = pathname.endsWith( ".gltf" )? pathname : pathname + ".gltf";
+      if ( (new File( filename )).exists() && ! overwrite ) {
+        Toast.makeText( this, String.format( getResources().getString( R.string.warning_not_overwrite ), pathname), Toast.LENGTH_LONG ).show();
+        return;
+      }
+      (new AsyncTask<Void, Void, Boolean>() {
+        @Override public Boolean doInBackground(Void ... v ) {
+          return mRenderer.exportGltf( pathname );
+        }
+        @Override public void onPostExecute( Boolean b )
+        {
+          if ( b ) {
+            toast( R.string.export_gltf_ok, false );
+          } else {
+            toast( R.string.export_gltf_fail, false );
+          }
+        }
+      } ).execute();
+    }
+  }
+
 }

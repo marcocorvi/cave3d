@@ -454,7 +454,6 @@ public class TglParser
   // ---------------------------------------- EXPORT
   void exportModel( int type, String pathname, boolean b_splays, boolean b_walls, boolean b_surface, boolean overwrite )
   { 
-      
     if ( type == ModelType.SERIAL ) { // serialization
       if ( ! pathname.endsWith(".txt") ) {
         pathname = pathname + ".txt";

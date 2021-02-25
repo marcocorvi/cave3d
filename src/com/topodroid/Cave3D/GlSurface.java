@@ -51,6 +51,7 @@ class GlSurface extends GlShape
   static float mAlpha = 1.0f;
   static void setAlpha( float a ) { mAlpha = ( a < 0 )? 0f : ( a > 1 )? 1f : a; }
  
+  private float[] mSurfaceData = null;
   private Bitmap mBitmap = null;
   boolean isValid;
 
@@ -61,6 +62,13 @@ class GlSurface extends GlShape
     super( ctx );
     isValid = false;
   }
+
+  float[] getSurfaceData() { return mSurfaceData; }
+  int getVertexCount()     { return vertexCount; }
+  int getTriangleCount()   { return triangleCount; }
+  static int getVertexStride()    { return STRIDE; }
+  static int getVertexSize()      { return COORDS_PER_VERTEX + COORDS_PER_NORMAL; }
+  int size()               { return triangleCount; }
 
   // ------------------------------------------------------
   // PROGRAM
@@ -256,7 +264,7 @@ class GlSurface extends GlShape
     if ( nx <= 1 || nz <= 1 ) return false;
     triangleCount = (nx-1) * (nz-1) * 2;
     vertexCount   = triangleCount * 3;
-    float[] tmp = new float[ STRIDE * vertexCount ];
+    mSurfaceData = new float[ STRIDE * vertexCount ];
     float ds = 1.0f/(nx-1);
     float dt = 1.0f/(nz-1);
     int k = 0;
@@ -270,33 +278,33 @@ class GlSurface extends GlShape
         float x1 = x0 + dx;
         float s0 = i*ds;
         float s1 = s0 + ds;
-        putVertex( tmp, k, data, i,   j,   nx, nz, x0, z0, ymed );
-        putNormal( tmp, k, data, i,   j,   nx, nz, dx, dz );
-        putTexel( tmp, k, s0, t0 );
+        putVertex( mSurfaceData, k, data, i,   j,   nx, nz, x0, z0, ymed );
+        putNormal( mSurfaceData, k, data, i,   j,   nx, nz, dx, dz );
+        putTexel( mSurfaceData, k, s0, t0 );
         ++k;
-        putVertex( tmp, k, data, i+1, j+1, nx, nz, x1, z1, ymed );
-        putNormal( tmp, k, data, i+1, j+1, nx, nz, dx, dz );
-        putTexel( tmp, k, s1, t1 );
+        putVertex( mSurfaceData, k, data, i+1, j+1, nx, nz, x1, z1, ymed );
+        putNormal( mSurfaceData, k, data, i+1, j+1, nx, nz, dx, dz );
+        putTexel( mSurfaceData, k, s1, t1 );
         ++k;
-        putVertex( tmp, k, data, i+1, j,   nx, nz, x1, z0, ymed );
-        putNormal( tmp, k, data, i+1, j,   nx, nz, dx, dz ); 
-        putTexel( tmp, k, s1, t0 );
+        putVertex( mSurfaceData, k, data, i+1, j,   nx, nz, x1, z0, ymed );
+        putNormal( mSurfaceData, k, data, i+1, j,   nx, nz, dx, dz ); 
+        putTexel( mSurfaceData, k, s1, t0 );
         ++k;
 
-        System.arraycopy( tmp, (k-3)*STRIDE, tmp, k*STRIDE, STRIDE );
+        System.arraycopy( mSurfaceData, (k-3)*STRIDE, mSurfaceData, k*STRIDE, STRIDE );
         ++k;
-        putVertex( tmp, k, data, i,   j+1, nx, nz, x0, z1, ymed );
-        putNormal( tmp, k, data, i,   j+1, nx, nz, dx, dz );
-        putTexel( tmp, k, s0, t1 );
+        putVertex( mSurfaceData, k, data, i,   j+1, nx, nz, x0, z1, ymed );
+        putNormal( mSurfaceData, k, data, i,   j+1, nx, nz, dx, dz );
+        putTexel( mSurfaceData, k, s0, t1 );
         ++k;
-        System.arraycopy( tmp, (k-4)*STRIDE, tmp, k*STRIDE, STRIDE );
+        System.arraycopy( mSurfaceData, (k-4)*STRIDE, mSurfaceData, k*STRIDE, STRIDE );
         ++k;
       }
     }
-    // Log.v("TopoGL", "tmp length " + tmp.length );
-    dataBuffer = GL.getFloatBuffer( tmp.length );
+    // Log.v("TopoGL", "mSurfaceData length " + mSurfaceData.length );
+    dataBuffer = GL.getFloatBuffer( mSurfaceData.length );
     if ( dataBuffer == null ) return false;
-    dataBuffer.put( tmp );
+    dataBuffer.put( mSurfaceData );
     return true;
   }
       
@@ -305,7 +313,7 @@ class GlSurface extends GlShape
   {
     triangleCount = (nx-1) * (ny-1) * 2;
     vertexCount = nx * ny;
-    float[] tmp = new float[ STRIDE * vertexCount ];
+    mSurfaceData = new float[ STRIDE * vertexCount ];
     float dx = 1.0f/(nx-1);
     float dy = 1.0f/(ny-1);
     int k = 0;
@@ -314,12 +322,12 @@ class GlSurface extends GlShape
       for ( int i=0; i<nx; ++i ) {
         float s0 = i*dx;
         int off = STRIDE*(j*nx + i); // upper triangle
-        for ( int s=0; s<COORDS_PER_VERTEX; ++s ) tmp[k++] = data[off++]; tmp[k++] = s0; tmp[k++] = t0;
+        for ( int s=0; s<COORDS_PER_VERTEX; ++s ) mSurfaceData[k++] = data[off++]; mSurfaceData[k++] = s0; mSurfaceData[k++] = t0;
       }
     }
-    dataBuffer = GL.getFloatBuffer( tmp.length );
+    dataBuffer = GL.getFloatBuffer( mSurfaceData.length );
     iF ( dataBuffer != null ) {
-      dataBuffer.put( tmp );
+      dataBuffer.put( mSurfaceData );
     }
     short[] order = new short[ 3 * triangleCount ];
     k = 0;

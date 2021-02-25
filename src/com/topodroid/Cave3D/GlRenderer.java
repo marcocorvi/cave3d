@@ -693,4 +693,12 @@ public class GlRenderer implements Renderer
   {
     if ( mModel != null ) mModel.hideOrShow( surveys );
   }
+
+  boolean exportGltf( String pathname )
+  {
+    if ( mModel == null ) return false;
+    ExportGltf gltf = new ExportGltf( mModel );
+    return gltf.write( pathname );
+  }
+
 }

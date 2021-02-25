@@ -55,6 +55,7 @@ public class DialogExport extends Dialog
   private CheckBox mLasBinary;
   private CheckBox mDxfAscii;
   private CheckBox mShpAscii;
+  private CheckBox mGltf;
 
   private CheckBox mSplay;
   private CheckBox mWalls;
@@ -103,10 +104,11 @@ public class DialogExport extends Dialog
     mStlBinary = (CheckBox) findViewById( R.id.stl_binary );
     mStlAscii  = (CheckBox) findViewById( R.id.stl_ascii );
     mKmlAscii  = (CheckBox) findViewById( R.id.kml_ascii );
-    mCgalAscii  = (CheckBox) findViewById( R.id.cgal_ascii );
-    mLasBinary  = (CheckBox) findViewById( R.id.las_binary );
-    mDxfAscii   = (CheckBox) findViewById( R.id.dxf_ascii );
-    mShpAscii   = (CheckBox) findViewById( R.id.shp_ascii );
+    mCgalAscii = (CheckBox) findViewById( R.id.cgal_ascii );
+    mLasBinary = (CheckBox) findViewById( R.id.las_binary );
+    mDxfAscii  = (CheckBox) findViewById( R.id.dxf_ascii );
+    mShpAscii  = (CheckBox) findViewById( R.id.shp_ascii );
+    mGltf      = (CheckBox) findViewById( R.id.gltf );
     // mDebug  = (RadioButton) findViewById( R.id.debug );
 
     mStlBinary.setOnClickListener( this );
@@ -116,9 +118,10 @@ public class DialogExport extends Dialog
     mLasBinary.setOnClickListener( this );
     mDxfAscii.setOnClickListener( this );
     mShpAscii.setOnClickListener( this );
+    mGltf.setOnClickListener( this );
     // mDebug.setOnClickListener( this );
 
-    mShpAscii.setChecked( true );
+    mGltf.setChecked( true );
 
     mSplay   = (CheckBox) findViewById( R.id.splay );
     mWalls   = (CheckBox) findViewById( R.id.walls );
@@ -238,6 +241,8 @@ public class DialogExport extends Dialog
       } else if ( mShpAscii.isChecked() ) {
         // Log.v( "TopoGL", "export DXF" );
         mParser.exportModel( ModelType.SHP_ASCII, pathname, splays, walls, station, overwrite );
+      } else if ( mGltf.isChecked() ) {
+        mApp.exportModel( ModelType.GLTF, pathname, splays, walls, station, overwrite );
       } else {
         mParser.exportModel( ModelType.SERIAL, pathname, splays, walls, surface, overwrite );
       }
@@ -255,6 +260,7 @@ public class DialogExport extends Dialog
         mLasBinary.setChecked( false );
         mDxfAscii.setChecked( false );
         mShpAscii.setChecked( false );
+        mGltf.setChecked( false );
       }
       return;
     } else if ( v.getId() == R.id.stl_ascii ) {
@@ -265,6 +271,7 @@ public class DialogExport extends Dialog
         mLasBinary.setChecked( false );
         mDxfAscii.setChecked( false );
         mShpAscii.setChecked( false );
+        mGltf.setChecked( false );
       }
       return;
     } else if ( v.getId() == R.id.kml_ascii ) {
@@ -275,6 +282,7 @@ public class DialogExport extends Dialog
         mLasBinary.setChecked( false );
         mDxfAscii.setChecked( false );
         mShpAscii.setChecked( false );
+        mGltf.setChecked( false );
       }
       return;
     } else if ( v.getId() == R.id.cgal_ascii ) {
@@ -285,6 +293,7 @@ public class DialogExport extends Dialog
         mLasBinary.setChecked( false );
         mDxfAscii.setChecked( false );
         mShpAscii.setChecked( false );
+        mGltf.setChecked( false );
       }
       return;
     } else if ( v.getId() == R.id.las_binary ) {
@@ -295,6 +304,7 @@ public class DialogExport extends Dialog
         mCgalAscii.setChecked( false );
         mDxfAscii.setChecked( false );
         mShpAscii.setChecked( false );
+        mGltf.setChecked( false );
       }
       return;
     } else if ( v.getId() == R.id.dxf_ascii ) {
@@ -305,6 +315,7 @@ public class DialogExport extends Dialog
         mCgalAscii.setChecked( false );
         mLasBinary.setChecked( false );
         mShpAscii.setChecked( false );
+        mGltf.setChecked( false );
       }
       return;
     } else if ( v.getId() == R.id.shp_ascii ) {
@@ -315,6 +326,17 @@ public class DialogExport extends Dialog
         mCgalAscii.setChecked( false );
         mLasBinary.setChecked( false );
         mDxfAscii.setChecked( false );
+        mGltf.setChecked( false );
+      }
+    } else if ( v.getId() == R.id.gltf ) {
+      if ( mGltf.isChecked() ) {
+        mStlBinary.setChecked( false );
+        mStlAscii.setChecked( false );
+        mKmlAscii.setChecked( false );
+        mCgalAscii.setChecked( false );
+        mLasBinary.setChecked( false );
+        mDxfAscii.setChecked( false );
+        mShpAscii.setChecked( false );
       }
     }
     dismiss();
