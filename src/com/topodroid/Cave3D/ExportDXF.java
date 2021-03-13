@@ -874,9 +874,8 @@ public class ExportDXF
           for ( Cave3DShot blk : legs ) {
             Cave3DStation fs = blk.from_station;
             Cave3DStation ts = blk.to_station;
-            if ( fs != null && ts != null ) {
-              handle = printSegment( pw4, handle, "LEG", fs.x, fs.y, fs.z, ts.x, ts.y, ts.z );
-            }
+            if ( fs == null || ts == null ) continue;
+            handle = printSegment( pw4, handle, "LEG", fs.x, fs.y, fs.z, ts.x, ts.y, ts.z );
           }
           out.write( sw4.getBuffer().toString() );
           out.flush();
@@ -888,9 +887,8 @@ public class ExportDXF
           for ( Cave3DShot blk : splays ) {
             Cave3DStation fs = blk.from_station;
             Vector3D  ts = blk.toPoint3D();
-            if ( fs != null && ts != null ) {
-              handle = printSegment( pw5, handle, "SPLAY", fs.x, fs.y, fs.z, ts.x, ts.y, ts.z );
-            }
+            if ( fs == null || ts == null ) continue;
+            handle = printSegment( pw5, handle, "SPLAY", fs.x, fs.y, fs.z, ts.x, ts.y, ts.z );
           }
           out.write( sw5.getBuffer().toString() );
           out.flush();

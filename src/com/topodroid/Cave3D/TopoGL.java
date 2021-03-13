@@ -1690,14 +1690,14 @@ public class TopoGL extends Activity
   }
 
   // WITH-GPS
-  public void notifyLocation( double lng, double lat )
+  public void notifyLocation( double lng, double lat, double alt )
   {
     // Log.v("TopoGL-GPS", "notified location " + lng + " " + lat );
     // TODO
     // [1] convert to model CRS
     if ( mParser != null && mParser.hasWGS84() ) {
-      double e = mParser.lngToEast( lng, lat );
-      double n = mParser.latToNorth( lat );
+      double e = mParser.lngToEast( lng, lat, alt );
+      double n = mParser.latToNorth( lat, alt );
       // Log.v("TopoGL-GPS", "has origin " + mParser.hasOrigin() + " location " + e + " " + n );
       // [2] get Z from surface
       // [3] mRenderer.setLocation( new Vector3D( e, n, z ) );

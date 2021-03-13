@@ -78,11 +78,12 @@ public class ExportKML
     // altitude is assumed wgs84
     lat = origin.latitude;
     lng = origin.longitude;
+    double alt = origin.altitude;
     asl = origin.z; // KML uses Geoid altitude (unless altitudeMode is set)
     // Log.v( "TopoGL-KML", "origin " + lat + " N " + lng + " E " + asl );
 
-    s_radius = 1.0 / Geodetic.meridianRadiusApprox( lat );
-    e_radius = 1.0 / Geodetic.parallelRadiusApprox( lat );
+    s_radius = 1.0 / Geodetic.meridianRadiusExact( lat, alt );
+    e_radius = 1.0 / Geodetic.parallelRadiusExact( lat, alt );
 
     return true;
   }
@@ -192,6 +193,7 @@ public class ExportKML
       for ( Cave3DShot sh : shots ) {
         Cave3DStation sf = sh.from_station;
         Cave3DStation st = sh.to_station;
+        if ( sf == null || st == null ) continue;
         double ef = lng + (sf.x - zero.x) * e_radius;
         double nf = lat + (sf.y - zero.y) * s_radius;
         double zf = asl + (sf.z - zero.z);
@@ -215,6 +217,7 @@ public class ExportKML
         pw.format(Locale.US, "    <altitudeMode>absolute</altitudeMode>\n");
         for ( Cave3DShot sp : splays ) {
           Cave3DStation sf = sp.from_station;
+          if ( sf == null ) continue;
           Vector3D v = sp.toVector3D();
           double ef = lng + (sf.x - zero.x) * e_radius;
           double nf = lat + (sf.y - zero.y) * s_radius;

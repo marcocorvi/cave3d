@@ -171,7 +171,7 @@ public class ParserDat extends TglParser
 	} else if ( line.contains("FROM") && line.contains("TO" ) ) {
           ++linenr; line = br.readLine();
           // Log.v( "TopoGL-DAT", linenr + ":" + line );
-	  for ( ; ; ) {
+	  for ( ; line != null; ) {
 	    if ( line.length() == 0 ) {
               ++linenr; line = br.readLine();
               // Log.v( "TopoGL-DAT", linenr + ":" + line );

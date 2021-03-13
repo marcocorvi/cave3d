@@ -116,11 +116,12 @@ public class OsmFactory
     // Log.v("TopoGL-OSM", "origin " + origin.longitude + " " + origin.latitude + " X " + origin.x + " " + origin.y + " " + origin.z );
     double PI_180 = (Math.PI / 180);
     double alat = origin.latitude;
+    double aalt = origin.altitude;
 
     double a = ( alat < 0 )? -alat : alat;
     // KML radius is already multiplied by PI/180
-    s_radius = Geodetic.meridianRadiusApprox( alat );
-    e_radius = Geodetic.parallelRadiusApprox( alat );
+    s_radius = Geodetic.meridianRadiusExact( alat, aalt );
+    e_radius = Geodetic.parallelRadiusExact( alat, aalt );
     // xmlParserFactory = XmlPullParserFactory.newInstance();
     mXres = mYres = 0.5f;
     width  = (int)( (x2 - x1 )/mXres );

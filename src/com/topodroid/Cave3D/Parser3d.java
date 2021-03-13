@@ -203,6 +203,7 @@ public class Parser3d extends TglParser
       for ( ; ; ) {
         line = readline( fis );
         // Log.v("TopoGL-3d", "@ " + line ); // <proj4>
+        if ( line == null ) break;
         if ( line.startsWith("@") ) break;
       } 
 

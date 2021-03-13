@@ -38,11 +38,13 @@ class GPS implements LocationListener
   // boolean mHasLocation;
   private double mLat  = 0;  // decimal degrees
   private double mLng  = 0;  // decimal degrees
+  private double mAlt  = 0;  // meters
   // private double mLat0 = 0;  // decimal degrees
   // private double mLng0 = 0;  // decimal degrees
   private int mLocCount;
   private double mLatSum;
   private double mLngSum;
+  private double mAltSum;
 
 
   // private double mErr2 = -1; // location error [m]
@@ -51,7 +53,7 @@ class GPS implements LocationListener
 
   interface GPSListener
   {
-    public void notifyLocation( double lng, double lat );
+    public void notifyLocation( double lng, double lat, double alt );
   }
 
   private GPSListener mListener = null;
@@ -98,62 +100,23 @@ class GPS implements LocationListener
   {
     double lat = loc.getLatitude();  // decimal degree
     double lng = loc.getLongitude();
+    double alt = loc.getAltitude();  // meters above WGS84 ellipsoid
     if ( Math.abs( lat - mLat ) + Math.abs( lng - mLng ) > DELTA ) {
       mLocCount ++;
       mLatSum += lat;
       mLngSum += lng;
+      mAltSum += alt;
       if ( mLocCount > 10 ) {
         mLat = mLatSum / mLocCount;
         mLng = mLngSum / mLocCount;
-        mLocCount = 0;
-        mLatSum = 0;
-        mLngSum = 0;
-        if ( mListener != null ) mListener.notifyLocation( mLng, mLat );
+        mAlt = mAltSum / mLocCount;
+        resetSums();
+        if ( mListener != null ) mListener.notifyLocation( mLng, mLat, mAlt );
       }
     } else {
-      mLocCount = 0;
-      mLatSum = 0;
-      mLngSum = 0;
+      resetSums();
     }
   }
-
-//   if ( mErr2 < 0 ) {	  
-//     mLat  = loc.getLatitude();  // decimal degree
-//     mLng  = loc.getLongitude();
-//     // mHEll = loc.getAltitude();  // meter
-//     mErr2 = 10000;              // start with a large value
-//   } else {
-//     double lat0 = loc.getLatitude();
-//     double lng0 = loc.getLongitude();
-//     // double hel0 = loc.getAltitude();
-//     double lat  = mW1 * lat0 + mW0 * mLat;
-//     double lng  = mW1 * lng0 + mW0 * mLng;
-//     // double hell = mW1 * hel0 + mW0 * mHEll;
-//     double dlat = (lat0-mLat) * EARTH_A * DEG2RAD;
-//     double dlng = (lng0-mLng) * EARTH_A * DEG2RAD * Math.cos( mLat * DEG2RAD );
-//     // double dhel = hel0 - mHEll;
-//     double err2 = ( dlat*dlat + dlng*dlng ); // + dhel*dhel  
-//     mErr2 = mW0 * mErr2 + mW2 * err2;
-//     mLat  = lat;
-//     mLng  = lng;
-//     // mHEll = hell;
-//     if ( Math.sqrt( mErr2 ) < 4 ) {
-//       if ( ! mHasLocation ) {
-//         mLng0 = mLng;
-//         mLat0 = mLat;
-//         mHasLocation = true;
-//         if ( mListener != null ) mListener.notifyLocation( mLng, mLat );
-//       } else {
-//         if ( Math.abs( mLat - mLat0 ) + Math.abs( mLng - mLng0 ) > mDelta ) {
-//           mLng0 = mLng;
-//           mLat0 = mLat;
-//           if ( mListener != null ) mListener.notifyLocation( mLng, mLat );
-//           mHasLocation = true;
-//         }
-//       }
-//       mErr2 = -1;
-//     }
-//   }
 
   // boolean getLocation( Vector3D v )
   // {
@@ -181,15 +144,21 @@ class GPS implements LocationListener
   {
     // mHasLocation = false;
     // mErr2 = -1; // restart location averaging
-    mLocCount = 0;
-    mLatSum = 0;
-    mLngSum = 0;
+    resetSums();
     if ( locManager == null ) return false;
     locManager.addGpsStatusListener( this );
     locManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 1000, 0, this );
     mIsLocating = true;
     mNrSatellites = 0;
     return true;
+  }
+
+  private void resetSums()
+  {
+    mLocCount = 0;
+    mLatSum = 0;
+    mLngSum = 0;
+    mAltSum = 0;
   }
 
   @Override

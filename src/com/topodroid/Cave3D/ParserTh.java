@@ -238,10 +238,14 @@ public class ParserTh extends TglParser
         double x0=0, y0=0, z0=0; // long-lat E,N,Z
         double x1=0, y1=0, z1=0; // CS1 E,N,Z
 
+        // double alng = fx.mLongitude;
         double alat = fx.mLatitude;
+        double aalt = fx.mAltitude; // FIXME Therion altitude are geodetic not ellipsoidic
         // KML radius is already premultiplied by PI/180
-        double s_radius = Geodetic.meridianRadiusApprox( alat );
-        double e_radius = Geodetic.parallelRadiusApprox( alat );
+        double s_radius = Geodetic.meridianRadiusExact( alat, aalt );
+        double e_radius = Geodetic.parallelRadiusExact( alat, aalt );
+
+        // TODO use alng alat aalt
 
         x0 = fx.mLongitude * e_radius;
         y0 = fx.mLatitude  * s_radius;
@@ -255,11 +259,11 @@ public class ParserTh extends TglParser
             y1 = fx.mCsLatitude;
             z1 = fx.mCsAltitude;
             // Log.v( "TopoGL-TH", "FIX " + name + " CS1 " + fx.mCsName + " " + x1 + " " + y1 + " " + z1 );
-            mOrigin = new Cave3DFix( name, x1, y1, z1, cs1, fx.mLongitude, fx.mLatitude );
+            mOrigin = new Cave3DFix( name, x1, y1, z1, cs1, fx.mLongitude, fx.mLatitude, fx.mAltitude );
 	    fixes.add( mOrigin );
           } else {
             // Log.v( "TopoGL-TH", "CS0 " + x0 + " " + y0 + " " + z0 );
-            mOrigin = new Cave3DFix( name, x0, y0, z0, cs0, fx.mLongitude, fx.mLatitude );
+            mOrigin = new Cave3DFix( name, x0, y0, z0, cs0, fx.mLongitude, fx.mLatitude, fx.mAltitude );
 	    fixes.add( mOrigin );
           }
         } else {
@@ -269,10 +273,10 @@ public class ParserTh extends TglParser
             y1 = fx.mCsLatitude;
             z1 = fx.mCsAltitude;
             // Log.v( "Cave3D-TH", "fix " + name + " using " + cs1.name + " " + x1 + " " + y1 + " " + z1 );
-	    fixes.add( new Cave3DFix( name, x1, y1, z1, cs1, fx.mLongitude, fx.mLatitude ) );
+	    fixes.add( new Cave3DFix( name, x1, y1, z1, cs1, fx.mLongitude, fx.mLatitude, fx.mAltitude ) );
           } else {
             // Log.v( "Cave3D-TH", "use CS0 " + x0 + " " + y0 + " " + z0 );
-	    fixes.add( new Cave3DFix( name, x0, y0, z0, cs0, fx.mLongitude, fx.mLatitude ) );
+	    fixes.add( new Cave3DFix( name, x0, y0, z0, cs0, fx.mLongitude, fx.mLatitude, fx.mAltitude ) );
           }
         }
       }
