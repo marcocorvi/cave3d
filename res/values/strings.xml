@@ -133,6 +133,7 @@
     <string name="select_file">Cave3D - Select a file:</string>
     <string name="select_dem_file">Select a DEM file:</string>
     <string name="select_texture_file">Select a texture file:</string>
+    <string name="select_sketch_file">Select a sketch file:</string>
     <string name="Wall">Walls</string>
     <string name="Surface">Surface</string>
 

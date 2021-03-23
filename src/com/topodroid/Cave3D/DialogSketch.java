@@ -11,7 +11,7 @@
  */
 package com.topodroid.Cave3D;
 
-// import android.util.Log;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -67,6 +67,7 @@ class DialogSketch extends Dialog
     mContext = ctx;
     mApp  = app;
     mBaseDir = mApp.mAppBasePath + "/TopoDroid/c3d";
+    Log.v("TopoGL", "sketch base dir " + mBaseDir );
   } 
 
   @Override
@@ -77,7 +78,7 @@ class DialogSketch extends Dialog
     setContentView(R.layout.openfile);
     getWindow().setLayout( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
 
-    setTitle( R.string.select_dem_file );
+    setTitle( R.string.select_sketch_file );
     mList = (ListView) findViewById( R.id.list );
 
     // mArrayAdapter = new ArrayAdapter<String>( this, R.layout.message );
