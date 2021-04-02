@@ -117,15 +117,21 @@ public class ExportGltf
 
   private void doExport( PrintWriter pw, String filepath ) throws IOException
   {
-    int count_stations = mModel.glNames.size();
-    int count_legs     = mModel.glLegs.size()   * 2;
-    int count_splays   = mModel.glSplays.size() * 2;
+    int count_stations = (mModel.glNames  == null)? 0 : mModel.glNames.size();
+    int count_legs     = (mModel.glLegs   == null)? 0 : mModel.glLegs.size()   * 2;
+    int count_splays   = (mModel.glSplays == null)? 0 : mModel.glSplays.size() * 2;
     int count_surface  = 0;
     float[] surface = null;
     if ( mModel.glSurface != null ) {
       surface = mModel.glSurface.getSurfaceData();
       if ( surface != null ) count_surface = mModel.glSurface.getVertexCount();
     }
+    boolean has_stations = count_stations > 0;
+    boolean has_legs     = count_legs > 0;
+    boolean has_splays   = count_splays > 0;
+    boolean has_surface  = count_surface > 0;
+    boolean has_splays_or_surface = has_splays || has_surface;
+      
  
     // mModel.glNames.computeBBox();
     // float xmax = (float)mModel.glLegs.getXmax();
@@ -147,33 +153,55 @@ public class ExportGltf
 
     int ext = filepath.lastIndexOf(".gltf");
     String root = ( ext > 0 )? filepath.substring(0, ext) : filepath;
-    String buffer_stations = root + "_stations.bin";
-    String buffer_legs     = root + "_legs.bin";
-    String buffer_splays   = root + "_splays.bin";
-    String buffer_surface  = root + "_surface.bin";
+    String buffer_stations = root + "_stations.bin"; // buffer pathnames are always prepared
+    String buffer_legs     = root     + "_legs.bin";
+    String buffer_splays   = root   + "_splays.bin";
+    String buffer_surface  = root  + "_surface.bin";
 
-    MinMax minMax1 = new MinMax();
-    int bytelen_stations = doExportNames( buffer_stations, mModel.glNames,  minMax1 );
-    String max_stations = minMax1.formatMax();
-    String min_stations = minMax1.formatMin();
+    int bytelen_stations = 0;
+    String max_stations  = null;
+    String min_stations  = null;
+    if ( has_stations ) {
+      MinMax minMax1 = new MinMax();
+      bytelen_stations = doExportNames( buffer_stations, mModel.glNames,  minMax1 );
+      max_stations = minMax1.formatMax();
+      min_stations = minMax1.formatMin();
+    }
 
-    MinMax minMax2 = new MinMax();
-    int bytelen_legs     = doExportLines( buffer_legs, mModel.glLegs, minMax2 );
-    String max_legs = minMax2.formatMax();
-    String min_legs = minMax2.formatMin();
+    int bytelen_legs = 0;
+    String max_legs  = null;
+    String min_legs  = null;
+    if ( has_legs ) {
+      MinMax minMax2 = new MinMax();
+      bytelen_legs     = doExportLines( buffer_legs, mModel.glLegs, minMax2 );
+      max_legs = minMax2.formatMax();
+      min_legs = minMax2.formatMin();
+    }
 
-    MinMax minMax3 = new MinMax();
-    int bytelen_splays   = ( count_splays > 0 )? doExportLines( buffer_splays,   mModel.glSplays, minMax3 ) : 0;
-    String max_splays = minMax3.formatMax();
-    String min_splays = minMax3.formatMin();
+    int bytelen_splays = 0;
+    String max_splays  = null;
+    String min_splays  = null;
+    if ( has_splays ) {
+      MinMax minMax3 = new MinMax();
+      bytelen_splays   = ( count_splays > 0 )? doExportLines( buffer_splays,   mModel.glSplays, minMax3 ) : 0;
+      max_splays = minMax3.formatMax();
+      min_splays = minMax3.formatMin();
+    }
 
-    MinMax minMax4 = new MinMax(); // positions
-    MinMax minMax5 = new MinMax(); // normals
-    int bytelen_surface = ( count_splays > 0 )? doExportTriangles( buffer_surface, mModel.glSurface, minMax4, minMax5 ) : 0;
-    String max_surface = minMax4.formatMax();
-    String min_surface = minMax4.formatMin();
-    String max_surface_normals = minMax5.formatMax();
-    String min_surface_normals = minMax5.formatMin();
+    int bytelen_surface = 0;
+    String max_surface  = null;
+    String min_surface  = null;
+    String max_surface_normals  = null;
+    String min_surface_normals  = null;
+    if ( has_surface ) {
+      MinMax minMax4 = new MinMax(); // positions
+      MinMax minMax5 = new MinMax(); // normals
+      bytelen_surface = ( count_splays > 0 )? doExportTriangles( buffer_surface, mModel.glSurface, minMax4, minMax5 ) : 0;
+      max_surface = minMax4.formatMax();
+      min_surface = minMax4.formatMin();
+      max_surface_normals = minMax5.formatMax();
+      min_surface_normals = minMax5.formatMin();
+    }
 
     // ByteArrayOutputStream baos1 = new ByteArrayOutputStream();
     // ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
@@ -202,10 +230,6 @@ public class ExportGltf
     closeElement(  pw, 2, false );
     closeArrayTag( pw, 1, true );
 
-    boolean has_splays  = count_splays > 0;
-    boolean has_surface = count_surface > 0;
-    boolean has_splays_or_surface = has_splays || has_surface;
-      
     openArrayTag( pw, 1, "nodes" );
     {
       StringBuilder children = new StringBuilder();
@@ -220,10 +244,10 @@ public class ExportGltf
       printArrayTag( pw, 3, "children", children.toString() );
       closeElement(  pw, 2, true );
       int mesh = 0;
-      printNode( pw, 2, mesh++, true ); // stations
-      printNode( pw, 2, mesh++, has_splays_or_surface ); // legs
-      if ( has_splays ) printNode( pw, 2, mesh++, has_surface ); // splays
-      if ( has_surface ) {
+      if ( has_stations ) printNode( pw, 2, mesh++, true ); // stations
+      if ( has_legs     ) printNode( pw, 2, mesh++, has_splays_or_surface ); // legs
+      if ( has_splays   ) printNode( pw, 2, mesh++, has_surface ); // splays
+      if ( has_surface  ) {
         printNode( pw, 2, mesh, false ); // surface
         // printNodeLight( pw, 2, 0, "0.259, 0.0, 0.0, 0.966", true );
         // printNodeLight( pw, 2, 1, "0.259, 0.0, 0.0, 0.966", true );
@@ -235,10 +259,10 @@ public class ExportGltf
     openArrayTag( pw, 1, "meshes" ); // ------------- MESHES
     {
       int buffer = 0;
-      printMesh( pw, 2, buffer++, MODE_POINT, -1, true );
-      printMesh( pw, 2, buffer++, MODE_LINES,  0, has_splays_or_surface );
-      if ( has_splays ) printMesh( pw, 2, buffer++, MODE_LINES,  1, has_surface );
-      if ( has_surface ) printMeshPN( pw, 2, buffer, buffer+1, MODE_TRIANGLES, 2, false );
+      if ( has_stations ) printMesh( pw, 2, buffer++, MODE_POINT, -1, true );
+      if ( has_legs     ) printMesh( pw, 2, buffer++, MODE_LINES,  0, has_splays_or_surface );
+      if ( has_splays   ) printMesh( pw, 2, buffer++, MODE_LINES,  1, has_surface );
+      if ( has_surface  ) printMeshPN( pw, 2, buffer, buffer+1, MODE_TRIANGLES, 2, false );
     }
     closeArrayTag( pw, 1, true );
 
@@ -252,19 +276,19 @@ public class ExportGltf
 
     openArrayTag( pw, 1, "buffers" ); // ----------- BUFFERS
     {
-      printBuffer( pw, 2, buffer_stations, bytelen_stations, true );
-      printBuffer( pw, 2, buffer_legs,     bytelen_legs,     has_splays_or_surface );
-      if ( has_splays )  printBuffer( pw, 2, buffer_splays,  bytelen_splays,  has_surface );
-      if ( has_surface ) printBuffer( pw, 2, buffer_surface, bytelen_surface, false );
+      if ( has_stations ) printBuffer( pw, 2, buffer_stations, bytelen_stations, true );
+      if ( has_legs )     printBuffer( pw, 2, buffer_legs,     bytelen_legs,     has_splays_or_surface );
+      if ( has_splays )   printBuffer( pw, 2, buffer_splays,  bytelen_splays,  has_surface );
+      if ( has_surface )  printBuffer( pw, 2, buffer_surface, bytelen_surface, false );
     }
     closeArrayTag( pw, 1, true );
 
     openArrayTag( pw, 1, "bufferViews" ); // ----------- BUFFERVIEWS
     {
       int buffer = 0;
-      printBufferView( pw, 2, buffer++, 0, bytelen_stations, 12, ARRAY_COORDS, true );
-      printBufferView( pw, 2, buffer++, 0, bytelen_legs,     12, ARRAY_COORDS, has_splays_or_surface );
-      if ( has_splays ) printBufferView( pw, 2, buffer++, 0, bytelen_splays,   12, ARRAY_COORDS, has_surface );
+      if ( has_stations ) printBufferView( pw, 2, buffer++, 0, bytelen_stations, 12, ARRAY_COORDS, true );
+      if ( has_legs )     printBufferView( pw, 2, buffer++, 0, bytelen_legs,     12, ARRAY_COORDS, has_splays_or_surface );
+      if ( has_splays )   printBufferView( pw, 2, buffer++, 0, bytelen_splays,   12, ARRAY_COORDS, has_surface );
       if ( has_surface ) {
         printBufferView( pw, 2, buffer, 0, bytelen_surface,  24, ARRAY_COORDS, true );
         printBufferView( pw, 2, buffer, 0, bytelen_surface,  24, ARRAY_COORDS, false );
@@ -275,10 +299,10 @@ public class ExportGltf
     openArrayTag( pw, 1, "accessors" ); // -------------- ACCESSORS
     {
       int view = 0;
-      printAccessor( pw, 2, view++, 0, TYPE_FLOAT, count_stations, TYPE_VEC3, max_stations, min_stations, true );
-      printAccessor( pw, 2, view++, 0, TYPE_FLOAT, count_legs,     TYPE_VEC3, max_legs,     min_legs,     has_splays_or_surface );
-      if ( has_splays ) printAccessor( pw, 2, view++, 0, TYPE_FLOAT, count_splays,   TYPE_VEC3, max_splays,   min_splays,   has_surface );
-      if ( has_surface ) {
+      if ( has_stations ) printAccessor( pw, 2, view++, 0, TYPE_FLOAT, count_stations, TYPE_VEC3, max_stations, min_stations, true );
+      if ( has_legs     ) printAccessor( pw, 2, view++, 0, TYPE_FLOAT, count_legs,     TYPE_VEC3, max_legs,     min_legs,     has_splays_or_surface );
+      if ( has_splays   ) printAccessor( pw, 2, view++, 0, TYPE_FLOAT, count_splays,   TYPE_VEC3, max_splays,   min_splays,   has_surface );
+      if ( has_surface  ) {
         printAccessor( pw, 2, view++,  0, TYPE_FLOAT, count_surface,  TYPE_VEC3, max_surface,  min_surface,  true );
         printAccessor( pw, 2, view, 12, TYPE_FLOAT, count_surface,  TYPE_VEC3, max_surface_normals,  min_surface_normals,  false );
       }

@@ -84,7 +84,6 @@ public class TopoGL extends Activity
 
   // private static final int REQUEST_OPEN_FILE = 1;
 
-
   static String EXTERNAL_STORAGE_PATH =  // app base path
     NOT_ANDROID_10 ? Environment.getExternalStorageDirectory().getAbsolutePath()
                    : Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
@@ -162,7 +161,7 @@ public class TopoGL extends Activity
   public void onCreate(Bundle savedInstanceState) 
   {
     super.onCreate(savedInstanceState);
-    // Log.v( "TopoGL", "on create: Not Android 10 " + NOT_ANDROID_10 + " 11 " + NOT_ANDROID_11 );
+    Log.v( "TopoGL", "on create: Not Android 10 " + NOT_ANDROID_10 + " 11 " + NOT_ANDROID_11 );
 
     checkPermissions();
 
@@ -222,14 +221,14 @@ public class TopoGL extends Activity
 
         String name = extras.getString( "INPUT_FILE" );
         if ( name != null ) { // used by TdManager
-          // Log.v( "TopoGL-EXTRA", "TopoDroid filename " + name );
+          Log.v( "TopoGL-EXTRA", "TopoDroid filename " + name );
           file_dialog = false;
           doOpenFile( name, true ); // asynch
         } else {
           name = extras.getString( "INPUT_SURVEY" );
           String base = extras.getString( "SURVEY_BASE" );
           if ( name != null ) {
-            // Log.v( "TopoGL-EXTRA", "open input survey " + name + " base " + base );
+            Log.v( "TopoGL-EXTRA", "open input survey " + name + " base " + base );
             if ( doOpenSurvey( name, base ) ) {
               doSketches = true;
               file_dialog = false;

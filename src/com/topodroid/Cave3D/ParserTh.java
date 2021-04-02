@@ -11,6 +11,8 @@
  */
 package com.topodroid.Cave3D;
 
+import com.topodroid.utils.TDVersion;
+
 import android.util.Log;
 
 import java.io.File;
@@ -34,8 +36,6 @@ public class ParserTh extends TglParser
   static final int ERR_NO_SURVEY = -2;
   static final int ERR_NO_FILE   = -3;
   static final int ERR_NO_SHOTS  = -4;
-
-  static final int TOPODROID_DB_VERSION = 42; // must agree with TopoDroid database version
 
   static final int FLIP_NONE       = 0;
   static final int FLIP_HORIZONTAL = 1;
@@ -94,7 +94,7 @@ public class ParserTh extends TglParser
 
     String path = base + "distox14.sqlite";
     // Log.v( "TopoGL-TH", "Th parser DB " + path + " survey " + surveyname );
-    mData = new DataHelper( cave3d, path, TOPODROID_DB_VERSION ); // FIXME DB VERSION
+    mData = new DataHelper( cave3d, path, TDVersion.DATABASE_VERSION );
 
     StringWriter sw = new StringWriter();
     PrintWriter  pw = new PrintWriter( sw );
@@ -122,7 +122,7 @@ public class ParserTh extends TglParser
     if ( pos >= 0 ) {
       String path = filename.substring(0, pos) + "distox14.sqlite";
       // Log.v( "Cave3D-TH", "DB " + path );
-      mData = new DataHelper( app, path, TOPODROID_DB_VERSION ); // FIXME DB VERSION
+      mData = new DataHelper( app, path, TDVersion.DATABASE_VERSION );
     } else {
       mData = null;
     }
@@ -661,7 +661,7 @@ public class ParserTh extends TglParser
                   String db_path = base + "distox14.sqlite";
                   // Log.v( "Cave3D-TH", "DB " + db_path );
                   if ( (new File(db_path)).exists() ) {
-                    mData = new DataHelper( mApp, db_path, TOPODROID_DB_VERSION );
+                    mData = new DataHelper( mApp, db_path, TDVersion.DATABASE_VERSION );
                   }
                 }
                 int res = readSurvey( filename, path, use_survey_declination, survey_declination, pw );
