@@ -884,17 +884,22 @@ public class ParserTh extends TglParser
     // Log.v( "Cave3D-TH", sb.toString() );
 
     // 3D splay shots
-    for ( Cave3DShot sh : splays ) {
-      if ( sh.used ) continue;
-      if (  sh.from_station != null ) continue;
-      // Log.v( "Cave3D-TH", "check shot " + sh.from + " " + sh.to );
-      for ( Cave3DStation s : stations ) {
+    Vector3D vert = new Vector3D( 0,0,1 ); // vertical
+
+    for ( Cave3DStation s : stations ) {
+      ArrayList< Vector3D > station_splays = new ArrayList<>();
+      for ( Cave3DShot sh : splays ) {
+        if ( sh.used ) continue;
+        if ( sh.from_station != null ) continue;
         if ( sh.from.equals(s.name) ) {
           sh.from_station = s;
           sh.used = true;
           sh.to_station = sh.getStationFromStation( s );
-          break;
+          station_splays.add( sh.toPoint3D() );
         }
+      }
+      if ( station_splays.size() > 3 ) {
+        xsections.add( new Cave3DXSection( s, s, vert, station_splays ) );
       }
     }
 

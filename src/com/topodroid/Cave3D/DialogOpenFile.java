@@ -49,14 +49,14 @@ class DialogOpenFile extends Dialog
   class MyFilenameFilter implements FilenameFilter
   {
     public boolean accept( File dir, String name ) {
-      if ( name.endsWith( ".th" ) ) return true;
-      if ( name.endsWith( "thconfig" ) ) return true;
-      if ( name.endsWith( "tdconfig" ) ) return true;
-      if ( name.endsWith( ".lox" ) ) return true;
-      if ( name.endsWith( ".mak" ) ) return true;
-      if ( name.endsWith( ".dat" ) ) return true;
-      if ( name.endsWith( ".tro" ) ) return true;
-      if ( name.endsWith( ".3d" ) ) return true;
+      if ( name.toLowerCase().endsWith( ".th" ) ) return true;
+      if ( name.toLowerCase().endsWith( "thconfig" ) ) return true;
+      if ( name.toLowerCase().endsWith( "tdconfig" ) ) return true;
+      if ( name.toLowerCase().endsWith( ".lox" ) ) return true;
+      if ( name.toLowerCase().endsWith( ".mak" ) ) return true;
+      if ( name.toLowerCase().endsWith( ".dat" ) ) return true;
+      if ( name.toLowerCase().endsWith( ".tro" ) ) return true;
+      if ( name.toLowerCase().endsWith( ".3d" ) ) return true;
       // if ( name.endsWith( ".srv" ) ) return true; // not implemented yet
       return false;
     }

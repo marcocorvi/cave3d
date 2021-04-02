@@ -46,11 +46,12 @@ public class TglParser
   boolean do_render; // whether ready to render
   TopoGL mApp;
 
-  protected ArrayList< Cave3DSurvey >  surveys;
-  protected ArrayList< Cave3DFix >     fixes;
-  protected ArrayList< Cave3DStation > stations;
-  protected ArrayList< Cave3DShot >    shots;   // centerline shots
-  protected ArrayList< Cave3DShot >    splays;  // splay shots
+  protected ArrayList< Cave3DSurvey >   surveys;
+  protected ArrayList< Cave3DFix >      fixes;
+  protected ArrayList< Cave3DStation >  stations;
+  protected ArrayList< Cave3DShot >     shots;   // centerline shots
+  protected ArrayList< Cave3DShot >     splays;  // splay shots
+  protected ArrayList< Cave3DXSection > xsections;
 
   PowercrustComputer powercrustcomputer = null;
   ConvexHullComputer convexhullcomputer = null;
@@ -111,16 +112,18 @@ public class TglParser
   // public double getVmin() { return zmin; }
   // public double getVmax() { return zmax; }
 
-  int getStationNumber() { return stations.size(); }
-  int getShotNumber()    { return shots.size(); }
-  int getSplayNumber()   { return splays.size(); }
-  int getSurveyNumber()  { return surveys.size(); }
+  int getStationNumber()  { return stations.size(); }
+  int getShotNumber()     { return shots.size(); }
+  int getSplayNumber()    { return splays.size(); }
+  int getSurveyNumber()   { return surveys.size(); }
+  int getXSectionNumber() { return xsections.size(); }
 
-  ArrayList< Cave3DSurvey >  getSurveys()  { return surveys; }
-  ArrayList< Cave3DShot >    getShots()    { return shots; }
-  ArrayList< Cave3DShot >    getSplays()   { return splays; }
-  ArrayList< Cave3DStation > getStations() { return stations; }
-  ArrayList< Cave3DFix >     getFixes()    { return fixes; }
+  ArrayList< Cave3DSurvey >   getSurveys()   { return surveys; }
+  ArrayList< Cave3DShot >     getShots()     { return shots; }
+  ArrayList< Cave3DShot >     getSplays()    { return splays; }
+  ArrayList< Cave3DStation >  getStations()  { return stations; }
+  ArrayList< Cave3DFix >      getFixes()     { return fixes; }
+  ArrayList< Cave3DXSection > getXSections() { return xsections; }
 
   Cave3DShot getShot( int k ) { return shots.get(k); }
 
@@ -424,12 +427,12 @@ public class TglParser
 
     mSurface = null;
 
-    fixes  = new ArrayList< Cave3DFix >();
-    shots  = new ArrayList< Cave3DShot >();
-    splays = new ArrayList< Cave3DShot >();
-    surveys = new ArrayList< Cave3DSurvey >();
-    stations = new ArrayList< Cave3DStation >();
-
+    fixes     = new ArrayList< Cave3DFix >();
+    shots     = new ArrayList< Cave3DShot >();
+    splays    = new ArrayList< Cave3DShot >();
+    surveys   = new ArrayList< Cave3DSurvey >();
+    stations  = new ArrayList< Cave3DStation >();
+    xsections = new ArrayList< Cave3DXSection >();
   }
 
   protected void computeBoundingBox()

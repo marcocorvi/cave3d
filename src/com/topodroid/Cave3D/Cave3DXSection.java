@@ -18,31 +18,79 @@ import java.io.PrintWriter;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Cave3DXSection
 {
-  ArrayList< Vector3D > points;
-  Vector3D center;
-  Vector3D normal;
-
-  public Cave3DXSection( double x, double y, double z, List< Vector3D > shots )
+  private class XSplay extends Vector3D
+                       implements Comparable
   {
-    center = new Vector3D( x, y, z );
-    points = new ArrayList< Vector3D >();
-    for ( Vector3D s : shots ) addPoint( s );
-    computeNormal();
-    orderPoints();
+    double angle;
+
+    XSplay( Vector3D p, double a )
+    {
+      super( p );
+      angle = a;
+    }
+
+    @Override public boolean equals( Object other )
+    { 
+      if ( other == null ) return false;
+      if ( other instanceof XSplay ) return this.angle == ((XSplay)other).angle;
+      return false;
+    }
+
+    // if other is not instanceof XSplay return ClassCastException
+    @Override public int compareTo( Object other ) 
+    { 
+      if ( other == null ) throw new NullPointerException();
+      if ( other instanceof XSplay )
+        return (this.angle < ((XSplay)other).angle)? -1 : (this.angle == ((XSplay)other).angle)? 0 : 1;
+      throw new ClassCastException();
+    }
   }
 
-  public int size() { return points.size(); }
+  private XSplay[] splays; // splay shots of the x-section
+  Cave3DStation station;   // xsection at a station - otherwise it is null
+  Vector3D center;         // center of the X_Section (coincides with the station if the xsection has a station
+  Vector3D normal;         // normal to the x-section plane
+  Vector3D ref;            // reference from which to measure the angles
 
-  // return true if the site is already in the x-section
-  private void addPoint( Vector3D s )
+  public int size() { return splays.length; }
+   
+  // get the k-th splay point (3D world frame)
+  // @param k    index - must be between 0 and splays.length
+  Vector3D point( int k ) { return center.sum( splays[ k ] ); }
+
+  // get the k-th splay angle
+  double angle( int k ) { return splays[ k ].angle; }
+
+  // @param c     center station
+  // @param r     angle reference direction
+  // @param shots splay shots
+  public Cave3DXSection( Cave3DStation s, Vector3D c, Vector3D r, List< Vector3D > shots )
   {
-    points.add( new Vector3D( s ) );
+    station = s;
+    center  = c;
+    ref     = r;
+    ArrayList< Vector3D > points = new ArrayList<>();
+    for ( Vector3D shot : shots ) points.add( shot.difference( center ) );
+    computeNormal( points );
+    orderPoints( r, points );
   }
 
-  private void computeNormal()
+
+  // void dump()
+  // {
+  //   Log.v("TopoGL", "XS " + size() + " C " + center.x + " " + center.y + " " + center.z + " N " + normal.x + " " + normal.y + " " + normal.z );
+  //   StringBuffer sb = new StringBuffer();
+  //   sb.append("  ");
+  //   for ( int k=0; k < splays.length; ++k ) sb.append( String.format("%.2f ", splays[k].angle ) );
+  //   Log.v("TopoGL", sb.toString() );
+  // }
+
+  // --------------------------------------------------------------------
+  private void computeNormal( List< Vector3D > points )
   {
     double[] A = new double[9];
     for ( int k=0; k<9; ++k ) A[k]=0;
@@ -51,12 +99,24 @@ public class Cave3DXSection
       A[3] += v.y * v.x;   A[4] += v.y * v.y;   A[5] += v.y * v.z;
       A[6] += v.z * v.x;   A[7] += v.z * v.y;   A[8] += v.z * v.z;
     }
+    // normal = leastEigenvector( A );
+
     // compute the smallest eigenvalue of A (A is pos. semidef. therefore eigenval >= 0)
+    // L^3 - Tr(A) L^2 + ( Axx Ayy + Ayy Azz + Azz Axx - Axy^2 - Axz^2 - Azy^2 ) L + det(A)
     // 
-    double b2 = A[0] + A[4] + A[8]; // trace
-    double b1 = -( A[0]*A[4] + A[0]*A[8] + A[4]*A[8] + A[5]*A[7] + A[1]*A[3] + A[2]*A[6] );
-    double b0 = A[0]*( A[4]*A[8] - A[5]*A[7] ) - A[1]*( A[3]*A[8] - A[6]*A[5] ) + A[2]*( A[3]*A[7] - A[6]*A[4] ); // determinant
+    double b2 = - ( A[0] + A[4] + A[8] ); // trace
+    double b1 = ( A[0]*A[4] + A[0]*A[8] + A[4]*A[8] - A[5]*A[7] - A[1]*A[3] - A[2]*A[6] );
+    double b0 =  - A[0]*A[4]*A[8] - A[2]*A[3]*A[7] - A[1]*A[5]*A[6] + A[0]*A[5]*A[7] + A[4]*A[2]*A[6] + A[8]*A[1]*A[3]; // determinant
+    double b00 = A[0]*( A[4]*A[8] - A[5]*A[7] ) - A[1]*( A[3]*A[8] - A[6]*A[5] ) + A[2]*( A[3]*A[7] - A[6]*A[4] ); // determinant
     // find first positive zero of   f(L) = L^3 + b2 L^2 + b1 L + b0 = 0;
+    //   f'(L) = 3 L^2 + 2 b2 L + b1 = 0
+    // for L = ( - b2 +/- sqrt( b2*b2 - 3 b1 ) )/3
+    // they are both positive if b2 < 0 and b1 > 0, 3 b1 < b2*b2
+    // b2^2  = A[0]*A[0] + A[4]*A[4] + A[8]*A[8] + 2*A0*A4 + 2*A0*A8 + 2*A4*A8
+    // -3 b1 =                                   - 3*A0*A4 - 3*A0*A8 - 3*A4*A8 + 3 A5^2 + 3 A1^2 + 3 A2^2
+    // the sum is positive
+    // next b1 > 0 because of the way the matrix is built
+    // Log.v("TopoGL", "f(L) = L^3 + " + b2 + " L^2 + " + b1 + " L + " + b0 );
     double L = 0;
     double f0 = L * L * L + b2 * L * L + b1 * L + b0;
     int cnt = 0;
@@ -64,17 +124,17 @@ public class Cave3DXSection
     do {
       double L1 = L + delta;
       double f1 = L1 * L1 * L1 + b2 * L1 * L1 + b1 * L1 + b0;
-      if ( f1 >= f0 || f1*f0 < 0 ) {
-        delta = delta/2;
-      } else {
+      if ( f1 >= f0 && f1 < 0 ) {
         L = L1;
         f0 = f1;
+      } else {
+        delta = delta/2;
       }
 
       // System.out.println("L " + L + " f0 " + f0 + " f1 " + f1 + " delta " + delta );
       // if ( ++cnt > 20 ) break;
       // f0 = L * L * L + b2 * L * L + b1 * L + b0;
-    } while ( Math.abs( f0 ) > 0.00001 );
+    } while ( Math.abs( f0 ) > 0.0000001 );
 
     double a0 = A[0] - L;
     double a4 = A[4] - L;
@@ -90,16 +150,19 @@ public class Cave3DXSection
     ny /= nlen;
     nz /= nlen; 
     // check eigenvector and eigenvalue
-    double x = A[0] * nx + A[1] * ny + A[2] * nz - L * nx;
-    double y = A[3] * nx + A[4] * ny + A[5] * nz - L * ny;
-    double z = A[6] * nx + A[7] * ny + A[8] * nz - L * nz;
-    // Log.v("TopoGL", "check eigenvalue " + L + ": " + nx + " " + ny + " " + nz );
-    System.out.println("check eigenvalue " + L + " N: " + nx + " " + ny + " " + nz );
+    // double x = A[0] * nx + A[1] * ny + A[2] * nz - L * nx;
+    // double y = A[3] * nx + A[4] * ny + A[5] * nz - L * ny;
+    // double z = A[6] * nx + A[7] * ny + A[8] * nz - L * nz;
+    // Log.v("TopoGL", "check eigenvalue " + L + ": " + x + " " + y + " " + z );
+    // System.out.println("check eigenvalue " + L + " N: " + nx + " " + ny + " " + nz );
     normal = new Vector3D( nx, ny, nz );
-    normal.normalized();
-    System.out.println(" normal: " + normal.x + " " + normal.y + " " + normal.z );
+    // normal.normalized();
+    // System.out.println(" normal: " + normal.x + " " + normal.y + " " + normal.z );
+    //
   }
 
+  // compute the renormalized 3D vector projection of the 3D point P on the x-section plane
+  // @paramm p   3D point
   private Vector3D projection( Vector3D p )
   {
     Vector3D ret = p.difference( normal.scaledBy( normal.dotProduct(p) ) );
@@ -107,7 +170,8 @@ public class Cave3DXSection
     return ret;
   }
 
-  private double angle( Vector3D v1, Vector3D v2 ) 
+  // angle between two 3D vectors, in [0, 2 PI)
+  private double computeAngle( Vector3D v1, Vector3D v2 ) 
   {
     double c = v1.dotProduct( v2 );
     double s = v1.crossProduct( v2 ).length();
@@ -116,43 +180,17 @@ public class Cave3DXSection
     return a;
   }
 
-  private void orderPoints()
+  // @param r   reference direction
+  // @param points 3D points relative to the center
+  private void orderPoints( Vector3D r, List< Vector3D > points )
   {
-    // arbitrary vector perpendicular to the normal
-    Vector3D v = new Vector3D( normal );
-    double t = v.x; v.x = v.y; v.y = v.z; v.z = t;
-    Vector3D w = normal.crossProduct( v );
-    w.normalized();
-    ArrayList< Vector3D > pts0 = new ArrayList<>();
-    for ( Vector3D p : points ) pts0.add( projection( p ) );
-
-    ArrayList< Vector3D > pts1 = new ArrayList<>();
-    Vector3D p0 = pts0.get(0);
-    double d0 = w.dotProduct( p0 );
-    int i0 = 0;
-    for ( int k = 1; k<points.size(); ++k ) {
-      Vector3D p2 = pts0.get( k );
-      double d2 = w.dotProduct( p2 );
-      if ( d2 > d0 ) { p0 = p2; d0 = d2; i0 = k; }
+    Vector3D w = projection( r );
+    splays = new XSplay[ points.size() ];
+    for ( int k=0; k<points.size(); ++k ) {
+      Vector3D pt = points.get(k);
+      splays[k] = new XSplay( pt, computeAngle( w, projection(pt) ) );
     }
-    pts1.add( points.get( i0 ) );
-    pts0.remove( i0 );
-    points.remove( i0 );
-    while ( pts0.size() > 0 ) {
-      Vector3D p1 = pts0.get(0);
-      double a1 = angle( p0, p1 );
-      int i1 = 0;
-      for ( int k = 1; k<points.size(); ++k ) {
-        Vector3D p2 = pts0.get( k );
-        double a2 = angle( p0, p2 );
-        if ( a2 > a1 ) { p1 = p2; a1 = a2; i1 = k; }
-      }
-      pts1.add( points.get( i1 ) );
-      pts0.remove( i1 );
-      points.remove( i1 );
-    }
-    points = pts1;
-    for ( Vector3D p : points ) System.out.println("v " + p.x + " " + p.y + " " + p.z );
+    Arrays.sort( splays, 0, splays.length );
   }  
 
   /*
@@ -169,5 +207,4 @@ public class Cave3DXSection
     Cave3DXSection xsection = new Cave3DXSection( 0, 0, 0, data );
   }
   */
-
 }
