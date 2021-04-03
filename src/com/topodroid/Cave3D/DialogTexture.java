@@ -49,9 +49,9 @@ class DialogTexture extends Dialog
     private boolean withOsm;
 
     public boolean accept( File dir, String name ) {
-      if ( name.endsWith( ".tif" ) ) return true;  // geotiff file
-      if ( name.endsWith( ".tiff" ) ) return true; 
-      if ( withOsm && name.endsWith( ".osm" ) ) return true;  // OSM file
+      if ( name.toLowerCase().endsWith( ".tif" ) ) return true;  // geotiff file
+      if ( name.toLowerCase().endsWith( ".tiff" ) ) return true; 
+      if ( withOsm && name.toLowerCase().endsWith( ".osm" ) ) return true;  // OSM file
       return false;
     }
 

@@ -90,6 +90,12 @@ public class Cave3DShot
     return Math.cos( ber - sh.ber ) * Math.cos( cln ) * Math.cos( sh.cln ) + Math.sin( cln ) * Math.sin( sh.cln );
   }
 
+  // dot product with a vector (E, N, Z)
+  double dotProduct( Vector3D v )
+  {
+    return (Math.cos(ber)*v.y + Math.sin(ber)*v.x) * Math.cos( cln ) + Math.sin( cln ) * v.z;
+  }
+
   public Cave3DStation getStationFromStation( Cave3DStation st ) 
   {
     if ( st.name.equals( from ) ) {

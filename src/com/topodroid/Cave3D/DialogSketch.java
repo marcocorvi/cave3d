@@ -47,7 +47,7 @@ class DialogSketch extends Dialog
   class MyFilenameFilter implements FilenameFilter
   {
     public boolean accept( File dir, String name ) {
-      if ( name.endsWith( ".c3d" ) ) return true;  // Cave3D sketch file
+      if ( name.toLowerCase().endsWith( ".c3d" ) ) return true;  // Cave3D sketch file
       return false;
     }
   }

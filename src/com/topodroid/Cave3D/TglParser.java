@@ -40,8 +40,9 @@ public class TglParser
   public static final int WALL_CW         = 1;
   public static final int WALL_POWERCRUST = 2;
   public static final int WALL_HULL       = 3;
-  public static final int WALL_DELAUNAY   = 4;
-  public static final int WALL_MAX        = 4;
+  public static final int WALL_TUBE       = 4;
+  public static final int WALL_DELAUNAY   = 5;
+  public static final int WALL_MAX        = 5;
 
   boolean do_render; // whether ready to render
   TopoGL mApp;
@@ -51,11 +52,12 @@ public class TglParser
   protected ArrayList< Cave3DStation >  stations;
   protected ArrayList< Cave3DShot >     shots;   // centerline shots
   protected ArrayList< Cave3DShot >     splays;  // splay shots
-  protected ArrayList< Cave3DXSection > xsections;
+  protected ArrayList< Cave3DXSection > xsections = null;
 
   PowercrustComputer powercrustcomputer = null;
   ConvexHullComputer convexhullcomputer = null;
   HullComputer hullcomputer = null;
+  TubeComputer tubecomputer = null;
 
   // private ArrayList< CWConvexHull > walls   = null;
   // private ArrayList< CWBorder >     borders = null;
@@ -112,11 +114,11 @@ public class TglParser
   // public double getVmin() { return zmin; }
   // public double getVmax() { return zmax; }
 
-  int getStationNumber()  { return stations.size(); }
-  int getShotNumber()     { return shots.size(); }
-  int getSplayNumber()    { return splays.size(); }
-  int getSurveyNumber()   { return surveys.size(); }
-  int getXSectionNumber() { return xsections.size(); }
+  int getStationNumber()  { return (stations == null)?  0 : stations.size(); }
+  int getShotNumber()     { return (shots == null)?     0 : shots.size(); }
+  int getSplayNumber()    { return (splays == null)?    0 : splays.size(); }
+  int getSurveyNumber()   { return (surveys == null)?   0 : surveys.size(); }
+  int getXSectionNumber() { return (xsections == null)? 0 : xsections.size(); }
 
   ArrayList< Cave3DSurvey >   getSurveys()   { return surveys; }
   ArrayList< Cave3DShot >     getShots()     { return shots; }
@@ -134,6 +136,13 @@ public class TglParser
 
   double getConvexHullVolume() { return ( convexhullcomputer == null )? 0 : convexhullcomputer.getVolume(); }
   double getPowercrustVolume() { return ( powercrustcomputer == null )? 0 : powercrustcomputer.getVolume(); }
+
+  Cave3DXSection getXSectionAt( Cave3DStation st ) 
+  {
+    if ( st == null ) return null;
+    for ( Cave3DXSection xsection : xsections ) if ( xsection.station == st ) return xsection;
+    return null;
+  }
 
   protected boolean checkPath( String path )
   {
@@ -458,7 +467,7 @@ public class TglParser
   void exportModel( int type, String pathname, boolean b_splays, boolean b_walls, boolean b_surface, boolean overwrite )
   { 
     if ( type == ModelType.SERIAL ) { // serialization
-      if ( ! pathname.endsWith(".txt") ) {
+      if ( ! pathname.toLowerCase().endsWith(".txt") ) {
         pathname = pathname + ".txt";
       } 
       if ( ! checkFile(pathname, overwrite ) ) return;
@@ -466,7 +475,7 @@ public class TglParser
     } else {                          // model export 
       boolean ret = false;
       if ( type == ModelType.KML_ASCII ) { // KML export ASCII
-        if ( ! pathname.endsWith(".kml") ) {
+        if ( ! pathname.toLowerCase().endsWith(".kml") ) {
           pathname = pathname + ".kml";
         } 
         if ( ! checkFile(pathname, overwrite ) ) return;
@@ -484,20 +493,20 @@ public class TglParser
         }
         ret = kml.exportASCII( pathname, this, b_splays, b_walls, b_surface );
       } else if ( type == ModelType.CGAL_ASCII ) { // CGAL export: only stations and splay-points
-        if ( ! pathname.endsWith(".cgal") ) {
+        if ( ! pathname.toLowerCase().endsWith(".cgal") ) {
           pathname = pathname + ".cgal";
         }
         if ( ! checkFile(pathname, overwrite ) ) return;
         ExportCGAL cgal = new ExportCGAL();
         ret = cgal.exportASCII( pathname, this, b_splays, b_walls, b_surface );
       } else if ( type == ModelType.LAS_BINARY ) { // LAS v. 1.2
-        if ( ! pathname.endsWith(".las") ) {
+        if ( ! pathname.toLowerCase().endsWith(".las") ) {
 	  pathname = pathname + ".las";
         }
         if ( ! checkFile(pathname, overwrite ) ) return;
         ret = ExportLAS.exportBinary( pathname, this, b_splays, b_walls, b_surface );
       } else if ( type == ModelType.DXF_ASCII ) { // DXF
-        if ( ! pathname.endsWith(".dxf") ) {
+        if ( ! pathname.toLowerCase().endsWith(".dxf") ) {
 	  pathname = pathname + ".dxf";
         }
         if ( ! checkFile(pathname, overwrite ) ) return;
@@ -516,7 +525,7 @@ public class TglParser
         }
         ret = dxf.exportAscii( pathname, this, true, b_splays, b_walls, true ); // true = version13
       } else if ( type == ModelType.SHP_ASCII ) { // SHP
-        if ( ! pathname.endsWith(".shz") ) {
+        if ( ! pathname.toLowerCase().endsWith(".shz") ) {
 	  pathname = pathname + ".shz";
         }
         if ( ! checkFile(pathname, overwrite ) ) return;
@@ -537,7 +546,7 @@ public class TglParser
         ret = shp.exportASCII( pathname, this, true, b_splays, b_walls );
 
       } else {                                     // STL export ASCII or binary
-        if ( ! pathname.endsWith(".stl") ) {
+        if ( ! pathname.toLowerCase().endsWith(".stl") ) {
           pathname = pathname + ".stl";
         } 
         if ( ! checkFile(pathname, overwrite ) ) return;
@@ -663,6 +672,31 @@ public class TglParser
     // if ( mApp != null ) mApp.setButtonWall(); // private
   }
 
+  // FIXME skip -------------------------- WALL_TUBE triangles
+  public void makeTube( boolean clear )
+  {
+    if ( ! clear ) {
+      if ( shots == null ) return;
+      if ( WALL_TUBE < WALL_MAX ) {
+        tubecomputer = new TubeComputer( this, shots );
+        if ( tubecomputer != null ) {
+          (new AsyncTask< Void, Void, Boolean >() {
+            public Boolean doInBackground( Void ... v ) {
+              return tubecomputer.computeTube();
+            }
+            public void onPostExecute( Boolean b ) {
+              if ( ! b ) tubecomputer = null;
+              if ( mApp != null ) mApp.notifyWall( WALL_TUBE, b );
+            }
+          }).execute();
+        } else {
+          // if ( mApp != null ) mApp.uiToast( "failed to create hull object" );
+        }
+      }
+    }
+  }
+  
+
   // FIXME skip -------------------------- WALL_HULL triangles
   public void makeHull( boolean clear )
   {
@@ -676,7 +710,7 @@ public class TglParser
               return hullcomputer.computeHull();
             }
             public void onPostExecute( Boolean b ) {
-              if ( ! b ) convexhullcomputer = null;
+              if ( ! b ) hullcomputer = null;
               if ( mApp != null ) mApp.notifyWall( WALL_HULL, b );
             }
           }).execute();

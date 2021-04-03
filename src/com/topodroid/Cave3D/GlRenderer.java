@@ -629,6 +629,8 @@ public class GlRenderer implements Renderer
         mModel.prepareWalls( mParser.powercrustcomputer, b );
       } else if ( type == TglParser.WALL_HULL ) {
         mModel.prepareWalls( mParser.hullcomputer, b );
+      } else if ( type == TglParser.WALL_TUBE ) {
+        mModel.prepareWalls( mParser.tubecomputer, b );
       } else {
         mModel.clearWalls( );
       }

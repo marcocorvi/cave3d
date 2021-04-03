@@ -13,7 +13,9 @@ SRC    = $(patsubst %,jni/%, $(_SRC))
 PROG   = powercrust
 LIB    = lib$(PROG).a
 
-default : $(PROG)
+default: debug
+
+# default : $(PROG)
 
 all	: $(PROG) simplify orient
 
@@ -53,7 +55,7 @@ log:
 	adb logcat | grep TopoGL
 
 debug:
-	adb logcat | grep Cave3D
+	ant debug
 
 rebuild:
 	ant clean

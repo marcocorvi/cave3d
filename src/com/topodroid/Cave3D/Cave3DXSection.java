@@ -48,6 +48,11 @@ public class Cave3DXSection
         return (this.angle < ((XSplay)other).angle)? -1 : (this.angle == ((XSplay)other).angle)? 0 : 1;
       throw new ClassCastException();
     }
+
+    // void dump()
+    // {
+    //   Log.v("TopoGL", String.format("   %6.1f  %8.2f %8.2f %8.2f", angle, x, y, z ) );
+    // }
   }
 
   private XSplay[] splays; // splay shots of the x-section
@@ -57,13 +62,25 @@ public class Cave3DXSection
   Vector3D ref;            // reference from which to measure the angles
 
   public int size() { return splays.length; }
+
+  public String name() { return (station != null)? station.name : "none"; }
    
   // get the k-th splay point (3D world frame)
   // @param k    index - must be between 0 and splays.length
-  Vector3D point( int k ) { return center.sum( splays[ k ] ); }
+  Vector3D point( int k, boolean reverse ) { return  (k < 0 || k >= splays.length )? null : reverse ? reversePoint(k) : directPoint(k); }
+
+  private Vector3D directPoint( int k ) { return center.sum( splays[ k ] ); }
+  private Vector3D reversePoint( int k ) { return center.sum( splays[ splays.length-1-k ] ); }
 
   // get the k-th splay angle
-  double angle( int k ) { return splays[ k ].angle; }
+  // @param k        splay index
+  // @param reversed whether to count splays in reversed order (and angles complemented to 2PI)
+  double angle( int k, boolean reversed ) { return reversed ? reverseAngle(k) : directAngle(k); }
+
+  private double directAngle( int k ) { return splays[ k ].angle; }
+
+  // return the complement to 2*PI of the angle of the splays in reversed order
+  private double reverseAngle( int k ) { return Math.PI*2 - splays[ splays.length-1-k ].angle; }
 
   // @param c     center station
   // @param r     angle reference direction
@@ -75,22 +92,19 @@ public class Cave3DXSection
     ref     = r;
     ArrayList< Vector3D > points = new ArrayList<>();
     for ( Vector3D shot : shots ) points.add( shot.difference( center ) );
-    computeNormal( points );
-    orderPoints( r, points );
+    recomputeNormal( points );
+    orderPoints( normal, r, points );
   }
 
 
-  // void dump()
-  // {
-  //   Log.v("TopoGL", "XS " + size() + " C " + center.x + " " + center.y + " " + center.z + " N " + normal.x + " " + normal.y + " " + normal.z );
-  //   StringBuffer sb = new StringBuffer();
-  //   sb.append("  ");
-  //   for ( int k=0; k < splays.length; ++k ) sb.append( String.format("%.2f ", splays[k].angle ) );
-  //   Log.v("TopoGL", sb.toString() );
-  // }
+  //void dump()
+  //{
+  //  Log.v("TopoGL", "XS " + size() + " C " + center.x + " " + center.y + " " + center.z + " N " + normal.x + " " + normal.y + " " + normal.z );
+  //  for ( int k=0; k < splays.length; ++k ) splays[k].dump();
+  //}
 
   // --------------------------------------------------------------------
-  private void computeNormal( List< Vector3D > points )
+  private void recomputeNormal( List< Vector3D > points )
   {
     double[] A = new double[9];
     for ( int k=0; k<9; ++k ) A[k]=0;
@@ -155,26 +169,32 @@ public class Cave3DXSection
     // double z = A[6] * nx + A[7] * ny + A[8] * nz - L * nz;
     // Log.v("TopoGL", "check eigenvalue " + L + ": " + x + " " + y + " " + z );
     // System.out.println("check eigenvalue " + L + " N: " + nx + " " + ny + " " + nz );
+
+    // now reset the normal to the computed value
     normal = new Vector3D( nx, ny, nz );
     // normal.normalized();
-    // System.out.println(" normal: " + normal.x + " " + normal.y + " " + normal.z );
-    //
   }
 
   // compute the renormalized 3D vector projection of the 3D point P on the x-section plane
-  // @paramm p   3D point
-  private Vector3D projection( Vector3D p )
+  // @param v0  normal
+  // @param p   3D point
+  private Vector3D projection( Vector3D v0, Vector3D p )
   {
-    Vector3D ret = p.difference( normal.scaledBy( normal.dotProduct(p) ) );
+    // Vector3D ret = p.difference( normal.scaledBy( normal.dotProduct(p) ) );
+    double pn = v0.dotProduct(p);
+    Vector3D ret = new Vector3D( p.x - pn*v0.x, p.y - pn*v0.y, p.z - pn*v0.z );
     ret.normalized();
     return ret;
   }
 
   // angle between two 3D vectors, in [0, 2 PI)
-  private double computeAngle( Vector3D v1, Vector3D v2 ) 
+  // @param v0   normal
+  // @param v1   zero-refrence
+  // @param v2   test vector
+  private double computeAngle( Vector3D v0, Vector3D v1, Vector3D v2 ) 
   {
     double c = v1.dotProduct( v2 );
-    double s = v1.crossProduct( v2 ).length();
+    double s = v1.crossProduct( v2 ).dotProduct( v0 );
     double a = Math.atan2( s, c );
     if ( a < 0 ) a += 2 * Math.PI;
     return a;
@@ -182,15 +202,22 @@ public class Cave3DXSection
 
   // @param r   reference direction
   // @param points 3D points relative to the center
-  private void orderPoints( Vector3D r, List< Vector3D > points )
+  private void orderPoints( Vector3D n, Vector3D r, List< Vector3D > points )
   {
-    Vector3D w = projection( r );
+    Vector3D w = projection( n, r );
     splays = new XSplay[ points.size() ];
     for ( int k=0; k<points.size(); ++k ) {
       Vector3D pt = points.get(k);
-      splays[k] = new XSplay( pt, computeAngle( w, projection(pt) ) );
+      splays[k] = new XSplay( pt, computeAngle( n, w, projection(n, pt) ) );
     }
     Arrays.sort( splays, 0, splays.length );
+    // now move at the first position the closest point to the reference 
+    if ( Math.PI*2 - splays[splays.length-1].angle < splays[0].angle ) { 
+      XSplay temp = splays[splays.length-1];
+      for ( int k=splays.length-1; k>0; --k ) splays[k] = splays[k-1];
+      splays[0] = temp;
+      splays[0].angle -= 2 * Math.PI;
+    }
   }  
 
   /*

@@ -1043,7 +1043,7 @@ public class TopoGL extends Activity
   void openSketch( String pathname, String filename ) 
   {
     // Log.v("Cave3D-DEM", pathname );
-    if ( ! pathname.endsWith( ".c3d" ) ) return;
+    if ( ! pathname.toLowerCase().endsWith( ".c3d" ) ) return;
     ParserSketch sketch = new ParserSketch( pathname );
     // final double dd = mDEMbuffer;
     (new AsyncTask<ParserSketch, Void, Boolean>() {
@@ -1074,9 +1074,9 @@ public class TopoGL extends Activity
   {
     // Log.v("Cave3D-DEM", pathname );
     ParserDEM dem = null;
-    if ( pathname.endsWith( ".grid" ) ) {
+    if ( pathname.toLowerCase().endsWith( ".grid" ) ) {
       dem = new DEMgridParser( pathname, mDEMmaxsize );
-    } else if ( pathname.endsWith( ".asc" ) || pathname.endsWith(".ascii") ) {
+    } else if ( pathname.toLowerCase().endsWith( ".asc" ) || pathname.toLowerCase().endsWith(".ascii") ) {
       Cave3DFix origin = mParser.getOrigin();
       // origin.log();
       double xunit = mParser.getWEradius(); // radius * PI/180
@@ -1124,7 +1124,7 @@ public class TopoGL extends Activity
     // Log.v("TopoGL", "texture " + pathname + " bbox " + bounds.left + " " + bounds.bottom + "  " + bounds.right + " " + bounds.top );
 
     mTextureName = filename;
-    if ( filename.endsWith( ".osm" ) ) {
+    if ( filename.toLowerCase().endsWith( ".osm" ) ) {
       loadTextureOSM( pathname, bounds );
     } else {
       loadTextureGeotiff( pathname, bounds );
@@ -1615,24 +1615,24 @@ public class TopoGL extends Activity
 
   private boolean initRendering( String filename )
   {
-    // Log.v("TopoGL", "init rendering " + filename );
+    Log.v("TopoGL", "init rendering <" + filename + ">" );
     doSketches = false;
     try {
       mParser = null;
       if ( mRenderer != null ) mRenderer.clearModel();
       // resetAllPaths();
-      if ( filename.endsWith( ".tdconfig" ) ) {
+      if ( filename.toLowerCase().endsWith( ".tdconfig" ) ) {
         mParser = new ParserTh( this, filename ); // tdconfig files are saved with therion syntax
         doSketches = true;
-      } else if ( filename.endsWith( ".th" ) || filename.endsWith( ".thconfig" ) ) {
+      } else if ( filename.toLowerCase().endsWith( ".th" ) || filename.toLowerCase().endsWith( ".thconfig" ) ) {
         mParser = new ParserTh( this, filename );
-      } else if ( filename.endsWith( ".lox" ) ) {
+      } else if ( filename.toLowerCase().endsWith( ".lox" ) ) {
         mParser = new ParserLox( this, filename );
-      } else if ( filename.endsWith( ".mak" ) || filename.endsWith( ".dat" ) ) {
+      } else if ( filename.toLowerCase().endsWith( ".mak" ) || filename.toLowerCase().endsWith( ".dat" ) ) {
         mParser = new ParserDat( this, filename );
-      } else if ( filename.endsWith( ".tro" ) ) {
+      } else if ( filename.toLowerCase().endsWith( ".tro" ) ) {
         mParser = new ParserTro( this, filename );
-      } else if ( filename.endsWith( ".3d" ) ) {
+      } else if ( filename.toLowerCase().endsWith( ".3d" ) ) {
         mParser = new Parser3d( this, filename );
       } else {
         return false;
@@ -1648,27 +1648,26 @@ public class TopoGL extends Activity
     return (mParser != null);
   }
 
+  private void notify( boolean res, int ok, int no, boolean what )
+  {
+    if ( res ) {
+      toast( ok );
+    } else {
+      toast( no, what );
+    }
+  }
+
   // run on onPostExecute
   void notifyWall( int type, boolean result )
   {
     if (type == TglParser.WALL_CW ) {
-      if ( result ) {
-        toast( R.string.done_convexhull );
-      } else {
-        toast( R.string.fail_convexhull, true );
-      }
+      notify( result, R.string.done_convexhull, R.string.fail_convexhull, true );
     } else if ( type == TglParser.WALL_POWERCRUST ) {
-      if ( result ) {
-        toast(  R.string.done_powercrust );
-      } else {
-        toast( R.string.fail_powercrust, true );
-      }
+      notify ( result, R.string.done_powercrust, R.string.fail_powercrust, true );
     } else if ( type == TglParser.WALL_HULL ) {
-      if ( result ) {
-        toast(  R.string.done_hull );
-      } else {
-        toast( R.string.fail_hull, true );
-      }
+      notify ( result, R.string.done_hull, R.string.fail_hull, true );
+    } else if ( type == TglParser.WALL_TUBE ) {
+      notify ( result, R.string.done_tube, R.string.fail_tube, true );
     }
     if ( mRenderer != null ) mRenderer.notifyWall( type, result );
   }
@@ -1810,7 +1809,7 @@ public class TopoGL extends Activity
   void exportModel( int type, final String pathname, boolean b_splays, boolean b_walls, boolean b_surface, boolean overwrite )
   { 
     if ( type == ModelType.GLTF ) {
-      String filename = pathname.endsWith( ".gltf" )? pathname : pathname + ".gltf";
+      String filename = pathname.toLowerCase().endsWith( ".gltf" )? pathname : pathname + ".gltf";
       if ( (new File( filename )).exists() && ! overwrite ) {
         Toast.makeText( this, String.format( getResources().getString( R.string.warning_not_overwrite ), pathname), Toast.LENGTH_LONG ).show();
         return;

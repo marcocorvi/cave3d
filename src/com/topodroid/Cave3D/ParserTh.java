@@ -631,7 +631,7 @@ public class ParserTh extends TglParser
               if ( idx < vals.length ) {
                 filename = vals[idx];
                 // Log.v( "Cave3D-TH", "FILE " + filename );
-                if ( filename.endsWith( ".th" ) ) {
+                if ( filename.toLowerCase().endsWith( ".th" ) ) {
                   int res = readFile( dirname + '/' + filename, 
                                    path,
                                    use_survey_declination, survey_declination,
@@ -651,8 +651,9 @@ public class ParserTh extends TglParser
                 // Log.v( "Cave3D-TH", "survey " + filename );
                 if ( mData == null ) {
                   String base = null;
-                  if ( dirname.endsWith( "tdconfig/" ) ) {
-                    base = dirname.replace( "tdconfig/", "" );
+                  if ( dirname.toLowerCase().endsWith( "tdconfig/" ) ) {
+                    // base = dirname.replace( "tdconfig/", "" );
+                    base = dirname.substring( 0, dirname.length()-9 );
                     i = base.lastIndexOf('/');
                     if ( i > 0 && i < base.length() ) base = base.substring(0, i+1);
                   } else {

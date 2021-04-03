@@ -57,7 +57,7 @@ class DialogOpenFile extends Dialog
       if ( name.toLowerCase().endsWith( ".dat" ) ) return true;
       if ( name.toLowerCase().endsWith( ".tro" ) ) return true;
       if ( name.toLowerCase().endsWith( ".3d" ) ) return true;
-      // if ( name.endsWith( ".srv" ) ) return true; // not implemented yet
+      // if ( name.toLowerCase().endsWith( ".srv" ) ) return true; // not implemented yet
       return false;
     }
   }

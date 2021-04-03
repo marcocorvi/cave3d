@@ -33,6 +33,9 @@ class DialogWalls extends Dialog
   private TopoGL  mApp;
   private TglParser mParser;
 
+  private CheckBox mCBtube;
+  private CheckBox mCBtubeNo;
+
   private CheckBox mCBhull;
   private CheckBox mCBhullNo;
 
@@ -72,6 +75,9 @@ class DialogWalls extends Dialog
     buttonCancel.setOnClickListener( this );
     // buttonSketch.setOnClickListener( this );
 
+    mCBtube   = (CheckBox) findViewById( R.id.tube );
+    mCBtubeNo = (CheckBox) findViewById( R.id.tube_no );
+
     mCBhull   = (CheckBox) findViewById( R.id.hull );
     mCBhullNo = (CheckBox) findViewById( R.id.hull_no );
 
@@ -84,6 +90,7 @@ class DialogWalls extends Dialog
     mCBpowercrust   = (CheckBox) findViewById( R.id.powercrust );
     mCBpowercrustNo = (CheckBox) findViewById( R.id.powercrust_no );
 
+    mCBtube.setOnClickListener( this );
     mCBhull.setOnClickListener( this );
     mCBconvexhull.setOnClickListener( this );
     mCBpowercrust.setOnClickListener( this );
@@ -108,17 +115,26 @@ class DialogWalls extends Dialog
     } else if ( v.getId() == R.id.cb_profile_proj ) {
       mCBplanProj.setChecked( false );
       return;
+    } else if ( v.getId() == R.id.tube ) {
+      // mCBtube.setChecked( false );
+      mCBhull.setChecked( false );
+      mCBconvexhull.setChecked( false );
+      mCBpowercrust.setChecked( false );
+      return;
     } else if ( v.getId() == R.id.hull ) {
+      mCBtube.setChecked( false );
       // mCBhull.setChecked( false );
       mCBconvexhull.setChecked( false );
       mCBpowercrust.setChecked( false );
       return;
     } else if ( v.getId() == R.id.convexhull ) {
+      mCBtube.setChecked( false );
       mCBhull.setChecked( false );
       // mCBconvexhull.setChecked( false );
       mCBpowercrust.setChecked( false );
       return;
     } else if ( v.getId() == R.id.powercrust ) {
+      mCBtube.setChecked( false );
       mCBhull.setChecked( false );
       mCBconvexhull.setChecked( false );
       // mCBpowercrust.setChecked( false );
@@ -127,7 +143,9 @@ class DialogWalls extends Dialog
       int alpha = mETalpha.getProgress();
       if ( 0 < alpha && alpha < 256 ) GlWalls.setAlpha( alpha/255.0f );
 
-      if ( mCBhull.isChecked() ) {
+      if ( mCBtube.isChecked() ) {
+        mParser.makeTube( mCBtubeNo.isChecked() );
+      } else if ( mCBhull.isChecked() ) {
         mParser.makeHull( mCBhullNo.isChecked() );
       } else if ( mCBconvexhull.isChecked() ) {
         if ( mParser != null ) mParser.makeConvexHull( mCBconvexhullNo.isChecked() );

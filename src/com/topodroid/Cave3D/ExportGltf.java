@@ -75,7 +75,7 @@ public class ExportGltf
   public boolean write( String pathname )
   {
     if ( mModel == null ) return false;
-    String filepath = pathname.endsWith( ".gltf" )? pathname : pathname + ".gltf";
+    String filepath = pathname.toLowerCase().endsWith( ".gltf" )? pathname : pathname + ".gltf";
     try {
       // FileOutputStream fos = new FileOutputStream( filepath );
       // DataOutputStream dos = new DataOutputStream( fos );

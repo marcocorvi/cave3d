@@ -36,7 +36,7 @@ public class ParserDat extends TglParser
   {
     super( app, filename );
 
-    if ( filename.endsWith(".mak") ) {
+    if ( filename.toLowerCase().endsWith(".mak") ) {
       readFile( filename );
     } else {
       readFile( filename, null, 0.0f, 0.0f, 0.0f );
@@ -60,7 +60,7 @@ public class ParserDat extends TglParser
       String dirname = "./";
       int i = filename.lastIndexOf('/');
       if ( i > 0 ) dirname = filename.substring(0, i+1);
-      // Log.v( "TopoGL-DAT", "reading MAK file " + filename + " dir " + dirname );
+      Log.v( "TopoGL-DAT", "reading MAK file " + filename + " dir " + dirname );
 
       FileReader fr = new FileReader( filename );
       BufferedReader br = new BufferedReader( fr );
@@ -103,7 +103,7 @@ public class ParserDat extends TglParser
         // Log.v( "TopoGL-DAT", linenr + ":" + line );
       }
     } catch ( IOException e ) {
-      Log.e(  "TopoGL-DAT", "I/O error " + e.getMessage() );
+      Log.e(  "TopoGL-DAT", "MAK I/O error " + e.getMessage() );
       throw new ParserException( filename, linenr );
     }
     // Log.v( "TopoGL-DAT", "done readFile " + filename );
@@ -166,7 +166,7 @@ public class ParserDat extends TglParser
           idx = nextIndex( vals, idx );
 	  try {
             declination = Double.parseDouble( vals[idx] );
-	    // Log.v(  "TopoGL-DAT "TopoGL-DAT" "declination " + declination );
+	    // Log.v(  "TopoGL-DAT", "declination " + declination );
 	  } catch ( NumberFormatException e ) { }
 	} else if ( line.contains("FROM") && line.contains("TO" ) ) {
           ++linenr; line = br.readLine();
@@ -272,7 +272,7 @@ public class ParserDat extends TglParser
 	fixes.add( new Cave3DFix( station+survey, x, y, z, cs ) );
       }
     } catch ( IOException e ) {
-      Log.e(  "TopoGL-DAT", "I/O error " + e.getMessage() );
+      Log.e(  "TopoGL-DAT", "DAT I/O error " + e.getMessage() );
       throw new ParserException( filename, linenr );
     }
     // Log.v( "TopoGL-DAT", "shots " + shots.size() );
@@ -339,14 +339,14 @@ public class ParserDat extends TglParser
   {
     if ( shots.size() == 0 ) return;
     if ( fixes.size() == 0 ) {
-      // Log.v(  "TopoGL-DAT", "shots " + shots.size() + " fixes " + fixes.size() );
+      Log.v(  "TopoGL-DAT", "shots " + shots.size() + " fixes " + fixes.size() );
       Cave3DShot sh = shots.get( 0 );
       fixes.add( new Cave3DFix( sh.from, 0.0f, 0.0f, 0.0f, null ) );
     }
  
     int mLoopCnt = 0;
     Cave3DFix f0 = fixes.get( 0 );
-    // Log.v(  "TopoGL-DAT", "Process Shots. Fix " + f0.name + " " + f0.x + " " + f0.y + " " + f0.z );
+    Log.v(  "TopoGL-DAT", "Process Shots. Fix " + f0.name + " " + f0.x + " " + f0.y + " " + f0.z );
 
     mCaveLength = 0.0f;
 
@@ -357,10 +357,10 @@ public class ParserDat extends TglParser
         if ( f.name.equals( s1.name ) ) { found = true; break; }
       }
       if ( found ) { // skip fixed stations that are already included in the model
-        // Log.v(  "TopoGL-DAT", "found fix " + f.name );
+        Log.v(  "TopoGL-DAT", "found fix " + f.name );
         continue;
       }
-      // Log.v( "TopoGL-DAT", "start station " + f.name + " N " + f.y + " E " + f.x + " Z " + f.z );
+      Log.v( "TopoGL-DAT", "start station " + f.name + " N " + f.y + " E " + f.x + " Z " + f.z );
       stations.add( new Cave3DStation( f.name, f.x, f.y, f.z ) );
       // sh.from_station = s0;
     

@@ -47,9 +47,9 @@ class DialogDEM extends Dialog
   class MyFilenameFilter implements FilenameFilter
   {
     public boolean accept( File dir, String name ) {
-      if ( name.endsWith( ".grid" ) ) return true;  // therion grid file
-      if ( name.endsWith( ".asc" ) ) return true;   // DEM ascii file
-      if ( name.endsWith( ".ascii" ) ) return true; // DEM ascii file
+      if ( name.toLowerCase().endsWith( ".grid" ) ) return true;  // therion grid file
+      if ( name.toLowerCase().endsWith( ".asc" ) ) return true;   // DEM ascii file
+      if ( name.toLowerCase().endsWith( ".ascii" ) ) return true; // DEM ascii file
       return false;
     }
   }

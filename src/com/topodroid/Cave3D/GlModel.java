@@ -525,6 +525,26 @@ public class GlModel
     // Log.v("TopoGL", "powercrust triangles " + walls.triangleCount );
   }
 
+  void prepareWalls( TubeComputer computer, boolean make )
+  {
+    if ( ! make ) {
+      clearWalls();
+      return;
+    }
+    if ( computer == null ) return;
+    GlWalls walls = new GlWalls( mContext, GlWalls.WALL_FACE );
+    for ( Triangle3D tr : computer.getTriangles() ) {
+      // Vector3D v1 = new Vector3D( tr.vertex[0].x - mXmed, tr.vertex[0].z - mYmed, -tr.vertex[0].y - mZmed );
+      // Vector3D v2 = new Vector3D( tr.vertex[1].x - mXmed, tr.vertex[1].z - mYmed, -tr.vertex[1].y - mZmed );
+      // Vector3D v3 = new Vector3D( tr.vertex[2].x - mXmed, tr.vertex[2].z - mYmed, -tr.vertex[2].y - mZmed );
+      // walls.addTriangle( v1, v2, v3 );
+      walls.addTriangle( tr, mXmed, mYmed, mZmed );
+    }
+    walls.initData();
+    synchronized( this ) { glWalls = walls; }
+    // Log.v("TopoGL", "powercrust triangles " + walls.triangleCount );
+  }
+
   private void preparePlanAndProfile( PowercrustComputer computer )
   {
     if ( computer.hasPlanview() ) {
