@@ -456,12 +456,12 @@ class GlSketch extends GlShape
       pos[off++] = x2; pos[off++] = y2; pos[off++] = s2; pos[off++] = t2; 
       pos[off++] = x2; pos[off++] =-y2; pos[off++] = s2; pos[off++] = t1; 
     }
-    dataBuffer = GL.getFloatBuffer( data6.length );
+    dataBuffer = DataBuffer.getFloatBuffer( data6.length );
     if ( dataBuffer != null ) {
       dataBuffer.put( data6, 0, data6.length );
     }
 
-    pointBuffer = GL.getFloatBuffer( pointCount * 4 * NN );
+    pointBuffer = DataBuffer.getFloatBuffer( pointCount * 4 * NN );
     if ( pointBuffer != null ) {
       pointBuffer.put( pos, 0, pointCount * 4 * NN );
     }
@@ -492,7 +492,7 @@ class GlSketch extends GlShape
         }
       }
     }
-    lineBuffer = GL.getFloatBuffer( lineCount * 6 * 2 );
+    lineBuffer = DataBuffer.getFloatBuffer( lineCount * 6 * 2 );
     if ( lineBuffer != null ) {
       lineBuffer.put( data2, 0, lineCount * 6 * 2 );
     }
@@ -521,7 +521,7 @@ class GlSketch extends GlShape
     }
     // Log.v("TopoGL-SKETCH", "areaCount " + areaCount + " x 21 " + off3 );
     areaCount = off3/21;
-    areaBuffer = GL.getFloatBuffer( off3 );
+    areaBuffer = DataBuffer.getFloatBuffer( off3 );
     if ( areaBuffer != null ) {
       areaBuffer.put( data3, 0, off3 );
     }

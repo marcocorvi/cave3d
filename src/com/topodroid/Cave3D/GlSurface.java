@@ -302,7 +302,7 @@ class GlSurface extends GlShape
       }
     }
     // Log.v("TopoGL", "mSurfaceData length " + mSurfaceData.length );
-    dataBuffer = GL.getFloatBuffer( mSurfaceData.length );
+    dataBuffer = DataBuffer.getFloatBuffer( mSurfaceData.length );
     if ( dataBuffer == null ) return false;
     dataBuffer.put( mSurfaceData );
     return true;
@@ -325,7 +325,7 @@ class GlSurface extends GlShape
         for ( int s=0; s<COORDS_PER_VERTEX; ++s ) mSurfaceData[k++] = data[off++]; mSurfaceData[k++] = s0; mSurfaceData[k++] = t0;
       }
     }
-    dataBuffer = GL.getFloatBuffer( mSurfaceData.length );
+    dataBuffer = DataBuffer.getFloatBuffer( mSurfaceData.length );
     iF ( dataBuffer != null ) {
       dataBuffer.put( mSurfaceData );
     }

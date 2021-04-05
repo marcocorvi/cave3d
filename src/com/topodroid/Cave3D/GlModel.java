@@ -432,12 +432,13 @@ public class GlModel
     // Log.v("TopoGL", "Model path clear");
     synchronized( this ) { glPath = null; }
   }
+
   boolean setPath( ArrayList< Cave3DStation > path )
   {
     boolean ret = false;
     // GlPath gl_path_old = glPath;
     if ( path != null && path.size() > 1 ) {
-      // Log.v("TopoGL-PATH", "make with size " + path.size() );
+      // Log.v("TopoGL", "Model path make: size " + path.size() );
       GlPath gl_path = new GlPath( mContext, TglColor.ColorStation );
       for ( Cave3DStation station : path ) {
         gl_path.addVertex( station, mXmed, mYmed, mZmed );
@@ -605,7 +606,7 @@ public class GlModel
   private void prepareSurfaceLegs( TglParser parser, DEMsurface surface )
   {
     if ( parser == null || surface == null ) return;
-    // Log.v("TopoGL", "prepare surface legs. Shots " + parser.getShots().size() );
+    // Log.v("TopoGL", "Model prepare surface legs. Shots " + parser.getShots().size() );
     GlLines surface_legs = new GlLines( mContext, TglColor.ColorSurfaceLeg );
     for ( Cave3DShot leg : parser.getShots() ) {
       if ( leg.from_station == null || leg.to_station == null ) continue; // skip fake-legs
@@ -783,7 +784,7 @@ public class GlModel
     // Log.v("TopoGL", "Model prepare full");
     modelCreated = false;
     if ( parser == null || parser.getShotNumber() == 0 ) {
-      Log.e("TopoGL", "Error. Cannot create model witout shots");
+      Log.e("TopoGL", "Model Error. Cannot create model witout shots");
       return;
     }
     mParser = parser;

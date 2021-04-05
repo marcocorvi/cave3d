@@ -319,6 +319,7 @@ public class GlRenderer implements Renderer
 
   void onTouch( float x, float y )
   {
+    // Log.v("TopoGL", "Renderer on Touch() ");
     // if ( ! GlNames.showStationNames() ) return;
     if ( GlNames.hiddenStations() ) return;
     if ( mMeasureCompute ) return;

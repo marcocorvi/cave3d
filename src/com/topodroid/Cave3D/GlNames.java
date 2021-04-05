@@ -153,6 +153,7 @@ class GlNames extends GlShape
   void logMinMax()
   {
     if ( mNames.size() == 0 ) return;
+    double xmin, xmax, ymin, ymax, zmin, zmax;
     Vector3D v0 = mNames.get(0).pos;
     xmin = xmax = v0.x;
     ymin = ymax = v0.y;
@@ -357,6 +358,7 @@ class GlNames extends GlShape
       // sb.append( mNames[i] + " " + d );
       if ( d < dmin ) { dmin = d; idx = i; }
     }
+    // Log.v("TopoGL", "check name " + sb.toString() + " idx " + idx );
     return checkName( idx, highlight );
   }
 
@@ -503,6 +505,7 @@ class GlNames extends GlShape
       }
     }
     mBitmap = bitmap0;
+    unbindTexture(); // FIXME TODO ?
   }
 
   // --------------------------------------------------------------------

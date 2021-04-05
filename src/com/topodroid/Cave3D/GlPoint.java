@@ -61,7 +61,7 @@ class GlPoint extends GlShape
     super( ctx );
     mLoc = new float[COORDS_PER_VERTEX * MAX_COUNT];
 
-    colorBuffer = GL.getFloatBuffer( COORDS_PER_COLOR * MAX_COUNT ); // get color buffer and init colors
+    colorBuffer = DataBuffer.getFloatBuffer( COORDS_PER_COLOR * MAX_COUNT ); // get color buffer and init colors
     if ( colorBuffer != null ) {
       for ( int k=0; k<MAX_COUNT; ++k ) {
         float a = (float)(MAX_COUNT - k) / (float)(MAX_COUNT);
