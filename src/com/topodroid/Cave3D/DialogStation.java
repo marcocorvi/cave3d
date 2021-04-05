@@ -86,7 +86,7 @@ class DialogStation extends Dialog
       mTvSurface  = (TextView) findViewById( R.id.st_surface );
       if ( mSurface != null ) {
         double zs = mSurface.computeZ( mStation.x, mStation.y );
-        // Log.v("Cave3D-SURFACE", "Station " + mStation.z + " surface " + zs );
+        // Log.v("TopoGL-SURFACE", "Station " + mStation.z + " surface " + zs );
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter( sw );
         pw.format(Locale.US, "Depth %.1f", zs - mStation.z );

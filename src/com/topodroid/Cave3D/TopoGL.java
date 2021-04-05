@@ -33,10 +33,12 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.AsyncTask;
 
 import android.graphics.RectF;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -62,9 +64,8 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.SharedPreferences.Editor;
 
 import android.util.DisplayMetrics;
-import android.graphics.drawable.BitmapDrawable;
 
-import android.os.AsyncTask;
+
 
 import android.net.Uri;
 
@@ -221,14 +222,14 @@ public class TopoGL extends Activity
 
         String name = extras.getString( "INPUT_FILE" );
         if ( name != null ) { // used by TdManager
-          Log.v( "TopoGL-EXTRA", "TopoDroid filename " + name );
+          // Log.v( "TopoGL-EXTRA", "TopoDroid filename " + name );
           file_dialog = false;
           doOpenFile( name, true ); // asynch
         } else {
           name = extras.getString( "INPUT_SURVEY" );
           String base = extras.getString( "SURVEY_BASE" );
           if ( name != null ) {
-            Log.v( "TopoGL-EXTRA", "open input survey " + name + " base " + base );
+            // Log.v( "TopoGL-EXTRA", "open input survey " + name + " base " + base );
             if ( doOpenSurvey( name, base ) ) {
               doSketches = true;
               file_dialog = false;
@@ -459,7 +460,7 @@ public class TopoGL extends Activity
       // openFile();
     } else if ( p++ == pos ) { // EXPORT
       if ( mParser != null ) {
-        new DialogExport( this, this, mParser ).show();
+        (new DialogExport( this, this, mParser )).show();
       } else {
         Toast.makeText( this, R.string.no_model, Toast.LENGTH_SHORT ).show();
       }
@@ -1279,6 +1280,8 @@ public class TopoGL extends Activity
   static boolean mStationDialog  = false;
   // static boolean mUseSplayVector = true; // ??? Hull with 3D splays or 2D splay projections
   static boolean mMeasureToast   = false;
+  static boolean mXSectionPlane  = false;
+  
   static boolean mSplayProj      = false;
   static float   mSplayThr       = 0.5f;
 
@@ -1297,6 +1300,7 @@ public class TopoGL extends Activity
   static final String CAVE3D_DEM_MAXSIZE      = "CAVE3D_DEM_MAXSIZE";
   static final String CAVE3D_DEM_REDUCE       = "CAVE3D_DEM_REDUCE";
   // WALLS category
+  static final String CAVE3D_XSECTION_PLANE   = "CAVE3D_XSECTION_PLANE";
   static final String CAVE3D_ALL_SPLAY        = "CAVE3D_ALL_SPLAY";
   static final String CAVE3D_SPLAY_PROJ       = "CAVE3D_SPLAY_PROJ";
   static final String CAVE3D_SPLAY_THR        = "CAVE3D_SPLAY_THR";
@@ -1351,6 +1355,8 @@ public class TopoGL extends Activity
       } catch ( NumberFormatException e ) { }
     } else if ( k.equals( CAVE3D_NEG_CLINO ) ) { 
       GlRenderer.mMinClino = sp.getBoolean( k, false ) ? 90: 0;
+    } else if ( k.equals( CAVE3D_XSECTION_PLANE ) ) { 
+      mXSectionPlane = sp.getBoolean( k, false );
     } else if ( k.equals( CAVE3D_ALL_SPLAY ) ) { 
       GlModel.mAllSplay = sp.getBoolean( k, true );
     } else if ( k.equals( CAVE3D_SPLAY_PROJ ) ) { 
@@ -1453,6 +1459,7 @@ public class TopoGL extends Activity
       if ( extent > 1 && extent < 1000 ) GlModel.mGridExtent = extent;
     } catch ( NumberFormatException e ) { }
     GlRenderer.mMinClino  = sp.getBoolean( CAVE3D_NEG_CLINO, false ) ? 90 : 0;
+    mXSectionPlane  = sp.getBoolean( CAVE3D_XSECTION_PLANE, false );
     GlModel.mAllSplay  = sp.getBoolean( CAVE3D_ALL_SPLAY, true );
     mSplayProj = sp.getBoolean( CAVE3D_SPLAY_PROJ, false );
     try {
@@ -1615,7 +1622,7 @@ public class TopoGL extends Activity
 
   private boolean initRendering( String filename )
   {
-    Log.v("TopoGL", "init rendering <" + filename + ">" );
+    // Log.v("TopoGL", "init rendering file " + filename );
     doSketches = false;
     try {
       mParser = null;

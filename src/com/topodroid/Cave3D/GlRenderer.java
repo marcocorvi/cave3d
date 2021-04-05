@@ -175,8 +175,8 @@ public class GlRenderer implements Renderer
     // mDX0 = - mModel.getDx0() / d;
     // mDY0 =   mModel.getDy0() / d; 
     // mDZ0 = - mModel.getDz0() / d;
-    // Log.v("TopoGL", "Prepare model: diam " + d + " scale " + mScale0 + " D0 " + mDX0 + " " + mDY0 + " " + mDZ0 );
-    // Log.v("TopoGL", "Prepare model: diam " + d + " scale " + mScale0 );
+    // Log.v("TopoGL", "Renderer Prepare model: diam " + d + " scale " + mScale0 + " D0 " + mDX0 + " " + mDY0 + " " + mDZ0 );
+    // Log.v("TopoGL", "Renderer Prepare model: diam " + d + " scale " + mScale0 );
     makeModelMatrix();
     doMakeModel = true;
   }
@@ -191,7 +191,7 @@ public class GlRenderer implements Renderer
   // this is called on an external thread
   void setParser( TglParser parser )
   {
-    // Log.v("TopoGL", "renderer set parser" );
+    // Log.v("TopoGL", "Renderer set parser" );
     mParser = parser;
     prepareModel( parser );
   }
@@ -234,7 +234,7 @@ public class GlRenderer implements Renderer
   @Override
   public void onSurfaceCreated(GL10 glUnused, EGLConfig config)
   {
-    // Log.v( "TopoGL", "surface created" );
+    // Log.v( "TopoGL", "Renderer surface created" );
     // Set the background clear color to red. The first component is
     // red, the second is green, the third is blue, and the last
     // component is alpha, which we don't use in this lesson.
@@ -257,11 +257,13 @@ public class GlRenderer implements Renderer
    *            The new width, in pixels.
    * @param height
    *            The new height, in pixels.
+   *
+   * This is called at start-up
    */
   @Override
   public void onSurfaceChanged(GL10 glUnused, int width, int height)
   {
-    // Log.v( "TopoGL", "surface changed " + width + " " + height );
+    // Log.v( "TopoGL", "Renderer surface changed " + width + " " + height );
     // Set the OpenGL viewport to fill the entire surface.
     mHalfWidth = width / 2;
     mHalfHeight = height / 2;
@@ -286,14 +288,14 @@ public class GlRenderer implements Renderer
   // near   = near plane (positive, eg near=1 means plane z=-1)
   void makePerspectiveMatrix( )
   {
-    // Log.v("TopoGL-PROJ", "perspective " + FOCAL + " " + NEAR_P + " " + FAR_P );
+    // Log.v("TopoGL", "Renderer perspective " + FOCAL + " " + NEAR_P + " " + FAR_P );
     Matrix.frustumM(mPerspectiveMatrix, 0, -FOCAL*ratio, FOCAL*ratio, -FOCAL, FOCAL, NEAR_P, FAR_P ); // 0 ... : offset, left, right, bottom, top, near, far 
   }
 
   // ortographic matrix
   void makeOrthographicMatrix( )
   {
-    // Log.v("TopoGL-PROJ", "ortographic " + SIDE + " " + NEAR_O + " " + FAR_O );
+    // Log.v("TopoGL", "Renderer ortographic " + SIDE + " " + NEAR_O + " " + FAR_O );
     Matrix.orthoM( mOrtograohicMatrix, 0, -SIDE*ratio, SIDE*ratio, -SIDE, SIDE, NEAR_O, FAR_O );
   }
 
@@ -383,7 +385,7 @@ public class GlRenderer implements Renderer
     }
 
     // orthogonal
-    // Log.v("TopoGL-SCALE", "scale " + mScaleO + " " + scale + " at " + mDXO + " " + mDYO );
+    // Log.v("TopoGL", "Renderer scale " + mScaleO + " " + scale + " at " + mDXO + " " + mDYO );
     // float dh = dx / (mHalfHeight);  // not working
     // mDZO -= dh * (float)Math.cos(mYAngle * Math.PI/180f);
     // mDYO -= dh * (float)Math.sin(mYAngle * Math.PI/180f);
@@ -461,7 +463,7 @@ public class GlRenderer implements Renderer
       dx = (mOffset[0] - cx[0]); // * mScaleO;
       dy = (mOffset[1] - cx[1]); // * mScaleO;
       dz = (mOffset[2] - cx[2]); // * mScaleO;
-      // Log.v("TopoGL-CENTER", "D0 " + mDXO + " " + mDYO + " D " + dx + " " + dy + " " + dz );
+      // Log.v("TopoGL", "Renderer D0 " + mDXO + " " + mDYO + " D " + dx + " " + dy + " " + dz );
     }
 
     identityM( matrix1 ); // TRANSLATION
@@ -490,7 +492,7 @@ public class GlRenderer implements Renderer
   @Override
   public void onDrawFrame(GL10 glUnused) 
   {
-    // Log.v( "TopoGL", "surface draw frame" );
+    // Log.v( "TopoGL", "Renderer surface draw frame" );
     // Clear the rendering surface.
     GL.clear();
     if ( mModel == null ) return;
@@ -601,7 +603,7 @@ public class GlRenderer implements Renderer
       mCenter[3] = 1.0f;
       mOffset = new float[4];
       Matrix.multiplyMV( mOffset, 0, mModelMatrix, 0, mCenter, 0 );
-      // Log.v("TopoGL-CENTER", "offset " + mOffset[0] + " " + mOffset[1] + " " + mOffset[2] );
+      // Log.v("TopoGL", "Renderer center offset " + mOffset[0] + " " + mOffset[1] + " " + mOffset[2] );
       return true;
     }
   }

@@ -240,7 +240,7 @@ public class DEMsurface
     // for ( int j=0; j<mNr2; ++j ) {
     //   StringBuilder sb = new StringBuilder();
     //   for ( int i=0; i<mNr1; ++i ) { sb.append( " " + Float.toString( mZ[j*mNr1+i] ) ); }
-    //   Log.v("Cave3D-SURFACE", sb.toString() );
+    //   Log.v("TopoGL-SURFACE", sb.toString() );
     // }
   }
 

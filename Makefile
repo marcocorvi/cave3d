@@ -13,9 +13,7 @@ SRC    = $(patsubst %,jni/%, $(_SRC))
 PROG   = powercrust
 LIB    = lib$(PROG).a
 
-default: debug
-
-# default : $(PROG)
+default : build
 
 all	: $(PROG) simplify orient
 
@@ -43,10 +41,12 @@ $(PROG)	: $(OBJS) jni/hullmain.o jni/main.o
   
 VERSION = `grep versionName AndroidManifest.xml | sed -e 's/ *android:versionName=//' | sed -e 's/"//g' `
 
+build:
+	ant debug
+
 release:
 	ant release
-
-#	mv bin/Cave3D-release.apk Cave3D-$(VERSION).apk
+	mv bin/Cave3D-release.apk Cave3D-$(VERSION).apk
 
 install:
 	adb install -r bin/Cave3D-debug.apk
@@ -54,8 +54,8 @@ install:
 log: 
 	adb logcat | grep TopoGL
 
-debug:
-	ant debug
+logcat:
+	adb logcat | grep Cave3D
 
 rebuild:
 	ant clean

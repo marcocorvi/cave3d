@@ -95,7 +95,7 @@ public class GlModel
 
   void unbindTextures()
   {
-    // Log.w("TopoGL", "unbind textures");
+    // Log.w("TopoGL", "Model unbind textures");
     if ( glNames != null ) glNames.unbindTexture();
   }
 
@@ -223,7 +223,7 @@ public class GlModel
   void clearStationHighlight()
   {
     if ( glNames  != null ) glNames.clearHighlight();
-    setPath( null );
+    clearPath( );
   }
 
   synchronized void toggleColorMode() { 
@@ -263,7 +263,7 @@ public class GlModel
       visible[ survey.number ] = survey.visible;
       sb.append( (survey.visible? " V" : " H") );
     }
-    // Log.v("TopoGL", "hide of show " + surveys.size() + " max " + max + sb.toString() );
+    // Log.v("TopoGL", "Model hide of show " + surveys.size() + " max " + max + sb.toString() );
 
     synchronized( this ) {
       // glLegsS.hideOrShow( visible );
@@ -369,7 +369,7 @@ public class GlModel
     GL.setLineWidth( 2.0f );
     if ( showLegsSurface ) {
       synchronized( this ) { legs = glLegsS; }
-      // Log.v("TopoGL-SURFACE", "draw surface " + legs.size() );
+      // Log.v("TopoGL", "Model surface draw " + legs.size() );
       if ( legs   != null ) legs.draw( mvp_matrix, DRAW_LINE, mStationPoints, TglColor.ColorLegS );
     }
     if ( showLegsDuplicate ) {
@@ -410,6 +410,7 @@ public class GlModel
 
   String checkNames( float x, float y, float[] mvpMatrix, float dmin, boolean highlight ) 
   { 
+    // Log.v("TopoGL", "Model check names at " + x + " " + y );
     return ( glNames != null )? glNames.checkName( x, y, mvpMatrix, dmin, highlight ) : null;
   }
 
@@ -426,6 +427,11 @@ public class GlModel
     glProfile = null;
   }
 
+  void clearPath()
+  {
+    // Log.v("TopoGL", "Model path clear");
+    synchronized( this ) { glPath = null; }
+  }
   boolean setPath( ArrayList< Cave3DStation > path )
   {
     boolean ret = false;
@@ -452,7 +458,7 @@ public class GlModel
   // legs must have already been reduced ( bbox must be symmetric )
   void prepareGridAndFrame( GlLines legs, float grid_size, float delta )
   {
-    // Log.v("TopoGL", "BBox " + legs.getBBoxString() );
+    // Log.v("TopoGL", "Model BBox " + legs.getBBoxString() );
 
     float xmin = (float)legs.getXmin() - delta;
     float xmax = (float)legs.getXmax() + delta;
@@ -481,7 +487,7 @@ public class GlModel
     }
     walls.initData();
     synchronized( this ) { glWalls = walls; }
-    // Log.v("TopoGL", "convex hull triangles " + walls.triangleCount );
+    // Log.v("TopoGL", "Model CW-Hull triangles " + walls.triangleCount );
   }
 
   void prepareWalls( PowercrustComputer computer, boolean make )
@@ -501,7 +507,7 @@ public class GlModel
     }
     walls.initData();
     synchronized( this ) { glWalls = walls; }
-    // Log.v("TopoGL", "powercrust triangles " + walls.triangleCount );
+    // Log.v("TopoGL", "Model powercrust triangles " + walls.triangleCount );
     preparePlanAndProfile( computer );
   }
 
@@ -522,7 +528,7 @@ public class GlModel
     }
     walls.initData();
     synchronized( this ) { glWalls = walls; }
-    // Log.v("TopoGL", "powercrust triangles " + walls.triangleCount );
+    // Log.v("TopoGL", "Model Hull triangles " + walls.triangleCount );
   }
 
   void prepareWalls( TubeComputer computer, boolean make )
@@ -581,7 +587,7 @@ public class GlModel
   {
     if ( dem == null ) return;
     mSurfaceBounds = dem.getBounds();
-    // Log.v("TopoGL", "prepare DEM");
+    // Log.v("TopoGL", "Model prepare DEM");
     GlSurface surface = new GlSurface( mContext );
     surface.initData( dem, mXmed, mYmed, mZmed );
     synchronized( this ) { glSurface = surface; }
@@ -627,7 +633,7 @@ public class GlModel
 
   void prepareSketch( ParserSketch psketch )
   {
-    // Log.v("TopoGL", "prepare sketch " + psketch.mName );
+    // Log.v("TopoGL", "Model prepare sketch " + psketch.mName );
     dropSketch( psketch.mName );
     GlSketch gl_sketch = new GlSketch( mContext, psketch.mName, psketch.mType, psketch.mPoints, psketch.mLines, psketch.mAreas );
     // gl_sketch.logMinMax();
@@ -684,7 +690,7 @@ public class GlModel
     step = 2 * step;
     int nx = 1 + (int)((x2-x1)/step);
     int nz = 1 + (int)((z2-z1)/step);
-    // Log.v("TopoGL", "Grid NX " + nx + " NY " + nz + " cell " + step + " X0 " + x1 + " Y0 " + y1 + " Z0 " + z1 );
+    // Log.v("TopoGL", "Model Grid NX " + nx + " NY " + nz + " cell " + step + " X0 " + x1 + " Y0 " + y1 + " Z0 " + z1 );
     int count = nx + nz + 1;
     float[] data = new float[ count*2 * 7 ];
     int k = 0;
@@ -774,6 +780,7 @@ public class GlModel
 
   void prepareModel( TglParser parser )
   {
+    // Log.v("TopoGL", "Model prepare full");
     modelCreated = false;
     if ( parser == null || parser.getShotNumber() == 0 ) {
       Log.e("TopoGL", "Error. Cannot create model witout shots");
@@ -793,7 +800,7 @@ public class GlModel
     legsDuplicate = new ArrayList< Cave3DShot >();
     legsCommented = new ArrayList< Cave3DShot >();
 
-    // Log.v("TopoGL", "create model. shots " + parser.getShotNumber() + "/" + parser.getSplayNumber() + " stations " + parser.getStationNumber() );
+    // Log.v("TopoGL", "Model create. shots " + parser.getShotNumber() + "/" + parser.getSplayNumber() + " stations " + parser.getStationNumber() );
     for ( Cave3DShot leg : parser.getShots() ) {
       if ( leg.from_station == null || leg.to_station == null ) continue; // skip fake-legs
       if ( leg.isSurvey() ) {
@@ -823,7 +830,7 @@ public class GlModel
     legsD.reduceData( mXmed, mYmed, mZmed );
     legsC.reduceData( mXmed, mYmed, mZmed );
 
-    // Log.v("TopoGL-MODEL", "center " + mXmed + " " + mYmed + " " + mZmed );
+    // Log.v("TopoGL", "Model center " + mXmed + " " + mYmed + " " + mZmed );
     // legs.logMinMax();
     
     for ( Cave3DShot splay : parser.getSplays() ) {
@@ -836,17 +843,17 @@ public class GlModel
     splays.computeBBox();
     mZMin = legs.getYmin();
     double mZMax = legs.getYmax();
-    // Log.v("TopoGL", "med " + mXmed + " " + mYmed + " " + mZmed + " Z " + mZMin + " " + mZMax );
+    // Log.v("TopoGL", "Model med " + mXmed + " " + mYmed + " " + mZmed + " Z " + mZMin + " " + mZMax );
     if ( mZMin > splays.getYmin() ) mZMin = splays.getYmin();
     if ( mZMax < splays.getYmax() ) mZMax = splays.getYmax();
     mZDelta = mZMax - mZMin;
-    // Log.v("TopoGL", " after reduce Z " + mZMin + " " + mZMax + " DZ " + mZDelta );
+    // Log.v("TopoGL", "Model after reduce Z " + mZMin + " " + mZMax + " DZ " + mZDelta );
     // splays.logMinMax();
 
     for ( Cave3DStation st : parser.getStations() ) {
       String name = st.short_name;
       if ( name != null && name.length() > 0 && ( ! name.equals("-") ) && ( ! name.equals(".") ) ) {
-        // Log.v("TopoGL-NAME", "add " + st.short_name + " " + st.name );
+        // Log.v("TopoGL", "Model name add " + st.short_name + " " + st.name );
         names.addName( st, st.short_name, st.name, mXmed, mYmed, mZmed );
       }
     }
@@ -856,7 +863,7 @@ public class GlModel
     DEMsurface surface = parser.getSurface();
     if ( surface != null ) {
       mSurfaceBounds = surface.getBounds();
-      // Log.v("TopoGL", "parser has surface");
+      // Log.v("TopoGL", "Model parser has surface");
       GlSurface gl_surface = new GlSurface( mContext );
       valid_surface = gl_surface.initData( surface, mXmed, mYmed, mZmed, parser.surfaceFlipped() );
       if ( valid_surface ) {
@@ -919,7 +926,7 @@ public class GlModel
       st.surface_depth *= zmax;
       if ( st.surface_depth > 1.0f ) st.surface_depth = 1.0f;
     }
-    // Log.v("TopoGL-SURFACE", "inv depth " + zmax + " stations " + parser.getStations().size() );
+    // Log.v("TopoGL", "Model surface inv depth " + zmax + " stations " + parser.getStations().size() );
     return zmax;
   }
 

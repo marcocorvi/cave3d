@@ -67,7 +67,7 @@ class DialogSketch extends Dialog
     mContext = ctx;
     mApp  = app;
     mBaseDir = mApp.mAppBasePath + "/TopoDroid/c3d";
-    Log.v("TopoGL", "sketch base dir " + mBaseDir );
+    // Log.v("TopoGL", "sketch base dir " + mBaseDir );
   } 
 
   @Override

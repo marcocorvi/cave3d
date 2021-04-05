@@ -59,9 +59,9 @@ class MeasureComputer extends AsyncTask< Void, Void, Integer >
     mFullname = mModel.checkNames( mX, mY, mMVPMatrix, TopoGL.mSelectionRadius, (mParser.mStartStation == null) );
     if ( mFullname == null ) return new Integer( MEASURE_NO_NAME );
 
-    // Log.v("TopoGL-STATION", mFullname );
+    // Log.v("TopoGL", "Measure computer - station: " + mFullname + " start: " + ((mParser.mStartStation==null)?"null":"non-null") );
     if ( mParser.mStartStation == null ) {
-      mModel.setPath( null );
+      mModel.clearPath( );
       mParser.setStartStation( mFullname );
       return new Integer( MEASURE_NO_START );
     }
@@ -82,7 +82,7 @@ class MeasureComputer extends AsyncTask< Void, Void, Integer >
         station = station.getPathPrevious();
       }
       // Log.v("TopoGL-PATH", "path size " + path.size() );
-      mModel.setPath( path );
+      mModel.clearPath( );
       return new Integer( MEASURE_OK );
     }
     return new Integer( MEASURE_NO_PATH );
@@ -109,7 +109,7 @@ class MeasureComputer extends AsyncTask< Void, Void, Integer >
         break;
       // case MEASURE_NO_STATION:
       //   Log.w("TopoGL-PATH", "null station" );
-      //   // mModel.setPath( null );
+      //   // mModel.clearPath( );
       //   break;
       case MEASURE_NO_START:
         if ( TopoGL.mStationDialog ) {
@@ -132,7 +132,7 @@ class MeasureComputer extends AsyncTask< Void, Void, Integer >
         }
         break;
       // case MEASURE_NO_NAME:
-      //   // mModel.setPath( null );
+      //   // mModel.clearPath( );
       //   // mParser.mStartStation = null;
       //   break;
       // case MEASURE_NO_START:

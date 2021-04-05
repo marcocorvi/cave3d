@@ -184,6 +184,7 @@ public class ExportGltf
     if ( has_splays ) {
       MinMax minMax3 = new MinMax();
       bytelen_splays   = ( count_splays > 0 )? doExportLines( buffer_splays,   mModel.glSplays, minMax3 ) : 0;
+      if ( bytelen_splays == 0 ) has_splays = false;
       max_splays = minMax3.formatMax();
       min_splays = minMax3.formatMin();
     }
@@ -194,13 +195,17 @@ public class ExportGltf
     String max_surface_normals  = null;
     String min_surface_normals  = null;
     if ( has_surface ) {
+      Log.v("TopoGL", "Gltf export surface" );
       MinMax minMax4 = new MinMax(); // positions
       MinMax minMax5 = new MinMax(); // normals
-      bytelen_surface = ( count_splays > 0 )? doExportTriangles( buffer_surface, mModel.glSurface, minMax4, minMax5 ) : 0;
+      bytelen_surface = doExportTriangles( buffer_surface, mModel.glSurface, minMax4, minMax5 );
       max_surface = minMax4.formatMax();
       min_surface = minMax4.formatMin();
       max_surface_normals = minMax5.formatMax();
       min_surface_normals = minMax5.formatMin();
+      Log.v("TopoGL", "minmax_P " + min_surface + " " + max_surface );
+      Log.v("TopoGL", "minmax_N " + min_surface_normals + " " + max_surface_normals );
+      if ( bytelen_surface == 0 ) has_surface = false;
     }
 
     // ByteArrayOutputStream baos1 = new ByteArrayOutputStream();
@@ -230,6 +235,12 @@ public class ExportGltf
     closeElement(  pw, 2, false );
     closeArrayTag( pw, 1, true );
 
+    Log.v("TopoGL", "buffers Station " + has_stations + " Leg " + has_legs + " Splay " + has_splays + " Surface " + has_surface );
+
+    int mesh_stations = 0;
+    int mesh_legs     = 0;
+    int mesh_splays   = 0;
+    int mesh_surface  = 0;
     openArrayTag( pw, 1, "nodes" );
     {
       StringBuilder children = new StringBuilder();
@@ -244,11 +255,10 @@ public class ExportGltf
       printArrayTag( pw, 3, "children", children.toString() );
       closeElement(  pw, 2, true );
       int mesh = 0;
-      if ( has_stations ) printNode( pw, 2, mesh++, true ); // stations
-      if ( has_legs     ) printNode( pw, 2, mesh++, has_splays_or_surface ); // legs
-      if ( has_splays   ) printNode( pw, 2, mesh++, has_surface ); // splays
-      if ( has_surface  ) {
-        printNode( pw, 2, mesh, false ); // surface
+      if ( has_stations ) { mesh_stations = mesh; printNode( pw, 2, mesh++, true ); } // stations
+      if ( has_legs     ) { mesh_legs = mesh;     printNode( pw, 2, mesh++, has_splays_or_surface ); } // legs
+      if ( has_splays   ) { mesh_splays = mesh;   printNode( pw, 2, mesh++, has_surface ); } // splays
+      if ( has_surface  ) { mesh_surface = mesh;  printNode( pw, 2, mesh++, false ); // surface
         // printNodeLight( pw, 2, 0, "0.259, 0.0, 0.0, 0.966", true );
         // printNodeLight( pw, 2, 1, "0.259, 0.0, 0.0, 0.966", true );
         // printNodeLight( pw, 2, 2, "0.259, 0.0, 0.0, 0.966", false );
@@ -640,6 +650,7 @@ public class ExportGltf
   // OFFSET_NORMAL = 3; // COORDS_PER_VERTEX;
   private int doExportTriangles( String filepath, GlSurface surface, MinMax minMaxP, MinMax minMaxN )
   {
+    Log.v("TopoGL", "export triangles file " + filepath );
     int len = 0;
     try {
       FileOutputStream dos = new FileOutputStream( filepath );
@@ -653,7 +664,7 @@ public class ExportGltf
           float[] array = surface.getSurfaceData();
           int     flen  = surface.size() * fstride * 3; // 3*3*6 floats per triangle (three vertices of 3+3 floats)
           int offset = 0;
-          // Log.v("TopoGL", "Surface file stride " + fstride + " coords " + fcoords + " flen " + flen + " offset " + offset + " count " + fcount );
+          Log.v("TopoGL", "Surface file stride " + fstride + " coords " + fcoords + " flen " + flen + " offset " + offset + " count " + fcount );
           while ( offset < flen ) {
             byte[] buffer = new byte[ BUFFER_SIZE6 ];
             int nb = getNextChunkPN( buffer, BUFFER_SIZE6, array, flen, offset, fcoords, fstride, minMaxP, minMaxN );
@@ -661,7 +672,7 @@ public class ExportGltf
             offset += fstride * nb / (4 * fcoords);
             len += nb;
           }
-          // Log.v("TopoGL", "Surface file written len " + len + " end offset " + offset );
+          Log.v("TopoGL", "Surface file written len " + len + " end offset " + offset );
         }
       }
       dos.flush();

@@ -31,7 +31,6 @@ public class ParserDat extends TglParser
   static final int DATA_NORMAL    = 1;
   static final int DATA_DIMENSION = 2;
 
-
   public ParserDat( TopoGL app, String filename ) throws ParserException
   {
     super( app, filename );
@@ -41,7 +40,7 @@ public class ParserDat extends TglParser
     } else {
       readFile( filename, null, 0.0f, 0.0f, 0.0f );
     }
-    processShots();
+    // processShots();
     setShotSurveys();
     setSplaySurveys();
     setStationDepths();
@@ -60,13 +59,13 @@ public class ParserDat extends TglParser
       String dirname = "./";
       int i = filename.lastIndexOf('/');
       if ( i > 0 ) dirname = filename.substring(0, i+1);
-      Log.v( "TopoGL-DAT", "reading MAK file " + filename + " dir " + dirname );
+      // Log.v( "TopoGL", "MAK file " + filename + " dir " + dirname );
 
       FileReader fr = new FileReader( filename );
       BufferedReader br = new BufferedReader( fr );
       ++linenr;
       String line = br.readLine();
-      // Log.v( "TopoGL-DAT", linenr + ":" + line );
+      // Log.v( "TopoGL", "MAK " + linenr + ":" + line );
       while ( line != null ) {
         // line = line.trim();
         if ( line.startsWith( "#" ) ) {
@@ -82,7 +81,7 @@ public class ParserDat extends TglParser
 	  int j = line.indexOf( ']' );
           if ( j <= i+3 ) continue; // bad syntax
 	  String data = line.substring( i+3, j );
-          // Log.v( "TopoGL-DAT", "++ " + linenr + ": " + station + " - " + data );
+          // Log.v( "TopoGL", "++ " + linenr + ": " + station + " - " + data );
           String[] vals = data.split( "," );
           if ( vals.length >= 3 ) {
             try {
@@ -94,19 +93,19 @@ public class ParserDat extends TglParser
 	      double z = Double.parseDouble( vals[idx] );
 	      readFile( dirname + file, station, x, y, z );
 	    } catch ( NumberFormatException e ) {
-	      Log.e(  "TopoGL-DAT", "Error file " + filename + ":" + linenr );
+	      Log.e(  "TopoGL", "Error MAK file " + filename + ":" + linenr );
 	    }
 	  }
 	}
       
         ++linenr; line = br.readLine();
-        // Log.v( "TopoGL-DAT", linenr + ":" + line );
+        // Log.v( "TopoGL", "MAK " + linenr + ":" + line );
       }
     } catch ( IOException e ) {
-      Log.e(  "TopoGL-DAT", "MAK I/O error " + e.getMessage() );
+      Log.e(  "TopoGL", "MAK I/O error " + e.getMessage() );
       throw new ParserException( filename, linenr );
     }
-    // Log.v( "TopoGL-DAT", "done readFile " + filename );
+    // Log.v( "TopoGL", "done read MAK file " + filename );
 
     return ( shots.size() > 0 );
   }
@@ -118,8 +117,11 @@ public class ParserDat extends TglParser
   {
     if ( ! checkPath( filename ) ) return false;
 
+    ArrayList< Cave3DShot > temp_shots  = new ArrayList<>();
+    ArrayList< Cave3DShot > temp_splays = new ArrayList<>();
+
     int linenr = 0;
-    // Log.v(  "TopoGL-DAT", "DAT file <" + filename + "> station " + station );
+    Log.v(  "TopoGL", "DAT file <" + filename + "> station " + station );
     Cave3DCS cs = null;
     // int in_data = 0; // 0 none, 1 normal, 2 dimension
 
@@ -147,13 +149,13 @@ public class ParserDat extends TglParser
         survey = "@" + filename;
       }
       survey.replace(".dat", "");
-      // Log.v(  "TopoGL-DAT", "reading file " + filename + " dir " + dirname );
+      // Log.v(  "TopoGL", "DAT file " + filename + " dir " + dirname );
 
       FileReader fr = new FileReader( filename );
       BufferedReader br = new BufferedReader( fr );
       ++linenr;
       String line = br.readLine();
-      // Log.v( "TopoGL-DAT", linenr + ":" + line );
+      // Log.v( "TopoGL", "DAT " + linenr + ":" + line );
       int cnt_shot = 0;
       while ( line != null ) {
         line = line.trim();
@@ -166,19 +168,19 @@ public class ParserDat extends TglParser
           idx = nextIndex( vals, idx );
 	  try {
             declination = Double.parseDouble( vals[idx] );
-	    // Log.v(  "TopoGL-DAT", "declination " + declination );
+	    // Log.v(  "TopoGL", "DAT declination " + declination );
 	  } catch ( NumberFormatException e ) { }
 	} else if ( line.contains("FROM") && line.contains("TO" ) ) {
           ++linenr; line = br.readLine();
-          // Log.v( "TopoGL-DAT", linenr + ":" + line );
+          // Log.v( "TopoGL", "DAT " + linenr + ":" + line );
 	  for ( ; line != null; ) {
 	    if ( line.length() == 0 ) {
               ++linenr; line = br.readLine();
-              // Log.v( "TopoGL-DAT", linenr + ":" + line );
+              // Log.v( "TopoGL", "DAT " + linenr + ":" + line );
               continue;
 	    }
 	    if ( line.charAt(0) == 0x0c ) {
-              // Log.v(  "TopoGL-DAT", "formfeed");
+              // Log.v(  "TopoGL", "DAT formfeed");
               break; // formfeed
 	    }
             String[] vals = splitLine( line );
@@ -249,34 +251,55 @@ public class ParserDat extends TglParser
                 else if ( bearing < 0 ) bearing += 360;
 
                 bearing += declination;
-                shots.add( new Cave3DShot( from, to, length, bearing, clino, 0, 0 ) );
+                Cave3DShot shot = new Cave3DShot( from, to, length, bearing, clino, 0, 0 );
+                temp_shots.add( shot );
+                shots.add( shot );
                 ++ cnt_shot;
+
+                Cave3DShot splay;
                 double bleft = bearing - 90; if ( bleft < 0 ) bleft += 360;
                 double bright = bearing + 90; if ( bright >= 360  ) bright -= 360;
-		if ( left > 0 )  splays.add( new Cave3DShot( from, f0+"-L"+survey, left,  bleft,     0, 0, 0 ) );
-		if ( up > 0 )    splays.add( new Cave3DShot( from, f0+"-U"+survey, up,    bearing,  90, 0, 0 ) );
-		if ( down > 0 )  splays.add( new Cave3DShot( from, f0+"-D"+survey, down,  bearing, -90, 0, 0 ) );
-		if ( right > 0 ) splays.add( new Cave3DShot( from, f0+"-R"+survey, right, bright,    0, 0, 0 ) );
+		if ( left > 0 ) {
+                  splay = new Cave3DShot( from, f0+"-L"+survey, left,  bleft,     0, 0, 0 );
+                  temp_splays.add( splay );
+                  splays.add( splay );
+                }
+		if ( up > 0 ) {
+                  splay = new Cave3DShot( from, f0+"-U"+survey, up,    bearing,  90, 0, 0 );
+                  temp_splays.add( splay );
+                  splays.add( splay );
+                }
+		if ( down > 0 ) {
+                  splay = new Cave3DShot( from, f0+"-D"+survey, down,  bearing, -90, 0, 0 );
+                  temp_splays.add( splay );
+                  splays.add( splay );
+                }
+		if ( right > 0 ) {
+                  splay = new Cave3DShot( from, f0+"-R"+survey, right, bright,    0, 0, 0 );
+                  temp_splays.add( splay );
+                  splays.add( splay );
+                }
 
 	      } catch ( NumberFormatException e ) { }
 	    }
             ++linenr; line = br.readLine();
-            // Log.v( "TopoGL-DAT", linenr + ":" + line );
+            // Log.v( "TopoGL", "DAT " + linenr + ":" + line );
 	  }
 	}
         ++linenr; line = br.readLine();
-        // Log.v( "TopoGL-DAT", linenr + ":" + line );
+        // Log.v( "TopoGL", "DAT " + linenr + ":" + line );
       }
       if ( station != null ) {
-        // Log.v(  "TopoGL-DAT", "add fix station " +  station + survey );
+        // Log.v(  "TopoGL", "DAT add fix station " +  station + survey );
 	fixes.add( new Cave3DFix( station+survey, x, y, z, cs ) );
       }
     } catch ( IOException e ) {
       Log.e(  "TopoGL-DAT", "DAT I/O error " + e.getMessage() );
       throw new ParserException( filename, linenr );
     }
-    // Log.v( "TopoGL-DAT", "shots " + shots.size() );
-    return ( shots.size() > 0 );
+    // Log.v( "TopoGL", "DAT shots " + temp_shots.size() );
+    processShots( temp_shots, temp_splays );
+    return ( temp_shots.size() > 0 );
   }
 
   private void setShotSurveys()
@@ -335,18 +358,18 @@ public class ParserDat extends TglParser
     }
   }
 
-  private void processShots()
+  private void processShots( ArrayList<Cave3DShot> tshots, ArrayList<Cave3DShot> tsplays )
   {
-    if ( shots.size() == 0 ) return;
+    if ( tshots.size() == 0 ) return;
     if ( fixes.size() == 0 ) {
-      Log.v(  "TopoGL-DAT", "shots " + shots.size() + " fixes " + fixes.size() );
-      Cave3DShot sh = shots.get( 0 );
+      // Log.v(  "TopoGL-DAT", "shots " + tshots.size() + " fixes " + fixes.size() );
+      Cave3DShot sh = tshots.get( 0 );
       fixes.add( new Cave3DFix( sh.from, 0.0f, 0.0f, 0.0f, null ) );
     }
  
     int mLoopCnt = 0;
     Cave3DFix f0 = fixes.get( 0 );
-    Log.v(  "TopoGL-DAT", "Process Shots. Fix " + f0.name + " " + f0.x + " " + f0.y + " " + f0.z );
+    // Log.v(  "TopoGL-DAT", "Process Shots. Fix " + f0.name + " " + f0.x + " " + f0.y + " " + f0.z );
 
     mCaveLength = 0.0f;
 
@@ -357,18 +380,18 @@ public class ParserDat extends TglParser
         if ( f.name.equals( s1.name ) ) { found = true; break; }
       }
       if ( found ) { // skip fixed stations that are already included in the model
-        Log.v(  "TopoGL-DAT", "found fix " + f.name );
+        // Log.v(  "TopoGL-DAT", "found fix " + f.name );
         continue;
       }
-      Log.v( "TopoGL-DAT", "start station " + f.name + " N " + f.y + " E " + f.x + " Z " + f.z );
+      // Log.v( "TopoGL-DAT", "start station " + f.name + " N " + f.y + " E " + f.x + " Z " + f.z );
       stations.add( new Cave3DStation( f.name, f.x, f.y, f.z ) );
       // sh.from_station = s0;
     
       boolean repeat = true;
       while ( repeat ) {
-        // Log.v( "TopoGL-DAT", "scanning the shots");
+        // Log.v( "TopoGL-DAT", "scanning the tshots");
         repeat = false;
-        for ( Cave3DShot sh : shots ) {
+        for ( Cave3DShot sh : tshots ) {
           if ( sh.used ) continue;
           // Log.v( "TopoGL-DAT", "check shot " + sh.from + " " + sh.to );
           // Cave3DStation sf = sh.from_station;
@@ -424,7 +447,7 @@ public class ParserDat extends TglParser
     } // for ( Cave3DFix f : fixes )
 
     // 3D splay shots
-    for ( Cave3DShot sh : splays ) {
+    for ( Cave3DShot sh : tsplays ) {
       if ( sh.used ) continue;
       if (  sh.from_station != null ) continue;
       // Log.v( "TopoGL-DAT", "check shot " + sh.from + " " + sh.to );

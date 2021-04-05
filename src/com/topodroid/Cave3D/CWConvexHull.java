@@ -90,7 +90,7 @@ public class CWConvexHull
       Vector3D vm = vt.difference( vf ); 
       double lm = vm.length();
       if ( lm < 0.0001f ) {
-        Log.e( "TopoGL-CW", "ERROR leg too short");
+        Log.e( "TopoGL", "CW-Hull Error leg too short");
         return;
       }
       vm.scaleBy( GlModel.mSplitStretchDelta / lm );
@@ -104,7 +104,7 @@ public class CWConvexHull
     // int at_to   = 1;
       
     try {
-      // Log.v( "TopoGL-CW", "inserted point T " + vt.x + " " + vt.y + " " + vt.z );
+      // Log.v( "TopoGL", "CW-Hull inserted point T " + vt.x + " " + vt.y + " " + vt.z );
       if ( splays1.size() > 0 ) {
         if ( legs1.size() <= 1 ) {
           for ( Cave3DShot s1 : splays1 ) {
@@ -113,7 +113,7 @@ public class CWConvexHull
             insertPoint( v1 );
             pts.add( v1 );
             // at_from ++;
-            // Log.v( "TopoGL-CW", "inserted point (1) " + v1.x + " " + v1.y + " " + v1.z );
+            // Log.v( "TopoGL", "CW-Hull inserted point (1) " + v1.x + " " + v1.y + " " + v1.z );
           }
         } else {
           for ( Cave3DShot s1 : splays1 ) {
@@ -127,14 +127,14 @@ public class CWConvexHull
               insertPoint( v1 );
               pts.add( v1 );
               // at_from ++;
-              // Log.v( "TopoGL-CW", "point (1) " + v1.x + " " + v1.y + " " + v1.z + " inserted " );
+              // Log.v( "TopoGL", "CW-Hull point (1) " + v1.x + " " + v1.y + " " + v1.z + " inserted " );
             } else {
-              // Log.v( "TopoGL-CW", "point (1) " + v1.x + " " + v1.y + " " + v1.z + " NOT inserted " );
+              // Log.v( "TopoGL", "CW-Hull point (1) " + v1.x + " " + v1.y + " " + v1.z + " NOT inserted " );
             }
           }
         }
       }
-      // Log.v( "TopoGL-CW", "inserted point F " + vf.x + " " + vf.y + " " + vf.z );
+      // Log.v( "TopoGL", "CW-Hull inserted point F " + vf.x + " " + vf.y + " " + vf.z );
       if ( splays2.size() > 0 ) {
         if ( legs2.size() <= 1 ) {
           for ( Cave3DShot s2 : splays2 ) {
@@ -143,7 +143,7 @@ public class CWConvexHull
             insertPoint( v2 );
             pts.add( v2 );
             // at_to ++;
-            // Log.v( "TopoGL-CW", "inserted point (2) " + v2.x + " " + v2.y + " " + v2.z );
+            // Log.v( "TopoGL", "CW-Hull inserted point (2) " + v2.x + " " + v2.y + " " + v2.z );
           }
         } else {
           for ( Cave3DShot s2 : splays2 ) {
@@ -157,9 +157,9 @@ public class CWConvexHull
               insertPoint( v2 );
               pts.add( v2 );
               // at_to ++;
-              // Log.v( "TopoGL-CW", "point (2) " + v2.x + " " + v2.y + " " + v2.z + " inserted " );
+              // Log.v( "TopoGL", "CW-Hull point (2) " + v2.x + " " + v2.y + " " + v2.z + " inserted " );
             } else {
-              // Log.v( "TopoGL-CW", "point (2) " + v2.x + " " + v2.y + " " + v2.z + " NOT inserted " );
+              // Log.v( "TopoGL", "CW-Hull point (2) " + v2.x + " " + v2.y + " " + v2.z + " NOT inserted " );
             }
           }
         }
@@ -478,7 +478,7 @@ public class CWConvexHull
         }          
       }
       if ( k == size ) {
-        Log.e( "TopoGL-CW", "Warning next side not found");
+        Log.e( "TopoGL", "CW-Hull Warning next side not found");
         // for ( int j=0; j<size; ++j  ) {
         //   CWSide side = sideToKeep.get(j);
         //   Log.v( "TopoGL-CW", j + ": " + side.p1.mCnt + " " + side.p2.mCnt );
@@ -511,7 +511,7 @@ public class CWConvexHull
     // cs = checkSideConsistency();
     // cv = checkVertexConsistency();
     // if ( ! cs || ! cv )
-    //   Log.v( "TopoGL-CW", "consistency after: V " + mVertex.size() + " S " + mSide.size() + " T " + mFace.size() 
+    //   Log.v( "TopoGL", "CW-Hull consistency after: V " + mVertex.size() + " S " + mSide.size() + " T " + mFace.size() 
     //     + " S-check " + cs + " V-check " + cv );
 
     // remove small area triangles
@@ -670,14 +670,14 @@ public class CWConvexHull
   //   if ( ret ) {
   //     totvol = Math.round( totvol*100 )/100;
   //     double angle = solidAngle( v, 0.0001f );
-  //     Log.v( "TopoGL-CW", "Volume " + totvol + " " + ret + " angle " + angle );
+  //     Log.v( "TopoGL", "CW_Hull Volume " + totvol + " " + ret + " angle " + angle );
   //   }
   //   return ret;
   // } 
 
   // void dump( )
   // {
-  //   Log.v( "TopoGL-CW", "v " + mVertex.size() + " s " + mSide.size() + " t " + mFace.size() );
+  //   Log.v( "TopoGL", "CW_Hull v " + mVertex.size() + " s " + mSide.size() + " t " + mFace.size() );
   //   // for ( CWPoint v :  mVertex ) v.dump( );
   //   // for ( CWSide s : mSide )     s.dump( );
   //   for ( CWTriangle f : mFace ) f.dump( );
@@ -1023,7 +1023,7 @@ public class CWConvexHull
         else if ( vts[0] == t.v2 ) { w1 = t.v2; w2 = t.v3; w3 = t.v1; z1 = t.s2; z2 = t.s3; z3 = t.s1; }
         else if ( vts[0] == t.v3 ) { w1 = t.v3; w2 = t.v1; w3 = t.v2; z1 = t.s3; z2 = t.s1; z3 = t.s2; }
         else {
-          Log.e(  "TopoGL-CW", "Error cannot find one vertex");
+          Log.e(  "TopoGL", "CW-Hull Error cannot find one vertex");
           return;
         }
       } else if ( nv == 2 ) {
@@ -1034,7 +1034,7 @@ public class CWConvexHull
         } else if ( ( vts[0] == t.v1 && vts[1] == t.v2 ) || ( vts[0] == t.v2 && vts[1] == t.v1 ) ) {
           w1 = t.v3; w2 = t.v1; w3 = t.v2; z1 = t.s3; z2 = t.s1; z3 = t.s2; 
         } else {
-          Log.e( "TopoGL-CW", "Error cannot find two vertex");
+          Log.e( "TopoGL", "CWHull Error cannot find two vertex");
           return;
         }
       }
@@ -1056,10 +1056,10 @@ public class CWConvexHull
             }
           } while ( inside && k < 3*ns );
           if ( k >= 3*ns ) {
-            Log.e( "TopoGL-CW", "Error triangle with " + nv + " pts inside. cannot get end intersection");
+            Log.e( "TopoGL", "CW-Hull Error triangle with " + nv + " pts inside. cannot get end intersection");
             break;
           }
-          // Log.v( "TopoGL-CW", "now process " + start + "--" + end );
+          // Log.v( "TopoGL", "CW-Hull now process " + start + "--" + end );
           if ( nv == 1 ) {
             split1( index, w1, w2, w3, z1, z2, z3, start, end, ints, ns );
           } else {
@@ -1069,7 +1069,7 @@ public class CWConvexHull
         }
       }
       // if ( pts2.size() > 0 ) {
-      //   Log.v( "TopoGL-CW", " split with 2 vertex inside. apposite-side points " + pts2.size() );
+      //   Log.v( "TopoGL", "CW-Hull  split with 2 vertex inside. apposite-side points " + pts2.size() );
       // }
     }
     for ( CWTriangle t : mSplits ) mFace.add( t );
@@ -1079,7 +1079,7 @@ public class CWConvexHull
 
   private void addSplitTriangle( CWPoint p1, CWPoint p2, CWPoint p3, CWSide z1, CWSide z2, CWSide z3 )
   {
-    // Log.v( "TopoGL-CW", "Split Triangle " + p1.mCnt + " " + p2.mCnt + " " + p3.mCnt );
+    // Log.v( "TopoGL", "CW-Hull split Triangle " + p1.mCnt + " " + p2.mCnt + " " + p3.mCnt );
     CWTriangle t = new CWTriangle( p1, p2, p3, z1, z2, z3 );
     t.mType = CWTriangle.TRIANGLE_SPLIT;
     z1.setTriangle( t );
@@ -1092,13 +1092,13 @@ public class CWConvexHull
   // param t index of the CW
   private CWPoint addTrianglesAtVertexCCW( int t, CWPoint ww, CWPoint p1, int ks, int ke, List<CWIntersection> ints, int ns )
   {
-    // Log.v( "TopoGL-CW", "cw " + t + " add CCW " + p1.mCnt + " K " + ks + " " + ke );
+    // Log.v( "TopoGL", "CW-Hull cw " + t + " add CCW " + p1.mCnt + " K " + ks + " " + ke );
     addVertex( p1 );
     CWSide r0 = getSide( ww, p1 );
     for ( int k = ks; k < ke; ++k ) {
       CWIntersection ii = ints.get( k % ns );
       CWPoint p2 = ii.point2( t );
-      // Log.v( "TopoGL-CW", "vertices " + k + " ii " + ii.mCnt + " pts " + p1.mCnt + " " + p2.mCnt );
+      // Log.v( "TopoGL", "CW-Hull vertices " + k + " ii " + ii.mCnt + " pts " + p1.mCnt + " " + p2.mCnt );
       addVertex( p2 );
       CWSide r1 = getSide( p2, p1 );
       CWSide r2 = getSide( ww, p2 );

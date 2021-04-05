@@ -90,7 +90,12 @@ class DialogWalls extends Dialog
     mCBpowercrust   = (CheckBox) findViewById( R.id.powercrust );
     mCBpowercrustNo = (CheckBox) findViewById( R.id.powercrust_no );
 
-    mCBtube.setOnClickListener( this );
+    if ( TopoGL.mXSectionPlane ) {
+      mCBtube.setOnClickListener( this );
+    } else {
+      mCBtube.setVisibility( View.GONE );
+      mCBtubeNo.setVisibility( View.GONE );
+    }
     mCBhull.setOnClickListener( this );
     mCBconvexhull.setOnClickListener( this );
     mCBpowercrust.setOnClickListener( this );

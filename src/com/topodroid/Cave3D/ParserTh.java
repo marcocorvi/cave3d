@@ -108,7 +108,7 @@ public class ParserTh extends TglParser
       setSplaySurveys();
       setStationDepths();
       processMarks();
-      // Log.v( "Cave3D-TH", "read survey " + surveyname );
+      // Log.v( "TopoGL-TH", "read survey " + surveyname );
     }
   }
 
@@ -116,12 +116,12 @@ public class ParserTh extends TglParser
   {
     super( app, filename );
 
-    // Log.v( "Cave3D-TH", "Th parser file: " + filename );
+    // Log.v( "TopoGL-TH", "Th parser file: " + filename );
     mMarks = new ArrayList< String >();
     int pos = filename.indexOf("thconfig");
     if ( pos >= 0 ) {
       String path = filename.substring(0, pos) + "distox14.sqlite";
-      // Log.v( "Cave3D-TH", "DB " + path );
+      // Log.v( "TopoGL-TH", "DB " + path );
       mData = new DataHelper( app, path, TDVersion.DATABASE_VERSION );
     } else {
       mData = null;
@@ -260,11 +260,11 @@ public class ParserTh extends TglParser
             z1 = fx.mCsAltitude;
             // Log.v( "TopoGL-TH", "FIX " + name + " CS1 " + fx.mCsName + " " + x1 + " " + y1 + " " + z1 );
             mOrigin = new Cave3DFix( name, x1, y1, z1, cs1, fx.mLongitude, fx.mLatitude, fx.mAltitude );
-	    fixes.add( mOrigin );
+	        fixes.add( mOrigin );
           } else {
             // Log.v( "TopoGL-TH", "CS0 " + x0 + " " + y0 + " " + z0 );
             mOrigin = new Cave3DFix( name, x0, y0, z0, cs0, fx.mLongitude, fx.mLatitude, fx.mAltitude );
-	    fixes.add( mOrigin );
+	       fixes.add( mOrigin );
           }
         } else {
           // Log.v( "Cave3D-TH", "Fix relative " + name + " " + x0 + " " + y0 + " " + z0 + " cs1 " + ((fx.mCsName!=null)?fx.mCsName:"null") );
@@ -276,7 +276,7 @@ public class ParserTh extends TglParser
 	    fixes.add( new Cave3DFix( name, x1, y1, z1, cs1, fx.mLongitude, fx.mLatitude, fx.mAltitude ) );
           } else {
             // Log.v( "Cave3D-TH", "use CS0 " + x0 + " " + y0 + " " + z0 );
-	    fixes.add( new Cave3DFix( name, x0, y0, z0, cs0, fx.mLongitude, fx.mLatitude, fx.mAltitude ) );
+            fixes.add( new Cave3DFix( name, x0, y0, z0, cs0, fx.mLongitude, fx.mLatitude, fx.mAltitude ) );
           }
         }
       }
@@ -899,7 +899,7 @@ public class ParserTh extends TglParser
           station_splays.add( sh.toPoint3D() );
         }
       }
-      if ( station_splays.size() > 3 ) {
+      if ( TopoGL.mXSectionPlane && station_splays.size() > 3 ) {
         xsections.add( new Cave3DXSection( s, s, vert, station_splays ) );
       }
     }

@@ -74,7 +74,7 @@ class Cave3DHull
   {
     int s1 = projs1.size();
     int s2 = projs2.size();
-    Log.v("TopoGL-HULL", "at station " + mStationFrom.short_name + " size " + s1 + " " + mStationTo.name + " " + s2 );
+    Log.v("TopoGL", "Hull at station " + mStationFrom.short_name + " size " + s1 + " " + mStationTo.name + " " + s2 );
     // for (int k=0; k<s1; ++k ) {
     //   HullProjection p = projs1.get(k);
     //   Log.v( TAG, k + ": " + p.angle + " - " + p.proj.x + " " + p.proj.y + " " + p.proj.z );
@@ -96,7 +96,7 @@ class Cave3DHull
     triangles = new ArrayList< Triangle3D >();
     int s1 = projs1.size();
     int s2 = projs2.size();
-    Log.v("TopoGL-HULL", "at station " + mStationFrom.short_name + " size " + s1 + " " + mStationTo.name + " " + s2 );
+    // Log.v("TopoGL", "Hull at station " + mStationFrom.short_name + " size " + s1 + " " + mStationTo.name + " " + s2 );
     
     if ( s1 == 0 || s2 == 0 ) return;
     if ( s1 == 1 && s2 == 1 ) return;
@@ -133,7 +133,7 @@ class Cave3DHull
         }
       }
     }
-    Log.v("TopoGL-HULL", "at station " + mStationFrom.short_name + " size " + s1 + " " + mStationTo.name + " " + s2 + " triangles " + triangles.size() );
+    // Log.v("TopoGL", "Hull at station " + mStationFrom.short_name + " size " + s1 + " " + mStationTo.name + " " + s2 + " triangles " + triangles.size() );
   }
 
   /** make triangles from the HULL to a vertex

@@ -90,9 +90,9 @@ class GlLines extends GlShape
   private int lineCount;
   private TglColor mColor;
 
-  private double xmin, xmax; // OpenGL frame
-  private double ymin, ymax;
-  private double zmin, zmax;
+  private double xmin=0, xmax=0; // OpenGL frame
+  private double ymin=0, ymax=0;
+  private double zmin=0, zmax=0;
 
   double getXmin()   { return xmin; }
   double getYmin()   { return ymin; }
@@ -351,10 +351,11 @@ class GlLines extends GlShape
   void draw( float[] mvpMatrix, int draw_mode, boolean points, float[] color ) // for legs-only
   {
     if ( draw_mode == GlModel.DRAW_NONE || lineCount == 0 ) {
-      // Log.v("TopoGL-SURFACE", "no draw " + lineCount );
+      // Log.v("TopoGL-SURFACE", "draw none - lines " + lineCount );
       return;
     }
     if ( mColorMode == COLOR_NONE   ) {
+      // Log.v("TopoGL", "draw [1] - lines " + lineCount ); // <-- this is the branch that is followed for less
       GL.useProgram( mProgramUColor );
       bindDataUColor( mvpMatrix, color );
     } else if ( mColorMode == COLOR_SURVEY ) {
@@ -389,6 +390,7 @@ class GlLines extends GlShape
   {
     if ( draw_mode == GlModel.DRAW_NONE || lineCount == 0 ) return;
     if ( mColorMode == COLOR_NONE   ) {
+      // Log.v("TopoGL", "draw [2] - lines " + lineCount );
       GL.useProgram( mProgramUColor );
       bindDataUColor( mvpMatrix, mColor.color );
     } else if ( mColorMode == COLOR_SURVEY ) {

@@ -130,6 +130,13 @@
     >
 
     <android.preference.CheckBoxPreference
+       android:key="CAVE3D_XSECTION_PLANES"
+       android:title="@string/pref_xsection_plane_title"
+       android:summary="@string/pref_xsection_plane_summary"
+       android:dialogTitle="@string/pref_xsection_plane_title"
+       />
+
+    <android.preference.CheckBoxPreference
        android:key="CAVE3D_ALL_SPLAY"
        android:title="@string/pref_all_splay_title"
        android:summary="@string/pref_all_splay_summary"
