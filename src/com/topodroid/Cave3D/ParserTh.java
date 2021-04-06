@@ -216,13 +216,17 @@ public class ParserTh extends TglParser
           String to = makeName( blk.mTo, path );
           shots.add( new Cave3DShot( from, to, blk.mLength, ber, blk.mClino, blk.mFlag, blk.mMillis ) );
         } else {
-          splays.add( new Cave3DShot( from, null, blk.mLength, ber, blk.mClino, blk.mFlag, blk.mMillis ) );
+          if ( mSplayUse > SPLAY_USE_SKIP ) {
+            splays.add( new Cave3DShot( from, null, blk.mLength, ber, blk.mClino, blk.mFlag, blk.mMillis ) );
+          }
         }
       } else if ( blk.mTo.length() > 0 ) {
-        String to = makeName( blk.mTo, path );
-        double ber = 180 + blk.mBearing + declination;
-        if ( ber >= 360 ) ber -= 360;
-        splays.add( new Cave3DShot( to, null, blk.mLength, ber, -blk.mClino, blk.mFlag, blk.mMillis ) );
+        if ( mSplayUse > SPLAY_USE_SKIP ) {
+          String to = makeName( blk.mTo, path );
+          double ber = 180 + blk.mBearing + declination;
+          if ( ber >= 360 ) ber -= 360;
+          splays.add( new Cave3DShot( to, null, blk.mLength, ber, -blk.mClino, blk.mFlag, blk.mMillis ) );
+        }
       }
     }
 
@@ -526,9 +530,11 @@ public class ParserTh extends TglParser
                             // TODO add shot
                             if ( to.equals("-") || to.equals(".") ) {
                               // TODO splay shot
-                              from = makeName( from, path );
-                              to = null;
-                              splays.add( new Cave3DShot( from, to, len, ber, cln, flags, millis ) );
+                              if ( mSplayUse > SPLAY_USE_SKIP ) {
+                                from = makeName( from, path );
+                                to = null;
+                                splays.add( new Cave3DShot( from, to, len, ber, cln, flags, millis ) );
+                              }
                             } else {
                               from = makeName( from, path );
                               to   = makeName( to, path );
@@ -756,6 +762,7 @@ public class ParserTh extends TglParser
 
   private void setSplaySurveys()
   {
+    if ( mSplayUse == SPLAY_USE_SKIP ) return;
     for ( Cave3DShot sh : splays ) {
       String sv = null;
       Cave3DStation sf = sh.from_station;
@@ -884,23 +891,25 @@ public class ParserTh extends TglParser
     // for ( Cave3DStation st : stations ) { sb.append(" "); sb.append( st.name ); }
     // Log.v( "Cave3D-TH", sb.toString() );
 
-    // 3D splay shots
-    Vector3D vert = new Vector3D( 0,0,1 ); // vertical
+    if ( mSplayUse > SPLAY_USE_SKIP ) {
+      // 3D splay shots
+      Vector3D vert = new Vector3D( 0,0,1 ); // vertical
 
-    for ( Cave3DStation s : stations ) {
-      ArrayList< Vector3D > station_splays = new ArrayList<>();
-      for ( Cave3DShot sh : splays ) {
-        if ( sh.used ) continue;
-        if ( sh.from_station != null ) continue;
-        if ( sh.from.equals(s.name) ) {
-          sh.from_station = s;
-          sh.used = true;
-          sh.to_station = sh.getStationFromStation( s );
-          station_splays.add( sh.toPoint3D() );
+      for ( Cave3DStation s : stations ) {
+        ArrayList< Vector3D > station_splays = new ArrayList<>();
+        for ( Cave3DShot sh : splays ) {
+          if ( sh.used ) continue;
+          if ( sh.from_station != null ) continue;
+          if ( sh.from.equals(s.name) ) {
+            sh.from_station = s;
+            sh.used = true;
+            sh.to_station = sh.getStationFromStation( s );
+            station_splays.add( sh.toPoint3D() );
+          }
         }
-      }
-      if ( TopoGL.mXSectionPlane && station_splays.size() > 3 ) {
-        xsections.add( new Cave3DXSection( s, s, vert, station_splays ) );
+        if ( TglParser.mSplayUse == TglParser.SPLAY_USE_XSECTION && station_splays.size() > 3 ) {
+          xsections.add( new Cave3DXSection( s, s, vert, station_splays ) );
+        }
       }
     }
 

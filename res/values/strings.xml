@@ -237,10 +237,10 @@
     <string name="pref_dem_maxsize_summary">Maximum number of cells [400]</string>
     <string name="pref_dem_reduce_title">DEM reduce</string>
     <string name="pref_dem_reduce_summary">DEM reducing mode [shrink]</string>
-    <string name="pref_xsection_plane_title">X-section planes</string>
-    <string name="pref_xsection_plane_summary">Whether to compute the x-section planes using the splays [n]</string>
     <string name="pref_all_splay_title">All splays</string>
     <string name="pref_all_splay_summary">Whether to use all the splays for the walls [y]</string>
+    <string name="pref_splay_use_title">Splay usage</string>
+    <string name="pref_splay_use_summary">Splay use: none, normal, xsections [nornal]</string>
     <string name="pref_splay_proj_title">Projected splays</string>
     <string name="pref_splay_proj_summary">Whether to use splays projected on a normal plane [n]</string>
     <string name="pref_splay_thr_title">Splay threshold</string>

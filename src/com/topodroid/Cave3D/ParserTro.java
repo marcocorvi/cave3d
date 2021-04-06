@@ -241,29 +241,32 @@ public class ParserTro extends TglParser
                 idx = nextIndex( vals, idx );
                 double cln = angle( Double.parseDouble(vals[idx]), uc, dmc); 
                 if ( splay ) {
-                  splays.add( new Cave3DShot( from, from + cnt_splay, len, ber, cln, 0, millis ) );
-                  ++ cnt_splay;
-
+                  if ( mSplayUse > SPLAY_USE_SKIP ) {
+                    splays.add( new Cave3DShot( from, from + cnt_splay, len, ber, cln, 0, millis ) );
+                    ++ cnt_splay;
+                  }
                 } else {
                   String station = ( (splayAtFrom || splay )? from : to );
                   shots.add( new Cave3DShot( from, to, len, ber, cln, 0, millis ) );
                   ++ cnt_shot;
 
-                  idx = nextIndex( vals, idx );
-	          len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
-	          if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-L", len, ber-90, 0, 0, millis ) );
-                  
-                  idx = nextIndex( vals, idx );
-	          len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
-	          if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-R", len, ber+90, 0, 0, millis ) );
-                  idx = nextIndex( vals, idx );
-	          len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
-	          if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-U", len, ber, 90, 0, millis ) );
-                  
-                  idx = nextIndex( vals, idx );
-	          len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
-	          if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-D", len, ber, -90, 0, millis ) );
-                  
+                  if ( mSplayUse > SPLAY_USE_SKIP ) {
+                    idx = nextIndex( vals, idx );
+	            len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
+	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-L", len, ber-90, 0, 0, millis ) );
+                    
+                    idx = nextIndex( vals, idx );
+	            len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
+	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-R", len, ber+90, 0, 0, millis ) );
+
+                    idx = nextIndex( vals, idx );
+	            len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
+	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-U", len, ber, 90, 0, millis ) );
+                    
+                    idx = nextIndex( vals, idx );
+	            len = vals[idx].equals("*")? -1 : Double.parseDouble(vals[idx]) * ul; 
+	            if ( len > 0 ) splays.add( new Cave3DShot( station, station+"-D", len, ber, -90, 0, millis ) );
+                  }
                 }
               } catch ( NumberFormatException e ) {
                 Log.e( "TopoGL-TRO", "Error " + linenr + ": " + line + " " + e.getMessage() );
@@ -315,6 +318,7 @@ public class ParserTro extends TglParser
 
   private void setSplaySurveys()
   {
+    if ( mSplayUse == SPLAY_USE_SKIP ) return;
     for ( Cave3DShot sh : splays ) {
       String sv = null;
       Cave3DStation sf = sh.from_station;
@@ -428,16 +432,18 @@ public class ParserTro extends TglParser
     } // for ( Cave3DFix f : fixes )
 
     // 3D splay shots
-    for ( Cave3DShot sh : splays ) {
-      if ( sh.used ) continue;
-      if (  sh.from_station != null ) continue;
-      // Log.v("TopoGL-TRO", "check shot " + sh.from + " " + sh.to );
-      for ( Cave3DStation s : stations ) {
-        if ( sh.from.equals(s.name) ) {
-          sh.from_station = s;
-          sh.used = true;
-          sh.to_station = sh.getStationFromStation( s );
-          break;
+    if ( mSplayUse > SPLAY_USE_SKIP ) {
+      for ( Cave3DShot sh : splays ) {
+        if ( sh.used ) continue;
+        if (  sh.from_station != null ) continue;
+        // Log.v("TopoGL-TRO", "check shot " + sh.from + " " + sh.to );
+        for ( Cave3DStation s : stations ) {
+          if ( sh.from.equals(s.name) ) {
+            sh.from_station = s;
+            sh.used = true;
+            sh.to_station = sh.getStationFromStation( s );
+            break;
+          }
         }
       }
     }

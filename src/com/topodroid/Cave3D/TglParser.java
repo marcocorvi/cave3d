@@ -44,6 +44,11 @@ public class TglParser
   public static final int WALL_DELAUNAY   = 5;
   public static final int WALL_MAX        = 5;
 
+  static final int SPLAY_USE_SKIP     = 0;
+  static final int SPLAY_USE_NORMAL   = 1;
+  static final int SPLAY_USE_XSECTION = 2;
+  static int mSplayUse = SPLAY_USE_NORMAL;
+
   boolean do_render; // whether ready to render
   TopoGL mApp;
 

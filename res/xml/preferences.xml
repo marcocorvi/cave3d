@@ -129,11 +129,13 @@
     android:title="@string/category_walls"
     >
 
-    <android.preference.CheckBoxPreference
-       android:key="CAVE3D_XSECTION_PLANES"
-       android:title="@string/pref_xsection_plane_title"
-       android:summary="@string/pref_xsection_plane_summary"
-       android:dialogTitle="@string/pref_xsection_plane_title"
+    <com.topodroid.Cave3D.MyListPreference
+       android:key="CAVE3D_SPLAY_USE"
+       android:title="@string/pref_splay_use_title"
+       android:summary="@string/pref_splay_use_summary"
+       android:defaultValue="1"
+       android:entries="@array/splayUse"
+       android:entryValues="@array/splayUseValue"
        />
 
     <android.preference.CheckBoxPreference

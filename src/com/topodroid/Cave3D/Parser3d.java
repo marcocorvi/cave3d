@@ -112,13 +112,15 @@ public class Parser3d extends TglParser
     Cave3DStation to = null;
 
     if ( ( flag & LINE_SPLAY ) == LINE_SPLAY ) {
-      to = getStationAt( x, y, z );
-      Cave3DShot splay = new Cave3DShot( from0, null, len, ber, cln, 0, 0 );
-      splays.add( splay );
-      splay.mSurvey = survey;
-      splay.mSurveyNr = survey.number;
-      if ( to != null ) {
-        from0 = to;
+      if ( mSplayUse > SPLAY_USE_SKIP ) {
+        to = getStationAt( x, y, z );
+        Cave3DShot splay = new Cave3DShot( from0, null, len, ber, cln, 0, 0 );
+        splays.add( splay );
+        splay.mSurvey = survey;
+        splay.mSurveyNr = survey.number;
+        if ( to != null ) {
+          from0 = to;
+        }
       }
     } else {
       // Log.v("TopoGL-3d", "leg <" + mLabel.toString() + "> " + x + " " + y + " " + z + " flag " + flag );

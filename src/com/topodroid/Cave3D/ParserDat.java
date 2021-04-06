@@ -256,28 +256,30 @@ public class ParserDat extends TglParser
                 shots.add( shot );
                 ++ cnt_shot;
 
-                Cave3DShot splay;
-                double bleft = bearing - 90; if ( bleft < 0 ) bleft += 360;
-                double bright = bearing + 90; if ( bright >= 360  ) bright -= 360;
-		if ( left > 0 ) {
-                  splay = new Cave3DShot( from, f0+"-L"+survey, left,  bleft,     0, 0, 0 );
-                  temp_splays.add( splay );
-                  splays.add( splay );
-                }
-		if ( up > 0 ) {
-                  splay = new Cave3DShot( from, f0+"-U"+survey, up,    bearing,  90, 0, 0 );
-                  temp_splays.add( splay );
-                  splays.add( splay );
-                }
-		if ( down > 0 ) {
-                  splay = new Cave3DShot( from, f0+"-D"+survey, down,  bearing, -90, 0, 0 );
-                  temp_splays.add( splay );
-                  splays.add( splay );
-                }
-		if ( right > 0 ) {
-                  splay = new Cave3DShot( from, f0+"-R"+survey, right, bright,    0, 0, 0 );
-                  temp_splays.add( splay );
-                  splays.add( splay );
+                if ( mSplayUse > SPLAY_USE_SKIP ) {
+                  Cave3DShot splay;
+                  double bleft = bearing - 90; if ( bleft < 0 ) bleft += 360;
+                  double bright = bearing + 90; if ( bright >= 360  ) bright -= 360;
+		  if ( left > 0 ) {
+                    splay = new Cave3DShot( from, f0+"-L"+survey, left,  bleft,     0, 0, 0 );
+                    temp_splays.add( splay );
+                    splays.add( splay );
+                  }
+		  if ( up > 0 ) {
+                    splay = new Cave3DShot( from, f0+"-U"+survey, up,    bearing,  90, 0, 0 );
+                    temp_splays.add( splay );
+                    splays.add( splay );
+                  }
+		  if ( down > 0 ) {
+                    splay = new Cave3DShot( from, f0+"-D"+survey, down,  bearing, -90, 0, 0 );
+                    temp_splays.add( splay );
+                    splays.add( splay );
+                  }
+		  if ( right > 0 ) {
+                    splay = new Cave3DShot( from, f0+"-R"+survey, right, bright,    0, 0, 0 );
+                    temp_splays.add( splay );
+                    splays.add( splay );
+                  }
                 }
 
 	      } catch ( NumberFormatException e ) { }
@@ -334,6 +336,7 @@ public class ParserDat extends TglParser
 
   private void setSplaySurveys()
   {
+    if ( mSplayUse == SPLAY_USE_SKIP ) return;
     for ( Cave3DShot sh : splays ) {
       String sv = null;
       Cave3DStation sf = sh.from_station;
@@ -447,16 +450,18 @@ public class ParserDat extends TglParser
     } // for ( Cave3DFix f : fixes )
 
     // 3D splay shots
-    for ( Cave3DShot sh : tsplays ) {
-      if ( sh.used ) continue;
-      if (  sh.from_station != null ) continue;
-      // Log.v( "TopoGL-DAT", "check shot " + sh.from + " " + sh.to );
-      for ( Cave3DStation s : stations ) {
-        if ( sh.from.equals(s.name) ) {
-          sh.from_station = s;
-          sh.used = true;
-          sh.to_station = sh.getStationFromStation( s );
-          break;
+    if ( mSplayUse > SPLAY_USE_SKIP ) {
+      for ( Cave3DShot sh : tsplays ) {
+        if ( sh.used ) continue;
+        if (  sh.from_station != null ) continue;
+        // Log.v( "TopoGL-DAT", "check shot " + sh.from + " " + sh.to );
+        for ( Cave3DStation s : stations ) {
+          if ( sh.from.equals(s.name) ) {
+            sh.from_station = s;
+            sh.used = true;
+            sh.to_station = sh.getStationFromStation( s );
+            break;
+          }
         }
       }
     }

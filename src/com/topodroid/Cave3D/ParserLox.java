@@ -122,12 +122,14 @@ public class ParserLox extends TglParser
 
         Cave3DSurvey survey = getSurvey( sh.sid );
         if ( (sh.flag & LoxShot.FLAG_SPLAY) != 0 ) {
-          splays.add( shot );
-          if ( survey != null ) {
-            // shot.mSurvey   = survey;
-            // shot.mSurveyNr = survey.number;
-            // survey.addSplayInfo( shot );
-            survey.addSplay( shot );
+          if ( mSplayUse > SPLAY_USE_SKIP ) {
+            splays.add( shot );
+            if ( survey != null ) {
+              // shot.mSurvey   = survey;
+              // shot.mSurveyNr = survey.number;
+              // survey.addSplayInfo( shot );
+              survey.addSplay( shot );
+            }
           }
         } else {
           shots.add( shot );

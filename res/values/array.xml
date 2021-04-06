@@ -21,4 +21,15 @@
      <item name="cut">2</item>
   </string-array>
 
+  <string-array name="splayUse">
+     <item name="skip">Skip</item>
+     <item name="normal">Normal</item>
+     <item name="xsection">X-Section</item>
+  </string-array>
+  <string-array name="splayUseValue" translatable="false">
+     <item name="skip">0</item>
+     <item name="normal">1</item>
+     <item name="xsection">2</item>
+  </string-array>
+
 </resources>

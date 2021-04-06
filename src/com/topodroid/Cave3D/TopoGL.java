@@ -1280,7 +1280,6 @@ public class TopoGL extends Activity
   static boolean mStationDialog  = false;
   // static boolean mUseSplayVector = true; // ??? Hull with 3D splays or 2D splay projections
   static boolean mMeasureToast   = false;
-  static boolean mXSectionPlane  = false;
   
   static boolean mSplayProj      = false;
   static float   mSplayThr       = 0.5f;
@@ -1300,7 +1299,7 @@ public class TopoGL extends Activity
   static final String CAVE3D_DEM_MAXSIZE      = "CAVE3D_DEM_MAXSIZE";
   static final String CAVE3D_DEM_REDUCE       = "CAVE3D_DEM_REDUCE";
   // WALLS category
-  static final String CAVE3D_XSECTION_PLANE   = "CAVE3D_XSECTION_PLANE";
+  static final String CAVE3D_SPLAY_USE        = "CAVE3D_SPLAY_USE";
   static final String CAVE3D_ALL_SPLAY        = "CAVE3D_ALL_SPLAY";
   static final String CAVE3D_SPLAY_PROJ       = "CAVE3D_SPLAY_PROJ";
   static final String CAVE3D_SPLAY_THR        = "CAVE3D_SPLAY_THR";
@@ -1355,10 +1354,10 @@ public class TopoGL extends Activity
       } catch ( NumberFormatException e ) { }
     } else if ( k.equals( CAVE3D_NEG_CLINO ) ) { 
       GlRenderer.mMinClino = sp.getBoolean( k, false ) ? 90: 0;
-    } else if ( k.equals( CAVE3D_XSECTION_PLANE ) ) { 
-      mXSectionPlane = sp.getBoolean( k, false );
     } else if ( k.equals( CAVE3D_ALL_SPLAY ) ) { 
       GlModel.mAllSplay = sp.getBoolean( k, true );
+    } else if ( k.equals( CAVE3D_SPLAY_USE ) ) { 
+      TglParser.mSplayUse = Integer.parseInt( sp.getString( k, "1" ) );
     } else if ( k.equals( CAVE3D_SPLAY_PROJ ) ) { 
       mSplayProj = sp.getBoolean( k, false );
     } else if ( k.equals( CAVE3D_SPLAY_THR ) ) { 
@@ -1459,8 +1458,9 @@ public class TopoGL extends Activity
       if ( extent > 1 && extent < 1000 ) GlModel.mGridExtent = extent;
     } catch ( NumberFormatException e ) { }
     GlRenderer.mMinClino  = sp.getBoolean( CAVE3D_NEG_CLINO, false ) ? 90 : 0;
-    mXSectionPlane  = sp.getBoolean( CAVE3D_XSECTION_PLANE, false );
     GlModel.mAllSplay  = sp.getBoolean( CAVE3D_ALL_SPLAY, true );
+    TglParser.mSplayUse = Integer.parseInt( sp.getString( CAVE3D_SPLAY_USE, "1" ) );
+
     mSplayProj = sp.getBoolean( CAVE3D_SPLAY_PROJ, false );
     try {
       float buffer = Float.parseFloat( sp.getString( CAVE3D_SPLAY_THR, "0.5" ) );
