@@ -20,6 +20,7 @@
     <string name="menu_reset">Reset</string>
 
     <string name="menu_alpha">Surface</string>
+    <string name="menu_ble">Bluetooth</string>
     <string name="menu_viewpoint">Viewpoint</string>
     <string name="menu_files">Surveys</string>
     <string name="menu_export">Export</string>
@@ -109,6 +110,12 @@
     <string name="title_surface_alpha">Surface transparency</string>
     <string name="title_sketches">Sketches</string>
     <string name="title_legs">Legs visibility</string>
+    <string name="title_bluetooth">Bluetooth</string>
+    <string name="btn_laser">Laser</string>
+    <string name="btn_scan">Scan</string>
+    <string name="btn_shot">Shot</string>
+    <string name="btn_start">Start</string>
+    <string name="btn_stop">Stop</string>
 
     <string name="survey_list">SURVEYS</string>
     <string name="survey_legs"> Legs: </string>
@@ -122,6 +129,11 @@
     <string name="horz_distance"> 2D horizontal distance: %1$.1f</string>
     <string name="cave_length"> Cave length: %1$.1f</string>
     <string name="cave_angle"> Azimuth: %1$.0f  Clino: %2$.0f</string>
+
+    <string name="bt_disconnect">CLOSE</string>
+    <string name="bt_laser">LASER</string>
+    <string name="bt_shot">SHOT</string>
+    <string name="bt_scan">SCAN</string>
 
     <string name="SURVEYS">S U R V E Y S</string>
     <string name="INFO">I N F O</string>
@@ -209,6 +221,8 @@
     <string name="category_stations">STATIONS</string>
     <string name="category_grid">GRID</string>
 
+    <string name="pref_bluetooth_title">Bluetooth device</string>
+    <string name="pref_bluetooth_summary">Bluetooth remote device</string>
     <string name="pref_base_path_title">App base path</string>
     <string name="pref_base_path_summary">Directory containing the survey files</string>
     <string name="pref_text_size_title">Label size</string>
@@ -224,7 +238,7 @@
     <string name="pref_station_size_title">Station point size</string>
     <string name="pref_station_size_summary">Size of station points [8 pxl]</string>
     <string name="pref_measure_dialog_title">Distance message</string>
-    <string name="pref_measure_dialog_summary">Distance message instead of doalog [n]</string>
+    <string name="pref_measure_dialog_summary">Distance message instead of dialog [n]</string>
     <string name="pref_grid_above_title">Top grid</string>
     <string name="pref_grid_above_summary">Grid on the top instead of bottom [n]</string>
     <string name="pref_grid_extent_title">Grid extent</string>

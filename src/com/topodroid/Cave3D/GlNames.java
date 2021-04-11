@@ -29,6 +29,8 @@ import java.util.ArrayList;
 
 class GlNames extends GlShape
 {
+  private final static int NN = 6; // 2 trinagles (3 vertex per triangle)
+
   static final int STATION_NONE  = 0;
   static final int STATION_POINT = 1;
   static final int STATION_NAME  = 2;
@@ -36,6 +38,8 @@ class GlNames extends GlShape
   static final int STATION_MAX   = 3; // skip station_all
 
   static int stationMode = STATION_NONE;     // show_stations;
+
+  private DataBuffer mDataBuffer = null;
 
   static void resetStations()
   {
@@ -121,12 +125,15 @@ class GlNames extends GlShape
   private int mTexId = -1;
   private Bitmap mBitmap = null;
   static float[] mHLcolor = new float[4];
-
+  // int mIncrement = 0;
   float[] getVertexData() { return mData; }
   static int getVertexSize()     { return 3; } // 3 floats per vertex
   static int getVertexStride()   { return 4; } // 3 floats per vertex
 
-  GlNames( Context ctx ) 
+  private boolean mIncremental = false;
+
+  // FIXME INCREMENTAL increment
+  GlNames( Context ctx, int increment ) 
   {
     super( ctx );
     // mPos   = new ArrayList< Vector3D >();
@@ -135,6 +142,13 @@ class GlNames extends GlShape
     mHLcolor[1] = 0.0f;
     mHLcolor[2] = 0.0f;
     mHLcolor[3] = 1.0f;
+    // mIncrement = increment;
+    if ( increment > 0 ) {
+      mIncremental = true;
+      Log.v("Cave3D", "NAMES uses DataBuffer " + increment );
+      mDataBuffer = DataBuffer.createFloatBuffer( 3 * NN * increment );
+      dataBuffer  = mDataBuffer.asFloat();
+    }
   }
 
   static void setHLcolorG( float g ) { mHLcolor[1] = g; }
@@ -142,9 +156,36 @@ class GlNames extends GlShape
   // XYZ-med in OpenGL
   void addName( Vector3D pos, String name, String fullname, double xmed, double ymed, double zmed )
   {
-    // mNames.add( name );
-    // mPos.add( new Vector3D( pos.x, pos.z, -pos.y) );
-    mNames.add( new GlName( pos.x-xmed, pos.z-ymed, -pos.y-zmed, name, fullname ) );
+    if ( mIncremental ) {
+      Vector3D p = new Vector3D( pos.x-xmed, pos.z-ymed, -pos.y-zmed );
+      addName( p, name, fullname );
+    } else {
+      // mNames.add( name );
+      // mPos.add( new Vector3D( pos.x, pos.z, -pos.y) );
+      mNames.add( new GlName( pos.x-xmed, pos.z-ymed, -pos.y-zmed, name, fullname ) );
+    }
+  }
+
+  // FIXME INCREMENTAL BLUETOOTH_COORDS
+  void addBluetoothName( Vector3D pos, String name, String fullname )
+  {
+    Vector3D p = ParserBluetooth.bluetoothToVector( pos );
+    addName( p, name, fullname );
+  }
+
+  private void addName( Vector3D p,  String name, String fullname )
+  {
+    mNames.add( new GlName( p.x, p.y, p.z, name, fullname ) );
+    if ( mDataBuffer != null ) {
+      float[] val = new float[ 3 * NN ];
+      for (int j=0; j<NN; ++j ) {
+        val[ 3*j+0 ] = (float)p.x;
+        val[ 3*j+1 ] = (float)p.y;
+        val[ 3*j+2 ] = (float)p.z;
+      }
+      mDataBuffer.addFloats( val );
+      dataBuffer  = mDataBuffer.asFloat();
+    }
   }
     
   // --------------------------------------------------------
@@ -164,7 +205,7 @@ class GlNames extends GlShape
       if ( v.y < ymin ) { ymin = v.y; } else if ( v.y > ymax ) { ymax = v.y; }
       if ( v.z < zmin ) { zmin = v.z; } else if ( v.z > zmax ) { zmax = v.z; }
     }
-    Log.i("TopoGL-NAME", "size " + mNames.size() + " X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
+    Log.i("Cave3D-NAME", "size " + mNames.size() + " X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
   }
   */
   double xmin, xmax, ymin, ymax, zmin, zmax;
@@ -198,8 +239,14 @@ class GlNames extends GlShape
   void initData( )
   {
     nameCount = mNames.size();
+    Log.v("Cave3D", "NAMES init data " + nameCount );
     if ( mNames.size() == 0 ) return;
-    initBuffer( mNames );
+	// FIXME INCREMENTAL : was initBuffer( Names )
+    if ( mDataBuffer == null ) {
+      initBuffer();
+    } else {
+      initTextureBuffer();
+    }
   }
       
   // ------------------------------------------------------
@@ -223,7 +270,7 @@ class GlNames extends GlShape
         if ( mTexId < 0 ) {
           GLES20.glActiveTexture( GLES20.GL_TEXTURE0 );
           mTexId = GL.bindTextTexture( mBitmap );
-          // Log.v("TopoGL", "bound texture Id " + mTexId );
+          // Log.v("Cave3D", "bound texture Id " + mTexId );
         }
         // mBitmap.recycle(); // do not clean up, but keep the bitmap
         // mBitmap = null;
@@ -232,7 +279,7 @@ class GlNames extends GlShape
       bindData( mvpMatrix ); 
       GL.drawTriangle( 0, nameCount*2 );
       if ( mHighlight >= 0 && mHighlight < nameCount ) {
-        // Log.v("TopoGL", "box-highlight " + mHighlight + " " + mNames.get( mHighlight ).name );
+        // Log.v("Cave3D", "box-highlight " + mHighlight + " " + mNames.get( mHighlight ).name );
         GL.useProgram( mProgramHL );
         bindDataHL( mvpMatrix ); 
         GL.drawLineLoop( mHighlight*6, 6 );
@@ -243,7 +290,7 @@ class GlNames extends GlShape
       bindDataPos( mvpMatrix );
       GL.drawPoint( 0, nameCount );
       if ( mHighlight >= 0 && mHighlight < nameCount ) {
-        // Log.v("TopoGL", "point-highlight " + mHighlight + " " + mNames.get( mHighlight ).name );
+        // Log.v("Cave3D", "point-highlight " + mHighlight + " " + mNames.get( mHighlight ).name );
         GL.useProgram( mProgramPosHL );
         bindDataPosHL( mvpMatrix ); 
         GL.drawPoint( mHighlight, 1 ); // use geometry shader
@@ -328,7 +375,7 @@ class GlNames extends GlShape
 
   private String checkName( int idx, boolean highlight )
   {
-    // Log.v("TopoGL", sb.toString() + " min " + name + " " + dmin );
+    // Log.v("Cave3D", sb.toString() + " min " + name + " " + dmin );
     if ( idx < 0 ) {
       if ( highlight ) setHighlight( -1 );
       return null;
@@ -345,7 +392,7 @@ class GlNames extends GlShape
   {
     if ( mNames.size() == 0 ) return null;
     dmin /= GlModel.mHalfWidth;
-    // Log.v("TopoGL", "dmin " + dmin + " width " + GlModel.mWidth );
+    // Log.v("Cave3D", "dmin " + dmin + " width " + GlModel.mWidth );
     float[] w = new float[4];
     // StringBuilder sb = new StringBuilder();
     String name = null;
@@ -358,7 +405,7 @@ class GlNames extends GlShape
       // sb.append( mNames[i] + " " + d );
       if ( d < dmin ) { dmin = d; idx = i; }
     }
-    // Log.v("TopoGL", "check name " + sb.toString() + " idx " + idx );
+    // Log.v("Cave3D", "check name " + sb.toString() + " idx " + idx );
     return checkName( idx, highlight );
   }
 
@@ -384,20 +431,14 @@ class GlNames extends GlShape
 
   // ------------------------------------------------------------------------------
   // dave Vector3D already in GL orientation (Y upward)
-  private void initBuffer( ArrayList< GlName > names )
+  // FIXME INCREMENTAL private void initBuffer( ArrayList< GlName > names )
+  private void initBuffer( )
   {
-    int NN = 6; // 2 trinagles (3 vertex per triangle)
+    Log.v("Cave3D", "NAMES init buffer " + nameCount );
     // ---------- BASE POINT
     float[] data6 = new float[ nameCount * 3 * NN ]; // 3 float, XYZ, per vertex
-    mData = new float[ nameCount * 4 ];
     for ( int i=0; i<nameCount; ++ i) {
-      Vector3D vv = names.get( i ).pos;
-      int off4 = 4 * i;
-      mData[off4+0] = (float)vv.x; // save data vectors for the check 
-      mData[off4+1] = (float)vv.y;
-      mData[off4+2] = (float)vv.z;
-      mData[off4+3] = 1;
-
+      Vector3D vv = mNames.get( i ).pos;
       int off6 = 3 * NN * i;
       for (int j=0; j<NN; ++j ) {
         data6[ off6++ ] = (float)vv.x;
@@ -405,15 +446,34 @@ class GlNames extends GlShape
         data6[ off6++ ] = (float)vv.z;
       }
     }
-    dataBuffer = GL.getFloatBuffer( data6.length );
+    dataBuffer = DataBuffer.getFloatBuffer( data6.length );
     if ( dataBuffer != null ) {
+      Log.v("Cave3D", "NAMES put in data buffer " + data6.length );
       dataBuffer.put( data6 );
     }
+    initTextureBuffer();
+  }
+
+  // ------------------------------------------------------------------------------
+  // dave Vector3D already in GL orientation (Y upward)
+  private void initTextureBuffer( )
+  {
+    Log.v("Cave3D", "names texture buffer - count " + nameCount );
+    // ---------- BASE POINT
+    mData = new float[ nameCount * 4 ];
+    for ( int i=0; i<nameCount; ++ i) {
+      Vector3D vv = mNames.get( i ).pos;
+      int off4 = 4 * i;
+      mData[off4+0] = (float)vv.x; // save data vectors for the check 
+      mData[off4+1] = (float)vv.y;
+      mData[off4+2] = (float)vv.z;
+      mData[off4+3] = 1;
+    } // END INCREMENTAL
 
     // ---------- TEXT BITMAP
-    // Log.v("TopoGL", "Names init width " + GlModel.mWidth );
+    // Log.v("Cave3D", "Names init width " + GlModel.mWidth );
     float w1 = TEXT_SIZE / GlModel.mWidth;
-    // Log.v("TopoGL", "names " + nameCount + " w1 " + w1 );
+    // Log.v("Cave3D", "names " + nameCount + " w1 " + w1 );
     float[] pos = new float[ nameCount * 4 * NN ]; // Dx, Dy, Dz=0, S, T
     boolean done = false;
     int DIMX = 128;
@@ -426,16 +486,16 @@ class GlNames extends GlShape
     while ( ! done ) {
       DIMX *= 2;
       DIMY *= 2;
-      // Log.v("TopoGL", "DIM " + DIMX + " names " + nameCount );
+      // Log.v("Cave3D", "DIM " + DIMX + " names " + nameCount );
       bitmap0 = Bitmap.createBitmap( DIMX, DIMY, Bitmap.Config.ARGB_8888); // Create an empty, mutable bitmap
       if ( bitmap0 == null ) {
-        Log.w("TopoGL", "null bitmap");
+        Log.w("Cave3D", "null bitmap");
         break;
       }
       bitmap0.eraseColor(0);
       Canvas canvas = new Canvas(bitmap0); // get a canvas to paint over the bitmap
       if ( canvas == null ) {
-        Log.w("TopoGL", "null canvas");
+        Log.w("Cave3D", "null canvas");
         bitmap0.recycle();
         bitmap0 = null;
         break;
@@ -453,9 +513,9 @@ class GlNames extends GlShape
       float t = 0;
       int i = 0;
       for ( ; i<nameCount; ++i ) {
-        String name = names.get(i).name;
+        String name = mNames.get(i).name;
         textPaint.getTextBounds( name, 0, name.length(), bounds );
-        // Log.v("TopoGL", name + " bounds " + bounds.left + " " + bounds.top + " " + bounds.right + " " + bounds.bottom );
+        // Log.v("Cave3D", name + " bounds " + bounds.left + " " + bounds.top + " " + bounds.right + " " + bounds.bottom );
         int dx = bounds.right - bounds.left;
         if ( xoff+bounds.right >= DIMX ) {
           xoff  = 0;
@@ -473,7 +533,7 @@ class GlNames extends GlShape
         int x = xoff;
         xoff += bounds.right;
         canvas.drawText( name, x, y, textPaint); // draw the text centered
-        // Log.v("TopoGL", name + " bounds " + bounds.left + " " + bounds.top + " " + bounds.right + " " + bounds.bottom + " X " + x + " Y " + y );
+        // Log.v("Cave3D", name + " bounds " + bounds.left + " " + bounds.top + " " + bounds.right + " " + bounds.bottom + " X " + x + " Y " + y );
 
         float s1 = x*ds;
         float t2 = yoff * dt; // 1 - y*dt; // 1 - y*dt;
@@ -482,7 +542,7 @@ class GlNames extends GlShape
 
         float x2 = dx * w1;
         float y2 = dy * w1;
-        // Log.v("TopoGL", name + " S " + s1 + " " + s2 + " T " + t1 + " " + t2 + " X2 " + x2 + " Y2 " + y2 );
+        // Log.v("Cave3D", name + " S " + s1 + " " + s2 + " T " + t1 + " " + t2 + " X2 " + x2 + " Y2 " + y2 );
 
         int off = i*4 * NN;
         pos[off+0] =-x2; pos[off+1] =-y2; pos[off+2] = s1; pos[off+3] = t1; off += 4;
@@ -493,13 +553,14 @@ class GlNames extends GlShape
         pos[off+0] = x2; pos[off+1] = y2; pos[off+2] = s2; pos[off+3] = t2; off += 4;
         pos[off+0] = x2; pos[off+1] =-y2; pos[off+2] = s2; pos[off+3] = t1; off += 4;
       }
-      // Log.v("TopoGL", "I " + i + " count " + nameCount );
+      // Log.v("Cave3D", "I " + i + " count " + nameCount );
       done = ( i == nameCount );
     }
     if ( bitmap0 == null ) {
       nameBuffer  = null;
     } else {
-      nameBuffer = GL.getFloatBuffer( nameCount * 4 * NN );
+      Log.v("Cave3D", "names create name buffer " + pos.length );
+      nameBuffer = DataBuffer.getFloatBuffer( nameCount * 4 * NN );
       if ( nameBuffer != null ) {
         nameBuffer.put( pos, 0, nameCount * 4 * NN );
       }

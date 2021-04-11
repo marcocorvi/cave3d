@@ -26,6 +26,11 @@ import java.util.List;
 
 public class GlModel
 {
+  // FIXME_INCREMENTAL
+  static final int LEG_INCREMENT = 16;
+  static final int SPLAY_INCREMENT = 64;
+  static final int NAME_INCREMENT = 16;
+
   Context mContext;
   static float   mWidth  = 0;
   static float   mHalfWidth = 0;
@@ -433,16 +438,25 @@ public class GlModel
     synchronized( this ) { glPath = null; }
   }
 
-  boolean setPath( ArrayList< Cave3DStation > path )
+  boolean setPath( ArrayList< Cave3DStation > path, boolean is_bluetooth )
   {
     boolean ret = false;
     // GlPath gl_path_old = glPath;
     if ( path != null && path.size() > 1 ) {
       // Log.v("TopoGL", "Model path make: size " + path.size() );
       GlPath gl_path = new GlPath( mContext, TglColor.ColorStation );
-      for ( Cave3DStation station : path ) {
-        gl_path.addVertex( station, mXmed, mYmed, mZmed );
+	  
+	  // FIXME INCREMENTAL
+      if ( is_bluetooth ) {
+        for ( Cave3DStation station : path ) {
+          gl_path.addBluetoothVertex( station );
+        }
+      } else {
+        for ( Cave3DStation station : path ) {
+          gl_path.addVertex( station, mXmed, mYmed, mZmed );
+        }
       }
+	  
       gl_path.initData();
       // gl_path.logMinMax();
       synchronized( this ) { glPath = gl_path; }
@@ -555,7 +569,8 @@ public class GlModel
   private void preparePlanAndProfile( PowercrustComputer computer )
   {
     if ( computer.hasPlanview() ) {
-      GlLines plan = new GlLines( mContext, TglColor.ColorPlan );
+	  // FIXME INCREMENTAL : , 0 );
+      GlLines plan = new GlLines( mContext, TglColor.ColorPlan, 0 );
       for ( Cave3DPolygon poly : computer.getPlanview() ) {
         int nn = poly.size();
         if ( nn > 2 ) {
@@ -574,7 +589,8 @@ public class GlModel
       synchronized( this ) { glPlan = plan; }
     }
     if ( computer.hasProfilearcs() ) {
-      GlLines profile = new GlLines( mContext, TglColor.ColorPlan );
+	  // FIXME INCREMENTAL : , 0 );
+      GlLines profile = new GlLines( mContext, TglColor.ColorPlan, 0 );
       for ( Cave3DSegment sgm : computer.getProfilearcs() ) {
         profile.addLine( sgm.v1, sgm.v2, 4, -1, false, mXmed, mYmed, mZmed );
       }
@@ -607,7 +623,8 @@ public class GlModel
   {
     if ( parser == null || surface == null ) return;
     // Log.v("TopoGL", "Model prepare surface legs. Shots " + parser.getShots().size() );
-    GlLines surface_legs = new GlLines( mContext, TglColor.ColorSurfaceLeg );
+    // FIXME INCREMENTAL : , 0 );
+	GlLines surface_legs = new GlLines( mContext, TglColor.ColorSurfaceLeg, 0 );
     for ( Cave3DShot leg : parser.getShots() ) {
       if ( leg.from_station == null || leg.to_station == null ) continue; // skip fake-legs
       Vector3D v1 = new Vector3D( leg.from_station );
@@ -729,8 +746,9 @@ public class GlModel
     data[ k++ ] = y2;
     data[ k++ ] = z2;
     data[ k++ ] = 1; data[ k++ ] = 0; data[ k++ ] = 0; data[ k++ ] = 1.0f;
-      
-    glGrid = new GlLines( mContext, GlLines.COLOR_SURVEY );
+    
+	// FIXME INCREMENTAL : , 0 );
+    glGrid = new GlLines( mContext, GlLines.COLOR_SURVEY, 0 );
     glGrid.setAlpha( 0.5f );
     glGrid.initData( data, count ); // , R.raw.line_acolor_vertex, R.raw.line_fragment );
   }
@@ -768,8 +786,9 @@ public class GlModel
     data[ k++ ] = y1;
     data[ k++ ] = z2;
     data[ k++ ] = 0; data[ k++ ] = 0; data[ k++ ] = 1; data[ k++ ] = 1.0f;
-      
-    glFrame = new GlLines( mContext, GlLines.COLOR_SURVEY);
+    
+	// FIXME INCREMENTAL : , 0 );
+    glFrame = new GlLines( mContext, GlLines.COLOR_SURVEY, 0);
     glFrame.setAlpha( 0.9f );
     glFrame.initData( data, 3 ); // , R.raw.line_acolor_vertex, R.raw.line_fragment );
   }
@@ -789,12 +808,14 @@ public class GlModel
     }
     mParser = parser;
     mZ0Min  = parser.getCaveZMin();
-    GlLines legs   = new GlLines( mContext, GlLines.COLOR_NONE );
-    GlLines legsS  = new GlLines( mContext, GlLines.COLOR_NONE );
-    GlLines legsD  = new GlLines( mContext, GlLines.COLOR_NONE );
-    GlLines legsC  = new GlLines( mContext, GlLines.COLOR_NONE );
-    GlLines splays = new GlLines( mContext, GlLines.COLOR_NONE );
-    GlNames names  = new GlNames( mContext );
+	
+	// FIXME INCREMENTAL
+    GlLines legs   = new GlLines( mContext, GlLines.COLOR_NONE, 0 );
+    GlLines legsS  = new GlLines( mContext, GlLines.COLOR_NONE, 0 );
+    GlLines legsD  = new GlLines( mContext, GlLines.COLOR_NONE, 0 );
+    GlLines legsC  = new GlLines( mContext, GlLines.COLOR_NONE, 0 );
+    GlLines splays = new GlLines( mContext, GlLines.COLOR_NONE, 0 );
+    GlNames names  = new GlNames( mContext, NAME_INCREMENT );
  
     legsSurvey    = new ArrayList< Cave3DShot >();
     legsSurface   = new ArrayList< Cave3DShot >();
@@ -910,7 +931,102 @@ public class GlModel
       glSplays = splays;
       glNames  = names;
     }
+	// FIXME INCREMENTAL
+    glSplays.setDebug( true );
   }
+
+  void addBluetoothStation( Cave3DStation st )
+  {
+    String name = st.short_name;
+    // Log.v("TopoGL", "Model add " + st.short_name + " " + st.name );
+    synchronized( glNames ) {
+      glNames.addBluetoothName( st, st.short_name, st.name ); // mXmed, mYmed, mZmed );
+      glNames.initData();
+    }
+  }
+
+  void addBluetoothLeg( Cave3DShot leg ) 
+  {
+    // Log.v("TopoGL", "Model add BT leg");
+    synchronized( glLegs ) {
+      legsSurvey.add( leg );
+      glLegs.addLine( leg.from_station, leg.to_station, leg.mSurveyNr, leg.mSurveyNr, true ); // leg.mSurveyNr = color-index
+      glLegs.initData( );
+    }
+  }
+
+  // BT splays have a TO-station (with name "-")
+  void addBluetoothSplay( Cave3DShot splay ) 
+  {
+    // Log.v("TopoGL", "Model add BT splay");
+    synchronized( glSplays ) {
+      glSplays.addLine( splay.from_station, splay.to_station, splay.mSurveyNr, splay.mSurveyNr, true ); // leg.mSurveyNr = color-index
+      glSplays.initData( );
+    }
+  }
+
+  void prepareEmptyModel( TglParser parser )
+  {
+    Log.v("TopoGL", "GL model prepare empty" );
+    modelCreated = false;
+    mParser = parser;
+    mZ0Min  = 0;
+    GlLines legs   = new GlLines( mContext, GlLines.COLOR_NONE, LEG_INCREMENT );
+    GlLines legsS  = new GlLines( mContext, GlLines.COLOR_NONE, 0 );
+    GlLines legsD  = new GlLines( mContext, GlLines.COLOR_NONE, 0 );
+    GlLines legsC  = new GlLines( mContext, GlLines.COLOR_NONE, 0 );
+    GlLines splays = new GlLines( mContext, GlLines.COLOR_NONE, SPLAY_INCREMENT );
+    GlNames names  = new GlNames( mContext, NAME_INCREMENT );
+
+    legsSurvey    = new ArrayList< Cave3DShot >();
+    legsSurface   = new ArrayList< Cave3DShot >();
+    legsDuplicate = new ArrayList< Cave3DShot >();
+    legsCommented = new ArrayList< Cave3DShot >();
+
+    // Log.v("TopoGL", "GL Model create. shots " + parser.getShotNumber() + "/" + parser.getSplayNumber() + " stations " + parser.getStationNumber() );
+    legs.initEmptyBBox();
+    mXmed = (legs.getXmin() + legs.getXmax())/2;
+    mYmed = (legs.getYmin() + legs.getYmax())/2;
+    mZmed = (legs.getZmin() + legs.getZmax())/2;
+
+    // Log.v("TopoGL", "Model center " + mXmed + " " + mYmed + " " + mZmed );
+    // legs.logMinMax();
+    
+    mZMin = legs.getYmin();
+    double mZMax = legs.getYmax();
+    if ( mZMin > splays.getYmin() ) mZMin = splays.getYmin();
+    if ( mZMax < splays.getYmax() ) mZMax = splays.getYmax();
+    mZDelta = mZMax - mZMin;
+
+    boolean valid_surface = false;
+
+    legsS.initData( );
+    legsD.initData( );
+    legsC.initData( );
+    legs.initData( );
+    splays.initData( );
+    names.initData( );
+    float grid_size = 1.0f;
+    prepareGridAndFrame( legs, grid_size, 10*mGridExtent*grid_size );
+
+    mDiameter = 100; // legs.diameter();
+    mY0med    = 0; // legs.getYmed();
+
+    // legs.logMinMax();
+    // splays.logMinMax();
+
+    synchronized( this ) {
+      glLegs   = legs;
+      glLegsS  = legsS;
+      glLegsD  = legsD;
+      glLegsC  = legsC;
+      glSplays = splays;
+      glNames  = names;
+    }
+    // glSplays.setDebug( true );
+    addBluetoothStation( ((ParserBluetooth)parser).getLastStation() );
+  }
+  // ENS INCREMENTAL
 
   // return inverse of max surface depth
   private double prepareStationSurfaceDepth( TglParser parser, DEMsurface surface )

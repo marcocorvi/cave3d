@@ -81,7 +81,9 @@ SRC = \
   ./jni/* \
   ./docs/* \
   ./unused/* \
-  ./src/com/topodroid/Cave3D/* 
+  ./src/com/topodroid/Cave3D/* \
+  ./src/com/topodroid/utils/* \
+  ./src/com/topodroid/bt/*
 
 version:
 	echo $(VERSION)

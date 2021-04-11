@@ -26,6 +26,15 @@
     android:dialogTitle="@string/pref_neg_clino_title"
     />
 
+  <android.preference.EditTextPreference
+    android:key="CAVE3D_BLUETOOTH_DEVICE"
+    android:title="@string/pref_bluetooth_title"
+    android:summary="@string/pref_bluetooth_summary"
+    android:dialogTitle="@string/pref_bluetooth_title"
+    android:dialogMessage="@string/pref_bluetooth_summary"
+    android:defaultValue=""
+    />
+
   <android.preference.PreferenceCategory
     android:title="@string/category_stations"
     >

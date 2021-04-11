@@ -55,6 +55,12 @@ class GlPath extends GlShape
     points.add( new Vector3D( w1.x - xmed, w1.z - ymed, - w1.y - zmed ) );
   }
 
+  // FIXME INCREMENTAL
+  void addBluetoothVertex( Vector3D w1 )
+  { 
+    points.add( ParserBluetooth.bluetoothToVector( w1 ) );
+  }
+
   private float[] prepareData( )
   { 
     vertexCount = points.size();

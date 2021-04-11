@@ -82,7 +82,9 @@ class MeasureComputer extends AsyncTask< Void, Void, Integer >
         station = station.getPathPrevious();
       }
       // Log.v("TopoGL-PATH", "path size " + path.size() );
-      mModel.clearPath( );
+	  // FIXME INCREMENTAL mModel.clearPath( );
+      mModel.setPath( path, mApp.hasBluetoothName() );
+	  
       return new Integer( MEASURE_OK );
     }
     return new Integer( MEASURE_NO_PATH );

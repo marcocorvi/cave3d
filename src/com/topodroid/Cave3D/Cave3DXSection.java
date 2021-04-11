@@ -130,7 +130,34 @@ public class Cave3DXSection
     // -3 b1 =                                   - 3*A0*A4 - 3*A0*A8 - 3*A4*A8 + 3 A5^2 + 3 A1^2 + 3 A2^2
     // the sum is positive
     // next b1 > 0 because of the way the matrix is built
+
+    // roots of f'(L) = 0
+    double det1 = b2 * b2 - 3 * b1;
+    assert( det1 >= 0 );
+    double L2 = ( - b2 + Math.sqrt(det1) )/3;
+    double L1 = 0;
+    double F1 = L1 * L1 * L1 + b2 * L1 * L1 + b1 * L1 + b0;
+    double F2 = L2 * L2 * L2 + b2 * L2 * L2 + b1 * L2 + b0;
+    assert( F1 <= 0 );
+    assert( F2 >= 0 );
+    double L = L1;
+    do {
+      L= (L1 + L2)/2;
+      double F = L * L * L + b2 * L * L + b1 * L + b0;
+      if ( F > 0 ) {
+        // F2 = F;
+        L2 = L;
+      } else if ( F < 0 ) {
+        // F1 = F;
+        L1 = L;
+      } else {
+        break;
+      }
+    } while ( L2 - L1 > 1.0E-7 );
+
     // Log.v("TopoGL", "f(L) = L^3 + " + b2 + " L^2 + " + b1 + " L + " + b0 );
+
+    /*
     double L = 0;
     double f0 = L * L * L + b2 * L * L + b1 * L + b0;
     int cnt = 0;
@@ -149,6 +176,7 @@ public class Cave3DXSection
       // if ( ++cnt > 20 ) break;
       // f0 = L * L * L + b2 * L * L + b1 * L + b0;
     } while ( Math.abs( f0 ) > 0.0000001 );
+    */
 
     double a0 = A[0] - L;
     double a4 = A[4] - L;

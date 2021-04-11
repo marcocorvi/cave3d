@@ -36,11 +36,20 @@ class GlLines extends GlShape
   final static int OFFSET_VERTEX = 0;
   final static int OFFSET_COLOR  = 3; // COORDS_PER_VERTEX;
 
+  // FIXME INCREMENTAL private float[] mData;
+
+  private DataBuffer mDataBuffer = null;
+
+  private boolean mDebug = false;
   private float[] mData;
 
+  void setDebug( boolean on_off ) { mDebug = on_off; }
+  
   static int getVertexSize() { return COORDS_PER_VERTEX; }
   static int getVertexStride() { return STRIDE; }
   float[] getVertexData() { return mData; }
+
+  private boolean mIncremental = false;
 
   private class Line3D
   {
@@ -115,6 +124,16 @@ class GlLines extends GlShape
     return sb.toString();
   }
 
+  void initEmptyBBox() // FIXME INCREMENTAL
+  {
+    xmin=-100;
+    xmax= 100; // OpenGL frame
+    ymin=-100; 
+    ymax= 100;
+    zmin=-100; 
+    zmax= 100;
+  }
+
   // this is not the rel diameter, but the diagonal of the enclosing axis-parallel parallelepiped 
   double diameter()
   {
@@ -125,40 +144,85 @@ class GlLines extends GlShape
   }
 
   // vertex data ( X Y Z R G B A )
-  GlLines( Context ctx, int color_mode )
+  GlLines( Context ctx, int color_mode, int increment )
   {
     super( ctx );
     mColorMode = color_mode; 
     mColor = new TglColor( TglColor.ColorSplay );
     lines = new ArrayList< Line3D >();
     mAlpha = 1.0f;
+    if ( increment > 0 ) {
+      mIncremental = true;
+      createIncrementalDataBuffer( increment );
+    }
   }
 
-  GlLines( Context ctx, TglColor color )
+  GlLines( Context ctx, TglColor color, int increment )
   {
     super( ctx );
     mColorMode = COLOR_SURVEY;
     mColor = color; // mColor will remain constant
     lines = new ArrayList< Line3D >();
     mAlpha = 1.0f;
+    if ( increment > 0 ) {
+      mIncremental = true;
+      createIncrementalDataBuffer( increment );
+    }
   }
 
-  GlLines( Context ctx, float[] color )
+  GlLines( Context ctx, float[] color, int increment )
   {
     super( ctx );
     mColorMode = COLOR_SURVEY;
     mColor = new TglColor( color ); // mColor will remain constant
     lines = new ArrayList< Line3D >();
     mAlpha = 1.0f;
+    if ( increment > 0 ) {
+      mIncremental = true;
+      createIncrementalDataBuffer( increment );
+    }
   }
-  // GlLines( Context ctx, float red, float green, float blue, float alpha )
+
+  // GlLines( Context ctx, float red, float green, float blue, float alpha, int increment )
   // {
   //   super( ctx );
   //   mColorMode = COLOR_SURVEY;
   //   mColor = new TglColor( red, green, blue, alpha );
   //   lines = new ArrayList< Line3D >();
   //   mAlpha = 1.0f;
+  //   if ( increment > 0 ) {
+  //     mIncremental = true;
+  //     createIncrementalDataBuffer( increment );
+  //   }
   // }
+
+  private void createIncrementalDataBuffer( int increment )
+  {
+    Log.v("Cave3D", "Lines create incremental Data Buffer: " + increment );
+    mDataBuffer = DataBuffer.createFloatBuffer( 14 * increment );
+    dataBuffer  = mDataBuffer.asFloat();
+  }
+
+  // FIXME BLUETOOTH_COORDS
+  private float[] makeBluetoothVal( Vector3D w1, Vector3D w2 )
+  {
+    float[] val = new float[14];
+    val[ 0] = (float)w1.x;
+    val[ 1] = (float)w1.y;
+    val[ 2] = (float)w1.z;
+    val[ 3] = 1.0f;
+    val[ 4] = 1.0f;
+    val[ 5] = 1.0f;
+    val[ 6] = 1.0f;
+    val[ 7] = (float)w2.x;
+    val[ 8] = (float)w2.y;
+    val[ 9] = (float)w2.z;
+    val[10] = 1.0f;
+    val[11] = 1.0f;
+    val[12] = 1.0f;
+    val[13] = 1.0f;
+    return val;
+  }
 
   // survey = survey or fixed (axis) color
   // color  = color index: [0-12) for survey, [0-5) for fixed
@@ -178,6 +242,13 @@ class GlLines extends GlShape
       updateBounds( w1.x, w1.z, -w1.y );
     }
     updateBounds( w2.x, w2.z, -w2.y );
+	
+    // if ( mDataBuffer != null ) // FIXME INCREMENTAL
+    if ( mIncremental ) {
+      float[] val = makeBluetoothVal( ParserBluetooth.bluetoothToVector(w1), ParserBluetooth.bluetoothToVector(w2) );
+      mDataBuffer.addFloats( val );
+      dataBuffer = mDataBuffer.asFloat();
+    }
   }
 
   // survey = index of survey in Cave3DSurvey list
@@ -204,8 +275,8 @@ class GlLines extends GlShape
       col[k] = /* (t == null)? 0 : */ (float)t.surface_depth;
       ++k;
     }
-    // Log.v("TopoGL-SURFACE", "depth buffer count " + count + " k " + k );
-    depthBuffer = GL.getFloatBuffer( count );
+    // Log.v("Cave3D", "Line depth buffer count " + count + " k " + k );
+    depthBuffer = DataBuffer.getFloatBuffer( count );
     if ( depthBuffer != null ) {
       depthBuffer.put( col );
     }
@@ -248,28 +319,28 @@ class GlLines extends GlShape
       if ( v.y < ymin ) { ymin = v.y; } else if ( v.y > ymax ) { ymax = v.y; }
       if ( v.z < zmin ) { zmin = v.z; } else if ( v.z > zmax ) { zmax = v.z; }
     }
-    Log.i("TopoGL-LINE", "lines " + lines.size() + " X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
+    Log.i("Cave3D", "lines " + lines.size() + " X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
   }
   
   void hideOrShow( boolean[] visible )
   {
-    // Log.v("TopoGL", "hide/show " + lineCount + " vis " + visible.length );
+    // Log.v("Cave3D", "Line hide/show " + lineCount + " vis " + visible.length );
     int k = 6; // index in the dataBuffer
     for ( int i = 0; i<lineCount; ++i ) {
       Line3D line = lines.get( i );
       // if ( line.isSurvey ) 
       if ( line.survey >= 0 && line.survey < visible.length ) {
         if ( visible[ line.survey ] ) {
-          // Log.v("TopoGL", "show " + line.v1.x + " " + line.v1.y + " " + line.survey + " " + line.isSurvey );
+          // Log.v("Cave3D", "Line show " + line.v1.x + " " + line.v1.y + " " + line.survey + " " + line.isSurvey );
           dataBuffer.put( k, 1.0f ); k += 7;
           dataBuffer.put( k, 1.0f ); k += 7;
         } else {
-          // Log.v("TopoGL", "hide " + line.v1.x + " " + line.v1.y + " " + line.survey + " " + line.isSurvey );
+          // Log.v("Cave3D", "Line hide " + line.v1.x + " " + line.v1.y + " " + line.survey + " " + line.isSurvey );
           dataBuffer.put( k, 0.0f ); k += 7;
           dataBuffer.put( k, 0.0f ); k += 7;
         }
       } else {
-        // Log.v("TopoGL", "skip " + line.v1.x + " " + line.v1.y + " " + line.survey + " " + line.isSurvey );
+        // Log.v("Cave3D", "Line skip " + line.v1.x + " " + line.v1.y + " " + line.survey + " " + line.isSurvey );
         k += 14;
       }
     }
@@ -287,14 +358,15 @@ class GlLines extends GlShape
   { 
     if ( lines.size() == 0 ) return null;
     lineCount   = lines.size();
-    // Log.v("TopoGL", "lines " + lineCount + " X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
+    // Log.v("Cave3D", "lines " + lineCount + " X " + xmin + " " + xmax + " Y " + ymin + " " + ymax + " Z " + zmin + " " + zmax );
     int vertexCount = lineCount * 2;
-    // float[] data  = new float[ vertexCount * STRIDE ];
+
+    // mData for GLTF export
     mData  = new float[ vertexCount * STRIDE ];
     float[] color = new float[ COORDS_PER_COLOR ];
     TglColor.getSurveyColor( lines.get(0).color, color );
-    // Log.v("TopoGL-LINES", "prepare lines " + lineCount + " color " + color[0] + " " + color[1] + " " + color[2] + " " + color[3] );
-    // Log.v("TopoGL-LINES", "prepare lines " + lineCount + " zmin " + zmin );
+    // Log.v("Cave3D", "Lines prepare " + lineCount + " color " + color[0] + " " + color[1] + " " + color[2] + " " + color[3] );
+    // Log.v("Cave3D", "Lines prepare " + lineCount + " zmin " + zmin );
     int k = 0;
     for ( Line3D line : lines ) {
       Vector3D w1 = line.v1;
@@ -304,7 +376,7 @@ class GlLines extends GlShape
       } else {
         TglColor.getAxisColor( line.color, color );
       }
-      mData[k++] = (float)w1.x;
+      mData[k++] = (float)w1.x; 
       mData[k++] = (float)w1.y;
       mData[k++] = (float)w1.z;
       mData[k++] = color[0];
@@ -319,15 +391,25 @@ class GlLines extends GlShape
       mData[k++] = color[2];
       mData[k++] = 1.0f; // alpha;
     }
-    return mData;
+    return mData; 
   }
 
-  void initData( ) { initData( prepareData(), lines.size() ); }
+  // FIXME INCREMENTAL void initData( ) { initData( prepareData(), lines.size() ); }
+  void initData( ) 
+  { 
+    if ( mDataBuffer != null ) {
+      lineCount  = lines.size();
+      dataBuffer = mDataBuffer.asFloat();
+      // Log.v("Cave3D", "Line data buffer - lines " + lineCount );
+    } else {
+      initData( prepareData(), lines.size() );
+    }
+  }
 
   void initData( float[] data, int count )
   { 
     lineCount = count;
-    // Log.v("TopoGL-SURFACE", "lines init data " + count );
+    // Log.v("Cave3D", "Lines init data " + count );
     if ( lineCount == 0 ) return;
     initDataBuffer( data );
 
@@ -351,11 +433,11 @@ class GlLines extends GlShape
   void draw( float[] mvpMatrix, int draw_mode, boolean points, float[] color ) // for legs-only
   {
     if ( draw_mode == GlModel.DRAW_NONE || lineCount == 0 ) {
-      // Log.v("TopoGL-SURFACE", "draw none - lines " + lineCount );
+      // Log.v("Cave3D", "Lines draw none " + lineCount );
       return;
     }
     if ( mColorMode == COLOR_NONE   ) {
-      // Log.v("TopoGL", "draw [1] - lines " + lineCount ); // <-- this is the branch that is followed for less
+      // Log.v("Cave3D", "Lines draw [1] " + lineCount ); // <-- this is the branch that is followed for less
       GL.useProgram( mProgramUColor );
       bindDataUColor( mvpMatrix, color );
     } else if ( mColorMode == COLOR_SURVEY ) {
@@ -373,7 +455,7 @@ class GlLines extends GlShape
         bindDataUColor( mvpMatrix, color );
       }
     } else { 
-      Log.e("TopoGL", "unexpected color mode " + mColorMode );
+      Log.e("Cave3D", "Lines unexpected color mode " + mColorMode );
       return; 
     }
 
@@ -390,7 +472,7 @@ class GlLines extends GlShape
   {
     if ( draw_mode == GlModel.DRAW_NONE || lineCount == 0 ) return;
     if ( mColorMode == COLOR_NONE   ) {
-      // Log.v("TopoGL", "draw [2] - lines " + lineCount );
+      // Log.v("Cave3D", "Lines draw [2] " + lineCount );
       GL.useProgram( mProgramUColor );
       bindDataUColor( mvpMatrix, mColor.color );
     } else if ( mColorMode == COLOR_SURVEY ) {
@@ -434,8 +516,15 @@ class GlLines extends GlShape
   {
     GL.setUniformMatrix( muUMVPMatrix, mvpMatrix );
     GL.setUniform( muUPointSize, mPointSize );
-    GL.setAttributePointer( muAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, BYTE_STRIDE );
-    GL.setAttributePointer( muAColor,    dataBuffer, OFFSET_COLOR,  COORDS_PER_COLOR,  BYTE_STRIDE );
+    // if ( mDataBuffer == null ) {
+      GL.setAttributePointer( muAPosition, dataBuffer, OFFSET_VERTEX, COORDS_PER_VERTEX, BYTE_STRIDE );
+      GL.setAttributePointer( muAColor,    dataBuffer, OFFSET_COLOR,  COORDS_PER_COLOR,  BYTE_STRIDE );
+    // } else {
+    //   FloatBuffer buffer = mDataBuffer.asFloat();
+    //   // buffer.rewind();
+    //   GL.setAttributePointer( muAPosition, buffer, OFFSET_VERTEX, COORDS_PER_VERTEX, BYTE_STRIDE );
+    //   GL.setAttributePointer( muAColor,    buffer, OFFSET_COLOR,  COORDS_PER_COLOR,  BYTE_STRIDE );
+    // }
     GL.setUniform( muUColor, color[0], color[1], color[2], color[3] );
   }
 
@@ -553,8 +642,8 @@ class GlLines extends GlShape
 
     mProgramStation = GL.makeProgram( ctx, R.raw.line_station_vertex, R.raw.line_station_fragment );
     setLocationsStation( mProgramStation );
-    // Log.v("TopoGL", "Line progs " + mProgramAColor + " " + mProgramUColor + " " + mProgramZColor );
-    // Log.v("TopoGL", "Line progs " + mProgramAColor + " " + mProgramUColor + " " + mProgramZColor );
+    // Log.v("Cave3D", "Line progs " + mProgramAColor + " " + mProgramUColor + " " + mProgramZColor );
+    // Log.v("Cave3D", "Line progs " + mProgramAColor + " " + mProgramUColor + " " + mProgramZColor );
   }
 
   private static void setLocationsSColor( int program )
@@ -564,7 +653,7 @@ class GlLines extends GlShape
     msAPosition  = GL.getAttribute( program, GL.aPosition );  // variable names must coincide with those in fragments
     msAColor     = GL.getAttribute( program, GL.aColor );
     msADColor    = GL.getAttribute( program, GL.aDColor );
-    // Log.v("TopoGL", "Line-A " + maUPointSize + " " + maAPosition + " " + maAColor + " " + maUAlpha );
+    // Log.v("Cave3D", "Line-A " + maUPointSize + " " + maAPosition + " " + maAColor + " " + maUAlpha );
   }
   private static void setLocationsAColor( int program )
   {
@@ -573,7 +662,7 @@ class GlLines extends GlShape
     maAPosition  = GL.getAttribute( program, GL.aPosition );  // variable names must coincide with those in fragments
     maAColor     = GL.getAttribute( program, GL.aColor );
     maUAlpha     = GL.getUniform(   program, GL.uAlpha );
-    // Log.v("TopoGL", "Line-A " + maUPointSize + " " + maAPosition + " " + maAColor + " " + maUAlpha );
+    // Log.v("Cave3D", "Line-A " + maUPointSize + " " + maAPosition + " " + maAColor + " " + maUAlpha );
   }
   private static void setLocationsUColor( int program )
   {
@@ -582,7 +671,7 @@ class GlLines extends GlShape
     muAPosition  = GL.getAttribute( program, GL.aPosition );  // variable names must coincide with those in fragments
     muAColor     = GL.getAttribute( program, GL.aColor );
     muUColor     = GL.getUniform(   program, GL.uColor );
-    // Log.v("TopoGL", "Line-U " + muUPointSize + " " + muAPosition + " " + muUColor );
+    // Log.v("Cave3D", "Line-U " + muUPointSize + " " + muAPosition + " " + muUColor );
   }
   // Station is the sane as UColor
   private static void setLocationsStation( int program )
@@ -591,7 +680,7 @@ class GlLines extends GlShape
     mstUPointSize = GL.getUniform(   program, GL.uPointSize );
     mstAPosition  = GL.getAttribute( program, GL.aPosition );  // variable names must coincide with those in fragments
     mstUColor     = GL.getUniform(   program, GL.uColor );
-    // Log.v("TopoGL", "Line-U " + muUPointSize + " " + muAPosition + " " + muUColor );
+    // Log.v("Cave3D", "Line-U " + muUPointSize + " " + muAPosition + " " + muUColor );
   }
   private static void setLocationsZColor( int program )
   {
@@ -602,7 +691,7 @@ class GlLines extends GlShape
     mzUZDelta    = GL.getUniform(   program, GL.uZDelta );
     mzUColor     = GL.getUniform(   program, GL.uColor );
     mzAColor     = GL.getAttribute( program, GL.aColor );
-    // Log.v("TopoGL", "Line-Z " + mzUPointSize + " " + mzAPosition + " " + mzUColor + " " + mzUZMin + " " + mzUZDelta );
+    // Log.v("Cave3D", "Line-Z " + mzUPointSize + " " + mzAPosition + " " + mzUColor + " " + mzUZMin + " " + mzUZDelta );
   }
 }
 

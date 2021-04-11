@@ -196,6 +196,25 @@ public class GlRenderer implements Renderer
     prepareModel( parser );
   }
 
+  // FIXME INCREMENTAL
+  void prepareEmptyModel( TglParser parser )
+  {
+    // mModel = new GlModel( mApp, mHalfWidth*2, mHalfHeight*2, parser );
+    // if ( mModel == null ) return;
+    mModel.prepareEmptyModel( parser );
+    mScale0 = 1.0f / 10.0f;
+    makeModelMatrix();
+    doMakeModel = true;
+  }
+
+  void setEmptyParser( TglParser parser )
+  {
+    // Log.v("TopoGL", "Renderer set empty parser" );
+    mParser = parser;
+    prepareEmptyModel( parser );
+  }
+  // END INCREMENTAL
+
   // ------------------------------------------------------------------------
   public GlRenderer( TopoGL app, GlModel model )
   {
@@ -309,7 +328,11 @@ public class GlRenderer implements Renderer
     v[3] = 1;
   }
 
-  void setModelPath( ArrayList< Cave3DStation > path ) { if ( mModel != null ) mModel.setPath( path ); }
+  // FIXME INCREMENTAL
+  void setModelPath( ArrayList< Cave3DStation > path )
+  { 
+    if ( mModel != null ) mModel.setPath( path, mApp.hasBluetoothName() ); 
+  }
 
   void clearStationHighlight() 
   { 
@@ -706,4 +729,8 @@ public class GlRenderer implements Renderer
     return gltf.write( pathname );
   }
 
+  // FIXME INCREMENTAL
+  void addBluetoothSplay( Cave3DShot splay )        { mModel.addBluetoothSplay( splay ); }
+  void addBluetoothLeg( Cave3DShot leg )            { mModel.addBluetoothLeg( leg ); }
+  void addBluetoothStation( Cave3DStation station ) { mModel.addBluetoothStation( station ); }
 }
