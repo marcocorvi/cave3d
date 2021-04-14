@@ -75,7 +75,7 @@ public class DistoXComm extends TopoGLComm
   public DistoXComm( Context ctx, TopoGL app, BluetoothDevice bt_device, String address ) 
   {
     super( ctx, app, TopoGLComm.COMM_RFCOMM, address );
-    mBtConnection = new BtConnection( app, this, address );
+    mBtConnection = new BtConnection( app, this );
     setProto( new DistoXProto( mApp, DeviceType.DEVICE_DISTOX, bt_device ) );
 
     // allocate device-specific buffers
@@ -131,6 +131,8 @@ public class DistoXComm extends TopoGLComm
     }
   }
 
+  // create BT connection socket and download Thread
+  // @param address   remote device address
   boolean startCommThread( String address )
   {
     closeCommThread(); // safety;
@@ -156,15 +158,16 @@ public class DistoXComm extends TopoGLComm
   // @Implements
   public boolean connectDevice( )
   {
+    Log.v("Cave3D", "DistoXComm connect device - address " + mAddress );
     resetTimer();
     if ( mBTConnected ) return true; // already connected
-    // create BT connection socket and download Thread
-    return startCommThread( mAddress );
+    return startCommThread( mAddress ); // create BT connection socket and download Thread
   }
 
   // @Implements
   public boolean disconnectDevice()
   {
+    Log.v("Cave3D", "DistoXComm disconnect device - connected " + mBTConnected );
     if ( mBTConnected ) {
       closeCommThread(); // this closes socket
       mBTConnected = false;

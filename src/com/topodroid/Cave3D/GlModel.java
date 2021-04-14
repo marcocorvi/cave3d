@@ -889,7 +889,7 @@ public class GlModel
       GlSurface gl_surface = new GlSurface( mContext );
       valid_surface = gl_surface.initData( surface, mXmed, mYmed, mZmed, parser.surfaceFlipped() );
       if ( valid_surface ) {
-        if ( parser.mBitmap != null ) {
+        if ( parser != null && parser.mBitmap != null ) {
           Bitmap texture = parser.mBitmap.getBitmap( surface.mEast1, surface.mNorth1, surface.mEast2, surface.mNorth2 );
           if ( texture != null ) {
             gl_surface.setBitmap( texture );
@@ -1038,10 +1038,12 @@ public class GlModel
       if ( st.surface_depth > zmax ) { zmax = st.surface_depth; }
       else if ( st.surface_depth < 0.0f ) { st.surface_depth = 0.0f; }
     }
-    zmax = 1.0/zmax;
-    for ( Cave3DStation st : parser.getStations() ) {
-      st.surface_depth *= zmax;
-      if ( st.surface_depth > 1.0f ) st.surface_depth = 1.0f;
+    if ( zmax > 0 ) {
+      zmax = 1.0 / zmax;
+      for ( Cave3DStation st : parser.getStations() ) {
+        st.surface_depth *= zmax;
+        if ( st.surface_depth > 1.0f ) st.surface_depth = 1.0f;
+      }
     }
     // Log.v("TopoGL", "Model surface inv depth " + zmax + " stations " + parser.getStations().size() );
     return zmax;

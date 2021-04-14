@@ -90,6 +90,8 @@ public abstract class TopoGLComm implements BluetoothComm
   // TIMER ------------------------------------------------------------------------------
   private Timer mTimer = null;
 
+  protected boolean isScheduled() { return mTimer != null; }
+
   protected void resetTimer()
   {
     if ( mTimer != null ) {
@@ -101,7 +103,7 @@ public abstract class TopoGLComm implements BluetoothComm
   protected void scheduleDisconnect( final int delay )
   {
     if ( mTimer == null ) {
-      // Log.v("Cave3D", "schedule a disconnect Device" );
+      Log.v("Cave3D", "schedule a disconnect Device" );
       mTimer = new Timer();
       mTimer.schedule(  new TimerTask() { @Override public void run() { disconnectDevice(); } }, delay );
     }
@@ -110,7 +112,7 @@ public abstract class TopoGLComm implements BluetoothComm
   protected void scheduleConnect( final int delay, final String address )
   {
     if ( mTimer == null ) {
-      // Log.v("Cave3D", "schedule a connect Device" );
+      Log.v("Cave3D", "schedule for a connect Device" );
       mTimer = new Timer();
       mTimer.schedule(  new TimerTask() { @Override public void run() { connectDevice( address ); } }, delay );
     }
@@ -119,7 +121,7 @@ public abstract class TopoGLComm implements BluetoothComm
   protected void scheduleReconnect( final int delay, final int period, final String address )
   {
     if ( mTimer == null ) {
-      // Log.v("Cave3D", "schedule a connect Device" );
+      Log.v("Cave3D", "schedule for a re-connect" );
       mTimer = new Timer();
       mTimer.schedule(  new TimerTask() { @Override public void run() { connectDevice( address ); } }, delay, period );
     }
