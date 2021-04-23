@@ -11,11 +11,20 @@
  */
 package com.topodroid.Cave3D;
 
-// FIXME INCREMENTAL
 import com.topodroid.bt.ConnectionState;
 import com.topodroid.bt.BleUtils;
 import com.topodroid.bt.BricComm;
+import com.topodroid.bt.SapComm;
 import com.topodroid.bt.DistoXComm;
+
+import com.topodroid.in.ParserTh;
+import com.topodroid.in.ParserTro;
+import com.topodroid.in.ParserDat;
+import com.topodroid.in.Parser3d;
+import com.topodroid.in.ParserLox;
+import com.topodroid.in.ParserBluetooth;
+import com.topodroid.in.ParserSketch;
+import com.topodroid.in.ParserException;
 
 import android.util.Log;
 
@@ -26,12 +35,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.Locale;
 
 import android.os.Environment;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.AsyncTask;
+import android.os.Message;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -74,10 +85,6 @@ import android.widget.LinearLayout;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
-import android.preference.PreferenceManager;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.SharedPreferences.Editor;
 
 import android.util.DisplayMetrics;
 
@@ -95,6 +102,47 @@ public class TopoGL extends Activity
                     , OnSharedPreferenceChangeListener
                     , GPS.GPSListener // WITH-GPS 
 {
+  final static boolean BLUETOOTH = true;
+  final static boolean BLUETOOTH_REMOTE = false;
+
+  public static final int MESSAGE_BLOCK = 1;
+  public static final String BLOCK_D= "BLOCK_D";
+  public static final String BLOCK_B= "BLOCK_B";
+  public static final String BLOCK_C= "BLOCK_C";
+  public static final String BLOCK_T= "BLOCK_T";
+
+  
+  private Handler mBluetoothHandler = new Handler();
+
+  public Message obtainMessage( int type )
+  {
+    return (mBluetoothHandler == null)? null : mBluetoothHandler.obtainMessage( type );
+  }
+
+  public void sendMessage( Message msg ) 
+  {
+    if ( msg == null ) return;
+    Bundle data = msg.getData();
+    switch ( msg.what ) {
+      case MESSAGE_BLOCK:
+        handleBlock( data );
+        break;
+    }
+  }
+
+  private void handleBlock( Bundle data )
+  {
+    final int   t = (int)( data.getInt( BLOCK_T ) );
+    final float d = (float)( data.getDouble( BLOCK_D ) );
+    final float b = (float)( data.getDouble( BLOCK_B ) );
+    final float c = (float)( data.getDouble( BLOCK_C ) );
+    final Activity act = this;
+    runOnUiThread( new Runnable() {
+      @Override public void run() {
+        Toast.makeText( act, String.format(Locale.US, "Data %d: %.2f %.2f %.2f", t, d, b, c ), Toast.LENGTH_LONG ).show();
+      }
+    } );
+  }
 
   // android P (9) is API 28
   final static boolean NOT_ANDROID_10 = ( Build.VERSION.SDK_INT <= Build.VERSION_CODES.P );
@@ -309,6 +357,10 @@ public class TopoGL extends Activity
       // mRenderer.onSurfaceChanged( null, glSurfaceView.getWidth(), glSurfaceView.getHeight() );
       // glSurfaceView.requestRender();
     }
+    if ( BLUETOOTH  && mPrefs != null ) {
+      String name = mPrefs.getString( "CAVE3D_BLUETOOTH_DEVICE", "" );
+      checkBluetooth( name );
+    }
   }
 
   // -----------------------------------------------------------------
@@ -439,7 +491,7 @@ public class TopoGL extends Activity
   int menus[] = {
     R.string.menu_open,       // 0
     R.string.menu_export,
-    // R.string.menu_ble, // FIXME INCREMENTAL MENU
+    R.string.menu_ble, // FIXME BLUETOOTH  MENU
     R.string.menu_info,
     R.string.menu_ico,
     R.string.menu_rose,
@@ -461,7 +513,7 @@ public class TopoGL extends Activity
     MyButton.setButtonBackground( this, mMenuImage, size, R.drawable.iz_menu );
     mMenuAdapter = new MyMenuAdapter( this, this, mMenu, R.layout.menu, new ArrayList< MyMenuItem >() );
     for ( int k=0; k<menus.length; ++k ) {
-      // if ( k ==  2 && ! ( hasBluetoothName() && mWithBluetooth ) ) continue; // FIXME INCREMENTAL MENU
+      if ( k ==  2 && ! ( hasBluetoothName() && mWithBluetooth ) ) continue; // FIXME BLUETOOTH  MENU
       if ( k == 9 && ! mHasC3d ) continue;
 	  
       mMenuAdapter.add( res.getString( menus[k] ) );
@@ -492,18 +544,10 @@ public class TopoGL extends Activity
       } else {
         Toast.makeText( this, R.string.no_model, Toast.LENGTH_SHORT ).show();
       }
-    // FIXME INCREMENTAL MENU
-    // } else if ( mWithBluetooth && hasBluetoothName() && (p++ == pos) ) { // BLEUTOOTH
-    //   if ( mBluetoothState == BLUETOOTH_OFF ) {
-    //     if ( startBluetooth() ) {
-    //       mButton1[BTN_BLE].setBackgroundDrawable( mBMbleWait );
-    //     } else {
-    //       mButton1[BTN_BLE].setBackgroundDrawable( mBMbleOff );
-    //     }
-    //   } else {
-    //     stopBluetooth();
-    //     mButton1[BTN_BLE].setBackgroundDrawable( mBMbleOff );
-    //   }
+    // FIXME BLUETOOTH  MENU
+    } else if ( mWithBluetooth && hasBluetoothName() && (p++ == pos) ) { // BLEUTOOTH SURVEY
+      // TODO 
+      (new DialogSurveyList( this, this )).show();
 
     } else if ( p++ == pos ) { // INFO
       if ( mParser != null ) {
@@ -579,7 +623,7 @@ public class TopoGL extends Activity
 
   HorizontalListView mListView = null;
   HorizontalButtonView mButtonView1;
-  MyButton mButton1[];
+  MyButton mButton1[] = null;
   static int mNrButton1 = 8;
   static int izons[] = {
     R.drawable.iz_light,
@@ -590,12 +634,13 @@ public class TopoGL extends Activity
     R.drawable.iz_surface_no,
     R.drawable.iz_color,
     R.drawable.iz_frame_grid,
-    R.drawable.iz_bt_off, // FIXME INCREMENTAL BUTTON
+    R.drawable.iz_bt_down, // FIXME BLUETOOTH BUTTON
     // secondary bitmaps
     R.drawable.iz_wall,
     R.drawable.iz_perspective,
     R.drawable.iz_surface,
-    R.drawable.iz_bt_wait, // FIXME INCREMENTAL BUTTON
+    R.drawable.iz_bt_off, // FIXME BLUETOOTH BUTTON
+    R.drawable.iz_bt_wait,
     R.drawable.iz_bt_ready,
     R.drawable.iz_bt_laser,
     R.drawable.iz_bt_scan,
@@ -609,18 +654,20 @@ public class TopoGL extends Activity
   int BTN_SURFACE  = 5;
   int BTN_COLOR    = 6;
   int BTN_FRAME    = 7;
-  int BTN_BLE      = 8; // FIXME INCREMENTAL BUTTON
+  int BTN_BLE      = 8; // FIXME BLUETOOTH BUTTON
   BitmapDrawable mBMlight;
   BitmapDrawable mBMmove;
   BitmapDrawable mBMturn;
   BitmapDrawable mBMhull;
 
-  BitmapDrawable mBMbleOff; // FIXME INCREMENTAL BUTTON
-  BitmapDrawable mBMbleWait;
-  BitmapDrawable mBMbleReady;
-  BitmapDrawable mBMbleLaser;
-  BitmapDrawable mBMbleShot;
-  BitmapDrawable mBMbleScan;
+  BitmapDrawable mBMbleDown  = null; // FIXME BLUETOOTH BUTTON
+  BitmapDrawable mBMbleOff   = null;
+  BitmapDrawable mBMbleOn    = null; 
+  BitmapDrawable mBMbleWait  = null;
+  BitmapDrawable mBMbleReady = null;
+  BitmapDrawable mBMbleLaser = null;
+  BitmapDrawable mBMbleShot  = null;
+  BitmapDrawable mBMbleScan  = null;
 
   BitmapDrawable mBMdelaunay;
   BitmapDrawable mBMpowercrust;
@@ -660,8 +707,7 @@ public class TopoGL extends Activity
   {
     if ( mListView == null ) return;
     int size = setListViewHeight( this, mListView );
-    // if ( hasBluetoothName() )
-      ++mNrButton1; // FIXME INCREMENTAL BUTTON
+    if ( BLUETOOTH )  ++mNrButton1; 
     mButton1 = new MyButton[ mNrButton1 ];
     mButton1[0] = new MyButton( this, this, size, izons[0] );
     mButton1[1] = new MyButton( this, this, size, izons[1] );
@@ -671,14 +717,15 @@ public class TopoGL extends Activity
     mButton1[5] = new MyButton( this, this, size, izons[5] );
     mButton1[6] = new MyButton( this, this, size, izons[6] );
     mButton1[7] = new MyButton( this, this, size, izons[7] );
-    mButton1[8] = new MyButton( this, this, size, izons[8] );
+    if ( BLUETOOTH ) {
+      mButton1[8] = new MyButton( this, this, size, izons[8] );
+    }
 
     // mButton1[ 0 ].setOnLongClickListener( this );
     mButton1[ 1 ].setOnLongClickListener( this ); // projection params
     mButton1[ 2 ].setOnLongClickListener( this ); // stations
     mButton1[ 3 ].setOnLongClickListener( this ); // splays
     mButton1[ 6 ].setOnLongClickListener( this ); // surveys
-    mButton1[ 8 ].setOnLongClickListener( this ); // bluetooth
 
     mBMlight = mButton1[BTN_MOVE].mBitmap;
     mBMturn = MyButton.getButtonBackground( this, size, R.drawable.iz_turn );
@@ -717,18 +764,23 @@ public class TopoGL extends Activity
     mBMframeNo     = MyButton.getButtonBackground( this, size, R.drawable.iz_frame_no );
     mBMframeAxes   = MyButton.getButtonBackground( this, size, R.drawable.iz_frame_axes );
 
-    // FIXME INCREMENTAL BUTTON
-    mBMbleOff   = mButton1[ BTN_BLE ].mBitmap;
-    mBMbleWait  = MyButton.getButtonBackground( this, size, R.drawable.iz_bt_wait  );
-    mBMbleReady = MyButton.getButtonBackground( this, size, R.drawable.iz_bt_ready );
-    mBMbleLaser = MyButton.getButtonBackground( this, size, R.drawable.iz_bt_laser );
-    mBMbleScan  = MyButton.getButtonBackground( this, size, R.drawable.iz_bt_shot  );
-    mBMbleScan  = MyButton.getButtonBackground( this, size, R.drawable.iz_bt_scan  );
+    if ( BLUETOOTH ) {
+      mBMbleDown  = mButton1[ BTN_BLE ].mBitmap;
+      mBMbleOff   = MyButton.getButtonBackground( this, size, R.drawable.iz_bt_off );
+      mBMbleOn    = MyButton.getButtonBackground( this, size, R.drawable.iz_bt_on  );
+      mBMbleWait  = MyButton.getButtonBackground( this, size, R.drawable.iz_bt_wait  );
+      mBMbleReady = MyButton.getButtonBackground( this, size, R.drawable.iz_bt_ready );
+      mBMbleLaser = MyButton.getButtonBackground( this, size, R.drawable.iz_bt_laser );
+      mBMbleShot  = MyButton.getButtonBackground( this, size, R.drawable.iz_bt_shot  );
+      mBMbleScan  = MyButton.getButtonBackground( this, size, R.drawable.iz_bt_scan  );
+      mButton1[ BTN_BLE ].setVisibility( hasBluetoothName()? View.VISIBLE : View.GONE );
+      mButton1[ BTN_BLE ].setOnLongClickListener( this ); // bluetooth
+      // mButton1[ BTN_BLE ].setOnClickListener( this );
+    }
 
     // mButtonView1 = new HorizontalImageButtonView( mButton1 );
     mButtonView1 = new HorizontalButtonView( mButton1 );
     mListView.setAdapter( mButtonView1.mAdapter );
-    mButton1[ BTN_BLE ].setVisibility( hasBluetoothName()? View.VISIBLE : View.GONE );
 
     resetButtons();
 
@@ -765,9 +817,9 @@ public class TopoGL extends Activity
       if ( mParser == null || mParser.getSurveyNumber() < 2 ) return false;
       new DialogSurveys( this, this, mParser.getSurveys() ).show();
 	  
-    // FIXME INCREMENTAL BUTTON
-    // } else if ( b == mButton1[ BTN_BLE ] ) { // BLUETOOTH
-    //   doBluetoothLongClick();
+    } else if ( BLUETOOTH && b == mButton1[ BTN_BLE ] ) {
+      Log.v("Cave3D", "BT button long click ");
+      doBluetoothLongClick();
     }
     return true;
   }
@@ -931,6 +983,7 @@ public class TopoGL extends Activity
   @Override
   public void onClick(View view)
   { 
+    // Log.v("Cave3D", "on click ...");
     if ( onMenu ) {
       closeMenu();
       return;
@@ -985,8 +1038,9 @@ public class TopoGL extends Activity
         mRenderer.toggleFrameMode();
         setButtonFrame();
       }
-    } else if ( hasBluetoothName() && b0 == mButton1[k1++] ) { // BLUETOOTH
-      doBluetoothClick();
+    } else if ( BLUETOOTH && b0 == mButton1[k1++] ) { // BLUETOOTH
+      // Log.v("Cave3D", "BT button click ");
+      if ( hasBluetoothName() ) doBluetoothClick();
 
     } else if ( b0 == mMeasureStation ) {
       if ( isMeasuring ) {
@@ -1274,9 +1328,9 @@ public class TopoGL extends Activity
 
   private void checkPermissions()
   {
-    prefs = PreferenceManager.getDefaultSharedPreferences( this );
-    loadPreferences( prefs );
-    prefs.registerOnSharedPreferenceChangeListener( this );
+    mPrefs = PreferenceManager.getDefaultSharedPreferences( this );
+    loadPreferences( mPrefs );
+    mPrefs.registerOnSharedPreferenceChangeListener( this );
 
     try {
       VERSION = getPackageManager().getPackageInfo( getPackageName(), 0 ).versionName;
@@ -1335,20 +1389,20 @@ public class TopoGL extends Activity
   //   return getPackageManager().hasSystemFeature( PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH );
   // }
 
-  static final int DEM_SHRINK = 1;
-  static final int DEM_CUT    = 2;
+  public static final int DEM_SHRINK = 1;
+  public static final int DEM_CUT    = 2;
 
   
 
   // ---------------------------------- PREFERENCES
-  private SharedPreferences prefs;
+  private SharedPreferences mPrefs;
 
   static float mSelectionRadius = 1.0f;
   static int mButtonSize      = 1;
   // static boolean mPreprojection = true;
   static float mDEMbuffer  = 200;
-  static int   mDEMmaxsize = 400;
-  static int   mDEMreduce  = DEM_SHRINK;
+  public static int   mDEMmaxsize = 400;
+  public static int   mDEMreduce  = DEM_SHRINK;
   // static boolean mWallConvexHull = false;
   // static boolean mWallPowercrust = false;
   // static boolean mWallDelaunay   = false;
@@ -1356,7 +1410,7 @@ public class TopoGL extends Activity
   static boolean mStationDialog  = false;
   // static boolean mUseSplayVector = true; // ??? Hull with 3D splays or 2D splay projections
   static boolean mMeasureToast   = false;
-  static boolean mWithBluetooth  = false; // FIXME INCREMENTAL SETTING
+  static boolean mWithBluetooth  = false; // FIXME BLUETOOTH  SETTING
   
   static boolean mSplayProj      = false;
   static float   mSplayThr       = 0.5f;
@@ -1372,7 +1426,7 @@ public class TopoGL extends Activity
   static final String CAVE3D_GRID_ABOVE       = "CAVE3D_GRID_ABOVE";
   static final String CAVE3D_GRID_EXTENT      = "CAVE3D_GRID_EXTEND";
   static final String CAVE3D_NEG_CLINO        = "CAVE3D_NEG_CLINO";
-  static final String CAVE3D_BLUETOOTH_DEVICE = "CAVE3D_BLUETOOTH_DEVICE"; // FIXME INCREMENTAL SETTING
+  static final String CAVE3D_BLUETOOTH_DEVICE = "CAVE3D_BLUETOOTH_DEVICE"; // FIXME BLUETOOTH SETTING
   static final String CAVE3D_DEM_BUFFER       = "CAVE3D_DEM_BUFFER";
   static final String CAVE3D_DEM_MAXSIZE      = "CAVE3D_DEM_MAXSIZE";
   static final String CAVE3D_DEM_REDUCE       = "CAVE3D_DEM_REDUCE";
@@ -1389,6 +1443,7 @@ public class TopoGL extends Activity
   // static final String CAVE3D_POWERCRUST       = "CAVE3D_POWERCRUST";
   // static final String CAVE3D_DELAUNAY         = "CAVE3D_DELAUNAY";
   // static final String CAVE3D_HULL             = "CAVE3D_HULL";
+
 
   public void onSharedPreferenceChanged( SharedPreferences sp, String k ) 
   {
@@ -1432,7 +1487,8 @@ public class TopoGL extends Activity
       } catch ( NumberFormatException e ) { }
     } else if ( k.equals( CAVE3D_NEG_CLINO ) ) { 
       GlRenderer.mMinClino = sp.getBoolean( k, false ) ? 90: 0;
-    } else if ( k.equals( CAVE3D_BLUETOOTH_DEVICE ) ) { // FIXME INCREMENTAL SETTING
+    } else if ( k.equals( CAVE3D_BLUETOOTH_DEVICE ) ) { // FIXME BLUETOOTH SETTING
+      Log.v("Cave3D", "on bluetooth preference changed");
       checkBluetooth( sp.getString( k, "" ) );
     } else if ( k.equals( CAVE3D_ALL_SPLAY ) ) { 
       GlModel.mAllSplay = sp.getBoolean( k, true );
@@ -1540,7 +1596,8 @@ public class TopoGL extends Activity
     GlRenderer.mMinClino  = sp.getBoolean( CAVE3D_NEG_CLINO, false ) ? 90 : 0;
     GlModel.mAllSplay  = sp.getBoolean( CAVE3D_ALL_SPLAY, true );
     TglParser.mSplayUse = Integer.parseInt( sp.getString( CAVE3D_SPLAY_USE, "1" ) );
-    checkBluetooth( sp.getString( CAVE3D_BLUETOOTH_DEVICE, "" ) ); // FIXME INCREMENTAL SETTING
+    Log.v("Cave3D", "load BT preference");
+    checkBluetooth( sp.getString( CAVE3D_BLUETOOTH_DEVICE, "" ) ); // FIXME BLUETOOTH SETTING
     mSplayProj = sp.getBoolean( CAVE3D_SPLAY_PROJ, false );
     try {
       float buffer = Float.parseFloat( sp.getString( CAVE3D_SPLAY_THR, "0.5" ) );
@@ -1618,7 +1675,7 @@ public class TopoGL extends Activity
     Toast.makeText( this, msg, Toast.LENGTH_SHORT).show();
   }
 
-  void uiToast( final String r, final boolean loong ) 
+  public void uiToast( final String r, final boolean loong ) 
   {
     final Context ctx = this;
     runOnUiThread( new Runnable() {
@@ -1632,7 +1689,7 @@ public class TopoGL extends Activity
     } );
   }
 
-  void uiToast( final int r, final boolean loong ) 
+  public void uiToast( final int r, final boolean loong ) 
   {
     final Context ctx = this;
     runOnUiThread( new Runnable() {
@@ -1646,7 +1703,7 @@ public class TopoGL extends Activity
     } );
   }
 
-  void uiToast( final int r, final String str, final boolean loong ) 
+  public void uiToast( final int r, final String str, final boolean loong ) 
   {
     final Context ctx = this;
     String msg = String.format( getResources().getString( r ), str );
@@ -1661,7 +1718,7 @@ public class TopoGL extends Activity
     } );
   }
 
-  void uiToast( final String r, final String str, final boolean loong ) 
+  public void uiToast( final String r, final String str, final boolean loong ) 
   {
     final Context ctx = this;
     String msg = String.format( r, str );
@@ -1918,19 +1975,21 @@ public class TopoGL extends Activity
   }
 
   // BLUETOOTH -----------------------------------------------------------------------
-  // FIXME INCREMENTAL
-
-  private boolean mFakeBtRemote = false;
+  // FIXME BLUETOOTH
 
   static int bearing = 0; 
   static int clino   = 0;
   
-  private final static int BLUETOOTH_OFF    = 0;
-  private final static int BLUETOOTH_WAIT   = 1;
-  private final static int BLUETOOTH_READY  = 2;
-  private final static int BLUETOOTH_LASER  = 3;
-  private final static int BLUETOOTH_SHOT   = 4;
-  private final static int BLUETOOTH_SCAN   = 5;
+  private final static int BLUETOOTH_DOWN   = 0;
+  private final static int BLUETOOTH_OFF    = 1;
+  private final static int BLUETOOTH_ON     = 2;
+  private final static int BLUETOOTH_WAIT   = 3;
+  private final static int BLUETOOTH_READY  = 4;
+  private final static int BLUETOOTH_LASER  = 5;
+  private final static int BLUETOOTH_SHOT   = 6;
+  private final static int BLUETOOTH_SCAN   = 7;
+
+  private final static String[] BtState = { "DOWN", "OFF", "ON|", "WAIT", "READY", "LASER", "SHOT", "SCAN" };
 
   private String          mBtRemoteName = null;
   private BluetoothDevice mBtRemoteDevice = null;
@@ -1974,117 +2033,13 @@ public class TopoGL extends Activity
     }
   }
 
-  boolean startBluetooth()
-  {
-    mBluetoothState = BLUETOOTH_OFF;
-    Log.v("Cave3D", "starting bluetooth - remote " + mBtRemoteName );
-    if ( mBtRemoteName.equals("FakeBT" ) ) {
-      mFakeBtRemote = true;
-      setBluetoothParser( "FakeBT" );
-      mBluetoothState = BLUETOOTH_READY;
-    } else {
-      mFakeBtRemote = false;
-      if ( mBluetoothComm == null ) {
-        // mBluetoothComm = new BluetoothComm( this, this, mBtRemoteDevice );
-        if ( mBtRemoteName.startsWith("BRIC4_" ) ) {
-          mBluetoothComm = new BricComm( this, this, mBtRemoteDevice );
-        } else if ( mBtRemoteName.startsWith("DistoX-" ) ) {
-          mBluetoothComm = new DistoXComm( this, this, mBtRemoteDevice, mBtRemoteDevice.getAddress() );
-        }
-        if ( mBluetoothComm != null ) {
-          mDataType = DATA_NONE;
-          mBluetoothState = BLUETOOTH_READY;
-          (new AsyncTask<Void, Void, Boolean>() {
-            @Override public Boolean doInBackground(Void ... v ) {
-              boolean ret = mBluetoothComm.connectDevice();
-              setBluetoothParser( mBtRemoteName );
-              return ret;
-            }
-            @Override public void onPostExecute( Boolean b )
-            {
-              if ( b ) {
-                Log.v("Cave3D", "connect OK");
-              } else {
-                Log.v("Cave3D", "connect failed");
-              }
-            }
-          } ).execute();
-        }
-      }
-    }
-    return ( mBluetoothState != BLUETOOTH_OFF);
-  }
-
-  void stopBluetooth()
-  {
-    Log.v("Cave3D", "stopping bluetooth - remote " + ( (mBtRemoteName != null)? mBtRemoteName : "null") );
-    if ( hasBluetoothComm() ) {
-      // Log.v("TopoGL", "stopping bluetooth");
-      mBluetoothComm.disconnectDevice();
-      mBluetoothComm = null;
-      mBtRemoteName  = null;
-      mDataType = DATA_NONE;
-    }
-    mBluetoothState = BLUETOOTH_OFF;
-  }
-
-  // check if there is a connectable BLUETOOTH device
-  public boolean hasBluetoothName() { return mBtRemoteName != null; }
-
-  private boolean hasBluetoothComm() { return mBluetoothComm != null; } 
-
-  // @param name   BT remote device name
-  private void checkBluetooth( String name )
-  {
-    boolean with_bluetooth = false; // FIXME INCREMENTAL checkBluetoothName( name );
-    if ( with_bluetooth != mWithBluetooth ) {
-      mWithBluetooth = with_bluetooth;
-      mButton1[ BTN_BLE ].setVisibility( hasBluetoothName()? View.VISIBLE : View.GONE );
-      if ( ! mWithBluetooth ) stopBluetooth();
-    }
-  }
-
-  private boolean checkBluetoothName( String name )
-  {
-    mBtRemoteName   = null;
-    mBtRemoteDevice = null;
-    if ( name == null || name.length() == 0 ) return false;
-    if ( name.equals("FakeBT" ) ) {
-      mFakeBtRemote = true;
-      return true;
-    }
-    mFakeBtRemote = false;
-    // WARNING BT name must have "Real" prefix
-    if ( ! ( name.startsWith("RealDistoX-") || name.startsWith("RealBRIC4_" ) ) ) return false;
-    name = name.substring( 4 );
-
-    BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-    if ( adapter == null ) return false;
-    Set< BluetoothDevice > devices = adapter.getBondedDevices();
-    if ( devices == null ) return false;
-    for ( BluetoothDevice device : devices ) {
-      if ( device.getName().equals( name ) ) {
-        mBtRemoteName   = name;
-        mBtRemoteDevice = device;
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public void notifyStatus( int status )
-  {
-    mBleStatus = status;
-    // setBluetoothButton( mBleStatus );
-  }
-
   public void handleRegularData( double dist, double bear, double clino )
   {
     double h = dist * Math.cos( clino * Cave3DShot.DEG2RAD );
     double z = dist * Math.sin( clino * Cave3DShot.DEG2RAD );
     double n = h * Math.cos( bear * Cave3DShot.DEG2RAD );
     double e = h * Math.sin( bear * Cave3DShot.DEG2RAD );
-    // Log.v("TopoGL-BLE", "TopoGL handle " + mDataType + " D " + dist + " A " + bear + " C " + clino + " E " + e + " N " + n + " Z " + z );
+    Log.v("Cave3D", "TopoGL handle data D " + dist + " A " + bear + " C " + clino + " E " + e + " N " + n + " Z " + z );
     if ( mBluetoothParser != null ) {
       if ( mDataType == DATA_SPLAY ) {
         Cave3DShot splay = mBluetoothParser.addSplay( dist, bear, clino, e, n, z );
@@ -2095,96 +2050,293 @@ public class TopoGL extends Activity
         mRenderer.addBluetoothLeg( leg );
       }
     }
+    onShotData();
   }
 
   // ------------------------------------------------------------------
   // BT state and button
   //
+
+  public int getBluetoothState() { return mBluetoothState; }
+
+  // check if there is a connectable BLUETOOTH device
+  public boolean hasBluetoothName() { return mBtRemoteName != null; }
+
+  private boolean hasBluetoothComm() { return mBluetoothComm != null; } 
+
+
+  public void notifyStatus( int status )
+  {
+    Log.v("Cave3D", "Topo GL app notify status " + ConnectionState.statusString[ status ] );
+    mBleStatus = status;
+    switch ( status ) {
+      case ConnectionState.CONN_DISCONNECTED:
+        setBluetoothState( BLUETOOTH_ON );
+        break;
+      case ConnectionState.CONN_CONNECTED:
+        setBluetoothState( BLUETOOTH_READY );
+        break;
+      case ConnectionState.CONN_WAITING:
+        setBluetoothState( BLUETOOTH_WAIT );
+        break;
+    }
+  }
+
+  public void onShotData()
+  {
+    Log.v("Cave3D", "Topo GL on shot data ... BT state " + BtState[ mBluetoothState ] );
+    if ( mBluetoothState == BLUETOOTH_SHOT ) {
+      setBluetoothState( BLUETOOTH_READY );
+    }
+  }
+
+  private boolean startBluetooth()
+  {
+    Log.v("Cave3D", "starting bluetooth - remote " + mBtRemoteName );
+    if ( mBluetoothComm == null ) {
+      // mBluetoothComm = new BluetoothComm( this, this, mBtRemoteDevice );
+      if ( mBtRemoteName.startsWith("BRIC4_" ) ) {
+        mBluetoothComm = new BricComm( this, this, mBtRemoteDevice );
+      } else if ( mBtRemoteName.startsWith("Shetland_" ) ) {
+        mBluetoothComm = new SapComm( this, this, mBtRemoteDevice );
+      } else if ( mBtRemoteName.startsWith("DistoX-" ) ) {
+        mBluetoothComm = new DistoXComm( this, this, mBtRemoteDevice, mBtRemoteDevice.getAddress() );
+      }
+      /*
+      if ( mBluetoothComm != null ) {
+        mDataType = DATA_NONE;
+        mBluetoothState = BLUETOOTH_READY;
+        // (new AsyncTask<Void, Void, Boolean>() {
+        //   @Override public Boolean doInBackground(Void ... v ) {
+            boolean ret = mBluetoothComm.connectDevice();
+            setBluetoothParser( mBtRemoteName );
+        //     return ret;
+        //   }
+        //   @Override public void onPostExecute( Boolean ret )
+        //   {
+            if ( ret ) {
+              Log.v("Cave3D", "connect OK");
+              setBluetoothState( BLUETOOTH_READY );
+            } else {
+              Log.v("Cave3D", "connect failed");
+              setBluetoothState( BLUETOOTH_OFF );
+            }
+        //   }
+        // } ).execute();
+      }
+      */
+    }
+    setBluetoothState( (mBluetoothComm != null)? BLUETOOTH_OFF : BLUETOOTH_DOWN );
+    return ( mBluetoothComm != null);
+  }
+
+  private void stopBluetooth()
+  {
+    Log.v("Cave3D", "stop bluetooth - remote " + ( (mBtRemoteName != null)? mBtRemoteName : "null") );
+    if ( hasBluetoothComm() ) {
+      mBluetoothComm.disconnectDevice();
+      // mBluetoothComm = null;
+      // mBtRemoteName  = null;
+    }
+    mDataType = DATA_NONE;
+    setBluetoothState( BLUETOOTH_OFF );
+  }
+
+  private void shutdownBluetooth( boolean set_state )
+  {
+    Log.v("Cave3D", "shotdown bluetooth - remote " + ( (mBtRemoteName != null)? mBtRemoteName : "null") );
+    if ( hasBluetoothComm() ) {
+      mBluetoothComm.disconnectDevice();
+    }
+    mBluetoothComm = null;
+    mDataType = DATA_NONE;
+    // mBtRemoteName  = null; // hasBluetoothName() returns false
+    if ( set_state ) setBluetoothState( BLUETOOTH_DOWN );
+  }
+
+  // @param name   BT remote device name
+  private void checkBluetooth( String name )
+  {
+    if ( ! BLUETOOTH ) return;
+    boolean with_bluetooth = checkBluetoothName( name );
+    Log.v("Cave3D", "check bluetooth " + name + " " + with_bluetooth );
+    mWithBluetooth = with_bluetooth;
+    if ( mButton1 != null ) {
+      setBluetoothState( hasBluetoothName()? BLUETOOTH_OFF : BLUETOOTH_DOWN );
+    }
+    if ( ! mWithBluetooth ) stopBluetooth();
+  }
+
+  private boolean checkBluetoothName( String name )
+  {
+    mBtRemoteName   = null;
+    mBtRemoteDevice = null;
+    if ( ! BLUETOOTH ) return false;
+    if ( name == null || name.length() == 0 ) return false;
+    // WARNING BT name must have "Real" prefix
+    if ( ! ( name.startsWith("Real") ) ) return false;
+    name = name.substring( 4 );
+    Log.v("Cave3D", "check BT name <" + name + ">" );
+
+    BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+    if ( adapter == null ) {
+      Log.v("Cave3D", "check BT name : no adapter");
+      return false;
+    }
+    Set< BluetoothDevice > devices = adapter.getBondedDevices();
+    if ( devices == null ) {
+      Log.v("Cave3D", "check BT name : no devices");
+      return false;
+    }
+    for ( BluetoothDevice device : devices ) {
+      if ( device.getName().equals( name ) ) {
+        Log.v("Cave3D", "check BT name : found device");
+        if ( ! name.equals( mBtRemoteName ) && mBluetoothComm != null ) {
+          shutdownBluetooth( false );
+        }
+        mBtRemoteName   = name;
+        mBtRemoteDevice = device;
+        return true;
+      }
+    }
+    Log.v("Cave3D", "check BT name : device not found");
+    return false;
+  }
+
+  private void doConnectDevice()
+  {
+    Log.v("Cave3D", "TopoGL connect device");
+    if ( mBluetoothComm != null ) {
+      (new AsyncTask<Void, Void, Void>() {
+        @Override public Void doInBackground(Void ... v ) {
+          mBluetoothComm.connectDevice();
+          return null;
+        }
+      } ).execute();
+    } else {
+      Log.e("Cave3D", "TopoGL Error null BT comm");
+    }
+  }
+
+  private void doDisconnectDevice()
+  {
+    mBluetoothComm.disconnectDevice();
+  }
+
   private void doBluetoothClick()
   {
-    if ( mFakeBtRemote ) {
-      bearing += 10;
-      clino   += 5;
-      mDataType = DATA_SHOT;
-      handleRegularData( 5.0, bearing, clino );
-    } else if ( hasBluetoothComm() ) {
+    Log.v("Cave3D", "BT click: state " + BtState[mBluetoothState] + " name " + mBtRemoteName + " has BT comm " + hasBluetoothComm() );
+    if ( hasBluetoothComm() ) {
       switch ( mBluetoothState ) {
-        case BLUETOOTH_OFF: 
-          setBluetoothButton( BLUETOOTH_WAIT );
-          // do connect
+        case BLUETOOTH_DOWN:
+          break;
+        case BLUETOOTH_OFF:
+          startBluetooth();
+          setBluetoothState( (mBluetoothComm == null)? BLUETOOTH_OFF : BLUETOOTH_ON );
+          break;
+        case BLUETOOTH_ON: 
+          setBluetoothState( BLUETOOTH_WAIT );
+          doConnectDevice();
           break;
         case BLUETOOTH_WAIT: 
-          // cancel connect
-          setBluetoothButton( BLUETOOTH_OFF );
+          doDisconnectDevice();
+          setBluetoothState( BLUETOOTH_ON );
           break;
         case BLUETOOTH_READY:
-          sendCommand( BluetoothCommand.CMD_LASER_ON );
-          setBluetoothButton( BLUETOOTH_LASER );
+          if ( BLUETOOTH_REMOTE ) {
+            // sendCommand( BluetoothCommand.CMD_LASER_ON );
+            setBluetoothState( BLUETOOTH_LASER );
+          }
           break;
         case BLUETOOTH_LASER: 
-          sendCommand( BluetoothCommand.CMD_SHOT );
-          setBluetoothButton( BLUETOOTH_SHOT );
+          if ( BLUETOOTH_REMOTE ) {
+            // sendCommand( BluetoothCommand.CMD_SHOT );
+            setBluetoothState( BLUETOOTH_SHOT );
+          }
           break;
         case BLUETOOTH_SHOT: 
         case BLUETOOTH_SCAN: 
-          sendCommand( BluetoothCommand.CMD_LASER_OFF );
-          setBluetoothButton( BLUETOOTH_READY );
+          // sendCommand( BluetoothCommand.CMD_LASER_OFF );
+          setBluetoothState( BLUETOOTH_READY );
           break;
+      }
+    } else {
+      if ( mBluetoothState == BLUETOOTH_OFF ) {
+        Log.v("Cave3D", "start BT ...");
+        boolean ret = startBluetooth();
+        Log.v("Cave3D", "start BT returns " + ret );
+        setBluetoothState( (mBluetoothComm == null)? BLUETOOTH_OFF : BLUETOOTH_ON );
       }
     }
   }
 
   private void doBluetoothLongClick()
   {
-    // Log.v("TopoGL", "bluetooth long click - state " + mBluetoothState );
-    if ( mFakeBtRemote ) {
-      mDataType = DATA_SPLAY;
-      for ( int k=0; k<=6; ++k ) {
-        handleRegularData( 2.0,  90.0+bearing,  90 - 30.0*k );
-        handleRegularData( 2.0, -90.0+bearing, -90 + 30.0*k );
-      }
-    } else if ( hasBluetoothComm() ) {
+    Log.v("Cave3D", "bluetooth long click - state " + mBluetoothState );
+    if ( hasBluetoothComm() ) {
       switch ( mBluetoothState ) {
-        case BLUETOOTH_OFF: 
-          setBluetoothButton( BLUETOOTH_WAIT );
-          // do connect
+        case BLUETOOTH_DOWN:
+          break;
+        case BLUETOOTH_OFF:
+          shutdownBluetooth( true );
+          break;
+        case BLUETOOTH_ON: 
+          setBluetoothState( BLUETOOTH_OFF );
+          stopBluetooth();
           break;
         case BLUETOOTH_WAIT: 
-          // cancel connect
-          setBluetoothButton( BLUETOOTH_OFF );
+          doDisconnectDevice();
+          setBluetoothState( BLUETOOTH_ON );
           break;
         case BLUETOOTH_READY: 
-          sendCommand( BluetoothCommand.CMD_SCAN );
-          setBluetoothButton( BLUETOOTH_SCAN );
+          doDisconnectDevice();
+          setBluetoothState( BLUETOOTH_ON );
           break;
         case BLUETOOTH_LASER:
-          sendCommand( BluetoothCommand.CMD_LASER_OFF );
-          setBluetoothButton( BLUETOOTH_READY );
+          if ( BLUETOOTH_REMOTE ) {
+            // sendCommand( BluetoothCommand.CMD_SCAN );
+            setBluetoothState( BLUETOOTH_SCAN );
+          }
           break;
         case BLUETOOTH_SHOT: 
         case BLUETOOTH_SCAN: 
-          sendCommand( BluetoothCommand.CMD_LASER_OFF );
-          setBluetoothButton( BLUETOOTH_READY );
+          // sendCommand( BluetoothCommand.CMD_LASER_OFF );
+          setBluetoothState( BLUETOOTH_READY );
           break;
       }
-    } 
+    } else {
+      if ( mBluetoothState == BLUETOOTH_OFF ) {
+        shutdownBluetooth( true );
+      }
+    }
   }
 
-  private void setBluetoothButton( int state )
+  private void setBluetoothState( int state )
   {
+    if ( ! BLUETOOTH ) return;
+    Log.v("Cave3D", "set BT state " + BtState[state] + " device " + mBtRemoteName );
     mBluetoothState = state;
-    if ( mBluetoothState == BLUETOOTH_OFF ) {
-      mButton1[BTN_BLE].setBackgroundDrawable( mBMbleOff );
-    } else if ( mBluetoothState == BLUETOOTH_WAIT ) {
-      mButton1[BTN_BLE].setBackgroundDrawable( mBMbleWait );
-    } else if ( mBluetoothState == BLUETOOTH_READY ) {
-      mButton1[BTN_BLE].setBackgroundDrawable( mBMbleReady );
-    } else if ( mBluetoothState == BLUETOOTH_LASER ) {
-      mButton1[BTN_BLE].setBackgroundDrawable( mBMbleLaser );
-    } else if ( mBluetoothState == BLUETOOTH_SHOT ) {
-      mButton1[BTN_BLE].setBackgroundDrawable( mBMbleShot );
-    } else if ( mBluetoothState == BLUETOOTH_SCAN ) {
-      mButton1[BTN_BLE].setBackgroundDrawable( mBMbleScan );
+    if ( ! hasBluetoothName() ) {
+      mButton1[BTN_BLE].setVisibility( View.GONE );
+    } else {
+      mButton1[BTN_BLE].setVisibility( View.VISIBLE );
+      if ( mBluetoothState == BLUETOOTH_DOWN ) {
+        mButton1[BTN_BLE].setBackgroundDrawable( mBMbleDown );
+      } else if ( mBluetoothState == BLUETOOTH_OFF ) {
+        mButton1[BTN_BLE].setBackgroundDrawable( mBMbleOff );
+      } else if ( mBluetoothState == BLUETOOTH_ON ) {
+        mButton1[BTN_BLE].setBackgroundDrawable( mBMbleOn );
+      } else if ( mBluetoothState == BLUETOOTH_WAIT ) {
+        mButton1[BTN_BLE].setBackgroundDrawable( mBMbleWait );
+      } else if ( mBluetoothState == BLUETOOTH_READY ) {
+        mButton1[BTN_BLE].setBackgroundDrawable( mBMbleReady );
+      } else if ( mBluetoothState == BLUETOOTH_LASER ) {
+        mButton1[BTN_BLE].setBackgroundDrawable( mBMbleLaser );
+      } else if ( mBluetoothState == BLUETOOTH_SHOT ) {
+        mButton1[BTN_BLE].setBackgroundDrawable( mBMbleShot );
+      } else if ( mBluetoothState == BLUETOOTH_SCAN ) {
+        mButton1[BTN_BLE].setBackgroundDrawable( mBMbleScan );
+      }
     }
   }
 

@@ -11,6 +11,9 @@
  */
 package com.topodroid.Cave3D;
 
+// import com.topodroid.in.ParserBluetooth;
+// import com.topodroid.in.ParserSketch;
+
 import android.util.Log;
 
 import java.nio.ByteOrder;
@@ -147,7 +150,14 @@ class GlWalls extends GlShape
     // Log.v("TopoGL", "prepare faces: triangles " + triangleCount );
     // logMinMax();
 
-    float[] data = new float[ triangleCount * 3 * 6 ]; // 6 vectors-3D, 3 float/vector
+    float[] data = null;
+    try {
+      data = new float[ triangleCount * 3 * 6 ]; // 6 vectors-3D, 3 float/vector
+    } catch ( OutOfMemoryError e ) {
+      triangleCount = 0;
+      sideCount  = 0;
+      return null;
+    }
     int k = 0;
     for ( GlTriangle3D tri : triangles ) {
       Vector3D n  = tri.normal;
@@ -184,7 +194,15 @@ class GlWalls extends GlShape
     // Log.v("TopoGL", "prepare sides: sides " + sideCount );
     // logMinMax();
 
-    float[] data = new float[ sideCount * 6 ]; // 2 3-float/vector per side
+    float[] data = null;
+    try {
+      data = new float[ sideCount * 6 ]; // 2 3-float/vector per side
+    } catch ( OutOfMemoryError e ) {
+      triangleCount = 0;
+      sideCount  = 0;
+      return null;
+    }
+
     int k = 0;
     for ( GlTriangle3D tri : triangles ) {
       Vector3D n  = tri.normal;
@@ -219,6 +237,7 @@ class GlWalls extends GlShape
   private void initData( float[] data )
   {
     if ( triangleCount == 0 ) return;
+    if ( data == null ) return;
     initDataBuffer( data );
   }
 

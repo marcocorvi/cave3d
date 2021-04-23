@@ -20,7 +20,7 @@ public class Cave3DSurvey
 {
   private static int count = 0;
 
-  int number; // survey index
+  public int number; // survey index
   int mId;    // id 
   int mPid;   // parend Id
   String name;
@@ -35,23 +35,26 @@ public class Cave3DSurvey
   double mLenShots;
   double mLenSplays;
 
-  Cave3DSurvey( String n )
+  public Cave3DSurvey( String n )
   {
     number = count; ++ count;
     init( n, -1, -1 );
   }
 
-  Cave3DSurvey( String n, int id, int pid )
+  public Cave3DSurvey( String n, int id, int pid )
   {
     number = count; ++ count;
     init( n, id, pid );
   }
 
+  public boolean hasName( String nm ) { return name != null && name.equals( nm ); }
+  public String  getName() { return name; }
+
   // void addShot( String from, String to, double len, double ber, double cln ) { addShot( new Cave3DShot( from, to, ber, len, cln, 0, 0 ) ); }
   
   // void addSplay( String from, double len, double ber, double cln ) { addSplay( new Cave3DShot( from, null, ber, len, cln, 0, 0 ) ); }
 
-  void addShot( Cave3DShot sh ) 
+  public void addShot( Cave3DShot sh ) 
   { 
     mShots.add( sh );
     sh.mSurvey = this;
@@ -60,7 +63,7 @@ public class Cave3DSurvey
     mLenShots += sh.len;
   }
 
-  void addSplay( Cave3DShot sh )
+  public void addSplay( Cave3DShot sh )
   {
     mSplays.add( sh );
     sh.mSurvey = this;
@@ -69,13 +72,13 @@ public class Cave3DSurvey
     mLenSplays += sh.len;
   }
 
-  Cave3DStation addStation( Cave3DStation st )
+  public Cave3DStation addStation( Cave3DStation st )
   { 
     mStations.add( st );
     return st;
   }
     
-  Cave3DStation getStation( String name ) 
+  public Cave3DStation getStation( String name ) 
   {
     if ( name == null || name.length() == 0 ) return null;
     if ( name.equals("-") || name.equals(".") ) return null;

@@ -8,6 +8,7 @@
     <string name="btn_bind">Rebind</string>
     <string name="btn_compute">Compute</string>
 
+    <string name="btn_new">New</string>
     <string name="btn_move">Move</string>
     <string name="btn_rotate">Turn</string>
     <string name="btn_station">Station</string>
@@ -20,7 +21,7 @@
     <string name="menu_reset">Reset</string>
 
     <string name="menu_alpha">Surface</string>
-    <string name="menu_ble">Bluetooth</string>
+    <string name="menu_ble">BT surveys</string>
     <string name="menu_viewpoint">Viewpoint</string>
     <string name="menu_files">Surveys</string>
     <string name="menu_export">Export</string>

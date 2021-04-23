@@ -95,6 +95,7 @@ public abstract class TopoGLComm implements BluetoothComm
   protected void resetTimer()
   {
     if ( mTimer != null ) {
+      Log.v("Cave3D", "reset timer" );
       mTimer.cancel();
       mTimer = null;
     }
@@ -109,12 +110,12 @@ public abstract class TopoGLComm implements BluetoothComm
     }
   }
 
-  protected void scheduleConnect( final int delay, final String address )
+  protected void scheduleConnect( final int delay )
   {
     if ( mTimer == null ) {
       Log.v("Cave3D", "schedule for a connect Device" );
       mTimer = new Timer();
-      mTimer.schedule(  new TimerTask() { @Override public void run() { connectDevice( address ); } }, delay );
+      mTimer.schedule(  new TimerTask() { @Override public void run() { connectDevice( ); } }, delay );
     }
   }
 
@@ -123,7 +124,7 @@ public abstract class TopoGLComm implements BluetoothComm
     if ( mTimer == null ) {
       Log.v("Cave3D", "schedule for a re-connect" );
       mTimer = new Timer();
-      mTimer.schedule(  new TimerTask() { @Override public void run() { connectDevice( address ); } }, delay, period );
+      mTimer.schedule(  new TimerTask() { @Override public void run() { connectDevice( ); } }, delay, period );
     }
   }
 
@@ -131,10 +132,18 @@ public abstract class TopoGLComm implements BluetoothComm
   // BluetoothComm ----------------------------------------------------------------------
 
   // @Implements BluetothComm
-  public boolean connectDevice( String address ) { return false; }
+  public boolean connectDevice( ) 
+  { 
+    Log.v("Cave3D", "TopoGL comm connect device - return false");
+    return false; 
+  }
 
   // @Implements BluetothComm
-  public boolean disconnectDevice() { return true; }
+  public boolean disconnectDevice()
+  {
+    Log.v("Cave3D", "TopoGL comm disconnect device - return true");
+    return true;
+  }
 
   // @Implements BluetothComm
   public boolean isConnected() { return mBTConnected; }
@@ -177,7 +186,7 @@ public abstract class TopoGLComm implements BluetoothComm
       {
         for ( ; ; ) {
           DataBuffer buffer = mQueue.get();
-          if ( buffer.type < 0 ) break; // DATA_EXIT
+          if ( buffer.type >= DataBuffer.DATA_EXIT ) break; // DATA_EXIT
           if ( mProto != null ) {
             mProto.handleDataBuffer( buffer );
           } else {
@@ -203,6 +212,7 @@ public abstract class TopoGLComm implements BluetoothComm
 
   // STATUS --------------------------------------------------------------------------
 
+  // @Implements BluetoothComm
   public void notifyStatus( int status )
   {
     mApp.notifyStatus( status );

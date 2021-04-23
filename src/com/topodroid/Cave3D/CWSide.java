@@ -61,20 +61,20 @@ public class CWSide
     t2 = null;
   }
 
-  void computeU12()
+  public void computeU12()
   {
     u12 = p2.difference(p1);
     u12.normalized();
   }
 
-  boolean areTrianglesOutside()
+  public boolean areTrianglesOutside()
   {
     if ( t1 != null && ! t1.isOutside() ) return false;
     if ( t2 != null && ! t2.isOutside() ) return false;
     return true;
   }
   
-  CWTriangle otherTriangle( CWTriangle t )
+  public CWTriangle otherTriangle( CWTriangle t )
   {
     if ( t == t1 ) return t2;
     if ( t == t2 ) return t1;
@@ -82,7 +82,7 @@ public class CWSide
   }
 
   // return the old triangle
-  CWTriangle setTriangle( CWTriangle t )
+  public CWTriangle setTriangle( CWTriangle t )
   {
     CWTriangle ret = null;
     if ( ( t.v1 == p1 && t.v2 == p2 ) || ( t.v2 == p1 && t.v3 == p2 ) || ( t.v3 == p1 && t.v1 == p2 ) ) {
@@ -97,13 +97,13 @@ public class CWSide
     return ret;
   }
 
-  void removeTriangle( CWTriangle t )
+  public void removeTriangle( CWTriangle t )
   {
     if ( t == t1 ) t1 = null;
     if ( t == t2 ) t2 = null;
   }
 
-  boolean replacePoint( CWPoint pold, CWPoint pnew )
+  public boolean replacePoint( CWPoint pold, CWPoint pnew )
   {
     if ( p1 == pold ) { 
       p1 = pnew; 
@@ -117,12 +117,12 @@ public class CWSide
     return true;
   }
   
-  boolean contains( CWPoint p ) { return p == p1 || p == p2; }
+  public boolean contains( CWPoint p ) { return p == p1 || p == p2; }
   
   CWPoint otherPoint( CWPoint p ) { return ( p == p1 )? p2 : ( p == p2)? p1 : null; }
 
   // sine of the angle (p2-p1)^(v-p1) [with sign]
-  double cross( Vector3D v )
+  public double cross( Vector3D v )
   {
     Vector3D vp1 = v.difference( p1 );
     vp1.normalized();
@@ -136,7 +136,7 @@ public class CWSide
   //   );
   // }
 
-  void serialize( PrintWriter out )
+  public void serialize( PrintWriter out )
   {
     Vector3D dp = p2.difference(p1);
     out.format(Locale.US, "S %d %d %d %d %d %.3f %.3f %.3f\n", mCnt, p1.mCnt, p2.mCnt,

@@ -11,6 +11,9 @@
  */
 package com.topodroid.Cave3D;
 
+// import com.topodroid.in.ParserBluetooth;
+// import com.topodroid.in.ParserSketch;
+
 import android.util.Log;
 
 import java.nio.FloatBuffer;
@@ -22,7 +25,7 @@ import android.content.Context;
 
 import android.graphics.Bitmap;
 
-class GlSurface extends GlShape
+public class GlSurface extends GlShape
 {
   final static int STYLE_FILL   = 0;
   final static int STYLE_STROKE = 1;
@@ -57,18 +60,18 @@ class GlSurface extends GlShape
 
   // texture: bitmap resource
   // data[] comps: X-east, Y-up, Z-south
-  GlSurface( Context ctx ) 
+  public GlSurface( Context ctx ) 
   {
     super( ctx );
     isValid = false;
   }
 
-  float[] getSurfaceData() { return mSurfaceData; }
-  int getVertexCount()     { return vertexCount; }
-  int getTriangleCount()   { return triangleCount; }
-  static int getVertexStride()    { return STRIDE; }
-  static int getVertexSize()      { return COORDS_PER_VERTEX + COORDS_PER_NORMAL; }
-  int size()               { return triangleCount; }
+  public float[] getSurfaceData() { return mSurfaceData; }
+  public int getVertexCount()     { return vertexCount; }
+  public int getTriangleCount()   { return triangleCount; }
+  public static int getVertexStride()    { return STRIDE; }
+  public static int getVertexSize()      { return COORDS_PER_VERTEX + COORDS_PER_NORMAL; }
+  public int size()               { return triangleCount; }
 
   // ------------------------------------------------------
   // PROGRAM

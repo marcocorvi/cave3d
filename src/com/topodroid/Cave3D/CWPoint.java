@@ -28,14 +28,14 @@ public class CWPoint extends Vector3D
   int mCnt;
   ArrayList<CWTriangle> mTriangle;
 
-  CWPoint( double x, double y, double z )
+  public CWPoint( double x, double y, double z )
   {
     super( x, y, z );
     mCnt = cnt++;
     mTriangle = new ArrayList<CWTriangle>();
   }
 
-  CWPoint( int tag, double x, double y, double z )
+  public CWPoint( int tag, double x, double y, double z )
   {
     super( x, y, z );
     mCnt = tag;
@@ -43,20 +43,20 @@ public class CWPoint extends Vector3D
     mTriangle = new ArrayList<CWTriangle>();
   }
 
-  void addTriangle( CWTriangle t ) 
+  public void addTriangle( CWTriangle t ) 
   {
     if ( t == null || mTriangle.contains(t) ) return;
     mTriangle.add( t );
   }
   
-  void removeTriangle( CWTriangle t )
+  public void removeTriangle( CWTriangle t )
   {
     if ( t == null ) return;
     mTriangle.remove( t );
   }
   
   // the triangles are ordered rightward around the outward direction
-  boolean orderTriangles()
+  public boolean orderTriangles()
   {
     int k = 0;
     CWTriangle t0 = mTriangle.get(0);
@@ -82,14 +82,14 @@ public class CWPoint extends Vector3D
     return true;
   }
   
-  CWTriangle rightTriangleOf( CWSide s )
+  public CWTriangle rightTriangleOf( CWSide s )
   {
     if ( ! s.contains(this) ) return null;
     for ( CWTriangle t : mTriangle ) if ( s == t.leftSideOf(this) ) return t;
     return null;
   }
   
-  CWTriangle leftTriangleOf( CWSide s )
+  public CWTriangle leftTriangleOf( CWSide s )
   {
     if ( ! s.contains(this) ) return null;
     for ( CWTriangle t : mTriangle ) if ( s == t.rightSideOf(this) ) return t;
@@ -97,7 +97,7 @@ public class CWPoint extends Vector3D
   }
 
   // check if this point triangles are all marked "outside"
-  boolean areAllTrianglesOutside()
+  public boolean areAllTrianglesOutside()
   {
     for ( CWTriangle t : mTriangle ) {
       if ( ! t.isOutside() ) return false;
@@ -112,7 +112,7 @@ public class CWPoint extends Vector3D
   //  Log.v( "TopoGL", "Point " + mCnt + " T" + sb.toString() + " " + x + " " + y + " " + z );
   //}
   
-  void serialize( PrintWriter out )
+  public void serialize( PrintWriter out )
   {
     int size = ( mTriangle != null )? mTriangle.size() : -1;
     out.format(Locale.US, "V %d %d %.3f %.3f %.3f\n", mCnt, size, x, y, z );

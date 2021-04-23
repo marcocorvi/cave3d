@@ -11,6 +11,9 @@
  */
 package com.topodroid.Cave3D;
 
+import com.topodroid.in.ParserException;
+import com.topodroid.in.ParserTh;
+
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -127,8 +130,7 @@ public class DEMsurface
   //   each row being filled left (e1) to right (e2)
   //
   // called only by ParserTh
-  void readGridData( double units, int flip, BufferedReader br, String filename )
-      throws ParserException
+  public void readGridData( double units, int flip, BufferedReader br, String filename ) throws ParserException
   {
     int linenr = 0;
     int x, y;
@@ -216,7 +218,7 @@ public class DEMsurface
   }
 
   // used to set the grid data to the LoxSurface grid
-  void setGridData( double[] grid, int xoff, int yoff, int step, int d1_grid, int d2_grid )
+  public void setGridData( double[] grid, int xoff, int yoff, int step, int d1_grid, int d2_grid )
   { 
     // Log.v("TopoGL-SURFACE", "offset " + xoff + " " + yoff + " size " + mNr1 + " " + mNr2 + " dim_grid " + d1_grid + " " + d2_grid );
     // int len = grid.length;

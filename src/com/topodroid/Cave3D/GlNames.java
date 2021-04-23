@@ -11,6 +11,9 @@
  */
 package com.topodroid.Cave3D;
 
+import com.topodroid.in.ParserBluetooth;
+// import com.topodroid.in.ParserSketch;
+
 import android.util.Log;
 
 import java.nio.FloatBuffer;
@@ -27,7 +30,7 @@ import android.graphics.Bitmap;
 
 import java.util.ArrayList;
 
-class GlNames extends GlShape
+public class GlNames extends GlShape
 {
   private final static int NN = 6; // 2 trinagles (3 vertex per triangle)
 
@@ -126,9 +129,10 @@ class GlNames extends GlShape
   private Bitmap mBitmap = null;
   static float[] mHLcolor = new float[4];
   // int mIncrement = 0;
-  float[] getVertexData() { return mData; }
-  static int getVertexSize()     { return 3; } // 3 floats per vertex
-  static int getVertexStride()   { return 4; } // 3 floats per vertex
+
+  public float[] getVertexData() { return mData; }
+  public static int getVertexSize()     { return 3; } // 3 floats per vertex
+  public static int getVertexStride()   { return 4; } // 3 floats per vertex
 
   private boolean mIncremental = false;
 
@@ -572,7 +576,7 @@ class GlNames extends GlShape
   // --------------------------------------------------------------------
   // UTILITIES
 
-  int size() { return nameCount; }
+  public int size() { return nameCount; }
 
   // --------------------------------------------------------------------
   // OpenGL

@@ -31,19 +31,19 @@ public class DeviceType
   static final int DEVICE_UNKNOWN = 0;
   static final int DEVICE_DISTOX1 = 1;
   static final int DEVICE_DISTOX2 = 2;
-  static final int DEVICE_DISTOX  = 3;
+  static final int DEVICE_DISTOX  = 3; // any DistsoX
   static final int DEVICE_BRIC4   = 4;
   static final int DEVICE_SAP5    = 8;
   static final int DEVICE_ANY     = 15;
 
-  public static boolean isDistoX( int device ) { return (device == DEVICE_DISTOX2) || (device == DEVICE_DISTOX1); }
-  public static boolean isSap( int device ) { return (device == DEVICE_SAP5); }
-  public static boolean isBric( int device ) { return (device == DEVICE_BRIC4); }
+  public static boolean isDistoX( int device ) { return (device & DEVICE_DISTOX) != 0; }
+  public static boolean isSap( int device )    { return (device & DEVICE_SAP5)   != 0; }
+  public static boolean isBric( int device )   { return (device & DEVICE_BRIC4)  != 0; }
 
   public static boolean isDistoX1( BluetoothDevice device ) { return (device != null) && device.getName().equals("DistoX"); }
   public static boolean isDistoX2( BluetoothDevice device ) { return (device != null) && device.getName().startsWith("DistoX-"); }
-  public static boolean isBric4( BluetoothDevice device ) { return (device != null) && device.getName().startsWith("BRIC4_"); }
-  public static boolean isSap5( BluetoothDevice device ) { return (device != null) && device.getName().startsWith("SAP5"); }
+  public static boolean isBric4( BluetoothDevice device )   { return (device != null) && device.getName().startsWith("BRIC4_"); }
+  public static boolean isSap5( BluetoothDevice device )    { return (device != null) && device.getName().startsWith("Shetland_"); }
 
   public static int getDeviceType( BluetoothDevice device )
   {

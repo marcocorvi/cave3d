@@ -32,7 +32,7 @@ public class BleOpConnect extends BleOperation
   @Override 
   public void execute()
   {
-    // Log.v("TopoGL-BLE", "BleOp exec connect");
+    Log.v("Cave3D", "BleOp exec connect");
     if ( mPipe == null ) { 
       return;
     }

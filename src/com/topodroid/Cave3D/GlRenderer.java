@@ -11,6 +11,10 @@
  */
 package com.topodroid.Cave3D;
 
+// import com.topodroid.in.ParserBluetooth;
+import com.topodroid.in.ParserSketch;
+import com.topodroid.out.ExportGltf;
+
 import android.util.Log;
 
 import javax.microedition.khronos.egl.EGLConfig;

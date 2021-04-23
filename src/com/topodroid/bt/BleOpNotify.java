@@ -49,7 +49,7 @@ public class BleOpNotify extends BleOperation
   @Override 
   public void execute()
   {
-    // Log.v("TopoGL-BLE", "BleOp exec notify " + mEnable + " " + mChrtUuid.toString() );
+    Log.v("Cave3D", "BleOp exec notify " + mEnable + " " + mChrtUuid.toString() );
     if ( mPipe == null ) { 
       return;
     }

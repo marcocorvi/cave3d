@@ -42,8 +42,8 @@ public class BleOpChrtWrite extends BleOperation
     if ( mPipe == null ) { 
       return;
     }
-    // boolean ret = 
+    boolean ret = 
       mPipe.writeChrt( mSrvUuid, mChrtUuid, bytes );
-    // Log.v("TopoGL-BLE", "BleOp exec chrt write: ret " + ret );
+    Log.v("Cave3D", "BleOp exec chrt write: ret " + ret );
   }
 }

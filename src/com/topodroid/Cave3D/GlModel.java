@@ -11,6 +11,9 @@
  */
 package com.topodroid.Cave3D;
 
+import com.topodroid.in.ParserBluetooth;
+import com.topodroid.in.ParserSketch;
+
 import android.util.Log;
 
 import android.content.Context;
@@ -52,14 +55,14 @@ public class GlModel
   private double mY0med    = 0; // used in drawing
   private double mDiameter = 0;
 
-  GlSurface glSurface = null; // surface
-  GlNames glNames   = null; // stations
-  GlPoint glPoint   = null; // GPS point // WITH-GPS
-  GlLines glLegs    = null;
-  GlLines glLegsS   = null; // surface
-  GlLines glLegsD   = null; // duplicate
-  GlLines glLegsC   = null; // commented
-  GlLines glSplays  = null;
+  public GlSurface glSurface = null; // surface
+  public GlNames glNames   = null; // stations
+  public GlPoint glPoint   = null; // GPS point // WITH-GPS
+  public GlLines glLegs    = null;
+  public GlLines glLegsS   = null; // surface
+  public GlLines glLegsD   = null; // duplicate
+  public GlLines glLegsC   = null; // commented
+  public GlLines glSplays  = null;
   GlLines glGrid    = null;
   GlLines glFrame   = null;
   GlLines glSurfaceLegs = null;

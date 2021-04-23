@@ -35,7 +35,7 @@ public class CWBorder
   double mVolume;
   boolean hasVolume;
   
-  CWBorder( CWConvexHull cv1, CWConvexHull cv2, double eps )
+  public CWBorder( CWConvexHull cv1, CWConvexHull cv2, double eps )
   {
     mCnt = cnt ++;
     mCV1 = cv1;

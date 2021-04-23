@@ -54,6 +54,7 @@ public class BricComm extends TopoGLComm
     super( ctx, app, TopoGLComm.COMM_GATT, bt_device.getAddress() );
     mRemoteBtDevice = bt_device;
     setProto( new BricProto( mApp, DeviceType.DEVICE_BRIC4, bt_device ) );
+    Log.v("Cave3D", "BRIC comm cstr");
   }
 
   // public boolean setMemory( byte[] bytes )
@@ -71,7 +72,11 @@ public class BricComm extends TopoGLComm
   // }
 
   // not used
-  public boolean enablePNotify( UUID srvUuid, UUID chrtUuid ) { return (mCallback != null) && mCallback.enablePNotify( srvUuid, chrtUuid ); }
+  public boolean enablePNotify( UUID srvUuid, UUID chrtUuid ) 
+  { 
+    Log.v("Cave3D", "BRIC comm enable P-Notofy");
+    return (mCallback != null) && mCallback.enablePNotify( srvUuid, chrtUuid );
+  }
   // public boolean enablePIndicate( UUID srvUuid, UUID chrtUuid ) { return (mCallback != null ) && mCallback.enablePIndicate( srvUuid, chrtUuid ); }
   
   // ---------------------------------------------------------------------------
@@ -81,7 +86,7 @@ public class BricComm extends TopoGLComm
   // from onServicesDiscovered
   public int servicesDiscovered( BluetoothGatt gatt )
   {
-    // Log.v( "Cave3D", "BRIC comm service discovered");
+    Log.v( "Cave3D", "BRIC comm service discovered");
     /*
     // (new Handler( Looper.getMainLooper() )).post( new Runnable() {
     //   public void run() {
@@ -113,8 +118,8 @@ public class BricComm extends TopoGLComm
     enqueueOp( new BleOpNotify( mContext, this, BricConst.MEAS_SRV_UUID, BricConst.MEAS_META_UUID, true ) );
     enqueueOp( new BleOpNotify( mContext, this, BricConst.MEAS_SRV_UUID, BricConst.MEAS_ERR_UUID, true ) );
     enqueueOp( new BleOpNotify( mContext, this, BricConst.MEAS_SRV_UUID, BricConst.MEAS_PRIM_UUID, true ) );
-    doNextOp();
-    // clearPending();
+    // doNextOp();
+    clearPending();
 
     mBTConnected = true;
     // Log.v("Cave3D", "BRIC comm discovered services status CONNECTED" );
@@ -124,7 +129,11 @@ public class BricComm extends TopoGLComm
   }
 
   // from onDescriptorWrite
-  public void writtenDesc( String uuid_str, String uuid_chrt_str, byte[] bytes ) { clearPending(); }
+  public void writtenDesc( String uuid_str, String uuid_chrt_str, byte[] bytes ) 
+  { 
+    Log.v( "Cave3D", "BRIC comm: written descriptor - chrt " + uuid_chrt_str );
+    clearPending(); 
+  }
 
 
   // this is run by BleOpChrtWrite
@@ -143,13 +152,13 @@ public class BricComm extends TopoGLComm
     // delay closing one second after a characteristic change
     if ( chrt_uuid.equals( BricConst.MEAS_PRIM ) ) {
       onData = System.currentTimeMillis() + 1000;
-      // Log.v("Cave3D", "BRIC comm changed char PRIM" );
+      Log.v("Cave3D", "BRIC comm changed char PRIM" );
       mQueue.put( new DataBuffer( DataBuffer.DATA_PRIM, DeviceType.DEVICE_BRIC4, chrt.getValue() ) );
     } else if ( chrt_uuid.equals( BricConst.MEAS_META ) ) { 
-      // Log.v("Cave3D", "BRIC comm changed char META" ); 
+      Log.v("Cave3D", "BRIC comm changed char META" ); 
       mQueue.put( new DataBuffer( DataBuffer.DATA_META, DeviceType.DEVICE_BRIC4, chrt.getValue() ) );
     } else if ( chrt_uuid.equals( BricConst.MEAS_ERR  ) ) {
-      // Log.v("Cave3D", "BRIC comm changed char ERR" ); 
+      Log.v("Cave3D", "BRIC comm changed char ERR" ); 
       mQueue.put( new DataBuffer( DataBuffer.DATA_ERR, DeviceType.DEVICE_BRIC4, chrt.getValue() ) );
     }
     // this is not necessary
@@ -163,19 +172,19 @@ public class BricComm extends TopoGLComm
   {
     switch ( status ) {
       case BluetoothGatt.GATT_INVALID_ATTRIBUTE_LENGTH: 
-        // TDLog.Error("BRIC COMM: invalid attr length " + extra );
+        // Log.e("Cave3D", "BRIC COMM: invalid attr length " + extra );
         break;
       case BluetoothGatt.GATT_WRITE_NOT_PERMITTED:
-        // TDLog.Error("BRIC COMM: write not permitted " + extra );
+        // Log.e("Cave3D", "BRIC COMM: write not permitted " + extra );
         break;
       case BluetoothGatt.GATT_READ_NOT_PERMITTED:
-        // TDLog.Error("BRIC COMM: read not permitted " + extra );
+        // Log.e("Cave3D", "BRIC COMM: read not permitted " + extra );
         break;
       case BluetoothGatt.GATT_INSUFFICIENT_ENCRYPTION:
-        // TDLog.Error("BRIC COMM: insufficient encrypt " + extra );
+        // Log.e("Cave3D", "BRIC COMM: insufficient encrypt " + extra );
         break;
       case BluetoothGatt.GATT_INSUFFICIENT_AUTHENTICATION:
-        // TDLog.Error("BRIC COMM: insufficient auth " + extra );
+        // Log.e("Cave3D", "BRIC COMM: insufficient auth " + extra );
         break;
       case BleCallback.CONNECTION_TIMEOUT:
       case BleCallback.CONNECTION_133: // unfortunately this happens
@@ -184,7 +193,7 @@ public class BricComm extends TopoGLComm
         reconnectDevice();
         break;
       default:
-        // TDLog.Error("BRIC comm ***** ERROR " + status + ": reconnecting ...");
+        // Log.e("Cave3D", "BRIC comm ***** ERROR " + status + ": reconnecting ...");
         reconnectDevice();
     }
     clearPending();
@@ -194,7 +203,7 @@ public class BricComm extends TopoGLComm
   {
     // notifyStatus( ConnectionState.CONN_DISCONNECTED ); // this will be called by disconnected
     clearPending();
-    // Log.v("Cave3D", "BRIC comm Failure: disconnecting ...");
+    Log.v("Cave3D", "BRIC comm Failure: disconnecting ...");
     closeDevice();
   }
     
@@ -203,12 +212,13 @@ public class BricComm extends TopoGLComm
   // @Implements
   public boolean connectDevice( )
   {
-    // Log.v( "Cave3D", "BRIC comm ***** connect Device");
+    Log.v( "Cave3D", "BRIC comm ***** connect Device");
     return connectBricDevice( );
   }
 
   private boolean connectBricDevice() // FIXME BLEX_DATA_TYPE
   {
+    Log.v("Cave3D", "BRIC comm connect BRIC device ... " );
     if ( mRemoteBtDevice == null ) {
       // TDToast.makeBad( R.string.ble_no_remote );
       // TDLog.Error("BRIC comm ERROR null remote device");
@@ -232,7 +242,7 @@ public class BricComm extends TopoGLComm
 
   public void connectGatt( Context ctx, BluetoothDevice bt_device ) // called from BleOpConnect
   {
-    // Log.v( "Cave3D", "BRIC comm ***** connect GATT");
+    Log.v( "Cave3D", "BRIC comm ***** connect GATT");
     mContext = ctx;
     mCallback.connectGatt( mContext, bt_device );
     // setupNotifications(); // FIXME_BRIC
@@ -241,18 +251,19 @@ public class BricComm extends TopoGLComm
   // try to recover from an error ... 
   private void reconnectDevice()
   {
+    Log.v( "Cave3D", "BRIC comm ***** reconnect Device");
     mOps.clear();
     // mPendingCommands = 0; // FIXME COMPOSITE_COMMANDS
     clearPending();
     mCallback.closeGatt();
     if ( mReconnect ) {
-      // Log.v("Cave3D", "BRIC comm ***** reconnect Device = [4a] status WAITING" );
+      Log.v("Cave3D", "BRIC comm ***** reconnect Device = [4a] status WAITING" );
       notifyStatus( ConnectionState.CONN_WAITING );
       int ret = enqueueOp( new BleOpConnect( mContext, this, mRemoteBtDevice ) ); // exec connectGatt()
       doNextOp();
       mBTConnected = true;
     } else {
-      // Log.v("Cave3D", "BRIC comm ***** reconnect Device = [4b] status DISCONNECTED" );
+      Log.v("Cave3D", "BRIC comm ***** reconnect Device = [4b] status DISCONNECTED" );
       notifyStatus( ConnectionState.CONN_DISCONNECTED );
     }
   }
@@ -264,7 +275,7 @@ public class BricComm extends TopoGLComm
   public boolean disconnectDevice()
   {
     resetTimer();
-    // Log.v( "Cave3D", "BRIC comm ***** disconnect device = connected:" + mBTConnected );
+    Log.v( "Cave3D", "BRIC comm ***** disconnect device = connected:" + mBTConnected );
     return closeDevice();
 /*
     mReconnect = false;
@@ -279,7 +290,7 @@ public class BricComm extends TopoGLComm
   // from onConnectionStateChange STATE_DISCONNECTED
   public void disconnected()
   {
-    // Log.v( "Cave3D", "BRIC comm ***** disconnected" );
+    Log.v( "Cave3D", "BRIC comm ***** disconnected" );
     clearPending();
     mOps.clear(); 
     // mPendingCommands = 0; // FIXME COMPOSITE_COMMANDS
@@ -291,7 +302,7 @@ public class BricComm extends TopoGLComm
 
   public void disconnectGatt()  // called from BleOpDisconnect
   {
-    // Log.v( "Cave3D", "BRIC comm ***** disconnect GATT" );
+    Log.v( "Cave3D", "BRIC comm ***** disconnect GATT" );
     notifyStatus( ConnectionState.CONN_DISCONNECTED );
     mCallback.closeGatt();
   }
@@ -299,6 +310,7 @@ public class BricComm extends TopoGLComm
   // this is called only on a GATT failure, or the user disconnects 
   private boolean closeDevice()
   {
+    Log.v( "Cave3D", "BRIC comm ***** close device");
     mReconnect = false;
     if ( System.currentTimeMillis() < onData ) {
       if ( mBTConnected ) notifyStatus( ConnectionState.CONN_WAITING );

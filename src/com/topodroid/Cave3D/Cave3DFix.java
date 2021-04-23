@@ -15,7 +15,7 @@ package com.topodroid.Cave3D;
 
 import android.util.Log;
 
-class Cave3DFix extends Vector3D
+public class Cave3DFix extends Vector3D
 {
   /** fix station:
    * fix stations are supposed to be referred to the same coord system
@@ -24,12 +24,12 @@ class Cave3DFix extends Vector3D
   String name;
   // double e, n, z; // north east, vertical (upwards)
   
-  double longitude; // WGS84
-  double latitude; 
-  double altitude = 0.0; // FIXME ellipsoidic altitude
-  boolean hasWGS84;
+  public double longitude; // WGS84
+  public double latitude; 
+  public double altitude = 0.0; // FIXME ellipsoidic altitude
+  public boolean hasWGS84;
 
-  boolean hasCS() { return cs != null && cs.hasName(); }
+  public boolean hasCS() { return cs != null && cs.hasName(); }
 
   void log()
   {
@@ -57,14 +57,17 @@ class Cave3DFix extends Vector3D
     hasWGS84  = false;
   }
 
+  public boolean hasName( String nm ) { return name != null && name.equals( nm ); }
+  public String getName( ) { return name; }
+
   public boolean isWGS84() { return cs.isWGS84(); }
 
-  double getSNradius() 
+  public double getSNradius() 
   { 
     return isWGS84()? Geodetic.meridianRadiusExact( latitude, altitude ) : 1.0;
   }
 
-  double getWEradius() 
+  public double getWEradius() 
   { 
     return isWGS84()? Geodetic.parallelRadiusExact( latitude, altitude ) : 1.0;
   }
@@ -72,13 +75,13 @@ class Cave3DFix extends Vector3D
   boolean hasWGS84() { return hasWGS84; }
 
   // lat WGS84 latitude
-  double latToNorth( double lat, double alt ) 
+  public double latToNorth( double lat, double alt ) 
   {
     double s_radius = Geodetic.meridianRadiusExact( lat, alt ); // this is the radius * PI/180
     return hasWGS84()? y + (lat - latitude) * s_radius : 0.0;
   }
 
-  double lngToEast( double lng, double lat, double alt )
+  public double lngToEast( double lng, double lat, double alt )
   {
     double e_radius = Geodetic.parallelRadiusExact( lat, alt ); // this is the radius * PI/180
     return hasWGS84()? x + (lng - longitude) * e_radius : 0.0;

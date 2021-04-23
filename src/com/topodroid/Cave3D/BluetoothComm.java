@@ -21,4 +21,6 @@ public interface BluetoothComm
 
   public boolean sendCommand( int cmd );
 
+  public void notifyStatus( int state );
+
 }

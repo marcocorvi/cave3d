@@ -40,6 +40,7 @@ public class CommThread extends Thread
    */
   public CommThread( int type, DistoXComm comm )
   {
+    Log.v("Cave3D", "Comm Thread cstr");
     mType  = type;
     mComm  = comm;
     // mComm.setNrReadPackets( 0 );
@@ -54,7 +55,7 @@ public class CommThread extends Thread
     doWork = true;
 
     if ( mType == TopoGLComm.COMM_RFCOMM ) {
-      Log.v( "Cave3D", "Comm Thread for RFCOMM");
+      Log.v( "Cave3D", "Comm Thread run for RFCOMM");
       while ( doWork ) {
         Log.v( "Cave3D", "Comm Thread reading ...");
         int res = mComm.readPacket( true );
@@ -74,16 +75,22 @@ public class CommThread extends Thread
           //   mApp.notifyDisconnected();
           // }
           doWork = false;
-        // } else { // handlePacket is automatically done by mComm if the packet if OK
-        //   mComm.handlePacket( res );
+        } else if ( res == DistoXConst.DISTOX_ERR_EOF ) {
+          Log.v( "Cave3D", "Comm Thread read ERR_EOF");
+          doWork = false;
+        } else if ( res == DistoXConst.DISTOX_ERR_INT ) {
+          Log.v( "Cave3D", "Comm Thread read ERR_INT");
+          doWork = false;
         } else {
           Log.v( "Cave3D", "Comm Thread read OK");
         }
+        DeviceType.slowDown( 500 );
       }
     } else { // if ( mType == COMM_GATT ) 
-      Log.v( "Cave3D", "Comm Thread for GATT");
+      Log.v( "Cave3D", "Comm Thread run for GATT");
       mComm.readPacket( true );
     }
+    Log.v( "Cave3D", "Comm Thread exiting ...");
     mComm.doneCommThread();
 
   }

@@ -75,6 +75,7 @@ public class DistoXComm extends TopoGLComm
   public DistoXComm( Context ctx, TopoGL app, BluetoothDevice bt_device, String address ) 
   {
     super( ctx, app, TopoGLComm.COMM_RFCOMM, address );
+    Log.v("Cave3D", "distox comm cstr - address " + address );
     mBtConnection = new BtConnection( app, this );
     setProto( new DistoXProto( mApp, DeviceType.DEVICE_DISTOX, bt_device ) );
 
@@ -99,14 +100,14 @@ public class DistoXComm extends TopoGLComm
   {
     switch ( status ) {
       default:
-        // TDLog.Error("DistoX comm ***** ERROR " + status + ": reconnecting ...");
+        Log.v("Cave3D", "DistoX comm ***** ERROR " + status + ": reconnecting ...");
         reconnectDevice();
     }
   }
 
   public void failure( int status )
   {
-    // Log.v("Cave3D", "DistoX comm Failure: disconnecting ...");
+    Log.v("Cave3D", "DistoX comm Failure: disconnecting ...");
     disconnectDevice();
   }
     
@@ -117,17 +118,22 @@ public class DistoXComm extends TopoGLComm
 
   void doneCommThread() { mCommThread = null; }
 
-  // close the socket and terminates the thread
+  // terminates the thread
+  // NOTE this is called also by closeSocket (if the socket is closed by others)
   void closeCommThread() 
   { 
-    mBtConnection.closeSocket(); // if socket is already closed this returns immediately
-
     if ( mCommThread != null ) {
+      Log.v("Cave3D", "DistoX comm close comm thread [1] join thread");
       mCommThread.setDone();
       try {
         mCommThread.join();
-      } catch ( InterruptedException e ) { }
+      } catch ( InterruptedException e ) { 
+        Log.v("Cave3D", "DistoX comm close comm thread [2] Interrupted " + e.getMessage() );
+      }
       finally { mCommThread = null; }
+      Log.v("Cave3D", "DistoX comm close comm thread [3] done");
+    } else {
+      Log.v("Cave3D", "DistoX comm close comm thread [1] no thread to close");
     }
   }
 
@@ -135,20 +141,24 @@ public class DistoXComm extends TopoGLComm
   // @param address   remote device address
   boolean startCommThread( String address )
   {
+    // mBtConnection.closeSocket(); // if socket is already closed this returns immediately
     closeCommThread(); // safety;
-    DeviceType.slowDown( 500 );
+    Log.v("Cave3D", "DistoX comm start comm thread: [1] connect " + address + " after 1 sec." );
+    DeviceType.slowDown( 1000 ); // 5 seconds
     if ( mBtConnection.connectSocket( address ) ) {
+      DeviceType.slowDown( 1000 ); // 5 seconds
       if ( mCommThread == null ) {
+        Log.v("Cave3D", "DistoX comm start comm thread: [3] create and start thread");
         mCommThread = new CommThread( TopoGLComm.COMM_RFCOMM, this );
         mCommThread.start();
-        // Log.v( "Cave3D", "startRFcommThread started");
+        Log.v( "Cave3D", "start Comm Thread started");
       } else {
         Log.e( "Cave3D", "start Comm Thread already running");
       }
       return true;
     } else {
       mCommThread = null;
-      Log.e( "Cave3D", "startRFcommThread: null socket");
+      Log.e( "Cave3D", "start Comm Thread: failed connect socket");
       return false;
     }
   }
@@ -158,29 +168,37 @@ public class DistoXComm extends TopoGLComm
   // @Implements
   public boolean connectDevice( )
   {
-    Log.v("Cave3D", "DistoXComm connect device - address " + mAddress );
+    Log.v("Cave3D", "DistoXComm connect device - address " + mAddress + " connected " + mBTConnected );
     resetTimer();
     if ( mBTConnected ) return true; // already connected
-    return startCommThread( mAddress ); // create BT connection socket and download Thread
+    boolean ret = startCommThread( mAddress ); // create BT connection socket and download Thread
+    Log.v("Cave3D", "DistoXComm connect device start comm thread " + ret );
+    return ret;
   }
 
   // @Implements
   public boolean disconnectDevice()
   {
     Log.v("Cave3D", "DistoXComm disconnect device - connected " + mBTConnected );
-    if ( mBTConnected ) {
-      closeCommThread(); // this closes socket
-      mBTConnected = false;
+    resetTimer();
+    mBtConnection.setSocketState( 0 ); // cancel the connecting loop
+    mBtConnection.destroySocket(); // if socket is already closed this returns immediately
+    if ( mCommThread != null ) {
+      closeCommThread();
     }
+    mBTConnected = false;
     return ! mBTConnected;
   }
 
-  private void reconnectDevice( )
+  public void reconnectDevice( )
   {
     disconnectDevice();
+    mBTConnected = false;
+    Log.v("Cave3D", "DistoXComm re-connect device - address " + mAddress );
     if ( mAddress != null ) {
       // DeviceType.slowDown( 500 );
-      scheduleReconnect( 500, 1000, mAddress );
+      // scheduleReconnect( 500, 1000 );
+      scheduleConnect( 1000 );
     }
   }
 
@@ -189,6 +207,7 @@ public class DistoXComm extends TopoGLComm
 
   void setIOstreams( DataInputStream in, DataOutputStream out )
   {
+    Log.v("Cave3D", "DistoXComm set IO streams" );
     // mSocket = socket;
     mSeqBit = (byte)0xff;
     mIn  = in;
@@ -198,6 +217,7 @@ public class DistoXComm extends TopoGLComm
   // @Override
   public void closeIOstreams()
   {
+    Log.v("Cave3D", "DistoXComm close IO streams" );
     if ( mIn != null ) {
       try { mIn.close(); } catch ( IOException e ) { }
       mIn = null;
@@ -214,18 +234,14 @@ public class DistoXComm extends TopoGLComm
   // TODO use DistoXProto getDataBuffer()
   int handlePacket( byte[] buffer ) 
   {
+    Log.v("Cave3D", "DistoXComm handle packet " + String.format("%02X", buffer[0]) );
     int data_type = DataBuffer.DATA_NONE;
-    switch ( buffer[0] & 0x3f ) {
-      case 0x01: data_type = DataBuffer.DATA_PACKET; break;
-      case 0x02: data_type = DataBuffer.DATA_G; break;
-      case 0x03: data_type = DataBuffer.DATA_M; break;
-      case 0x04: data_type = DataBuffer.DATA_VECTOR; break;
-      case 0x38: data_type = DataBuffer.DATA_REPLY; break;
+    DataBuffer data_buffer = mProto.getDataBuffer( DataBuffer.DATA_NONE, buffer );
+    if ( data_buffer != null ) {
+      Log.v("Cave3D", "queueing buffer ");
+      mQueue.put( data_buffer );
     }
-    if ( data_type != DataBuffer.DATA_NONE ) {
-      mQueue.put( new DataBuffer( data_type, DeviceType.DEVICE_DISTOX, Arrays.copyOf( buffer, buffer.length ) ) );
-    }
-    return data_type;
+    return data_buffer.type;
   }
 
   /** try to read 8 bytes - return the number of read bytes
@@ -263,14 +279,14 @@ public class DistoXComm extends TopoGLComm
     reader.start();
 
     for ( int k=0; k<mMaxTimeout; ++k) {
-      // Log.v("DistoX", "interrupt loop " + k + " " + dataRead[0] + "/" + toRead[0] );
+      // Log.v("Cave3D", "interrupt loop " + k + " " + dataRead[0] + "/" + toRead[0] );
       try {
         reader.join( timeout );
       } catch ( InterruptedException e ) { TDLog.Log(TDLog.LOG_DEBUG, "reader join-1 interrupted"); }
       if ( ! reader.isAlive() ) break;
       {
         Thread interruptor = new Thread() { public void run() {
-          // Log.v("DistoX", "interruptor run " + dataRead[0] );
+          // Log.v("Cave3D", "interruptor run " + dataRead[0] );
           for ( ; ; ) {
             // synchronized ( dataRead ) 
             {
@@ -282,7 +298,7 @@ public class DistoXComm extends TopoGLComm
               }
             }
           }
-          // Log.v("DistoX", "interruptor done " + dataRead[0] );
+          // Log.v("Cave3D", "interruptor done " + dataRead[0] );
         } };
         interruptor.start(); // TODO catch ( OutOfmemoryError e ) { }
 
@@ -310,7 +326,7 @@ public class DistoXComm extends TopoGLComm
     // int min_available = ( mDeviceType == Device.DISTO_X000)? 8 : 1; // FIXME 8 should work in every case // FIXME VirtualDistoX
     int min_available = 1; // FIXME 8 should work in every case
 
-    // Log.v( "Cave3D", "DistoX proto: read packet no-timeout " + (no_timeout?"true":"false") );
+    Log.v( "Cave3D", "DistoX comm: read packet no-timeout " + no_timeout );
     try {
       final int maxtimeout = 8;
       int timeout = 0;
@@ -330,7 +346,7 @@ public class DistoXComm extends TopoGLComm
           }
         // }
       }
-      // Log.v( "Cave3D", "DistoX proto: read packet available " + available );
+      Log.v( "Cave3D", "DistoX comm: read packet available " + available );
       // if ( available > 0 ) 
       if ( available >= min_available ) {
         if ( no_timeout /* || ! TDSetting.mZ6Workaround */ ) {
@@ -352,8 +368,10 @@ public class DistoXComm extends TopoGLComm
       } // else timedout with no packet
     } catch ( EOFException e ) {
       Log.e( "Cave3D", "Proto read packet EOFException" + e.toString() );
+      return DistoXConst.DISTOX_ERR_EOF;
     } catch (ClosedByInterruptException e ) {
       Log.e( "Cave3D", "Proto read packet ClosedByInterruptException" + e.toString() );
+      return DistoXConst.DISTOX_ERR_INT;
     } catch (IOException e ) {
       // this is OK: the DistoX has been turned off
       Log.v( "Cave3D", "Proto read packet IOException " + e.toString() + " OK distox turned off" );
@@ -370,8 +388,7 @@ public class DistoXComm extends TopoGLComm
   // @Override
   public boolean sendCommand( byte cmd )
   {
-    // TDLog.Log( TDLog.LOG_PROTO, String.format("send command %02x", cmd ) );
-    // Log.v( "DistoX", String.format("send command %02x", cmd ) );
+    Log.v( "Cave3D", String.format("send command %02x", cmd ) );
     byte[] buffer = new byte[8];  // request buffer
 
     try {
@@ -384,6 +401,22 @@ public class DistoXComm extends TopoGLComm
       return false;
     }
     return true;
+  }
+
+  // @Implements BluetoothComm
+  // @Override TopoGLComm
+  public void notifyStatus( int state )
+  {
+    Log.v("Cave3D", "DistoX comm notify status " + ConnectionState.statusString[state] );
+    switch ( state ) {
+      case ConnectionState.CONN_DISCONNECTED:
+        break;
+      case ConnectionState.CONN_CONNECTED:
+        break;
+      case ConnectionState.CONN_WAITING:
+        break;
+    }
+    super.notifyStatus( state );
   }
 
 }

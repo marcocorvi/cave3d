@@ -11,6 +11,9 @@
  */
 package com.topodroid.Cave3D;
 
+import com.topodroid.in.ParserBluetooth;
+// import com.topodroid.in.ParserSketch;
+
 import android.util.Log;
 
 import java.nio.ByteOrder;
@@ -25,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 // set of lines
-class GlLines extends GlShape
+public class GlLines extends GlShape
 {
   final static int COORDS_PER_VERTEX = 3;
   final static int COORDS_PER_COLOR  = 4;
@@ -45,9 +48,9 @@ class GlLines extends GlShape
 
   void setDebug( boolean on_off ) { mDebug = on_off; }
   
-  static int getVertexSize() { return COORDS_PER_VERTEX; }
-  static int getVertexStride() { return STRIDE; }
-  float[] getVertexData() { return mData; }
+  public static int getVertexSize() { return COORDS_PER_VERTEX; }
+  public static int getVertexStride() { return STRIDE; }
+  public float[] getVertexData() { return mData; }
 
   private boolean mIncremental = false;
 
@@ -562,7 +565,7 @@ class GlLines extends GlShape
   // ------------------------------------------------------------
   // UTILITIES
 
-  int size() { return lines.size(); }
+  public int size() { return lines.size(); }
 
   void setPointSize( float size ) { mPointSize = 5.0f * size; }
 

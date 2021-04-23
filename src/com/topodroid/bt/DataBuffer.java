@@ -29,7 +29,9 @@ public class DataBuffer
   final static int DATA_VECTOR  = 8;
   final static int DATA_REPLY   = 9;
 
-  final static int DATA_EXIT    = -1;
+  final static int DATA_EXIT    = 10; // first condition to exit the queue consumer
+
+  final static String[] typeString = { "NONE", "PRIM", "META", "ERR", "TIME", "PACKET", "G", "M", "VECTOR", "REPLY", "EXIT" };
 
   public byte[] data;
   public int type;   // data type

@@ -11,6 +11,14 @@
  */
 package com.topodroid.Cave3D;
 
+import com.topodroid.out.ExportKML;
+import com.topodroid.out.ExportCGAL;
+import com.topodroid.out.ExportLAS;
+import com.topodroid.out.ExportDXF;
+import com.topodroid.out.ExportSHP;
+import com.topodroid.out.ExportSTL;
+import com.topodroid.in.LoxBitmap;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.FileReader;
@@ -44,13 +52,13 @@ public class TglParser
   public static final int WALL_DELAUNAY   = 5;
   public static final int WALL_MAX        = 5;
 
-  static final int SPLAY_USE_SKIP     = 0;
-  static final int SPLAY_USE_NORMAL   = 1;
-  static final int SPLAY_USE_XSECTION = 2;
-  static int mSplayUse = SPLAY_USE_NORMAL;
+  public static final int SPLAY_USE_SKIP     = 0;
+  public static final int SPLAY_USE_NORMAL   = 1;
+  public static final int SPLAY_USE_XSECTION = 2;
+  public static int mSplayUse = SPLAY_USE_NORMAL;
 
   boolean do_render; // whether ready to render
-  TopoGL mApp;
+  protected TopoGL mApp;
 
   protected ArrayList< Cave3DSurvey >   surveys;
   protected ArrayList< Cave3DFix >      fixes;
@@ -67,9 +75,9 @@ public class TglParser
   // private ArrayList< CWConvexHull > walls   = null;
   // private ArrayList< CWBorder >     borders = null;
 
-  DEMsurface mSurface;
-  LoxBitmap  mBitmap = null;
-  double mCaveLength;
+  protected DEMsurface mSurface;
+  protected LoxBitmap  mBitmap = null;
+  public double mCaveLength;
   String mName; // file base name
 
   // Cave3DStation mCenterStation = null;
@@ -99,7 +107,7 @@ public class TglParser
   // ------------------------- LINE UTIL
   static Pattern pattern = Pattern.compile( "\\s+" );
 
-  static String[] splitLine( String line )
+  protected static String[] splitLine( String line )
   {
      return pattern.split(line); // line.split( "\\s+" );
   }
@@ -119,30 +127,30 @@ public class TglParser
   // public double getVmin() { return zmin; }
   // public double getVmax() { return zmax; }
 
-  int getStationNumber()  { return (stations == null)?  0 : stations.size(); }
-  int getShotNumber()     { return (shots == null)?     0 : shots.size(); }
-  int getSplayNumber()    { return (splays == null)?    0 : splays.size(); }
-  int getSurveyNumber()   { return (surveys == null)?   0 : surveys.size(); }
-  int getXSectionNumber() { return (xsections == null)? 0 : xsections.size(); }
+  public int getStationNumber()  { return (stations == null)?  0 : stations.size(); }
+  public int getShotNumber()     { return (shots == null)?     0 : shots.size(); }
+  public int getSplayNumber()    { return (splays == null)?    0 : splays.size(); }
+  public int getSurveyNumber()   { return (surveys == null)?   0 : surveys.size(); }
+  public int getXSectionNumber() { return (xsections == null)? 0 : xsections.size(); }
 
-  ArrayList< Cave3DSurvey >   getSurveys()   { return surveys; }
-  ArrayList< Cave3DShot >     getShots()     { return shots; }
-  ArrayList< Cave3DShot >     getSplays()    { return splays; }
-  ArrayList< Cave3DStation >  getStations()  { return stations; }
-  ArrayList< Cave3DFix >      getFixes()     { return fixes; }
-  ArrayList< Cave3DXSection > getXSections() { return xsections; }
+  public ArrayList< Cave3DSurvey >   getSurveys()   { return surveys; }
+  public ArrayList< Cave3DShot >     getShots()     { return shots; }
+  public ArrayList< Cave3DShot >     getSplays()    { return splays; }
+  public ArrayList< Cave3DStation >  getStations()  { return stations; }
+  public ArrayList< Cave3DFix >      getFixes()     { return fixes; }
+  public ArrayList< Cave3DXSection > getXSections() { return xsections; }
 
-  Cave3DShot getShot( int k ) { return shots.get(k); }
+  public Cave3DShot getShot( int k ) { return shots.get(k); }
 
-  DEMsurface getSurface() { return mSurface; }
-  boolean hasSurface() { return mSurface != null; }
-  boolean hasWall() { return convexhullcomputer != null || ( powercrustcomputer != null && powercrustcomputer.hasTriangles() ); }
-  boolean hasPlanview() { return powercrustcomputer != null && powercrustcomputer.hasPlanview(); }
+  public DEMsurface getSurface() { return mSurface; }
+  public boolean hasSurface() { return mSurface != null; }
+  public boolean hasWall() { return convexhullcomputer != null || ( powercrustcomputer != null && powercrustcomputer.hasTriangles() ); }
+  public boolean hasPlanview() { return powercrustcomputer != null && powercrustcomputer.hasPlanview(); }
 
   double getConvexHullVolume() { return ( convexhullcomputer == null )? 0 : convexhullcomputer.getVolume(); }
   double getPowercrustVolume() { return ( powercrustcomputer == null )? 0 : powercrustcomputer.getVolume(); }
 
-  Cave3DXSection getXSectionAt( Cave3DStation st ) 
+  public Cave3DXSection getXSectionAt( Cave3DStation st ) 
   {
     if ( st == null ) return null;
     for ( Cave3DXSection xsection : xsections ) if ( xsection.station == st ) return xsection;
@@ -195,39 +203,39 @@ public class TglParser
     return new TglMeasure( mApp.getResources(), s1, s2, s2.getFinalPathlength() );
   }
 
-  Cave3DSurvey getSurvey( String name ) // get survey by the NAME
+  public Cave3DSurvey getSurvey( String name ) // get survey by the NAME
   {
     if ( name == null ) return null;
     for ( Cave3DSurvey s : surveys ) if ( name.equals( s.name ) ) return s;
     return null;
   }
 
-  Cave3DSurvey getSurvey( int id ) // get survey by the ID
+  public Cave3DSurvey getSurvey( int id ) // get survey by the ID
   {
     if ( id < 0 ) return null;
     for ( Cave3DSurvey s : surveys ) if ( s.mId == id ) return s;
     return null;
   }
 
-  Cave3DStation getStation( int id ) // get station by the ID
+  public Cave3DStation getStation( int id ) // get station by the ID
   {
     if ( id < 0 ) return null;
     for ( Cave3DStation s : stations ) if ( s.mId == id ) return s;
     return null;
   }
 
-  Cave3DStation getStation( String fullname ) // get station by the FULL_NAME
+  public Cave3DStation getStation( String fullname ) // get station by the FULL_NAME
   {
     if ( fullname == null ) return null;
     for ( Cave3DStation s : stations ) if ( fullname.equals( s.name ) ) return s;
     return null;
   }
 
-  double getCaveZMin()   { return zmin; }
-  double getCaveDepth()  { return zmax - zmin; }
-  double getCaveLength() { return mCaveLength; }
+  public double getCaveZMin()   { return zmin; }
+  public double getCaveDepth()  { return zmax - zmin; }
+  public double getCaveLength() { return mCaveLength; }
 
-  double[] getStationVertices()
+  public double[] getStationVertices()
   {
     double v[] = new double[ 3 * stations.size() ];
     int k = 0;
@@ -241,7 +249,7 @@ public class TglParser
     return v;
   }
 
-  double[] getSplaysEndpoints()
+  public double[] getSplaysEndpoints()
   {
     double v[] = new double[ 3 * splays.size() ];
     int k3=0;

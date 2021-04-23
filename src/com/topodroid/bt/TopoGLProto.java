@@ -35,12 +35,6 @@ import android.bluetooth.BluetoothDevice;
 
 public class TopoGLProto
 {
-  public static final String BLOCK_UPDATE = "BLOCK_UPDATE";
-  public static final String BLOCK_D= "BLOCK_D";
-  public static final String BLOCK_B= "BLOCK_B";
-  public static final String BLOCK_C= "BLOCK_C";
-  public static final String BLOCK_T= "BLOCK_T";
-
   protected TopoGL mApp;
   protected int    mDeviceType;
   protected String mAddress; // reemote device address
@@ -55,6 +49,7 @@ public class TopoGLProto
   protected double mBearing;
   protected double mClino;
   protected double mRoll;
+  protected double mRollHigh;
   protected int    mType;
   protected double mAcc; // G intensity
   protected double mMag; // M intensity
@@ -62,6 +57,9 @@ public class TopoGLProto
 
   // int    getType() { return mDeviceType; }
   // byte[] getAddress() { return mAddress; }
+
+  byte[] mAddrBuffer  = new byte[2];
+  byte[] mReplyBuffer = new byte[4];
 
   //-----------------------------------------------------
 
@@ -86,7 +84,7 @@ public class TopoGLProto
   // void incNrReadPackets() { ++mNrPacketsRead; }
   // void resetNrReadPackets() { mNrPacketsRead = 0; }
 
-  protected void handleData( )
+  protected void sendDataToApp( )
   {
     // mNrPacketsRead.incrementAndGet(); // FIXME_ATOMIC_INT
     ++mNrPacketsRead;
@@ -101,15 +99,16 @@ public class TopoGLProto
     // TopoDroidApp.mData.updateShotAMDR( mLastShotId, TDInstance.sid, clino, azimuth, dip, r, false );
 
     // FIXME TODO with Handler
-    // Message msg = mApp.obtainMessage( BLOCK_UPDATE );
-    Bundle bundle = new Bundle();
-    bundle.putDouble( BLOCK_D, mDistance );
-    bundle.putDouble( BLOCK_B, mBearing );
-    bundle.putDouble( BLOCK_C, mClino );
-    bundle.putInt( BLOCK_T, mType );
-    // msg.setData(bundle);
-    // mApp.sendMessage(msg);
-
+    Message msg = mApp.obtainMessage( TopoGL.MESSAGE_BLOCK );
+    if ( msg != null ) {
+      Bundle bundle = new Bundle();
+      bundle.putDouble( TopoGL.BLOCK_D, mDistance );
+      bundle.putDouble( TopoGL.BLOCK_B, mBearing );
+      bundle.putDouble( TopoGL.BLOCK_C, mClino );
+      bundle.putInt( TopoGL.BLOCK_T, mType );
+      msg.setData(bundle);
+      mApp.sendMessage(msg);
+    }
     // if ( TDInstance.deviceType() == Device.DISTO_A3 && TDSetting.mWaitData > 10 ) {
     //   DeviceType.slowDown( 500 );
     // }
@@ -154,5 +153,89 @@ public class TopoGLProto
    *
   public int readToRead( byte[] command ) { return 0; }
    */
+
+  protected void handleDistoXBuffer(  DataBuffer data_buffer )
+  {
+    if ( data_buffer.type != DataBuffer.DATA_PACKET ) {
+      Log.v("Cave3D", "DistoX proto handle buffer - buffer not packet");
+      return;
+    }
+    byte[] buffer = data_buffer.data;
+    byte type = (byte)(buffer[0] & 0x3f);
+    // int high, low;
+    switch ( type ) {
+      case 0x01: // Data
+        // mBackshot = false;
+        int dhh = (int)( buffer[0] & 0x40 );
+        double d =  dhh * 1024.0 + DistoXConst.toInt( buffer[2], buffer[1] );
+        double b = DistoXConst.toInt( buffer[4], buffer[3] );
+        double c = DistoXConst.toInt( buffer[6], buffer[5] );
+        // X31--ready
+        mRollHigh = buffer[7];
+
+        int r7 = (int)(buffer[7] & 0xff); if ( r7 < 0 ) r7 += 256;
+        // double r = (buffer[7] & 0xff);
+        double r = r7;
+
+        // if ( mDeviceType == Device.DISTO_A3 || mDeviceType == Device.DISTO_X000) // FIXME VirtualDistoX
+        switch ( mDeviceType ) {
+          case DeviceType.DEVICE_DISTOX1:
+            mDistance = d / 1000.0;
+            break;
+          case DeviceType.DEVICE_DISTOX2:
+            if ( d < 99999 ) {
+              mDistance = d / 1000.0;
+            } else {
+              mDistance = 100 + (d-100000) / 100.0;
+            }
+            break;
+          case DeviceType.DEVICE_BRIC4: 
+            // TDLog.Error("TD proto: does not handle packet BLE");
+            Log.e("Cave3D", "TD proto: does not handle packet BLE");
+            break;
+          case DeviceType.DEVICE_SAP5: 
+            // Log.v("Cave3D", "TD proto: handle packet SAP");
+            mDistance = d / 1000.0;
+            break;
+          default:
+            mDistance = d / 1000.0;
+            break;
+        }
+
+        mBearing  = b * 180.0 / 32768.0; // 180/0x8000;
+        mClino    = c * 90.0  / 16384.0; // 90/0x4000;
+        if ( c >= 32768 ) { mClino = (65536 - c) * (-90.0) / 16384.0; }
+        mRoll = r * 180.0 / 128.0;
+
+        Log.v("Cave3D", "DistoX proto handle buffer - data " + mDistance + " " + mBearing + " " + mClino );
+        sendDataToApp();
+        break; // return DataBuffer.DATA_PACKET;
+      case 0x02:
+        break; // return DataBuffer.DATA_G;
+      case 0x03:
+        break; // return DataBuffer.DATA_M;
+      case 0x04:
+        break; // return DataBuffer.DATA_VECTOR;
+      case 0x38:  // Reply packet
+        mAddrBuffer[0] = buffer[1];
+        mAddrBuffer[1] = buffer[2];
+        {
+          mReplyBuffer[0] = buffer[3];
+          mReplyBuffer[1] = buffer[4];
+          mReplyBuffer[2] = buffer[5];
+          mReplyBuffer[3] = buffer[6];
+          // TDLog.Log( TDLog.LOG_PROTO, "handle Packet mReplyBuffer" );
+          // TODO
+        }
+        break; // return DataBuffer.DATA_REPLY;
+      default:
+        Log.e( "Cave3D",
+          "packet error. type " + type + " " + 
+          String.format("%02x %02x %02x %02x %02x %02x %02x %02x", buffer[0], buffer[1], buffer[2],
+          buffer[3], buffer[4], buffer[5], buffer[6], buffer[7] ) );
+      //   return DataBuffer.DATA_NONE;
+    }
+    // return DataBuffer.DATA_NONE;
+  }
 
 }

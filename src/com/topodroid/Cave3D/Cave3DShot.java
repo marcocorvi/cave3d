@@ -25,21 +25,28 @@ public class Cave3DShot
   // static final long FLAG_NO_PROFILE = 16;
   // static final long FLAG_BACKSHOT   = 32;
 
-  String from;
-  String to;
-  Cave3DStation from_station;
-  Cave3DStation to_station;  // null for splay shots
   double len, ber, cln;      // radians
-  Cave3DSurvey mSurvey;
-  int mSurveyNr;
   boolean used = false;
   long mFlag;
   long mMillis;
+
+  public String from;
+  public String to;
+  public Cave3DStation from_station;
+  public Cave3DStation to_station;  // null for splay shots
+  public Cave3DSurvey mSurvey;
+  public int mSurveyNr;
 
   public boolean isSurvey()    { return mFlag == FLAG_SURVEY; }
   public boolean isSurface()   { return (mFlag & FLAG_SURFACE)    == FLAG_SURFACE; }
   public boolean isDuplicate() { return (mFlag & FLAG_DUPLICATE)  == FLAG_DUPLICATE; }
   public boolean isCommented() { return (mFlag & FLAG_COMMENTED)  == FLAG_COMMENTED; } 
+  public boolean isUsed()      { return used; }
+  public void setUsed() { used = true; }
+
+  public double length( ) { return len; }
+  // public double bearing() { return ber; }
+  // public double clino()   { return cln; }
 
   // b/c in degrees
   public Cave3DShot( String f, String t, double l, double b, double c, long flag, long millis )
@@ -125,14 +132,14 @@ public class Cave3DShot
   }
 
   // return the 3D vector (E, N, Up )
-  Vector3D toVector3D() 
+  public Vector3D toVector3D() 
   {
     double h = len * Math.cos(cln);
     return new Vector3D( (h * Math.sin(ber)), (h * Math.cos(ber)), (len * Math.sin(cln)) );
   }
 
   // makes sense only for splays
-  Vector3D toPoint3D()
+  public Vector3D toPoint3D()
   {
     int sign = 1;
     Cave3DStation st = from_station;

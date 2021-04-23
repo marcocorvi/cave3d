@@ -39,7 +39,7 @@ public class CWTriangle extends CWFacet
   private boolean mOutside; // work variable
   
 
-  CWSide nextWithPoint( CWSide s, CWPoint p )
+  public CWSide nextWithPoint( CWSide s, CWPoint p )
   {
     if ( s == s1 ) {
   	  if ( s2.contains(p) ) return s2;
@@ -54,7 +54,7 @@ public class CWTriangle extends CWFacet
     return null;
   }
   
-  CWSide leftSideOf( CWPoint p ) // left is prev
+  public CWSide leftSideOf( CWPoint p ) // left is prev
   {
     if ( p == v1 ) return s2;
     if ( p == v2 ) return s3;
@@ -62,7 +62,7 @@ public class CWTriangle extends CWFacet
     return null;
   }
   
-  CWSide rightSideOf( CWPoint p ) // right is next
+  public CWSide rightSideOf( CWPoint p ) // right is next
   {
     if ( p == v1 ) return s3;
     if ( p == v2 ) return s1;
@@ -70,7 +70,7 @@ public class CWTriangle extends CWFacet
     return null;
   }
   
-  CWSide oppositeSideOf( CWPoint p )
+  public CWSide oppositeSideOf( CWPoint p )
   {
     if ( p == v1 ) return s1;
     if ( p == v2 ) return s2;
@@ -78,7 +78,7 @@ public class CWTriangle extends CWFacet
     return null;
   }
   
-  CWPoint oppositePointOf( CWSide s )
+  public CWPoint oppositePointOf( CWSide s )
   {
     if ( s == s1 ) return v1;
     if ( s == s2 ) return v2;
@@ -106,7 +106,7 @@ public class CWTriangle extends CWFacet
     buildTriangle( s1, s2, s3 );
   }
   
-  void rebuildTriangle()
+  public void rebuildTriangle()
   {
     v1.removeTriangle( this );
     v2.removeTriangle( this );
@@ -142,7 +142,7 @@ public class CWTriangle extends CWFacet
   //   );
   // }
   
-  void serialize( PrintWriter out )
+  public void serialize( PrintWriter out )
   {
     out.format(Locale.US, "T %d %d %d %d %d %d %d %d %.3f %.3f %.3f\n",
                 mCnt, mType, v1.mCnt, v2.mCnt, v3.mCnt, s1.mCnt, s2.mCnt, s3.mCnt, un.x, un.y, un.z );
@@ -153,17 +153,17 @@ public class CWTriangle extends CWFacet
    * P is outside if the volume of the tetrahedron of P and the triangle is negative
    * because the normal U of the triangle points "inside" the convex hull
    */
-  boolean setOutside( Vector3D p )
+  public boolean setOutside( Vector3D p )
   {
     mOutside = ( volume(p) < 0.0f );
     return mOutside;
   }
   
-  boolean isOutside() { return mOutside; }
+  public boolean isOutside() { return mOutside; }
   
   /* returns true is S is a side of the triangle
    */
-  boolean contains( CWSide s ) { return s == s1 || s == s2 || s == s3; } 
+  public boolean contains( CWSide s ) { return s == s1 || s == s2 || s == s3; } 
   
   /*                 |
                ,.--''+ beta3: v1 + b3 u3   alpha3, s2
@@ -174,7 +174,7 @@ public class CWTriangle extends CWFacet
            u2     `-.|
            s3        + beta1: v2 + b1 u1   alpha1, s1
    */
-  boolean intersectionPoints( Vector3D v, Vector3D n, CWLinePoint lp1, CWLinePoint lp2 )
+  public boolean intersectionPoints( Vector3D v, Vector3D n, CWLinePoint lp1, CWLinePoint lp2 )
   {
     // round beta to three decimal digits
     double b2 = ((int)(beta2( v, n )*1000.1))/1000.0;

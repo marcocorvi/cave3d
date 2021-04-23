@@ -17,7 +17,7 @@ package com.topodroid.Cave3D;
 
 // import android.util.Log;
 
-class Geodetic
+public class Geodetic
 {
   static private final double EARTH_A = 6378137.0;
   static private final double EARTH_B = 6356752;
@@ -26,14 +26,14 @@ class Geodetic
   static private final double EARTH_E2 = EARTH_E * EARTH_E;
   static private final double EARTH_1E2 = 1.0 - EARTH_E2; // (1- e^2)
 
-  static double meridianRadiusExact( double latitude )
+  public static double meridianRadiusExact( double latitude )
   {
     double s = Math.sin( latitude * Math.PI/180 );
     double W = Math.sqrt( 1 - EARTH_E2 * s * s );
     return (EARTH_A * EARTH_1E2 / W) * Math.PI/180.0;
   }
 
-  static double parallelRadiusExact( double latitude )
+  public static double parallelRadiusExact( double latitude )
   {
     double s = Math.sin( latitude * Math.PI/180 );
     double W = Math.sqrt( 1 - EARTH_E2 * s * s );

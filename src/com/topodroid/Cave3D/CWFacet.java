@@ -20,16 +20,16 @@ import java.io.PrintWriter;
 
 public class CWFacet
 {
-  CWPoint v1, v2, v3;
+  public CWPoint v1, v2, v3;
   protected Vector3D u;  // (v2-v1)x(v3-v1): U points "inside"
-  Vector3D un; // u normalized
+  public Vector3D un; // u normalized
   protected double u22, u23, u33; // u2*u2 / det, ... etc
   Vector3D u2; // v2-v1 
   Vector3D u3; // v3-v1
   Vector3D u1; // v3-v2
   
   // points are ordered v1--v2--v3 (looking at the triangle from "inside"
-  CWPoint nextOf( CWPoint p )
+  public CWPoint nextOf( CWPoint p )
   {
     if ( p == v1 ) return v2;
     if ( p == v2 ) return v3;
@@ -37,7 +37,7 @@ public class CWFacet
     return null;
   }
   
-  CWPoint prevOf( CWPoint p )
+  public CWPoint prevOf( CWPoint p )
   {
     if ( p == v1 ) return v3;
     if ( p == v2 ) return v1;

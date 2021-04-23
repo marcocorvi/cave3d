@@ -40,6 +40,8 @@ public class DistoXConst
   public static final int DISTOX_ERR_CONNECTED    = -4;
   public static final int DISTOX_ERR_OFF          = -5; // distox has turned off
   public static final int DISTOX_ERR_PROTOCOL     = -6; // protocol is null
+  public static final int DISTOX_ERR_EOF          = -7; // distox has reache EOF
+  public static final int DISTOX_ERR_INT          = -8; // distox has been interrupted
 
   public static final byte BIT_BACKSIGHT2 = 0x20;
   public static final byte BIT_BACKSIGHT  = 0x40; // backsight bit of vector packet

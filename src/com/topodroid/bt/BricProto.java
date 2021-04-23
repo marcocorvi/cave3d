@@ -35,13 +35,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class BricProto extends TopoGLProto
 {
 
-  private ConcurrentLinkedQueue< BleOperation > mOps;
   // private BricComm mComm;
   private byte[] mLastTime;   // content of LastTime payload
   private byte[] mLastPrim;   // used to check if the coming Prim is new
   private boolean mPrimToDo = false;
-
-  BleCallback mCallback;
 
   // data struct
   // private int   mIndex; // unused
@@ -53,10 +50,10 @@ public class BricProto extends TopoGLProto
   // short mYear;
   // char  mMonth, mDay, mHour, mMinute, mSecond, mCentisecond;
 
-
   public BricProto( TopoGL app, int device_type, BluetoothDevice bt_device )
   {
     super( app, device_type, bt_device );
+    Log.v( "Cave3D", "BRIC proto cstr");
     // mComm   = comm;
     // mIndex  = -1;
     mLastTime = null;
@@ -72,7 +69,11 @@ public class BricProto extends TopoGLProto
   @Override
   protected void handleDataBuffer( DataBuffer data_buffer )
   {
-    if ( ! DeviceType.isBric( data_buffer.device ) ) return;
+    if ( ! DeviceType.isBric( data_buffer.device ) ) {
+      Log.v( "Cave3D", "BRIC proto handle buffer - not a BIC data buffer");
+      return;
+    }
+    Log.v( "Cave3D", "BRIC proto handle buffer " + DataBuffer.typeString[ data_buffer.type ] );
     switch ( data_buffer.type ) {
       case DataBuffer.DATA_PRIM: handleMeasPrim( data_buffer.data ); break;
       case DataBuffer.DATA_META: handleMeasMeta( data_buffer.data ); break;
@@ -138,8 +139,8 @@ public class BricProto extends TopoGLProto
   private void processData()
   {
     if ( mPrimToDo ) {
-      // Log.v("Cave3D", "BRIC proto send data to the app thru comm");
-      handleData();
+      Log.v("Cave3D", "BRIC proto send data to the app thru comm " + mDistance + " " + mBearing + " " + mClino );
+      sendDataToApp();
       mPrimToDo = false;
     } else {
       Log.e("Cave3D", "BRIC proto: process - PrimToDo false: ... skip");
@@ -156,7 +157,7 @@ public class BricProto extends TopoGLProto
       mDistance = BricConst.getDistance( bytes );
       mBearing  = BricConst.getAzimuth( bytes );
       mClino    = BricConst.getClino( bytes );
-      handleData();
+      sendDataToApp();
     } else {
       Log.e("Cave3D", "BRIC proto: add+process - Prim repeated: ... skip");
     }

@@ -11,6 +11,11 @@
  */
 package com.topodroid.Cave3D;
 
+// import com.topodroid.in.ParserBluetooth;
+// import com.topodroid.in.ParserSketch;
+import com.topodroid.in.SketchLine;
+import com.topodroid.in.SketchPoint;
+
 import android.util.Log;
 
 import java.nio.FloatBuffer;
@@ -34,7 +39,7 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-class GlSketch extends GlShape
+public class GlSketch extends GlShape
 {
   private final static int UNIT  = 72;
   private final static int HALF  = 36;
@@ -47,30 +52,30 @@ class GlSketch extends GlShape
   private static int xmin( int i ) { return UNIT * col(i); }
   private static int ymin( int i ) { return UNIT * row(i); }
 
-  final static int COORDS_PER_VERTEX = 3;
-  final static int OFFSET_VERTEX     = 0;
-  final static int STRIDE_VERTEX     = 12; // Float.BYTES * COORDS_PER_VERTEX;
+  public final static int COORDS_PER_VERTEX = 3;
+  public final static int OFFSET_VERTEX     = 0;
+  public final static int STRIDE_VERTEX     = 12; // Float.BYTES * COORDS_PER_VERTEX;
 
-  final static int COORDS_PER_COLOR  = 3;
-  final static int OFFSET_COLOR      = 3;
-  final static int STRIDE_LINE_VERTEX = 24; // Float.BYTES * (COORDS_PER_VERTEX + COORDS_PER_COLOR)
+  public final static int COORDS_PER_COLOR  = 3;
+  public final static int OFFSET_COLOR      = 3;
+  public final static int STRIDE_LINE_VERTEX = 24; // Float.BYTES * (COORDS_PER_VERTEX + COORDS_PER_COLOR)
 
-  final static int COORDS_PER_ACOLOR = 4;
-  final static int OFFSET_ACOLOR     = 3;
-  final static int STRIDE_AREA_VERTEX = 28; // Float.BYTES * (COORDS_PER_VERTEX + COORDS_PER_ACOLOR)
+  public final static int COORDS_PER_ACOLOR = 4;
+  public final static int OFFSET_ACOLOR     = 3;
+  public final static int STRIDE_AREA_VERTEX = 28; // Float.BYTES * (COORDS_PER_VERTEX + COORDS_PER_ACOLOR)
 
-  final static int COORDS_PER_DELTA  = 2;
-  final static int COORDS_PER_TEXEL  = 2;
-  final static int OFFSET_DELTA      = 0;
-  final static int OFFSET_TEXEL      = 2;  // COORDS_PER_DELTA;
-  final static int STRIDE_TEXEL      = 16; // Float.BYTES * (COORDS_PER_DELTA + COORDS_PER_TEXEL);
+  public final static int COORDS_PER_DELTA  = 2;
+  public final static int COORDS_PER_TEXEL  = 2;
+  public final static int OFFSET_DELTA      = 0;
+  public final static int OFFSET_TEXEL      = 2;  // COORDS_PER_DELTA;
+  public final static int STRIDE_TEXEL      = 16; // Float.BYTES * (COORDS_PER_DELTA + COORDS_PER_TEXEL);
 
   private static ArrayList< String > mSymbols; // symbol names
   private static int mTexId = -1;
   private static Bitmap mBitmap = null;
 
-  String mName;
-  int    mType;
+  public String mName;
+  public int    mType;
   private ArrayList< SketchPoint > mPoints;
   private ArrayList< SketchLine  > mLines;
   private ArrayList< SketchLine  > mAreas;
@@ -84,13 +89,13 @@ class GlSketch extends GlShape
   private FloatBuffer lineBuffer = null;
   private FloatBuffer areaBuffer = null;
 
-  final static float SYMBOL_SIZE = 10.0f;
+  public final static float SYMBOL_SIZE = 10.0f;
 
   private static float mSymbolSizeP = 1.2f;
   private static float mSymbolSizeO = 0.6f;
 
-  boolean mShow = true;
-  boolean mDelete = false; // whether to drop this sketch
+  public boolean mShow = true;
+  public boolean mDelete = false; // whether to drop this sketch
   private boolean mEmpty = true;
 
   void reset()
@@ -109,7 +114,7 @@ class GlSketch extends GlShape
     mSymbolSizeO = size / 20.0f;  // half size
   }
 
-  GlSketch( Context ctx, String name, int type, ArrayList< SketchPoint > pts, ArrayList< SketchLine > lns, ArrayList< SketchLine > areas  )
+  public GlSketch( Context ctx, String name, int type, ArrayList< SketchPoint > pts, ArrayList< SketchLine > lns, ArrayList< SketchLine > areas  )
   {
     super( ctx );
     mName   = name;
@@ -119,7 +124,7 @@ class GlSketch extends GlShape
     mAreas  = areas;
   }
  
-  static int getPointIndex( String th_name ) 
+  public static int getPointIndex( String th_name ) 
   {
     for ( int k=0; k<mSymbols.size(); ++k ) if ( th_name.equals( mSymbols.get(k) ) ) return k;
     return -1;

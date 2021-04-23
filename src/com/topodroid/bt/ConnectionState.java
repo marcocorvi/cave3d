@@ -17,4 +17,6 @@ public class ConnectionState
   public static final int CONN_DISCONNECTED = 0;
   public static final int CONN_CONNECTED    = 1;
   public static final int CONN_WAITING      = 2;
+
+  public static final String[] statusString = { "Disconnected", "Connected", "Waiting" };
 }

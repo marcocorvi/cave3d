@@ -17,16 +17,16 @@ import java.io.PrintWriter;
 
 import java.util.Locale;
 
-class Triangle3D
+public class Triangle3D
 {
-  int size;
-  Vector3D[] vertex;
-  Vector3D   normal;
-  Vector3D   center;
-  int direction;
-  int color; // DEBUG
+  public int size;
+  public Vector3D[] vertex;
+  public Vector3D   normal;
+  public Vector3D   center;
+  public int direction;
+  public int color; // DEBUG
 
-  Triangle3D( int sz, int col )
+  public Triangle3D( int sz, int col )
   {
     size = sz;
     vertex = new Vector3D[size];
@@ -36,7 +36,7 @@ class Triangle3D
     color = col;
   }
 
-  Triangle3D( Vector3D v0, Vector3D v1, Vector3D v2, int col )
+  public Triangle3D( Vector3D v0, Vector3D v1, Vector3D v2, int col )
   {
     size = 3;
     vertex = new Vector3D[3];
@@ -48,7 +48,7 @@ class Triangle3D
     color = col;
   }
   
-  Triangle3D toOpenGL( double x, double y, double z )
+  public Triangle3D toOpenGL( double x, double y, double z )
   {
     Triangle3D ret = new Triangle3D( size, color );
     for ( int k=0; k<size; ++k ) {
@@ -110,19 +110,19 @@ class Triangle3D
   }
 
   // 6 times the volume of the three vectors
-  static double volume( Vector3D v1, Vector3D v2, Vector3D v3 )
+  public static double volume( Vector3D v1, Vector3D v2, Vector3D v3 )
   {
     return v1.x * ( v2.y * v3.z - v2.z * v3.y )
          + v1.y * ( v2.z * v3.x - v2.x * v3.z )
          + v1.z * ( v2.x * v3.y - v2.y * v3.x );
   }
 
-  static double volume( Vector3D v0, Vector3D v1, Vector3D v2, Vector3D v3 )
+  public static double volume( Vector3D v0, Vector3D v1, Vector3D v2, Vector3D v3 )
   {
     return volume( v1.difference(v0), v2.difference(v0), v3.difference(v0) );
   }
 
-  double volume( Vector3D v )
+  public double volume( Vector3D v )
   {
     double ret = 0;
     Vector3D v0 = vertex[0].difference(v);

@@ -27,7 +27,7 @@ public class BleOpDisconnect extends BleOperation
   @Override 
   public void execute()
   {
-    // Log.v("TopoGL-BLE", "BleOp exec disconnect");
+    Log.v("Cave3D", "BleOp exec disconnect");
     if ( mPipe == null ) { 
       return;
     }

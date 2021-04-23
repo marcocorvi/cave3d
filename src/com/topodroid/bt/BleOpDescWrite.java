@@ -32,6 +32,6 @@ public class BleOpDescWrite extends BleOperation
   @Override 
   public void execute()
   {
-    Log.v("TopoGL-BLE", "BleOp exec desc write");
+    Log.v("Cave3D", "BleOp exec desc write");
   }
 }
