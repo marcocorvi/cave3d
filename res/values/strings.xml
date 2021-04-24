@@ -136,6 +136,9 @@
     <string name="bt_shot">SHOT</string>
     <string name="bt_scan">SCAN</string>
 
+    <string name="bt_not_started">Bluetooth is down</string>
+    <string name="bt_no_comm">Bluetooth device not found</string>
+
     <string name="SURVEYS">S U R V E Y S</string>
     <string name="INFO">I N F O</string>
     <string name="EXPORT">E X P O R T</string>

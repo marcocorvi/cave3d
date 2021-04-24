@@ -610,6 +610,21 @@ public class TopoGL extends Activity
     }
   }
 
+  void openBluetoothSurvey( String name )
+  {
+    if ( ! startBluetooth() ) {
+      Toast.makeText( this. R.string.bt_no_comm, Toast.LENGTH_SHORT ).show();
+      return;
+    }
+    setBluetoothState( (mBluetoothComm == null)? BLUETOOTH_OFF : BLUETOOTH_ON );
+    setBluetoothParser( name );
+  }
+
+  void closeBluetoothSurvey() 
+  {
+    // TODO
+  }
+
   @Override 
   public void onItemClick(AdapterView<?> parent, View view, int pos, long id)
   {
@@ -2024,6 +2039,7 @@ public class TopoGL extends Activity
 
   private void setBluetoothParser( String name )
   {
+    Log.v("Cave3D", "TopoGL set BT parser " + name );
     try {
       mBluetoothParser = new ParserBluetooth( this, name );
       mRenderer.setEmptyParser( mBluetoothParser );
@@ -2231,8 +2247,9 @@ public class TopoGL extends Activity
         case BLUETOOTH_DOWN:
           break;
         case BLUETOOTH_OFF:
-          startBluetooth();
-          setBluetoothState( (mBluetoothComm == null)? BLUETOOTH_OFF : BLUETOOTH_ON );
+          Toast.makeText( this, R.string.bt_not_started, Toast.LENGTH_SHORT ).show();
+          // startBluetooth();
+          // setBluetoothState( (mBluetoothComm == null)? BLUETOOTH_OFF : BLUETOOTH_ON );
           break;
         case BLUETOOTH_ON: 
           setBluetoothState( BLUETOOTH_WAIT );
@@ -2261,12 +2278,13 @@ public class TopoGL extends Activity
           break;
       }
     } else {
-      if ( mBluetoothState == BLUETOOTH_OFF ) {
-        Log.v("Cave3D", "start BT ...");
-        boolean ret = startBluetooth();
-        Log.v("Cave3D", "start BT returns " + ret );
-        setBluetoothState( (mBluetoothComm == null)? BLUETOOTH_OFF : BLUETOOTH_ON );
-      }
+      Toast.makeText( this, R.string.bt_no_comm, Toast.LENGTH_SHORT ).show();
+      // if ( mBluetoothState == BLUETOOTH_OFF ) {
+      //   Log.v("Cave3D", "start BT ...");
+      //   boolean ret = startBluetooth();
+      //   Log.v("Cave3D", "start BT returns " + ret );
+      //   setBluetoothState( (mBluetoothComm == null)? BLUETOOTH_OFF : BLUETOOTH_ON );
+      // }
     }
   }
 

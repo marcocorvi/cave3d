@@ -98,6 +98,10 @@ class DialogSurveyList extends Dialog
   public void onItemClick(AdapterView<?> parent, View view, int position, long id)
   {
     CharSequence item = ((TextView) view).getText();
+    if ( item != null ) {
+      mApp.openBluetoothSurvey( item.toString() );
+    }
+    dismiss();
   }
 
   @Override
@@ -106,7 +110,7 @@ class DialogSurveyList extends Dialog
     if ( view.getId() == R.id.btn_new ) {
       String name= mName.getText().toString();
       if ( name != null && name.length() > 0 ) {
-        // TODO
+        mApp.openBluetoothSurvey( name );
       }
     }
     dismiss();
