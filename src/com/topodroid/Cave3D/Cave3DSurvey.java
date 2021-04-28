@@ -16,6 +16,10 @@ import android.util.Log;
 import java.util.List;
 import java.util.ArrayList;
 
+import java.io.DataOutputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+
 public class Cave3DSurvey
 {
   private static int count = 0;
@@ -34,6 +38,21 @@ public class Cave3DSurvey
   // int mNrSplays;
   double mLenShots;
   double mLenSplays;
+
+  void serialize( DataOutputStream dos ) throws IOException
+  {
+    dos.writeInt( mId );
+    dos.writeUTF( name );
+  }
+
+  static Cave3DSurvey deserialize( DataInputStream dis ) throws IOException
+  {
+    int id = dis.readInt();
+    String name = dis.readUTF();
+    return new Cave3DSurvey( name, id, -1 );
+  }
+
+  // ------------------------------------------------------ 
 
   public Cave3DSurvey( String n )
   {
@@ -57,8 +76,7 @@ public class Cave3DSurvey
   public void addShot( Cave3DShot sh ) 
   { 
     mShots.add( sh );
-    sh.mSurvey = this;
-    sh.mSurveyNr = number;
+    sh.setSurvey( this );
     // mNrShots ++;
     mLenShots += sh.len;
   }
@@ -66,8 +84,7 @@ public class Cave3DSurvey
   public void addSplay( Cave3DShot sh )
   {
     mSplays.add( sh );
-    sh.mSurvey = this;
-    sh.mSurveyNr = number;
+    sh.setSurvey( this );
     // mNrSplays ++;
     mLenSplays += sh.len;
   }
@@ -75,6 +92,7 @@ public class Cave3DSurvey
   public Cave3DStation addStation( Cave3DStation st )
   { 
     mStations.add( st );
+    st.setSurvey( this );
     return st;
   }
     

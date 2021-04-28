@@ -95,7 +95,7 @@ class DialogOpenFile extends Dialog
  
     mItems = new ArrayList< MyFileItem >();
     mArrayAdapter = new MyFileAdapter( mContext, this, mList, R.layout.message, mItems );
-    if ( ! updateList( mApp.mAppBasePath ) ) {
+    if ( ! updateList( Cave3DFile.mAppBasePath ) ) {
       dismiss();
     } else {
       mList.setAdapter( mArrayAdapter );
@@ -147,29 +147,29 @@ class DialogOpenFile extends Dialog
       name = name.substring( 2 );
     }
     if ( name.equals("..") ) {
-      File dir = new File( mApp.mAppBasePath );
+      File dir = new File( Cave3DFile.mAppBasePath );
       String parent_dir = dir.getParent();
       if ( parent_dir != null ) {
         if ( updateList( parent_dir ) ) {
-          mApp.mAppBasePath = parent_dir;
+          Cave3DFile.mAppBasePath = parent_dir;
         }
       } else {
         if ( mApp != null ) mApp.uiToast( R.string.warning_no_parent, true );
       }
       return;
     }
-    File file = new File( mApp.mAppBasePath, name );
+    File file = new File( Cave3DFile.mAppBasePath, name );
     if ( file.isDirectory() ) {
-      String dir = mApp.mAppBasePath + "/" + name;
+      String dir = Cave3DFile.mAppBasePath + "/" + name;
       if ( updateList( dir ) ) {
-        mApp.mAppBasePath = dir;
+        Cave3DFile.mAppBasePath = dir;
       }
       return;
     }
     // Intent intent = new Intent();
     // intent.putExtra( "com.topodroid.Cave3D.filename", name );
     // setResult( Activity.RESULT_OK, intent );
-    mApp.doOpenFile( mApp.mAppBasePath + "/" + name, true ); // open asynchronous
+    mApp.doOpenFile( Cave3DFile.mAppBasePath + "/" + name, true ); // open asynchronous
     dismiss();
   }
     

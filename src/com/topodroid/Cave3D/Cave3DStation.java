@@ -13,6 +13,10 @@ package com.topodroid.Cave3D;
 
 // import android.util.Log;
 
+import java.io.DataOutputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+
 // 3D vcetor (E, N, Up)
 public class Cave3DStation extends Vector3D
 {
@@ -38,6 +42,32 @@ public class Cave3DStation extends Vector3D
   double pathlength; // path length
   Cave3DStation pathprev;
 
+  // -------------------------------------------------------------------------
+  void serialize( DataOutputStream dos ) throws IOException
+  {
+    dos.writeInt( mId );
+    dos.writeInt( mSid );
+    dos.writeUTF( name );
+    dos.writeInt( flag );
+    dos.writeDouble( x );
+    dos.writeDouble( y );
+    dos.writeDouble( z );
+  }
+
+  static Cave3DStation deserialize( DataInputStream dis ) throws IOException 
+  {
+    int id  = dis.readInt();
+    int sid = dis.readInt();
+    String name  = dis.readUTF();
+    int flag = dis.readInt();
+    double x = dis.readDouble();
+    double y = dis.readDouble();
+    double z = dis.readDouble();
+    return new Cave3DStation( name, x, y, z, id, sid, flag, "" );
+  }
+
+  // -------------------------------------------------------------------------
+
 
   public Cave3DStation( String nm, double e0, double n0, double z0 )
   {
@@ -62,6 +92,12 @@ public class Cave3DStation extends Vector3D
   {
     super( e0, n0, z0 );
     init( nm, id, sid, null, fl, cmt );
+  }
+
+  void setSurvey( Cave3DSurvey survey )
+  {
+    mSurvey = survey;
+    mSid    = survey.mId;
   }
 
   public boolean hasName( String nm ) { return name != null && name.equals( nm ); }

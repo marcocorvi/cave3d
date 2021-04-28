@@ -52,7 +52,7 @@ install:
 	adb install -r bin/Cave3D-debug.apk
 
 log: 
-	adb logcat | grep TopoGL
+	adb logcat | grep Cave3D
 
 logcat:
 	adb logcat | grep Cave3D

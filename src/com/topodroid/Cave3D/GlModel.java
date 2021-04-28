@@ -257,7 +257,7 @@ public class GlModel
   GlModel ( Context ctx )
   { 
     mContext = ctx;
-    GlSketch.loadSymbols( TopoGL.SYMBOL_PATH );
+    GlSketch.loadSymbols( Cave3DFile.SYMBOL_PATH );
     glSketches = Collections.synchronizedList(new ArrayList< GlSketch >());
   }
 
@@ -940,8 +940,9 @@ public class GlModel
 
   void addBluetoothStation( Cave3DStation st )
   {
+    if ( st == null ) return;
     String name = st.short_name;
-    // Log.v("TopoGL", "Model add " + st.short_name + " " + st.name );
+    Log.v("Cave3D", "Model add BT station " + st.short_name + " " + st.name );
     synchronized( glNames ) {
       glNames.addBluetoothName( st, st.short_name, st.name ); // mXmed, mYmed, mZmed );
       glNames.initData();

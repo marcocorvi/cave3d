@@ -1,4 +1,4 @@
-/* @file DialogSurveyList.java
+/* @file DialogBluetoothSurveyList.java
  *
  * @author marco corvi
  * @date apr 2021
@@ -14,10 +14,12 @@ package com.topodroid.Cave3D;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileFilter;
 
 import java.util.Date;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.List;
 
 import java.text.SimpleDateFormat;
 
@@ -31,6 +33,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Button;
@@ -39,20 +42,20 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 
-class DialogSurveyList extends Dialog
-                     implements OnItemClickListener, OnClickListener
+class DialogBluetoothSurveyList extends Dialog
+                     implements OnItemClickListener, OnClickListener, OnItemLongClickListener
 {
   private Context mContext;
   private TopoGL  mApp;
 
   // private ArrayAdapter<String> mArrayAdapter;
-  // private ArrayList< MyFileItem > mItems;
-  private MyFileAdapter mArrayAdapter;
+  private List< String > mItems;
+  private ArrayAdapter< String > mArrayAdapter;
   private ListView mList;
   private EditText mName;
   private Button   mNew;
 
-  DialogSurveyList( Context ctx, TopoGL app )
+  DialogBluetoothSurveyList( Context ctx, TopoGL app )
   {
     super( ctx );
     mContext = ctx;
@@ -64,7 +67,7 @@ class DialogSurveyList extends Dialog
   {
     super.onCreate( savedInstanceState );
 
-    setContentView(R.layout.survey_list);
+    setContentView(R.layout.bluetooth_survey_list);
     getWindow().setLayout( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
 
     setTitle( R.string.survey_list );
@@ -72,26 +75,31 @@ class DialogSurveyList extends Dialog
     mName = (EditText) findViewById( R.id.name );
     mNew  = (Button) findViewById( R.id.btn_new );
 
-    SimpleDateFormat sdf = new SimpleDateFormat( "yyyy.MM.dd:hh:mm" );
+    SimpleDateFormat sdf = new SimpleDateFormat( "yyyy.MM.dd:hh:mm:ss" );
     mName.setText( sdf.format( new Date() ) );
     mNew.setOnClickListener( this );
 
     // mArrayAdapter = new ArrayAdapter<String>( this, R.layout.message );
     mList.setOnItemClickListener( this );
+    mList.setOnItemLongClickListener( this );
     mList.setDividerHeight( 2 );
  
-    // mItems = new ArrayList< MyFileItem >();
-    // mArrayAdapter = new MyFileAdapter( mContext, this, mList, R.layout.message, mItems );
-    // if ( ! updateList( mApp.mAppBasePath ) ) {
-    //   dismiss();
-    // } else {
-    //   mList.setAdapter( mArrayAdapter );
-    // }
+    mItems = getFileList( Cave3DFile.getBluetoothDirname() );
+    mArrayAdapter = new ArrayAdapter<>( mContext, R.layout.message, mItems );
+    mList.setAdapter( mArrayAdapter );
   }
 
-  private boolean updateList( String basedir )
+  private List<String> getFileList( String basedir )
   {
-    return false;
+    ArrayList<String> items = new ArrayList<>();
+    File dir = new File( basedir );
+    if ( dir.isDirectory() ) {
+      File[] files = dir.listFiles( new FileFilter() {
+        @Override public boolean accept( File file ) { return file.isFile(); }
+      } );
+      for ( int k=0; k<files.length; ++k ) items.add( files[k].getName() );
+    }
+    return items;
   }
 
   @Override
@@ -99,9 +107,22 @@ class DialogSurveyList extends Dialog
   {
     CharSequence item = ((TextView) view).getText();
     if ( item != null ) {
-      mApp.openBluetoothSurvey( item.toString() );
+      BluetoothSurvey bt_survey = BluetoothSurveyManager.getSurvey( item.toString() );
+      mApp.openBluetoothSurvey( bt_survey );
     }
     dismiss();
+  }
+
+  @Override
+  public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id)
+  {
+    CharSequence item = ((TextView) view).getText();
+    if ( item != null ) {
+      BluetoothSurvey bt_survey = BluetoothSurveyManager.getSurvey( item.toString() );
+      (new DialogBluetoothSurveyEdit( mApp, bt_survey )).show();
+    }
+    dismiss();
+    return true;
   }
 
   @Override
@@ -109,8 +130,11 @@ class DialogSurveyList extends Dialog
   {
     if ( view.getId() == R.id.btn_new ) {
       String name= mName.getText().toString();
-      if ( name != null && name.length() > 0 ) {
-        mApp.openBluetoothSurvey( name );
+      BluetoothSurvey bt_survey = BluetoothSurveyManager.createSurvey( name );
+      if ( bt_survey != null ) {
+        mApp.openBluetoothSurvey( bt_survey );
+      } else {
+        Log.v("Cave3D", "BTsurvey manager create null");
       }
     }
     dismiss();

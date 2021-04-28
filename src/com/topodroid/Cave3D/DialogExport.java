@@ -76,7 +76,7 @@ public class DialogExport extends Dialog
     mContext  = context;
     mApp      = app;
     mParser   = parser;
-    mDirname  = mApp.mAppBasePath;
+    mDirname  = Cave3DFile.mAppBasePath;
   }
 
   @Override

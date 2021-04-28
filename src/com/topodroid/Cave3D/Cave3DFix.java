@@ -15,6 +15,10 @@ package com.topodroid.Cave3D;
 
 import android.util.Log;
 
+import java.io.DataOutputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+
 public class Cave3DFix extends Vector3D
 {
   /** fix station:
@@ -28,6 +32,30 @@ public class Cave3DFix extends Vector3D
   public double latitude; 
   public double altitude = 0.0; // FIXME ellipsoidic altitude
   public boolean hasWGS84;
+
+  void serialize( DataOutputStream dos ) throws IOException
+  {
+    dos.writeUTF( name );
+    dos.writeDouble( x );
+    dos.writeDouble( y );
+    dos.writeDouble( z );
+    dos.writeDouble( longitude );
+    dos.writeDouble( latitude );
+    dos.writeDouble( altitude );
+  }
+
+  static Cave3DFix deserialize( DataInputStream dis ) throws IOException
+  {
+    String name = dis.readUTF( );
+    double x = dis.readDouble( );
+    double y = dis.readDouble( );
+    double z = dis.readDouble( );
+    double lng = dis.readDouble( );
+    double lat = dis.readDouble( );
+    double alt = dis.readDouble( );
+    return new Cave3DFix( name, x, y, z, null, lng, lat, alt );
+  }
+    
 
   public boolean hasCS() { return cs != null && cs.hasName(); }
 
@@ -43,6 +71,7 @@ public class Cave3DFix extends Vector3D
     cs = cs0;
     longitude = lng;
     latitude  = lat;
+    altitude  = alt;
     hasWGS84  = true;
   }
 

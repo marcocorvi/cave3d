@@ -107,7 +107,10 @@ public class TopoGLProto
       bundle.putDouble( TopoGL.BLOCK_C, mClino );
       bundle.putInt( TopoGL.BLOCK_T, mType );
       msg.setData(bundle);
+      Log.v("Cave3D", "TopoGL proto - send message to app");
       mApp.sendMessage(msg);
+    } else {
+      Log.v("Cave3D", "TopoGL proto - could not obtain message");
     }
     // if ( TDInstance.deviceType() == Device.DISTO_A3 && TDSetting.mWaitData > 10 ) {
     //   DeviceType.slowDown( 500 );
@@ -207,7 +210,7 @@ public class TopoGLProto
         if ( c >= 32768 ) { mClino = (65536 - c) * (-90.0) / 16384.0; }
         mRoll = r * 180.0 / 128.0;
 
-        Log.v("Cave3D", "DistoX proto handle buffer - data " + mDistance + " " + mBearing + " " + mClino );
+        Log.v("Cave3D", "TopoGL proto handle buffer - data " + mDistance + " " + mBearing + " " + mClino );
         sendDataToApp();
         break; // return DataBuffer.DATA_PACKET;
       case 0x02:

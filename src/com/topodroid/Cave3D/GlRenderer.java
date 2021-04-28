@@ -197,7 +197,11 @@ public class GlRenderer implements Renderer
   {
     // Log.v("TopoGL", "Renderer set parser" );
     mParser = parser;
-    prepareModel( parser );
+    if ( parser.isEmpty() ) {
+      prepareEmptyModel( parser );
+    } else {
+      prepareModel( parser );
+    }
   }
 
   // FIXME INCREMENTAL
@@ -211,12 +215,12 @@ public class GlRenderer implements Renderer
     doMakeModel = true;
   }
 
-  void setEmptyParser( TglParser parser )
-  {
-    // Log.v("TopoGL", "Renderer set empty parser" );
-    mParser = parser;
-    prepareEmptyModel( parser );
-  }
+  // void setEmptyParser( TglParser parser )
+  // {
+  //   // Log.v("TopoGL", "Renderer set empty parser" );
+  //   mParser = parser;
+  //   prepareEmptyModel( parser );
+  // }
   // END INCREMENTAL
 
   // ------------------------------------------------------------------------

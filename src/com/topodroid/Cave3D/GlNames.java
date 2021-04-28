@@ -173,6 +173,7 @@ public class GlNames extends GlShape
   // FIXME INCREMENTAL BLUETOOTH_COORDS
   void addBluetoothName( Vector3D pos, String name, String fullname )
   {
+    Log.v("Cave3D", "GlNames add BT name " + name );
     Vector3D p = ParserBluetooth.bluetoothToVector( pos );
     addName( p, name, fullname );
   }

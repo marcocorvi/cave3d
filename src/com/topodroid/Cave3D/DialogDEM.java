@@ -68,7 +68,7 @@ class DialogDEM extends Dialog
     super( ctx );
     mContext = ctx;
     mApp  = app;
-    mBaseDir = mApp.mAppBasePath;
+    mBaseDir = Cave3DFile.mAppBasePath;
   } 
 
   @Override

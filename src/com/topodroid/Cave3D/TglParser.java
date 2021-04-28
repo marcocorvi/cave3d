@@ -28,6 +28,12 @@ import java.io.StringWriter;
 import java.io.PrintWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 
 import java.util.ArrayList;
 import java.util.Stack;
@@ -38,7 +44,7 @@ import android.widget.Toast;
 
 import android.os.AsyncTask;
 
-// import android.util.Log;
+import android.util.Log;
 
 public class TglParser
 {
@@ -78,7 +84,8 @@ public class TglParser
   protected DEMsurface mSurface;
   protected LoxBitmap  mBitmap = null;
   public double mCaveLength;
-  String mName; // file base name
+  protected String mName;     // survey base name
+  protected String mFilename; // file name
 
   // Cave3DStation mCenterStation = null;
   Cave3DStation mStartStation = null;
@@ -92,6 +99,8 @@ public class TglParser
   double getWEradius() { return ( mOrigin != null )? mOrigin.getWEradius() : 1.0f; }
   double lngToEast( double lng, double lat, double alt ) { return (mOrigin != null)? mOrigin.lngToEast( lng, lat, alt ) : 0.0; }
   double latToNorth( double lat, double alt ) { return (mOrigin != null)? mOrigin.latToNorth( lat, alt ) : 0.0; }
+
+  boolean isEmpty() { return shots.size() == 0 && splays.size() == 0; }
 
   // void setStartStation( Cave3DStation station ) { mStartStation = station; }
   void clearStartStation( ) { mStartStation = null; }
@@ -114,6 +123,7 @@ public class TglParser
   // -------------------------------------
 
   String getName() { return mName; }
+  String getFilename() { return mFilename; }
 
   // void centerAtStation( Cave3DStation st ) { mCenterStation = st; }
    
@@ -428,13 +438,9 @@ public class TglParser
     if ( stations.size() > 0 ) do_render = true;
   }
 
-  public TglParser( TopoGL app, String filename ) 
+  // get the name from the filename
+  public TglParser( TopoGL app, String filename )
   {
-    mApp = app;
-    do_render = false;
-    mOrigin = null;
-    // Toast.makeText( app, "Reading " + filename, Toast.LENGTH_SHORT ).show();
-
     // Log.v( TAG, "parsing " + filename );
     int pos = filename.lastIndexOf('/');
     if ( pos > 0 ) {
@@ -446,8 +452,23 @@ public class TglParser
     if ( pos > 0 ) {
       mName = mName.substring(0,pos);
     }
+    init( app, filename, mName );
+  }
 
-    mSurface = null;
+  public TglParser( TopoGL app, String filename, String name )
+  {
+    init( app, filename, name );
+  }
+
+  private void init( TopoGL app, String filename, String name )
+  {
+    mApp      = app;
+    do_render = false;
+    mOrigin   = null;
+    mName     = name;
+    mFilename = filename;
+    mSurface  = null;
+    // Toast.makeText( app, "Reading " + filename, Toast.LENGTH_SHORT ).show();
 
     fixes     = new ArrayList< Cave3DFix >();
     shots     = new ArrayList< Cave3DShot >();
@@ -784,6 +805,123 @@ public class TglParser
       }
     }
     // if ( mApp != null ) mApp.setButtonWall(); // private
+  }
+
+  /* unused
+  public boolean serialize( String filepath )
+  {
+    Log.v("Cave3D", "Parser serialize " + filepath );
+    try { 
+      FileOutputStream fos = Cave3DFile.getFileOutputStream( filepath );
+      BufferedOutputStream bos = new BufferedOutputStream ( fos );
+      DataOutputStream dos = new DataOutputStream( bos );
+      serialize( dos );
+      dos.close();
+      fos.close();
+    } catch ( FileNotFoundException e ) {
+      Log.e("Cave3D", "Export Data file: " + e.getMessage() );
+      return false;
+    } catch ( IOException e ) {
+      Log.e("Cave3D", "Export Data i/o: " + e.getMessage() );
+      return false;
+    }
+    return true;
+  }
+  */
+
+  /* unused
+  public boolean deserialize( String filepath )
+  {
+    Log.v("Cave3D", "Parser deserialize " + filepath );
+    try { 
+      FileInputStream fis = Cave3DFile.getFileInputStream( filepath );
+      BufferedInputStream bis = new BufferedInputStream ( fis );
+      DataInputStream dis = new DataInputStream( bis );
+      deserialize( dis );
+      dis.close();
+      fis.close();
+    } catch ( FileNotFoundException e ) {
+      Log.e("Cave3D", "Import Data file: " + e.getMessage() );
+      return false;
+    } catch ( IOException e ) {
+      Log.e("Cave3D", "Import Data i/o: " + e.getMessage() );
+      return false;
+    }
+    return true;
+  }
+  */
+
+  public void serialize( DataOutputStream dos ) throws IOException
+  {
+    Log.v("Cave3D", "serialize: v " + TopoGL.VERSION_CODE + " surveys " + surveys.size() + " " + stations.size() + " " + shots.size() + " " + splays.size() );
+    dos.writeInt( TopoGL.VERSION_CODE );
+    dos.writeInt( surveys.size() );
+    for ( Cave3DSurvey survey : surveys ) survey.serialize( dos );
+    dos.writeInt( stations.size() );
+    for ( Cave3DStation station : stations ) station.serialize( dos );
+    dos.writeInt( shots.size() );
+    for ( Cave3DShot shot : shots ) shot.serialize( dos );
+    dos.writeInt( splays.size() );
+    for ( Cave3DShot splay : splays ) splay.serialize( dos );
+    dos.writeInt( fixes.size() );
+    for ( Cave3DFix fix : fixes ) fix.serialize( dos );
+
+    // dos.writeInt( xsections.size() );
+    // for ( Cave3DXSection xsection : xsections ) xsection.serialize( dos );
+  }
+
+  public void deserialize( DataInputStream dis ) throws IOException
+  {
+    int version = dis.readInt( );
+    int nr = dis.readInt( );
+    surveys.clear();
+    for ( int k=0; k<nr; ++k ) surveys.add( Cave3DSurvey.deserialize( dis ) );
+
+    nr = dis.readInt( );
+    stations.clear();
+    for ( int k=0; k<nr; ++k ) {
+      Cave3DStation st = Cave3DStation.deserialize( dis );
+      stations.add( st );
+      Cave3DSurvey survey = getSurvey( st.mSid );
+      survey.addStation( st );
+    }
+
+    nr = dis.readInt( );
+    shots.clear();
+    for ( int k=0; k<nr; ++k ) {
+      Cave3DShot shot = Cave3DShot.deserialize( dis );
+      shots.add( shot );
+      Cave3DSurvey survey = getSurvey( shot.mSurveyId );
+      survey.addShot( shot );
+      Cave3DStation st = getStation( shot.from );
+      if ( st != null ) shot.setFromStation( st );
+      st = getStation( shot.to );
+      if ( st != null ) shot.setToStation( st );
+    }
+
+    nr = dis.readInt( );
+    splays.clear();
+    for ( int k=0; k<nr; ++k ) {
+      Cave3DShot splay = Cave3DShot.deserialize( dis );
+      splays.add( splay );
+      Cave3DSurvey survey = getSurvey( splay.mSurveyId );
+      survey.addSplay( splay );
+      Cave3DStation st = getStation( splay.from );
+      if ( st != null ) splay.setFromStation( st );
+      st = getStation( splay.to );
+      if ( st != null ) splay.setToStation( st );
+    }
+
+    nr = dis.readInt( );
+    fixes.clear();
+    for ( int k=0; k<nr; ++k ) {
+      Cave3DFix fix = Cave3DFix.deserialize( dis );
+      fixes.add( fix );
+    }
+
+    // nr = dis.readInt( );
+    // xsections.clear();
+    // for ( int k=0; k<nr; ++k ) xsections.add( Cave3DXSection.deserialize( dis );
   }
 
 }

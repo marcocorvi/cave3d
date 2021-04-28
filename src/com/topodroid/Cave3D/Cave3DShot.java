@@ -13,6 +13,10 @@ package com.topodroid.Cave3D;
 
 // import android.util.Log;
 
+import java.io.DataOutputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+
 public class Cave3DShot
 {
   static final double DEG2RAD = (Math.PI/180);
@@ -36,6 +40,7 @@ public class Cave3DShot
   public Cave3DStation to_station;  // null for splay shots
   public Cave3DSurvey mSurvey;
   public int mSurveyNr;
+  public int mSurveyId; // survey ID for bluetooth
 
   public boolean isSurvey()    { return mFlag == FLAG_SURVEY; }
   public boolean isSurface()   { return (mFlag & FLAG_SURFACE)    == FLAG_SURFACE; }
@@ -47,6 +52,36 @@ public class Cave3DShot
   public double length( ) { return len; }
   // public double bearing() { return ber; }
   // public double clino()   { return cln; }
+
+  // -----------------------------------------------------
+
+  void serialize( DataOutputStream dos ) throws IOException
+  {
+    dos.writeInt( mSurveyId );
+    dos.writeUTF( from );
+    dos.writeUTF( to );
+    dos.writeDouble( len );
+    dos.writeDouble( ber );
+    dos.writeDouble( cln );
+    dos.writeLong( mFlag );
+    dos.writeLong( mMillis );
+  }
+
+  static Cave3DShot deserialize( DataInputStream dis ) throws IOException
+  {
+    int id      = dis.readInt( );
+    String from = dis.readUTF( );
+    String to   = dis.readUTF( );
+    double len  = dis.readDouble( );
+    double ber  = dis.readDouble( );
+    double cln  = dis.readDouble( );
+    long flag   = dis.readLong( );
+    long millis = dis.readLong( );
+    Cave3DShot shot = new Cave3DShot( from, to, len, ber, cln, flag, millis );
+    shot.mSurveyId = id;
+    return shot;
+  }
+
 
   // b/c in degrees
   public Cave3DShot( String f, String t, double l, double b, double c, long flag, long millis )
@@ -61,6 +96,7 @@ public class Cave3DShot
     to_station   = null;
     mSurvey = null; // survey and surveyNr are updated when the shot is added to a survey
     mSurveyNr = 0;
+    mSurveyId = -1;
     mFlag = flag;
     mMillis = millis;
   }
@@ -79,14 +115,35 @@ public class Cave3DShot
     to_station   = t;
     mSurvey   = null; // survey and surveyNr are updated when the shot is added to a survey
     mSurveyNr = 0;
+    mSurveyId = -1;
     mFlag = flag;
     mMillis = millis;
   }
 
   boolean hasSurvey() { return mSurvey != null; }
 
-  void setSurvey( Cave3DSurvey survey ) { mSurvey = survey; }
+  void setSurvey( Cave3DSurvey survey ) 
+  { 
+    mSurvey   = survey;
+    mSurveyNr = survey.number;
+    mSurveyId = survey.mId;
+  }
+
   Cave3DSurvey getSurvey() { return mSurvey; }
+
+  int getSurveyId() { return mSurveyId; }
+
+  void setFromStation( Cave3DStation st )
+  { 
+    from_station = st; 
+    from = (st!=null)? st.name : null;
+  }
+
+  void setToStation( Cave3DStation st )
+  { 
+    to_station = st; 
+    to = (st!=null)? st.name : null;
+  }
 
   /* dot product 
    * ( cc1 * cb1, cc1 * sb1, sc1 ) * ( cc2 * cb2, cc2 * sb2, sc2 )
