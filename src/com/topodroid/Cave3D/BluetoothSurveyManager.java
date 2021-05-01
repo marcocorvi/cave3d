@@ -19,17 +19,19 @@ import android.util.Log;
 
 class BluetoothSurveyManager
 {
+  final static boolean LOG = false;
+
   static BluetoothSurvey getSurvey( String name ) 
   {
     if ( name == null || name.length() == 0 ) {
-      Log.v("Cave3D", "BT survey manager get survey: null name");
+      Log.e("Cave3D", "BT survey manager get survey: null name");
       return null;
     }
     if ( ! Cave3DFile.hasBluetoothSurvey( name ) ) {
-      Log.v("Cave3D", "BT survey manager get: survey does not exist " + name );
+      Log.e("Cave3D", "BT survey manager get: survey does not exist " + name );
       return null;
     }
-    Log.v("Cave3D", "BT survey manager get: survey " + name );
+    if (LOG) Log.v("Cave3D", "BT survey manager get: survey " + name );
     BluetoothSurvey bt_survey = new BluetoothSurvey( name, name );
     bt_survey.deserialize( Cave3DFile.getBluetoothFilename( name ), true ); // deserialze header_only
     return bt_survey;
@@ -38,14 +40,14 @@ class BluetoothSurveyManager
   static BluetoothSurvey createSurvey( String name )
   {
     if ( name == null || name.length() == 0 ) {
-      Log.v("Cave3D", "BT survey manager create survey: null name");
+      Log.e("Cave3D", "BT survey manager create survey: null name");
       return null;
     }
     if ( Cave3DFile.hasBluetoothSurvey( name ) ) {
-      Log.v("Cave3D", "BT survey manager create: survey exists " + name );
+      Log.e("Cave3D", "BT survey manager create: survey exists " + name );
       return null;
     }
-    Log.v("Cave3D", "BT survey manager create: survey new " + name );
+    if (LOG) Log.v("Cave3D", "BT survey manager create: survey new " + name );
     BluetoothSurvey bt_survey = new BluetoothSurvey( name, name );
     // saveSurvey( bt_survey );
     return bt_survey;
@@ -56,17 +58,17 @@ class BluetoothSurveyManager
     if ( new_filename == null || new_filename.length() == 0 ) return;
     String old_filename = bt_survey.getFilename();
     if ( new_filename.equals( old_filename ) ) {
-      Log.v("Cave3D", "BT survey manager rename survey: file unchanged " + new_filename );
+      Log.e("Cave3D", "BT survey manager rename survey: file unchanged " + new_filename );
       return;
     }
     File new_file = new File( Cave3DFile.getBluetoothFilename( new_filename ) );
     if ( new_file.exists() ) {
-      Log.v("Cave3D", "BT survey manager rename survey: file exists " + new_filename );
+      Log.e("Cave3D", "BT survey manager rename survey: file exists " + new_filename );
       return;
     }
     File old_file = new File( Cave3DFile.getBluetoothFilename( old_filename ) );
     if ( old_file.renameTo( new_file ) ) {
-      Log.v("Cave3D", "BT survey manager rename survey: " + old_filename + " --> " + new_filename );
+      if (LOG) Log.v("Cave3D", "BT survey manager rename survey: " + old_filename + " --> " + new_filename );
       bt_survey.setNickname( new_filename );
     }
   }
@@ -74,20 +76,20 @@ class BluetoothSurveyManager
   static boolean saveSurvey( BluetoothSurvey bt_survey )
   {
     if ( bt_survey == null ) {
-      Log.v("Cave3D", "BT survey manager save survey: null");
+      Log.e("Cave3D", "BT survey manager save survey: null");
       return false;
     }
-    Log.v("Cave3D", "BT survey manager save survey " + bt_survey.getFilename() );
+    if (LOG) Log.v("Cave3D", "BT survey manager save survey " + bt_survey.getFilename() );
     return bt_survey.serialize( Cave3DFile.getBluetoothFilename( bt_survey.getFilename() ) );
   }
 
   static boolean loadSurvey( BluetoothSurvey bt_survey )
   {
     if ( bt_survey == null ) {
-      Log.v("Cave3D", "BT survey manager retrieve survey: null");
+      Log.e("Cave3D", "BT survey manager retrieve survey: null");
       return false;
     }
-    Log.v("Cave3D", "BT survey manager retrieve data "  + bt_survey.getFilename() );
+    if (LOG) Log.v("Cave3D", "BT survey manager retrieve data "  + bt_survey.getFilename() );
     return bt_survey.deserialize( Cave3DFile.getBluetoothFilename( bt_survey.getFilename() ), false ); // deserialize all
   }
 

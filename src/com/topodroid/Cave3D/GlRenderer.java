@@ -169,11 +169,11 @@ public class GlRenderer implements Renderer
     mModel.rebindTextures();
   }
 
-  void prepareModel( TglParser parser )
+  void prepareModel( TglParser parser, boolean reduce )
   {
     // mModel = new GlModel( mApp, mHalfWidth*2, mHalfHeight*2, parser );
     // if ( mModel == null ) return;
-    mModel.prepareModel( parser );
+    mModel.prepareModel( parser, reduce );
     float d = (float)mModel.getDiameter();
     mScale0 = 1.0f / d;
     // mDX0 = - mModel.getDx0() / d;
@@ -193,14 +193,14 @@ public class GlRenderer implements Renderer
   }
 
   // this is called on an external thread
-  void setParser( TglParser parser )
+  void setParser( TglParser parser, boolean reduce )
   {
     // Log.v("TopoGL", "Renderer set parser" );
     mParser = parser;
     if ( parser.isEmpty() ) {
       prepareEmptyModel( parser );
     } else {
-      prepareModel( parser );
+      prepareModel( parser, reduce );
     }
   }
 

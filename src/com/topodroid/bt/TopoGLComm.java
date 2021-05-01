@@ -33,6 +33,8 @@ import android.content.Context;
 
 public abstract class TopoGLComm implements BluetoothComm
 {
+  final static boolean LOG = false;
+
   public static final int COMM_NONE   = 0;
   public static final int COMM_RFCOMM = 1;
   public static final int COMM_GATT   = 2;
@@ -95,7 +97,7 @@ public abstract class TopoGLComm implements BluetoothComm
   protected void resetTimer()
   {
     if ( mTimer != null ) {
-      Log.v("Cave3D", "reset timer" );
+      if ( LOG ) Log.v("Cave3D", "reset timer" );
       mTimer.cancel();
       mTimer = null;
     }
@@ -104,7 +106,7 @@ public abstract class TopoGLComm implements BluetoothComm
   protected void scheduleDisconnect( final int delay )
   {
     if ( mTimer == null ) {
-      Log.v("Cave3D", "schedule a disconnect Device" );
+      if ( LOG ) Log.v("Cave3D", "schedule a disconnect Device" );
       mTimer = new Timer();
       mTimer.schedule(  new TimerTask() { @Override public void run() { disconnectDevice(); } }, delay );
     }
@@ -113,7 +115,7 @@ public abstract class TopoGLComm implements BluetoothComm
   protected void scheduleConnect( final int delay )
   {
     if ( mTimer == null ) {
-      Log.v("Cave3D", "schedule for a connect Device" );
+      if ( LOG ) Log.v("Cave3D", "schedule for a connect Device" );
       mTimer = new Timer();
       mTimer.schedule(  new TimerTask() { @Override public void run() { connectDevice( ); } }, delay );
     }
@@ -122,7 +124,7 @@ public abstract class TopoGLComm implements BluetoothComm
   protected void scheduleReconnect( final int delay, final int period, final String address )
   {
     if ( mTimer == null ) {
-      Log.v("Cave3D", "schedule for a re-connect" );
+      if ( LOG ) Log.v("Cave3D", "schedule for a re-connect" );
       mTimer = new Timer();
       mTimer.schedule(  new TimerTask() { @Override public void run() { connectDevice( ); } }, delay, period );
     }
@@ -134,14 +136,14 @@ public abstract class TopoGLComm implements BluetoothComm
   // @Implements BluetothComm
   public boolean connectDevice( ) 
   { 
-    Log.v("Cave3D", "TopoGL comm connect device - return false");
+    if ( LOG ) Log.v("Cave3D", "TopoGL comm connect device - return false");
     return false; 
   }
 
   // @Implements BluetothComm
   public boolean disconnectDevice()
   {
-    Log.v("Cave3D", "TopoGL comm disconnect device - return true");
+    if ( LOG ) Log.v("Cave3D", "TopoGL comm disconnect device - return true");
     return true;
   }
 
@@ -190,7 +192,7 @@ public abstract class TopoGLComm implements BluetoothComm
           if ( mProto != null ) {
             mProto.handleDataBuffer( buffer );
           } else {
-            Log.v( "Cave3D", "queue consumer null proto" );
+            if ( LOG ) Log.v( "Cave3D", "queue consumer null proto" );
           }
         }
       } 

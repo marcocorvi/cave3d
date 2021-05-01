@@ -801,7 +801,7 @@ public class GlModel
   ArrayList< Cave3DShot > legsDuplicate;
   ArrayList< Cave3DShot > legsCommented;
 
-  void prepareModel( TglParser parser )
+  void prepareModel( TglParser parser, boolean reduce )
   {
     // Log.v("TopoGL", "Model prepare full");
     modelCreated = false;
@@ -850,10 +850,14 @@ public class GlModel
     mYmed = (legs.getYmin() + legs.getYmax())/2;
     mZmed = (legs.getZmin() + legs.getZmax())/2;
 
-    legs.reduceData( mXmed, mYmed, mZmed );
-    legsS.reduceData( mXmed, mYmed, mZmed );
-    legsD.reduceData( mXmed, mYmed, mZmed );
-    legsC.reduceData( mXmed, mYmed, mZmed );
+    if ( ! reduce ) {
+      mXmed = mYmed = mZmed = 0;
+    } else {
+      legs.reduceData( mXmed, mYmed, mZmed );
+      legsS.reduceData( mXmed, mYmed, mZmed );
+      legsD.reduceData( mXmed, mYmed, mZmed );
+      legsC.reduceData( mXmed, mYmed, mZmed );
+    }
 
     // Log.v("TopoGL", "Model center " + mXmed + " " + mYmed + " " + mZmed );
     // legs.logMinMax();

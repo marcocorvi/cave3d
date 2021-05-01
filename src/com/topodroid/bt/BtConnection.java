@@ -53,6 +53,8 @@ import android.content.BroadcastReceiver;
 
 public class BtConnection 
 {
+  final static boolean LOG = false;
+
   static final int TD_SOCK_DEFAULT    = 1;
   static final int TD_SOCK_INSEC      = 2;
   static final int TD_SOCK_INSEC_PORT = 3;
@@ -74,7 +76,7 @@ public class BtConnection
     mAddress  = null; // BtConnection is create disconnected - the device and address are set when it connects
     mBTDevice = null;
     mBTSocket = null;
-    // Log.v( "Cave3D", "BT Comm cstr");
+    // if (LOG) Log.v( "Cave3D", "BT Comm cstr");
   }
 
   // public void resume()
@@ -94,7 +96,7 @@ public class BtConnection
   private void resetBTReceiver()
   {
     if ( mBTReceiver == null ) return;
-    Log.v( "Cave3D", "reset BT receiver");
+    if (LOG) Log.v( "Cave3D", "reset BT receiver");
     try {
       mApp.unregisterReceiver( mBTReceiver );
     } catch ( IllegalArgumentException e ) {
@@ -107,7 +109,7 @@ public class BtConnection
   private void setupBTReceiver( )
   {
     resetBTReceiver();
-    Log.v( "Cave3D", "setup BT receiver");
+    if (LOG) Log.v( "Cave3D", "setup BT receiver");
     mBTReceiver = new BroadcastReceiver() 
     {
       @Override
@@ -122,18 +124,18 @@ public class BtConnection
         // } else if ( DeviceUtil.ACTION_FOUND.equals( action ) ) {
        
         if ( address.equals(mAddress) ) {
-          Log.v("Cave3D", "on receive");
+          if (LOG) Log.v("Cave3D", "on receive");
           if ( DeviceUtil.ACTION_ACL_CONNECTED.equals( action ) ) {
-            Log.v( "Cave3D", "[C] ACL_CONNECTED " + address + " addr " + mAddress );
+            if (LOG) Log.v( "Cave3D", "[C] ACL_CONNECTED " + address + " addr " + mAddress );
             notifyStatus( ConnectionState.CONN_CONNECTED );
             // mDataDownloader.updateConnected( true );
           } else if ( DeviceUtil.ACTION_ACL_DISCONNECT_REQUESTED.equals( action ) ) {
-            Log.v( "Cave3D", "[C] ACL_DISCONNECT_REQUESTED " + address + " addr " + mAddress );
+            if (LOG) Log.v( "Cave3D", "[C] ACL_DISCONNECT_REQUESTED " + address + " addr " + mAddress );
             notifyStatus( ConnectionState.CONN_DISCONNECTED );
             // FIXME TODO mDataDownloader.updateConnected( false );
             closeSocket( );
           } else if ( DeviceUtil.ACTION_ACL_DISCONNECTED.equals( action ) ) {
-            Log.v( "Cave3D", "[C] ACL_DISCONNECTED " + address + " addr " + mAddress );
+            if (LOG) Log.v( "Cave3D", "[C] ACL_DISCONNECTED " + address + " addr " + mAddress );
             notifyStatus( ConnectionState.CONN_WAITING );
             mComm.reconnectDevice();
             // FIXME TODO mDataDownloader.updateConnected( false );
@@ -141,15 +143,15 @@ public class BtConnection
             // FIXME TODO mApp.notifyDisconnected( ); // run reconnect-task
           }
         } else if ( DeviceUtil.ACTION_BOND_STATE_CHANGED.equals( action ) ) { // NOT USED
-          Log.v("Cave3D", "***** Disto comm: on Receive() BOND STATE CHANGED" );
+          if (LOG) Log.v("Cave3D", "***** Disto comm: on Receive() BOND STATE CHANGED" );
           final int state     = data.getIntExtra(DeviceUtil.EXTRA_BOND_STATE, DeviceUtil.ERROR);
           final int prevState = data.getIntExtra(DeviceUtil.EXTRA_PREVIOUS_BOND_STATE, DeviceUtil.ERROR);
           if (state == DeviceUtil.BOND_BONDED && prevState == DeviceUtil.BOND_BONDING) {
-            // Log.v( "Cave3D", "BOND STATE CHANGED paired (BONDING --> BONDED) " + address );
+            // if (LOG) Log.v( "Cave3D", "BOND STATE CHANGED paired (BONDING --> BONDED) " + address );
           } else if (state == DeviceUtil.BOND_NONE && prevState == DeviceUtil.BOND_BONDED){
-            // Log.v( "Cave3D", "BOND STATE CHANGED unpaired (BONDED --> NONE) " + address );
+            // if (LOG) Log.v( "Cave3D", "BOND STATE CHANGED unpaired (BONDED --> NONE) " + address );
           } else if (state == DeviceUtil.BOND_BONDING && prevState == DeviceUtil.BOND_BONDED) {
-            // Log.v( "Cave3D", "BOND STATE CHANGED unpaired (BONDED --> BONDING) " + address );
+            // if (LOG) Log.v( "Cave3D", "BOND STATE CHANGED unpaired (BONDED --> BONDING) " + address );
             if ( mBTSocket != null ) {
               Log.e( "Cave3D", "[*] socket is not null: close and retry connect ");
               notifyStatus( ConnectionState.CONN_WAITING );
@@ -159,12 +161,12 @@ public class BtConnection
               connectSocket( mAddress ); // returns immediately if mAddress == null
             }
           } else {
-            Log.v( "Cave3D", "BOND STATE CHANGED " + prevState + " --> " + state + " " + address );
+            if (LOG) Log.v( "Cave3D", "BOND STATE CHANGED " + prevState + " --> " + state + " " + address );
           }
 
           // DeviceUtil.bind2Device( data );
         // } else if ( DeviceUtil.ACTION_PAIRING_REQUEST.equals(action) ) {
-        //   Log.v("Cave3D", "PAIRING REQUEST");
+        //   if (LOG) Log.v("Cave3D", "PAIRING REQUEST");
         //   // BluetoothDevice device = getDevice();
         //   // //To avoid the popup notification:
         //   // device.getClass().getMethod("setPairingConfirmation", boolean.class).invoke(device, true);
@@ -205,11 +207,11 @@ public class BtConnection
   synchronized private void closeSocket( )
   {
     if ( mBTSocket == null ) {
-      Log.v( "Cave3D", "close socket() already closed");
+      if (LOG) Log.v( "Cave3D", "close socket() already closed");
       return;
     }
     
-    Log.v( "Cave3D", "close socket() address " + mAddress );
+    if (LOG) Log.v( "Cave3D", "close socket() address " + mAddress );
     for ( int k=0; k<3 && mBTSocket != null; ++k ) { 
       Log.e( "Cave3D", "try close socket nr " + k );
       DeviceType.slowDown(100);
@@ -218,12 +220,12 @@ public class BtConnection
         mBTSocket.close();
         mBTSocket = null;
       } catch ( IOException e ) {
-        Log.v( "Cave3D", "close socket IOexception " + e.getMessage() );
+        if (LOG) Log.v( "Cave3D", "close socket IOexception " + e.getMessage() );
       } finally {
         mComm.closeCommThread();
       }
     }
-    Log.v( "Cave3D", "close socket() done");
+    if (LOG) Log.v( "Cave3D", "close socket() done");
     mComm.setConnected( false );
   }
 
@@ -234,7 +236,7 @@ public class BtConnection
   public void destroySocket( ) // boolean wait_thread )
   {
     if ( mBTSocket == null ) return;
-    Log.v( "Cave3D", "destroy socket() address " + mAddress );
+    if (LOG) Log.v( "Cave3D", "destroy socket() address " + mAddress );
     closeSocket();
     // mBTSocket = null;
     resetBTReceiver();
@@ -248,17 +250,17 @@ public class BtConnection
     if ( address == null ) return;
     final int port = 1;
     // if ( address.equals( mAddress ) ) { // already connected
-    //   Log.v( "Cave3D", "create Socket() addr " + address + " mAddress " + mAddress + " skipping " );
+    //   if (LOG) Log.v( "Cave3D", "create Socket() addr " + address + " mAddress " + mAddress + " skipping " );
     //   return;
     // }
-    Log.v( "Cave3D", "create Socket() addr " + address + " creating ");
+    if (LOG) Log.v( "Cave3D", "create Socket() addr " + address + " creating ");
 
     if ( mBTSocket != null ) {
-      Log.v( "Cave3D", "create Socket() BTSocket not null ... closing");
+      if (LOG) Log.v( "Cave3D", "create Socket() BTSocket not null ... closing");
       try {
         mBTSocket.close();
       } catch ( IOException e ) { 
-        Log.v( "Cave3D", "close Socket IO " + e.getMessage() );
+        if (LOG) Log.v( "Cave3D", "close Socket IO " + e.getMessage() );
       }
       mBTSocket = null;
     }
@@ -266,7 +268,7 @@ public class BtConnection
     try {
       mBTDevice = DeviceUtil.getRemoteDevice( address );
     } catch ( IllegalArgumentException e ) {
-      Log.v( "Cave3D", "create Socket failed to get remode device - address " + address );
+      if (LOG) Log.v( "Cave3D", "create Socket failed to get remode device - address " + address );
       mBTDevice = null;
       mAddress  = null;
       mComm.setConnected( false );
@@ -274,34 +276,34 @@ public class BtConnection
     }
     
     // FIXME PAIRING
-    // Log.v( "Cave3D", "[1] device state " + mBTDevice.getBondState() );
+    // if (LOG) Log.v( "Cave3D", "[1] device state " + mBTDevice.getBondState() );
     if ( ! DeviceUtil.isPaired( mBTDevice ) ) {
       int ret = DeviceUtil.pairDevice( mBTDevice );
-      Log.v( "Cave3D", "[1b] pairing device " + ret );
+      if (LOG) Log.v( "Cave3D", "[1b] pairing device " + ret );
     // }
 
-      // Log.v( "Cave3D", "[2] device state " + mBTDevice.getBondState() );
+      // if (LOG) Log.v( "Cave3D", "[2] device state " + mBTDevice.getBondState() );
     // // if ( mBTDevice.getBondState() == DeviceUtil.BOND_NONE ) 
     // if ( ! DeviceUtil.isPaired( mBTDevice ) ) 
     // {
-    //   Log.v( "Cave3D", "bind device " );
+    //   if (LOG) Log.v( "Cave3D", "bind device " );
       DeviceUtil.bindDevice( mBTDevice, "0000" );
     }
 
     // wait "delay" seconds
     if ( ! DeviceUtil.isPaired( mBTDevice ) ) {
       for ( int n=0; n < 5; ++n ) {
-        Log.v( "Cave3D", "[4] pairing device: trial " + n );
+        if (LOG) Log.v( "Cave3D", "[4] pairing device: trial " + n );
         DeviceType.yieldDown( 100 );
         if ( DeviceUtil.isPaired( mBTDevice ) ) {
-          // Log.v( "Cave3D", "[4a] device paired at time " + n );
+          // if (LOG) Log.v( "Cave3D", "[4a] device paired at time " + n );
           break;
         }
       }
     }
 
     if ( ! DeviceUtil.isPaired( mBTDevice ) ) {
-      Log.v( "Cave3D", "create Socket failed to get paired device - address " + address );
+      if (LOG) Log.v( "Cave3D", "create Socket failed to get paired device - address " + address );
       mBTDevice = null;
       mAddress  = null;
       mComm.setConnected( false );
@@ -309,24 +311,24 @@ public class BtConnection
     }
 
     try {
-      // Log.v( "Cave3D", "create socket");
+      // if (LOG) Log.v( "Cave3D", "create socket");
       Class[] classes1 = new Class[]{ int.class };
       Class[] classes2 = new Class[]{ UUID.class };
       if ( mSockType == TD_SOCK_DEFAULT ) {
-        // Log.v( "Cave3D", "[5a] createRfcommSocketToServiceRecord " );
+        // if (LOG) Log.v( "Cave3D", "[5a] createRfcommSocketToServiceRecord " );
         mBTSocket = mBTDevice.createRfcommSocketToServiceRecord( TopoGLComm.SERVICE_UUID );
       } else if ( mSockType == TD_SOCK_INSEC ) {
-        // Log.v( "Cave3D", "[5b] createInsecureRfcommSocketToServiceRecord " );
+        // if (LOG) Log.v( "Cave3D", "[5b] createInsecureRfcommSocketToServiceRecord " );
         Method m3 = mBTDevice.getClass().getMethod( "createInsecureRfcommSocketToServiceRecord", classes2 );
         mBTSocket = (BluetoothSocket) m3.invoke( mBTDevice, TopoGLComm.SERVICE_UUID );
       } else if ( mSockType == TD_SOCK_INSEC_PORT ) {
-        // Log.v( "Cave3D", "[5c] invoke createInsecureRfcommSocket " );
+        // if (LOG) Log.v( "Cave3D", "[5c] invoke createInsecureRfcommSocket " );
         Method m1 = mBTDevice.getClass().getMethod( "createInsecureRfcommSocket", classes1 );
         mBTSocket = (BluetoothSocket) m1.invoke( mBTDevice, port );
         // mBTSocket = mBTDevice.createInsecureRfcommSocket( port );
         // mBTSocket = (BluetoothSocket) m1.invoke( mBTDevice, UUID.fromString("00001101-0000-1000-8000-00805F9B34FB") );
       } else if ( mSockType == TD_SOCK_PORT ) {
-        // Log.v( "Cave3D", "[5d] invoke createRfcommSocket " );
+        // if (LOG) Log.v( "Cave3D", "[5d] invoke createRfcommSocket " );
         Method m2 = mBTDevice.getClass().getMethod( "createRfcommSocket", classes1 );
         mBTSocket = (BluetoothSocket) m2.invoke( mBTDevice, port );
       }
@@ -348,7 +350,7 @@ public class BtConnection
     }
 
     if ( mBTSocket != null ) {
-      Log.v( "Cave3D", "[6a] create Socket OK: create I/O streams");
+      if (LOG) Log.v( "Cave3D", "[6a] create Socket OK: create I/O streams");
       // mBTSocket.setSoTimeout( 200 ); // BlueToothSocket does not have timeout 
       try {
         DataInputStream in   = new DataInputStream( mBTSocket.getInputStream() );
@@ -380,20 +382,20 @@ public class BtConnection
   // 2 connected
   void setSocketState( int state ) 
   { 
-    Log.v( "Cave3D", "connect socket(): set socket state " + state );
+    if (LOG) Log.v( "Cave3D", "connect socket(): set socket state " + state );
     mSocketState = state;
   }
 
   boolean connectSocket( String address )
   {
     if ( address == null ) return false;
-    Log.v( "Cave3D", "connect socket(): " + address );
+    if (LOG) Log.v( "Cave3D", "connect socket(): " + address );
     if ( mBTSocket == null ) {
       createSocket( address );
       // mSocketState = ( mBTSocket == null)? -1 : 0;
     }
 
-    Log.v( "Cave3D", "connect socket(): created " + ((mBTSocket == null)? "null" : "non-null") );
+    if (LOG) Log.v( "Cave3D", "connect socket(): created " + ((mBTSocket == null)? "null" : "non-null") );
     if ( mBTSocket != null ) { // mSocketState == 0
       DeviceUtil.cancelDiscovery();
       setupBTReceiver( );
@@ -405,9 +407,9 @@ public class BtConnection
       while ( mSocketState == 1 && ! mComm.isConnected() /* && trial != connectTrials */ ) {
         ++ trial;
         if ( mBTSocket != null ) {
-          Log.v( "Cave3D", "connect socket() trial " + trial );
+          if (LOG) Log.v( "Cave3D", "connect socket() trial " + trial );
           try {
-            Log.v( "Cave3D", "device state " + mBTDevice.getBondState() );
+            if (LOG) Log.v( "Cave3D", "device state " + mBTDevice.getBondState() );
             mBTSocket.connect();
             mComm.setConnected( true );
           } catch ( IOException e ) {
@@ -418,18 +420,18 @@ public class BtConnection
           }
         }
         if ( mBTSocket == null && mSocketState == 1 /* && trial != connectTrials */ ) { // retry: create the socket again
-          Log.v( "Cave3D", "connect socket() create and retry, after 1 sec.");
+          if (LOG) Log.v( "Cave3D", "connect socket() create and retry, after 1 sec.");
           DeviceType.slowDown( 1000 );
           // createSocket( address );
         }
-        Log.v( "Cave3D", "connect socket() trial " + trial + " connected " + mComm.isConnected() );
+        if (LOG) Log.v( "Cave3D", "connect socket() trial " + trial + " connected " + mComm.isConnected() );
       }
       if ( mSocketState == 0 ) closeSocket();
     } else {
       Log.e( "Cave3D", "connect socket() null socket");
     }
     setSocketState( ( mBTSocket == null)? -1 : (! mComm.isConnected())? 0 : 2 );
-    Log.v( "Cave3D", "connect socket() result " + mComm.isConnected() + " socket state " + mSocketState );
+    if (LOG) Log.v( "Cave3D", "connect socket() result " + mComm.isConnected() + " socket state " + mSocketState );
     return mComm.isConnected();
   }
 
@@ -437,7 +439,7 @@ public class BtConnection
 
   private void notifyStatus( int status )
   {
-    Log.v("Cave3D", "BT connection notify status " + status );
+    if (LOG) Log.v("Cave3D", "BT connection notify status " + status );
     mComm.notifyStatus( status );
   }
 

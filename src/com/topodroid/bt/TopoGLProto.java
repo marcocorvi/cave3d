@@ -35,6 +35,8 @@ import android.bluetooth.BluetoothDevice;
 
 public class TopoGLProto
 {
+  final static boolean LOG = false;
+
   protected TopoGL mApp;
   protected int    mDeviceType;
   protected String mAddress; // reemote device address
@@ -107,10 +109,10 @@ public class TopoGLProto
       bundle.putDouble( TopoGL.BLOCK_C, mClino );
       bundle.putInt( TopoGL.BLOCK_T, mType );
       msg.setData(bundle);
-      Log.v("Cave3D", "TopoGL proto - send message to app");
+      if ( LOG ) Log.v("Cave3D", "TopoGL proto - send message to app");
       mApp.sendMessage(msg);
     } else {
-      Log.v("Cave3D", "TopoGL proto - could not obtain message");
+      if ( LOG ) Log.v("Cave3D", "TopoGL proto - could not obtain message");
     }
     // if ( TDInstance.deviceType() == Device.DISTO_A3 && TDSetting.mWaitData > 10 ) {
     //   DeviceType.slowDown( 500 );
@@ -134,7 +136,7 @@ public class TopoGLProto
   // @param data_type  packet data type (to filter packet of different type)
   public int readPacket( boolean no_timeout, int data_type )
   {
-    Log.v("Cave3D", "TD proto: read_packet returns NONE");
+    if ( LOG ) Log.v("Cave3D", "TD proto: read_packet returns NONE");
     return DataBuffer.DATA_NONE;
   }
   */
@@ -160,7 +162,7 @@ public class TopoGLProto
   protected void handleDistoXBuffer(  DataBuffer data_buffer )
   {
     if ( data_buffer.type != DataBuffer.DATA_PACKET ) {
-      Log.v("Cave3D", "DistoX proto handle buffer - buffer not packet");
+      if ( LOG ) Log.v("Cave3D", "DistoX proto handle buffer - buffer not packet");
       return;
     }
     byte[] buffer = data_buffer.data;
@@ -210,7 +212,7 @@ public class TopoGLProto
         if ( c >= 32768 ) { mClino = (65536 - c) * (-90.0) / 16384.0; }
         mRoll = r * 180.0 / 128.0;
 
-        Log.v("Cave3D", "TopoGL proto handle buffer - data " + mDistance + " " + mBearing + " " + mClino );
+        if ( LOG ) Log.v("Cave3D", "TopoGL proto handle buffer - data " + mDistance + " " + mBearing + " " + mClino );
         sendDataToApp();
         break; // return DataBuffer.DATA_PACKET;
       case 0x02:

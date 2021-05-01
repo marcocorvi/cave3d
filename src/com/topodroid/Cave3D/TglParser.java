@@ -88,7 +88,7 @@ public class TglParser
   protected String mFilename; // file name
 
   // Cave3DStation mCenterStation = null;
-  Cave3DStation mStartStation = null;
+  protected Cave3DStation mStartStation = null;
   protected Cave3DFix mOrigin = null; // coordinates of the origin station
 
   Cave3DFix getOrigin() { return mOrigin; }
@@ -815,6 +815,9 @@ public class TglParser
       FileOutputStream fos = Cave3DFile.getFileOutputStream( filepath );
       BufferedOutputStream bos = new BufferedOutputStream ( fos );
       DataOutputStream dos = new DataOutputStream( bos );
+      dos.write('V'); // version
+      dos.writeInt( TopoGL.VERSION_CODE );
+      dos.write('P'); // parser
       serialize( dos );
       dos.close();
       fos.close();
@@ -837,7 +840,10 @@ public class TglParser
       FileInputStream fis = Cave3DFile.getFileInputStream( filepath );
       BufferedInputStream bis = new BufferedInputStream ( fis );
       DataInputStream dis = new DataInputStream( bis );
-      deserialize( dis );
+      int what dis.read(); // 'V' version
+      int version = dis.readInt( );
+      what = dis.read(); // 'P' parser
+      deserialize( dis, version );
       dis.close();
       fis.close();
     } catch ( FileNotFoundException e ) {
@@ -851,77 +857,100 @@ public class TglParser
   }
   */
 
+  // must be written in this order because deserialization creates the connections
   public void serialize( DataOutputStream dos ) throws IOException
   {
-    Log.v("Cave3D", "serialize: v " + TopoGL.VERSION_CODE + " surveys " + surveys.size() + " " + stations.size() + " " + shots.size() + " " + splays.size() );
-    dos.writeInt( TopoGL.VERSION_CODE );
+    Log.v("Cave3D", "serialize: surveys " + surveys.size() + " " + stations.size() + " " + shots.size() + " " + splays.size() );
+    dos.write('C');
     dos.writeInt( surveys.size() );
     for ( Cave3DSurvey survey : surveys ) survey.serialize( dos );
+    dos.write('P'); // POINT
     dos.writeInt( stations.size() );
     for ( Cave3DStation station : stations ) station.serialize( dos );
+    dos.write('L'); // LEG
     dos.writeInt( shots.size() );
     for ( Cave3DShot shot : shots ) shot.serialize( dos );
+    dos.write('S'); // SPLAY
     dos.writeInt( splays.size() );
     for ( Cave3DShot splay : splays ) splay.serialize( dos );
+    dos.write('F'); // FIX
     dos.writeInt( fixes.size() );
     for ( Cave3DFix fix : fixes ) fix.serialize( dos );
-
+    // dos.write('X');
     // dos.writeInt( xsections.size() );
     // for ( Cave3DXSection xsection : xsections ) xsection.serialize( dos );
+    dos.write('E');
   }
 
-  public void deserialize( DataInputStream dis ) throws IOException
+  public void deserialize( DataInputStream dis, int version ) throws IOException
   {
-    int version = dis.readInt( );
-    int nr = dis.readInt( );
-    surveys.clear();
-    for ( int k=0; k<nr; ++k ) surveys.add( Cave3DSurvey.deserialize( dis ) );
-
-    nr = dis.readInt( );
-    stations.clear();
-    for ( int k=0; k<nr; ++k ) {
-      Cave3DStation st = Cave3DStation.deserialize( dis );
-      stations.add( st );
-      Cave3DSurvey survey = getSurvey( st.mSid );
-      survey.addStation( st );
+    int what = 0;
+    boolean done = false;
+    while ( ! done ) {
+      int nr = 0;
+      what = dis.read();
+      switch ( what ) {
+        case 'C':
+          nr = dis.readInt( );
+          surveys.clear();
+          for ( int k=0; k<nr; ++k ) surveys.add( Cave3DSurvey.deserialize( dis, version ) );
+          break;
+        case 'P':
+          nr = dis.readInt( );
+          stations.clear();
+          for ( int k=0; k<nr; ++k ) {
+            Cave3DStation st = Cave3DStation.deserialize( dis, version );
+            stations.add( st );
+            Cave3DSurvey survey = getSurvey( st.mSid );
+            survey.addStation( st );
+          }
+          break;
+        case 'L':
+          nr = dis.readInt( );
+          shots.clear();
+          for ( int k=0; k<nr; ++k ) {
+            Cave3DShot shot = Cave3DShot.deserialize( dis, version );
+            shots.add( shot );
+            Cave3DSurvey survey = getSurvey( shot.mSurveyId );
+            survey.addShot( shot );
+            Cave3DStation st = getStation( shot.from );
+            if ( st != null ) shot.setFromStation( st );
+            st = getStation( shot.to );
+            if ( st != null ) shot.setToStation( st );
+          }
+          break;
+        case 'S':
+          nr = dis.readInt( );
+          splays.clear();
+          for ( int k=0; k<nr; ++k ) {
+            Cave3DShot splay = Cave3DShot.deserialize( dis, version );
+            splays.add( splay );
+            Cave3DSurvey survey = getSurvey( splay.mSurveyId );
+            survey.addSplay( splay );
+            Cave3DStation st = getStation( splay.from );
+            if ( st != null ) splay.setFromStation( st );
+            st = getStation( splay.to );
+            if ( st != null ) splay.setToStation( st );
+          }
+          break;
+        case 'F':
+          nr = dis.readInt( );
+          fixes.clear();
+          for ( int k=0; k<nr; ++k ) {
+            Cave3DFix fix = Cave3DFix.deserialize( dis, version );
+            fixes.add( fix );
+          }
+          break;
+        case 'X':
+          // nr = dis.readInt( );
+          // xsections.clear();
+          // for ( int k=0; k<nr; ++k ) xsections.add( Cave3DXSection.deserialize( dis, version );
+          break;
+        default:
+          done = true;
+          break;
+      }
     }
-
-    nr = dis.readInt( );
-    shots.clear();
-    for ( int k=0; k<nr; ++k ) {
-      Cave3DShot shot = Cave3DShot.deserialize( dis );
-      shots.add( shot );
-      Cave3DSurvey survey = getSurvey( shot.mSurveyId );
-      survey.addShot( shot );
-      Cave3DStation st = getStation( shot.from );
-      if ( st != null ) shot.setFromStation( st );
-      st = getStation( shot.to );
-      if ( st != null ) shot.setToStation( st );
-    }
-
-    nr = dis.readInt( );
-    splays.clear();
-    for ( int k=0; k<nr; ++k ) {
-      Cave3DShot splay = Cave3DShot.deserialize( dis );
-      splays.add( splay );
-      Cave3DSurvey survey = getSurvey( splay.mSurveyId );
-      survey.addSplay( splay );
-      Cave3DStation st = getStation( splay.from );
-      if ( st != null ) splay.setFromStation( st );
-      st = getStation( splay.to );
-      if ( st != null ) splay.setToStation( st );
-    }
-
-    nr = dis.readInt( );
-    fixes.clear();
-    for ( int k=0; k<nr; ++k ) {
-      Cave3DFix fix = Cave3DFix.deserialize( dis );
-      fixes.add( fix );
-    }
-
-    // nr = dis.readInt( );
-    // xsections.clear();
-    // for ( int k=0; k<nr; ++k ) xsections.add( Cave3DXSection.deserialize( dis );
-  }
+  }   
 
 }

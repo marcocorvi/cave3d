@@ -11,7 +11,7 @@
  */
 package com.topodroid.Cave3D;
 
-// import android.util.Log;
+import android.util.Log;
 
 import java.io.DataOutputStream;
 import java.io.DataInputStream;
@@ -65,9 +65,10 @@ public class Cave3DShot
     dos.writeDouble( cln );
     dos.writeLong( mFlag );
     dos.writeLong( mMillis );
+    Log.v("Cave3D", "ser. shot <" + from + "=" + to + "> " + len + " " + ber + " " + cln );
   }
 
-  static Cave3DShot deserialize( DataInputStream dis ) throws IOException
+  static Cave3DShot deserialize( DataInputStream dis, int version ) throws IOException
   {
     int id      = dis.readInt( );
     String from = dis.readUTF( );
@@ -77,6 +78,7 @@ public class Cave3DShot
     double cln  = dis.readDouble( );
     long flag   = dis.readLong( );
     long millis = dis.readLong( );
+    Log.v("Cave3D", "deser. shot <" + from + "=" + to + "> " + len + " " + ber + " " + cln );
     Cave3DShot shot = new Cave3DShot( from, to, len, ber, cln, flag, millis );
     shot.mSurveyId = id;
     return shot;

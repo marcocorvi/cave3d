@@ -32,13 +32,15 @@ class DialogBluetoothSurveyEdit extends Dialog
 
   private TopoGL mApp;
   private BluetoothSurvey mBtSurvey;
+  private DialogBluetoothSurveyList mBtSurveyList;
   private EditText mEtNickname;
 
-  public DialogBluetoothSurveyEdit( TopoGL app, BluetoothSurvey bt_survey )
+  public DialogBluetoothSurveyEdit( TopoGL app, DialogBluetoothSurveyList survey_list, BluetoothSurvey bt_survey )
   {
     super( app );
-    mApp    = app;
-    mBtSurvey = bt_survey;
+    mApp          = app;
+    mBtSurveyList = survey_list;
+    mBtSurvey     = bt_survey;
   }
 
   @Override
@@ -65,6 +67,7 @@ class DialogBluetoothSurveyEdit extends Dialog
     if ( view.getId() == R.id.btn_save ) {
       if ( mEtNickname.getText() != null ) {
         BluetoothSurveyManager.renameSurvey( mBtSurvey, mEtNickname.getText().toString() );
+        mBtSurveyList.updateFileList( );
       }
     }
     dismiss();

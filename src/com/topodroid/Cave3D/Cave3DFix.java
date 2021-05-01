@@ -44,7 +44,7 @@ public class Cave3DFix extends Vector3D
     dos.writeDouble( altitude );
   }
 
-  static Cave3DFix deserialize( DataInputStream dis ) throws IOException
+  static Cave3DFix deserialize( DataInputStream dis, int version ) throws IOException
   {
     String name = dis.readUTF( );
     double x = dis.readDouble( );

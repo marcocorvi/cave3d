@@ -45,10 +45,11 @@ public class Cave3DSurvey
     dos.writeUTF( name );
   }
 
-  static Cave3DSurvey deserialize( DataInputStream dis ) throws IOException
+  static Cave3DSurvey deserialize( DataInputStream dis, int version ) throws IOException
   {
     int id = dis.readInt();
     String name = dis.readUTF();
+    Log.v("Cave3D", "Cave3D survey deser. " + id + " " + name );
     return new Cave3DSurvey( name, id, -1 );
   }
 

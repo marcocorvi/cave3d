@@ -49,7 +49,7 @@ public class DistoXProto extends TopoGLProto
       case 0x38:  type = DataBuffer.DATA_REPLY; break;
     }
     if ( type == DataBuffer.DATA_NONE ) return null;
-    Log.v("Cave3D", "DistoX proto get buffer - device type " + mDeviceType );
+    if (LOG) Log.v("Cave3D", "DistoX proto get buffer - device type " + mDeviceType );
     return new DataBuffer( type, mDeviceType, Arrays.copyOf( bytes, 8 ) );
   }
 
@@ -57,7 +57,7 @@ public class DistoXProto extends TopoGLProto
   protected void handleDataBuffer( DataBuffer data_buffer )
   {
     if ( ! DeviceType.isDistoX( data_buffer.device ) ) {
-      Log.v("Cave3D", "DistoX proto handle buffer - device is not distox " + data_buffer.device );
+      Log.e("Cave3D", "DistoX proto handle buffer - device is not distox " + data_buffer.device );
       return;
     }
     handleDistoXBuffer( data_buffer );

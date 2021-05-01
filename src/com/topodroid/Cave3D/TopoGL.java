@@ -142,7 +142,7 @@ public class TopoGL extends Activity
     final float d = (float)( data.getDouble( BLOCK_D ) );
     final float b = (float)( data.getDouble( BLOCK_B ) );
     final float c = (float)( data.getDouble( BLOCK_C ) );
-    Toast.makeText( app, String.format(Locale.US, "Data %d: %.2f %.2f %.2f", t, d, b, c ), Toast.LENGTH_LONG ).show();
+    // Toast.makeText( app, String.format(Locale.US, "Data %d: %.2f %.2f %.2f", t, d, b, c ), Toast.LENGTH_LONG ).show();
     // add data to the bluetooth parser
     app.handleRegularData( d, b, c );
   }
@@ -384,7 +384,7 @@ public class TopoGL extends Activity
   {
     // Log.v("TopoGL", "parser " + filename );
     mParser = new TglParser( this, filename );
-    if ( mRenderer != null ) mRenderer.setParser( mParser );
+    if ( mRenderer != null ) mRenderer.setParser( mParser, true );
   }
 
   void setTheTitle( String str ) 
@@ -436,7 +436,7 @@ public class TopoGL extends Activity
         if ( mRenderer == null ) {
           GlModel model = new GlModel( this );
           mRenderer = new GlRenderer( this, model );
-          if ( mParser != null ) mRenderer.setParser( mParser );
+          if ( mParser != null ) mRenderer.setParser( mParser, true );
         }
         glSurfaceView.setRenderer( mRenderer );
         // glSurfaceView.setRenderMode( GLSurfaceView.RENDERMODE_WHEN_DIRTY );
@@ -462,8 +462,8 @@ public class TopoGL extends Activity
   // ---------------------------------------------------------------
   // MENU
 
-  Button     mMenuImage;
-  ListView   mMenu;
+  Button     mMenuImage = null;
+  ListView   mMenu = null;
   MyMenuAdapter mMenuAdapter = null;
   boolean    onMenu = false;
 
@@ -487,18 +487,21 @@ public class TopoGL extends Activity
   void setMenuAdapter( Resources res )
   {
     Cave3DFile.hasC3dDir();
-
-    int size = getScaledSize( this );
-    MyButton.setButtonBackground( this, mMenuImage, size, R.drawable.iz_menu );
-    mMenuAdapter = new MyMenuAdapter( this, this, mMenu, R.layout.menu, new ArrayList< MyMenuItem >() );
-    for ( int k=0; k<menus.length; ++k ) {
-      if ( k ==  2 && ! ( hasBluetoothName() && mWithBluetooth ) ) continue; // FIXME BLUETOOTH  MENU
-      if ( k == 9 && ! mHasC3d ) continue;
-	  
-      mMenuAdapter.add( res.getString( menus[k] ) );
+    if ( mMenuImage != null ) {
+      int size = getScaledSize( this );
+      MyButton.setButtonBackground( this, mMenuImage, size, R.drawable.iz_menu );
     }
-    mMenu.setAdapter( mMenuAdapter );
-    mMenu.invalidate();
+    if ( mMenu != null ) {
+      mMenuAdapter = new MyMenuAdapter( this, this, mMenu, R.layout.menu, new ArrayList< MyMenuItem >() );
+      for ( int k=0; k<menus.length; ++k ) {
+        if ( k ==  2 && ! ( hasBluetoothName() && mWithBluetooth ) ) continue; // FIXME BLUETOOTH  MENU
+        if ( k == 9 && ! mHasC3d ) continue;
+            
+        mMenuAdapter.add( res.getString( menus[k] ) );
+      }
+      mMenu.setAdapter( mMenuAdapter );
+      mMenu.invalidate();
+    }
   }
 
   // used by GlSurfaceView
@@ -1099,7 +1102,7 @@ public class TopoGL extends Activity
           if ( b ) {
             mFilename = path;
             CWConvexHull.resetCounters();
-            if ( mRenderer != null ) mRenderer.setParser( mParser );
+            if ( mRenderer != null ) mRenderer.setParser( mParser, true );
           }
         }
       } ).execute();
@@ -1108,7 +1111,7 @@ public class TopoGL extends Activity
       if ( initRendering( filename ) ) {
         mFilename = path;
         CWConvexHull.resetCounters();
-        if ( mRenderer != null ) mRenderer.setParser( mParser );
+        if ( mRenderer != null ) mRenderer.setParser( mParser, true );
       }
     }
     return ( mFilename != null );
@@ -1724,7 +1727,7 @@ public class TopoGL extends Activity
       CWConvexHull.resetCounters();
       if ( mRenderer != null ) {
         mRenderer.clearModel();
-        mRenderer.setParser( mParser );
+        mRenderer.setParser( mParser, true );
       }
       doSketches = true;
       // Log.v( "TopoGL", "Station " + mParser.getStationNumber() + " shot " + mParser.getShotNumber() );
@@ -1761,7 +1764,7 @@ public class TopoGL extends Activity
         return false;
       }
       // CWConvexHull.resetCounters();
-      // if ( mRenderer != null ) mRenderer.setParser( mParser );
+      // if ( mRenderer != null ) mRenderer.setParser( mParser, true );
       // Log.v( "TopoGL", "Station " + mParser.getStationNumber() + " shot " + mParser.getShotNumber() + " splay " + mParser.getSplayNumber() + " surveys " + mParser.getSurveyNumber() );
     } catch ( ParserException e ) {
       // Log.e( "TopoGL", "parser exception " + e.msg() );
@@ -2114,6 +2117,7 @@ public class TopoGL extends Activity
       setBluetoothState( hasBluetoothName()? BLUETOOTH_OFF : BLUETOOTH_DOWN );
     }
     if ( ! mWithBluetooth ) stopBluetooth();
+    setMenuAdapter( getResources() );
   }
 
   private boolean checkBluetoothName( String name )
@@ -2123,8 +2127,8 @@ public class TopoGL extends Activity
     if ( ! BLUETOOTH ) return false;
     if ( name == null || name.length() == 0 ) return false;
     // WARNING BT name must have "Real" prefix
-    if ( ! ( name.startsWith("Real") ) ) return false;
-    name = name.substring( 4 );
+    if ( ! ( name.startsWith("__") ) ) return false;
+    name = name.substring( 2 );
     Log.v("Cave3D", "check BT name <" + name + ">" );
 
     BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
@@ -2337,9 +2341,9 @@ public class TopoGL extends Activity
       String filename = mBtSurvey.getFilename();
       String filepath = Cave3DFile.getBluetoothFilename( filename );
       ParserBluetooth bt_parser = new ParserBluetooth( this, filepath, filename );
-      mBtSurvey.setParser( bt_parser );
+      mBtSurvey.setBluetoothParser( bt_parser );
       mParser = bt_parser;
-      mRenderer.setParser( mParser );
+      mRenderer.setParser( mParser, false );
     } catch ( ParserException e ) { 
       // TODO
     }
@@ -2372,7 +2376,7 @@ public class TopoGL extends Activity
     double z = dist * Math.sin( clino * Cave3DShot.DEG2RAD );
     double n = h * Math.cos( bear * Cave3DShot.DEG2RAD );
     double e = h * Math.sin( bear * Cave3DShot.DEG2RAD );
-    Log.v("Cave3D", "TopoGL handle regular data D " + dist + " A " + bear + " C " + clino + " ==> E " + e + " N " + n + " Z " + z );
+    Log.v("Cave3D", String.format("TopoGL handle regular data %.2f %.1f %.1f --> %.2f %.2f %.2f", dist, bear, clino, e, n, z ) );
     DataLog data_log = new DataLog( e, n, z );
     boolean is_shot = data_log.isClose( mDataLog[0], EPS ) && data_log.isClose( mDataLog[1], EPS );
     mDataLog[1] = mDataLog[0];

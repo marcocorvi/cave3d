@@ -50,7 +50,6 @@ class DialogBluetoothSurveyList extends Dialog
 
   // private ArrayAdapter<String> mArrayAdapter;
   private List< String > mItems;
-  private ArrayAdapter< String > mArrayAdapter;
   private ListView mList;
   private EditText mName;
   private Button   mNew;
@@ -84,22 +83,23 @@ class DialogBluetoothSurveyList extends Dialog
     mList.setOnItemLongClickListener( this );
     mList.setDividerHeight( 2 );
  
-    mItems = getFileList( Cave3DFile.getBluetoothDirname() );
-    mArrayAdapter = new ArrayAdapter<>( mContext, R.layout.message, mItems );
-    mList.setAdapter( mArrayAdapter );
+    updateFileList( );
   }
 
-  private List<String> getFileList( String basedir )
+  void updateFileList( )
   {
-    ArrayList<String> items = new ArrayList<>();
+    String basedir = Cave3DFile.getBluetoothDirname();
+    ArrayList<String> mItems = new ArrayList<>();
     File dir = new File( basedir );
     if ( dir.isDirectory() ) {
       File[] files = dir.listFiles( new FileFilter() {
         @Override public boolean accept( File file ) { return file.isFile(); }
       } );
-      for ( int k=0; k<files.length; ++k ) items.add( files[k].getName() );
+      Log.v("Cave3D", "BT survey files " + files.length );
+      for ( int k=0; k<files.length; ++k ) mItems.add( files[k].getName() );
     }
-    return items;
+    ArrayAdapter< String > array_adapter = new ArrayAdapter<>( mContext, R.layout.message, mItems );
+    mList.setAdapter( array_adapter );
   }
 
   @Override
@@ -119,9 +119,9 @@ class DialogBluetoothSurveyList extends Dialog
     CharSequence item = ((TextView) view).getText();
     if ( item != null ) {
       BluetoothSurvey bt_survey = BluetoothSurveyManager.getSurvey( item.toString() );
-      (new DialogBluetoothSurveyEdit( mApp, bt_survey )).show();
+      (new DialogBluetoothSurveyEdit( mApp, this, bt_survey )).show();
     }
-    dismiss();
+    // dismiss();
     return true;
   }
 

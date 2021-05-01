@@ -33,6 +33,8 @@ import android.util.Log;
 
 public class BleCallback extends BluetoothGattCallback
 {
+  final static boolean LOG = false;
+
   public final static int CONNECTION_TIMEOUT =   8;
   public final static int CONNECTION_133     = 133;
 
@@ -42,7 +44,7 @@ public class BleCallback extends BluetoothGattCallback
 
   public BleCallback( BleComm comm, boolean auto_connect )
   {
-    Log.v("Cave3D", "BLE callback cstr - auto_connect " + auto_connect );
+    if ( LOG) Log.v("Cave3D", "BLE callback cstr - auto_connect " + auto_connect );
     mComm = comm;
     mAutoConnect = auto_connect;
   }
@@ -50,17 +52,17 @@ public class BleCallback extends BluetoothGattCallback
   @Override
   public void onCharacteristicChanged( BluetoothGatt gatt, BluetoothGattCharacteristic chrt )
   {
-    Log.v("Cave3D", "BLE callback cstr - chrt changed");
+    if ( LOG) Log.v("Cave3D", "BLE callback cstr - chrt changed");
     mComm.changedChrt( chrt );
   }
 
   @Override
   public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic chrt, int status)
   {
-    Log.v("Cave3D", "BLE callback cstr - chrt read - status " + status );
+    if ( LOG) Log.v("Cave3D", "BLE callback cstr - chrt read - status " + status );
     if ( isSuccess( status, "onCharacteristicRead" ) ) {
       String uuid_str = chrt.getUuid().toString();
-      Log.v("Cave3D", "mComm.readedChrt( uuid_str, chrt.getValue() " + uuid_str );
+      if ( LOG) Log.v("Cave3D", "mComm.readedChrt( uuid_str, chrt.getValue() " + uuid_str );
     } else if ( status == BluetoothGatt.GATT_READ_NOT_PERMITTED ) {
       mComm.error( status );
     } else {
@@ -71,10 +73,10 @@ public class BleCallback extends BluetoothGattCallback
   @Override
   public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic chrt, int status)
   {
-    Log.v("Cave3D", "BLE callback cstr - chrt write - status " + status );
+    if ( LOG) Log.v("Cave3D", "BLE callback cstr - chrt write - status " + status );
     if ( isSuccess( status, "onCharacteristicWrite" ) ) {
       String uuid_str = chrt.getUuid().toString();
-      Log.v("Cave3D", "mComm.writtenChrt( uuid_str, chrt.getValue() " + uuid_str );
+      if ( LOG) Log.v("Cave3D", "mComm.writtenChrt( uuid_str, chrt.getValue() " + uuid_str );
     } else 
     if ( status == BluetoothGatt.GATT_INVALID_ATTRIBUTE_LENGTH 
       || status == BluetoothGatt.GATT_WRITE_NOT_PERMITTED ) {
@@ -87,7 +89,7 @@ public class BleCallback extends BluetoothGattCallback
   @Override
   public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState)
   {
-    Log.v("Cave3D", "BLE callback cstr - connection state change - status " + status + " --> " + newState );
+    if ( LOG) Log.v("Cave3D", "BLE callback cstr - connection state change - status " + status + " --> " + newState );
     if ( isSuccess( status, "onConnectionStateChange" ) ) {
       if ( newState == BluetoothProfile.STATE_CONNECTED ) {
         // TO CHECK THIS
@@ -126,7 +128,7 @@ public class BleCallback extends BluetoothGattCallback
   public void onServicesDiscovered(BluetoothGatt gatt, int status)
   {
     // super.onServicesDiscovered( gatt, status );
-    Log.v( "Cave3D", "BLE callback: on Services Discovered " + status );
+    if ( LOG) Log.v( "Cave3D", "BLE callback: on Services Discovered " + status );
     if ( isSuccess( status, "onServicesDiscovered" ) ) {
       int ret = mComm.servicesDiscovered( gatt ); // calls notifyStatus( ... CONNECTED )
       if ( ret == 0 ) {
@@ -137,7 +139,7 @@ public class BleCallback extends BluetoothGattCallback
         mComm.failure( ret );
       }
     } else {
-      Log.v("Cave3D", "BLE callback: service discover faiure");
+      if ( LOG) Log.v("Cave3D", "BLE callback: service discover faiure");
       mComm.failure( status );
     }
   }
@@ -148,9 +150,9 @@ public class BleCallback extends BluetoothGattCallback
     if ( isSuccess( status, "onDescriptorRead" ) ) {
       String uuid_str = desc.getUuid().toString();
       String uuid_chrt_str = desc.getCharacteristic().getUuid().toString();
-      Log.v("Cave3D", "BLE ballback TODO: mComm.readedDesc( )" );
+      if ( LOG) Log.v("Cave3D", "BLE ballback TODO: mComm.readedDesc( )" );
     } else {
-      Log.v("Cave3D", "BLE callback: desc read error");
+      if ( LOG) Log.v("Cave3D", "BLE callback: desc read error");
       mComm.error( status );
     }
   }
@@ -158,13 +160,13 @@ public class BleCallback extends BluetoothGattCallback
   @Override
   public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor desc, int status)
   {
-    Log.v("Cave3D", "BLE callback: onDescriptorWrite " + desc.getUuid() + " " + status );
+    if ( LOG) Log.v("Cave3D", "BLE callback: onDescriptorWrite " + desc.getUuid() + " " + status );
     if ( isSuccess( status, "onDescriptorWrite" ) ) {
       String uuid_str = desc.getUuid().toString();
       String uuid_chrt_str = desc.getCharacteristic().getUuid().toString();
       mComm.writtenDesc( uuid_str, uuid_chrt_str, desc.getValue() );
     } else {
-      Log.v("Cave3D", "BLE callback: desc write error");
+      if ( LOG) Log.v("Cave3D", "BLE callback: desc write error");
       mComm.error( status );
     }
   }
@@ -173,9 +175,9 @@ public class BleCallback extends BluetoothGattCallback
   public void onMtuChanged(BluetoothGatt gatt, int mtu, int status)
   { 
     if ( isSuccess( status, "onMtuChanged" ) ) {
-      Log.v("Cave3D", "BLE ballback TODO: mComm.changedMtu( mtu )" );
+      if ( LOG) Log.v("Cave3D", "BLE ballback TODO: mComm.changedMtu( mtu )" );
     } else {
-      Log.v("Cave3D", "BLE callback: MTU change error");
+      if ( LOG) Log.v("Cave3D", "BLE callback: MTU change error");
       mComm.error( status );
     }
   }
@@ -184,9 +186,9 @@ public class BleCallback extends BluetoothGattCallback
   public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status)
   { 
     if ( isSuccess( status, "onReadRemoteRssi" ) ) {
-      Log.v("Cave3D", "BLE ballback TODO: mComm.readedRemoteRssi( rssi )" );
+      if ( LOG) Log.v("Cave3D", "BLE ballback TODO: mComm.readedRemoteRssi( rssi )" );
     } else {
-      Log.v("Cave3D", "BLE callback: read RSSI error");
+      if ( LOG) Log.v("Cave3D", "BLE callback: read RSSI error");
       mComm.error( status );
     }
   }
@@ -195,9 +197,9 @@ public class BleCallback extends BluetoothGattCallback
   public void onReliableWriteCompleted(BluetoothGatt gatt, int status)
   { 
     if ( isSuccess( status, "onReliableWriteCompleted" ) ) {
-      Log.v("Cave3D", "BLE ballback TODO: mComm.completedReliableWrite()" );
+      if ( LOG) Log.v("Cave3D", "BLE ballback TODO: mComm.completedReliableWrite()" );
     } else {
-      Log.v("Cave3D", "BLE callback: reliable write error");
+      if ( LOG) Log.v("Cave3D", "BLE callback: reliable write error");
       mComm.error( status );
     }
   }
@@ -205,19 +207,19 @@ public class BleCallback extends BluetoothGattCallback
   public void closeGatt()
   { 
     if ( mGatt != null ) {
-      Log.v("Cave3D", "BLE callback: close gatt");
+      if ( LOG) Log.v("Cave3D", "BLE callback: close gatt");
       // mGatt.disconnect();
       mGatt.close();
       mGatt = null;
     } else {
-      Log.v("Cave3D", "BLE callback: close gatt: already null ");
+      if ( LOG) Log.v("Cave3D", "BLE callback: close gatt: already null ");
     }
   }
 
   public void connectGatt( Context ctx, BluetoothDevice device )
   {
     closeGatt();
-    Log.v("Cave3D", "BLE callback: connect gatt");
+    if ( LOG) Log.v("Cave3D", "BLE callback: connect gatt");
     // device.connectGatt( ctx, mAutoConnect, this );
     if ( Build.VERSION.SDK_INT < 23 ) {
       mGatt = device.connectGatt( ctx, mAutoConnect, this );
@@ -232,12 +234,12 @@ public class BleCallback extends BluetoothGattCallback
     // mWriteInitialized = false; 
     // mReadInitialized  = false; 
     if ( mGatt != null ) {
-      Log.v("Cave3D", "BLE callback: disconnect close GATT");
+      if ( LOG) Log.v("Cave3D", "BLE callback: disconnect close GATT");
       mGatt.disconnect();
       mGatt.close();
       mGatt = null;
     } else {
-      Log.v("Cave3D", "BLE callback: disconnect close GATT - already null");
+      if ( LOG) Log.v("Cave3D", "BLE callback: disconnect close GATT - already null");
     }
   }
 
@@ -246,19 +248,19 @@ public class BleCallback extends BluetoothGattCallback
     // mWriteInitialized = false; 
     // mReadInitialized  = false; 
     if ( mGatt != null ) {
-      Log.v("Cave3D", "BLE callback: disconnect GATT");
+      if ( LOG) Log.v("Cave3D", "BLE callback: disconnect GATT");
       mGatt.disconnect();
       // FIXME mGapp.close();
       mGatt = null;
     } else {
-      Log.v("Cave3D", "BLE callback: disconnect GATT - already null");
+      if ( LOG) Log.v("Cave3D", "BLE callback: disconnect GATT - already null");
     }
   }
   // ---------------------------------------------------------------------
 
   private boolean setNotification( BluetoothGattCharacteristic chrt, byte [] value )
   {
-    Log.v("Cave3D", "BLE callback: set notification: " + chrt.getUuid().toString() );
+    if ( LOG) Log.v("Cave3D", "BLE callback: set notification: " + chrt.getUuid().toString() );
     if ( ! mGatt.setCharacteristicNotification( chrt, true ) ) {
       return false;
     }
@@ -275,7 +277,7 @@ public class BleCallback extends BluetoothGattCallback
   /*
   boolean enableNotify( UUID srvUuid, UUID chrtUuid )
   {
-    Log.v("TopoGL-BLE", "BLE callback enable notify " + chrtUuid.toString() );
+    if ( LOG) Log.v("TopoGL-BLE", "BLE callback enable notify " + chrtUuid.toString() );
     BluetoothGattCharacteristic chrt = getNotifyChrt( srvUuid, chrtUuid );
     return ( chrt != null ) && enableNotify( chrt );
   }
@@ -285,7 +287,7 @@ public class BleCallback extends BluetoothGattCallback
   {
     BluetoothGattService srv = mGatt.getService( srvUuid );
     if ( srv  == null ) {
-      Log.v("Cave3D", "BLE callback enablePNotify null service " + srvUuid );
+      if ( LOG) Log.v("Cave3D", "BLE callback enablePNotify null service " + srvUuid );
       return false;
     }
     return enablePNotify( srvUuid, srv.getCharacteristic( chrtUuid ) );
@@ -293,7 +295,7 @@ public class BleCallback extends BluetoothGattCallback
 
   public boolean enablePNotify( UUID srvUuid, BluetoothGattCharacteristic chrt )
   {
-    Log.v("Cave3D", "BLE callback enable P notify " + srvUuid + " " + chrt.getUuid() );
+    if ( LOG) Log.v("Cave3D", "BLE callback enable P notify " + srvUuid + " " + chrt.getUuid() );
     if ( chrt == null ) {
       return false;
     }
@@ -315,7 +317,7 @@ public class BleCallback extends BluetoothGattCallback
   public boolean readChrt( UUID srvUuid, UUID chrtUuid )
   {
     BluetoothGattCharacteristic chrt = getReadChrt( srvUuid, chrtUuid );
-    Log.v("Cave3D", "BLE callback readChrt ");
+    if ( LOG) Log.v("Cave3D", "BLE callback readChrt ");
     return chrt != null && mGatt.readCharacteristic( chrt );
   }
 
@@ -323,12 +325,12 @@ public class BleCallback extends BluetoothGattCallback
   {
     BluetoothGattCharacteristic chrt = getWriteChrt( srvUuid, chrtUuid );
     if ( chrt == null ) {
-      Log.v("Cave3D", "BLE callback writeChrt null chrt ");
+      if ( LOG) Log.v("Cave3D", "BLE callback writeChrt null chrt ");
       return false;
     }
     int write_type = BleUtils.getChrtWriteType( chrt );
     if ( write_type < 0 ) {
-      // Log.v("Cave3D", "BLE callback writeChrt neg type " + write_type );
+      // if ( LOG) Log.v("Cave3D", "BLE callback writeChrt neg type " + write_type );
       return false;
     }
     chrt.setWriteType( write_type );

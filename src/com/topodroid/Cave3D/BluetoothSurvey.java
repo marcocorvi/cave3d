@@ -28,6 +28,8 @@ import android.util.Log;
 
 class BluetoothSurvey
 {
+  final static boolean LOG = false;
+
   private String mName;
   private String mNickname; // filename
   private ParserBluetooth mParser;
@@ -38,7 +40,7 @@ class BluetoothSurvey
   //   and the BluetoothSurvey is created by the BluetoothSurveyManager
   BluetoothSurvey( String name, String nick ) 
   {
-    Log.v("Cave3D", "BT survey from name " + name + " " + nick );
+    if (LOG) Log.v("Cave3D", "BT survey from name " + name + " " + nick );
     mName     = name;
     mNickname = nick;
     mParser   = null;
@@ -51,12 +53,12 @@ class BluetoothSurvey
   String getNickname() { return mNickname; }
   void setNickname( String nick ) { mNickname = nick; }
 
-  void setParser( ParserBluetooth parser ) 
+  void setBluetoothParser( ParserBluetooth parser ) 
   { 
     mParser = parser;
     if ( mParser != null ) {
       boolean ret = BluetoothSurveyManager.loadSurvey( this );
-      Log.v("cave3D", "BT survey load survey " + ret );
+      if (LOG) Log.v("cave3D", "BT survey load survey " + ret );
       mParser.initialize();
     }
   }
@@ -77,7 +79,7 @@ class BluetoothSurvey
   void saveSurvey() 
   {
     boolean ret = BluetoothSurveyManager.saveSurvey( this );
-    Log.v("cave3D", "BT survey save survey " + ret );
+    if (LOG) Log.v("cave3D", "BT survey save survey " + ret );
   }
 
   boolean serialize( String filepath )
@@ -87,8 +89,15 @@ class BluetoothSurvey
       FileOutputStream fos = Cave3DFile.getFileOutputStream( filepath );
       BufferedOutputStream bos = new BufferedOutputStream ( fos );
       DataOutputStream dos = new DataOutputStream( bos );
+      dos.write('V');
+      dos.writeInt( TopoGL.VERSION_CODE );
+      dos.write('H'); // header
       serialize( dos );
-      if ( mParser != null ) mParser.serialize( dos );
+      if ( mParser != null ) {
+        dos.write('P'); // parser
+        mParser.serialize( dos );
+      }
+      dos.write('E'); // file end
       dos.close();
       fos.close();
     } catch ( FileNotFoundException e ) {
@@ -104,13 +113,38 @@ class BluetoothSurvey
 
   boolean deserialize( String filepath, boolean header_only )
   {
-    Log.v("Cave3D", "Parser deserialize " + filepath );
+    if (LOG) Log.v("Cave3D", "deserialize " + filepath );
     try { 
       FileInputStream fis = Cave3DFile.getFileInputStream( filepath );
       BufferedInputStream bis = new BufferedInputStream ( fis );
       DataInputStream dis = new DataInputStream( bis );
-      deserialize( dis );
-      if ( (! header_only) && mParser != null ) mParser.deserialize( dis );
+      int what = dis.read(); // 'V'
+      int version = dis.readInt( );
+      boolean done = false;
+      while ( ! done ) {
+        what = dis.read(); // 'H'
+        switch (what) {
+          case 'H':
+            deserialize( dis, version );
+            if ( header_only ) done = true;
+            break;
+          case 'P':
+            if ( mParser != null ) {
+              mParser.deserialize( dis, version );
+            } else {
+              Log.e("Cave3D", "deserializing data without the parser");
+              done = true;
+            }
+            break;
+          case 'E':
+            done = true;
+            break;
+          default:
+            Log.e("Cave3D", "Bluetooth deserialize error - tag " + what );
+            done = true;
+            break;
+        }
+      }
       dis.close();
       fis.close();
     } catch ( FileNotFoundException e ) {
@@ -125,14 +159,32 @@ class BluetoothSurvey
 
   private void serialize( DataOutputStream dos ) throws IOException
   {
+    dos.write('N'); // NAME
     dos.writeUTF( mName );
-    Log.v("Cave3D", "BT survey serialized: " + mName );
+    dos.write('E'); // END
+    if (LOG) Log.v("Cave3D", "BT survey serialized: " + mName );
   }
 
-  private void deserialize( DataInputStream dis ) throws IOException
+  private void deserialize( DataInputStream dis, int version ) throws IOException
   {
-    mName = dis.readUTF( );
-    Log.v("Cave3D", "BT survey deserialized: " + mName );
+    int what = 0;
+    boolean done = false;
+    while ( ! done ) {
+      what = dis.read(); 
+      switch (what) {
+        case 'N':
+          mName = dis.readUTF( );
+          break;
+        case 'E':
+          done = true;
+          break;
+        default:
+          Log.e("Cave3D", "Bluetooth survey deserialize error - tag " + what );
+          done = true;
+          break;
+      }
+    }
+    if (LOG) Log.v("Cave3D", "BT survey deserialized: " + mName );
   }
 
 }

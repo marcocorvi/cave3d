@@ -11,7 +11,7 @@
  */
 package com.topodroid.Cave3D;
 
-// import android.util.Log;
+import android.util.Log;
 
 import java.io.DataOutputStream;
 import java.io.DataInputStream;
@@ -52,9 +52,10 @@ public class Cave3DStation extends Vector3D
     dos.writeDouble( x );
     dos.writeDouble( y );
     dos.writeDouble( z );
+    Log.v("Cave3D", "ser. station " + mId + " " + mSid + " <" + name + "> " + x + " " + y + " " + z );
   }
 
-  static Cave3DStation deserialize( DataInputStream dis ) throws IOException 
+  static Cave3DStation deserialize( DataInputStream dis, int version ) throws IOException 
   {
     int id  = dis.readInt();
     int sid = dis.readInt();
@@ -63,6 +64,7 @@ public class Cave3DStation extends Vector3D
     double x = dis.readDouble();
     double y = dis.readDouble();
     double z = dis.readDouble();
+    Log.v("Cave3D", "deser. station " + id + " " + sid + " <" + name + "> " + x + " " + y + " " + z );
     return new Cave3DStation( name, x, y, z, id, sid, flag, "" );
   }
 
