@@ -2127,7 +2127,7 @@ public class TopoGL extends Activity
     if ( ! BLUETOOTH ) return false;
     if ( name == null || name.length() == 0 ) return false;
     // WARNING BT name must have "Real" prefix
-    if ( ! ( name.startsWith("__") ) ) return false;
+    if ( ! ( name.startsWith("++") ) ) return false;
     name = name.substring( 2 );
     Log.v("Cave3D", "check BT name <" + name + ">" );
 
