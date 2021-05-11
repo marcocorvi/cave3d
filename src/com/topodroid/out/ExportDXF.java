@@ -467,7 +467,7 @@ public class ExportDXF
         writeString( out, 9, "$FILLMODE" );    writeInt( out, 70, 1 ); // 
         writeString( out, 9, "$QTEXTMODE" );   writeInt( out, 70, 0 ); // 
         writeString( out, 9, "$REGENMODE" );   writeInt( out, 70, 1 ); // 
-        writeString( out, 9, "$MIRRMODE" );    writeInt( out, 70, 0 ); // not handled by DraftSight
+        //writeString( out, 9, "$MIRRMODE" );    writeInt( out, 70, 0 ); // not handled by DraftSight not AutoCAD variable (HB)
         writeString( out, 9, "$UNITMODE" );    writeInt( out, 70, 0 ); // 
 
         writeString( out, 9, "$TEXTSIZE" );    writeInt( out, 40, 5 ); // default text size
@@ -694,6 +694,7 @@ public class ExportDXF
           int color = 1;
           // if ( ! version13 ) { handle = 40; }
           // handle = inc(handle); printLayer( pw2, handle, "0",       flag, 0, lt_continuous ); // LAYER "0" .. FIXME DraftSight
+          handle = inc(handle); printLayer( pw2, handle, "0",       flag, 7, lt_continuous ); // LAYER "0" must be AutoCAD white (HB)
           handle = inc(handle); printLayer( pw2, handle, "LEG",     flag, color, lt_continuous ); ++color; // red
           handle = inc(handle); printLayer( pw2, handle, "SPLAY",   flag, color, lt_continuous ); ++color; // yellow
           handle = inc(handle); printLayer( pw2, handle, "STATION", flag, color, lt_continuous ); ++color; // green
