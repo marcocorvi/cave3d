@@ -390,7 +390,7 @@ public class ExportDXF
     printXYZ( pw, (xoff+facet.v3.x)*scale, (yoff+facet.v3.y)*scale, (zoff+facet.v3.z)*scale, 2 );
     printXYZ( pw, (xoff+facet.v3.x)*scale, (yoff+facet.v3.y)*scale, (zoff+facet.v3.z)*scale, 3 );
     printString( pw, 70, "0" );
-    printString( pw, 100, AcDbFace);
+    //printString( pw, 100, AcDbFace); no AutoCAD (HB)
 
     // handle = printSegment( pw, handle, layer, facet.v1.x, facet.v1.y, facet.v1.z, facet.v2.x, facet.v2.y, facet.v2.z );
     // handle = printSegment( pw, handle, layer, facet.v2.x, facet.v2.y, facet.v2.z, facet.v3.x, facet.v3.y, facet.v3.z );
