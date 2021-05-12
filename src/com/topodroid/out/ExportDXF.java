@@ -790,14 +790,14 @@ public class ExportDXF
           handle = inc(handle);
           writeBeginTable( out, "BLOCK_RECORD", handle, 0 );
 	     writeString( out, 0, "BLOCK_RECORD" );  // must be AutoCAD (HB)
-             handle = writeAcDb( out, handle, AcDbSymbolTR, "AcDbBlockTableRecord" );
+             handle = inc(handle); writeAcDb( out, handle, AcDbSymbolTR, "AcDbBlockTableRecord" );
              writeString( out, 2, "*Model_Space" );
              writeInt( out, 70, 0 );
              writeInt( out, 280, 1 );
              writeInt( out, 281, 0 );
              writeInt( out, 330, 1 );
 	     writeString( out, 0, "BLOCK_RECORD" );
-             handle = writeAcDb( out, handle, AcDbSymbolTR, "AcDbBlockTableRecord" );
+             handle = inc(handle); writeAcDb( out, handle, AcDbSymbolTR, "AcDbBlockTableRecord" );
              writeString( out, 2, "*Paper_Space" );
              writeInt( out, 70, 0 );
              writeInt( out, 280, 1 );
@@ -811,7 +811,7 @@ public class ExportDXF
       
       writeSection( out, "BLOCKS" );
         writeString( out, 0, "BLOCK" );  // must be AutoCAD (HB)
-        handle = writeAcDb( out, handle, AcDbEntity, "AcDbBlockBegin" );
+        handle = inc(handle); writeAcDb( out, handle, AcDbEntity, "AcDbBlockBegin" );
         writeString( out, 8, "0" );
         writeString( out, 2, "*Model_Space" );
         writeInt( out, 70, 0 );       // flag 0=none, 1=anonymous, 2=non-conts attr, 4=xref, 8=xref overlay,
@@ -821,10 +821,10 @@ public class ExportDXF
         writeString( out, 3, "*Model_Space" );
         writeString( out, 1, "" );
         writeString( out, 0, "ENDBLK" );
-        handle = writeAcDb( out, handle, AcDbEntity, "AcDbBlockEnd");
+        handle = inc(handle); writeAcDb( out, handle, AcDbEntity, "AcDbBlockEnd");
         writeString( out, 8, "0");
         writeString( out, 0, "BLOCK" );
-        handle = writeAcDb( out, handle, AcDbEntity, "AcDbBlockBegin" );
+        handle = inc(handle); writeAcDb( out, handle, AcDbEntity, "AcDbBlockBegin" );
         writeString( out, 8, "0" );
         writeString( out, 2, "*Paper_Space" );
         writeInt( out, 70, 0 );       // flag 0=none, 1=anonymous, 2=non-conts attr, 4=xref, 8=xref overlay,
@@ -834,7 +834,7 @@ public class ExportDXF
         writeString( out, 3, "*Paper_Space" );
         writeString( out, 1, "" );
         writeString( out, 0, "ENDBLK" );
-        handle = writeAcDb( out, handle, AcDbEntity, "AcDbBlockEnd");
+        handle = inc(handle); writeAcDb( out, handle, AcDbEntity, "AcDbBlockEnd");
         writeString( out, 8, "0");	    
       writeEndSection( out );
       out.flush();
