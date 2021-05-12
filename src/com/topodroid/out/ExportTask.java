@@ -17,6 +17,8 @@ import com.topodroid.Cave3D.TglParser;
 import com.topodroid.Cave3D.TopoGL;
 import com.topodroid.Cave3D.R;
 
+import android.util.Log;
+
 import android.os.AsyncTask;
 import android.content.Context;
 
@@ -49,27 +51,31 @@ public class ExportTask extends AsyncTask< Void, Void, Boolean >
   @Override
   public Boolean doInBackground( Void ... args )
   {
-    switch ( mType ) {
-      case ModelType.STL_BINARY:
-        return mParser.exportModel( mType, mPathname, mSplays, mWalls, mSurface, mOverwrite );
-      case ModelType.STL_ASCII:
-        return mParser.exportModel( mType, mPathname, mSplays, mWalls, mSurface, mOverwrite );
-      case ModelType.KML_ASCII:
-        return mParser.exportModel( mType, mPathname, mSplays, mWalls, mStation, mOverwrite );
-      case ModelType.CGAL_ASCII:
-        return mParser.exportModel( mType, mPathname, mSplays, mWalls, mStation, mOverwrite );
-      case ModelType.LAS_BINARY:
-        return mParser.exportModel( mType, mPathname, mSplays, mWalls, mStation, mOverwrite );
-      case ModelType.DXF_ASCII:
-        return mParser.exportModel( mType, mPathname, mSplays, mWalls, mStation, mOverwrite );
-      case ModelType.SHP_ASCII:
-        return mParser.exportModel( mType, mPathname, mSplays, mWalls, mStation, mOverwrite );
-      case ModelType.GLTF:
-        return mApp.exportModel( mType, mPathname, mSplays, mWalls, mStation, mOverwrite );
-      case ModelType.SERIAL:
-        return mParser.exportModel( mType, mPathname, mSplays, mWalls, mSurface, mOverwrite );
-      default:
-        break;
+    try {
+      switch ( mType ) {
+        case ModelType.STL_BINARY:
+          return mParser.exportModel( mType, mPathname, mSplays, mWalls, mSurface, mOverwrite );
+        case ModelType.STL_ASCII:
+          return mParser.exportModel( mType, mPathname, mSplays, mWalls, mSurface, mOverwrite );
+        case ModelType.KML_ASCII:
+          return mParser.exportModel( mType, mPathname, mSplays, mWalls, mStation, mOverwrite );
+        case ModelType.CGAL_ASCII:
+          return mParser.exportModel( mType, mPathname, mSplays, mWalls, mStation, mOverwrite );
+        case ModelType.LAS_BINARY:
+          return mParser.exportModel( mType, mPathname, mSplays, mWalls, mStation, mOverwrite );
+        case ModelType.DXF_ASCII:
+          return mParser.exportModel( mType, mPathname, mSplays, mWalls, mStation, mOverwrite );
+        case ModelType.SHP_ASCII:
+          return mParser.exportModel( mType, mPathname, mSplays, mWalls, mStation, mOverwrite );
+        case ModelType.GLTF:
+          return mApp.exportModel( mType, mPathname, mSplays, mWalls, mStation, mOverwrite );
+        case ModelType.SERIAL:
+          return mParser.exportModel( mType, mPathname, mSplays, mWalls, mSurface, mOverwrite );
+        default:
+          break;
+      }
+    } catch ( OutOfMemoryError e ) {
+      Log.v("Cave3D", "Export task: Out of memory error" );
     }
     return false;
   }

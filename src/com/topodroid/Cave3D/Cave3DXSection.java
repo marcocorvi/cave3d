@@ -153,7 +153,7 @@ public class Cave3DXSection
       } else {
         break;
       }
-    } while ( L2 - L1 > 1.0E-7 );
+    } while ( L2 - L1 > 1.0E-3 ); // was 1.0E-7
 
     // Log.v("TopoGL", "f(L) = L^3 + " + b2 + " L^2 + " + b1 + " L + " + b0 );
 
