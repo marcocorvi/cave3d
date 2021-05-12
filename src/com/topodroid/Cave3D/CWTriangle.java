@@ -16,7 +16,9 @@ import java.util.Locale;
 
 import java.io.PrintWriter;
 // import java.io.PrintStream;
-// import java.io.IOException;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 import android.util.Log;
 
@@ -142,11 +144,58 @@ public class CWTriangle extends CWFacet
   //   );
   // }
   
-  public void serialize( PrintWriter out )
+  public void writeTriangle( PrintWriter out )
   {
     out.format(Locale.US, "T %d %d %d %d %d %d %d %d %.3f %.3f %.3f\n",
                 mCnt, mType, v1.mCnt, v2.mCnt, v3.mCnt, s1.mCnt, s2.mCnt, s3.mCnt, un.x, un.y, un.z );
   }
+
+  public void serialize( DataOutputStream dos ) throws IOException
+  {
+    dos.write('T');
+    dos.writeInt( mCnt );
+    dos.writeInt( mType );
+    dos.writeInt( v1.mCnt );
+    dos.writeInt( v2.mCnt );
+    dos.writeInt( v3.mCnt );
+    dos.writeInt( s1.mCnt );
+    dos.writeInt( s2.mCnt );
+    dos.writeInt( s3.mCnt );
+    dos.writeDouble( un.x );
+    dos.writeDouble( un.y );
+    dos.writeDouble( un.z );
+  }
+
+  /* FIXME
+  static public CWTriangle deserialize( DataInputStream dos, List<CWPoint> pts, List<CWSide> sides ) throws IOException
+  {
+    char ch = dis.read();
+    int cnt = dis.readInt( );
+    int typ = dis.readInt( );
+    CWPoint p1 = getPoint( dis.readInt(), pts );
+    CWPoint p2 = getPoint( dis.readInt(), pts );
+    CWPoint p3 = getPoint( dis.readInt(), pts );
+    CWSide s1 = getPoint( dis.readInt(), sides );
+    CWSide s2 = getPoint( dis.readInt(), sides );
+    CWSide s3 = getPoint( dis.readInt(), sides );
+    double x = dos.readDouble( );
+    double y = dos.readDouble( );
+    double z = dos.readDouble( );
+    return new CWTriangle( cnt, p1, p2, p3, s1, s2, s3 );
+  }
+
+  static private CWPoint getPoint( int tag, List<CWPoint> pts )
+  {
+    for ( CWPoint pt : pts ) if ( pt.mCnt == tag ) return pt;
+    return null;
+  }
+
+  static private CWSide getSide( int tag, List<CWSide> sds )
+  {
+    for ( CWSide sd : sds ) if ( sd.mCnt == tag ) return sd;
+    return null;
+  }
+  */
 
   /* if vector P is "outside" the triangle-plane (ie on the other side than the hull)
    * set mOutside to true.

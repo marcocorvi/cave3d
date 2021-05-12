@@ -13,6 +13,7 @@ package com.topodroid.Cave3D;
 
 import java.io.PrintWriter;
 // import java.io.PrintStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 import java.util.Locale;
@@ -136,11 +137,51 @@ public class CWSide
   //   );
   // }
 
-  public void serialize( PrintWriter out )
+  public void writeSide( PrintWriter out )
   {
     Vector3D dp = p2.difference(p1);
     out.format(Locale.US, "S %d %d %d %d %d %.3f %.3f %.3f\n", mCnt, p1.mCnt, p2.mCnt,
                 ((t1 == null)? -1 : t1.mCnt), ((t2 == null)? -1 : t2.mCnt), dp.x, dp.y, dp.z );
   }
+
+  public void serialize( DataOutputStream dos ) throws IOException
+  {
+    Vector3D dp = p2.difference(p1);
+    dos.write('S');
+    dos.writeInt( mCnt );
+    dos.writeInt( p1.mCnt );
+    dos.writeInt( p2.mCnt );
+    dos.writeInt( ((t1 == null)? -1 : t1.mCnt) );
+    dos.writeInt( ((t2 == null)? -1 : t2.mCnt) );
+    dos.writeDouble( dp.x );
+    dos.writeDouble( dp.y );
+    dos.writeDouble( dp.z );
+  }
+
+  /* FIXME
+  static public CWSide deserialize( DataInputStream dis, List<CWPoint> pts ) throws IOException
+  {
+    Vector3D dp = p2.difference(p1);
+    dis.read('S');
+    int cnt  = dis.readInt( );
+    int cnt1 = dis.readInt( );
+    int cnt2 = dis.readInt( );
+    CWPoint p1 = getPoint( cnt1, pts );
+    CWPoint p2 = getPoint( cnt2, pts );
+    int t1 = dis.readInt( );
+    int t2 = dis.readInt( );
+    double x = dis.readDouble( );
+    double y = dis.readDouble( );
+    double z = dis.readDouble( );
+    return new CWSide( cnt, p1, p2 );
+  }
+
+  static private CWPoint getPoint( int tag, List<CWPoint> pts )
+  {
+    for ( CWPoint pt : pts ) if ( pt.mCnt == tag ) return pt;
+    return null;
+  }
+  */
+
 }
 

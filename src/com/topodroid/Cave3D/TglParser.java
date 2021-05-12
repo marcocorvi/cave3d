@@ -505,7 +505,7 @@ public class TglParser
         pathname = pathname + ".txt";
       } 
       if ( ! checkFile(pathname, overwrite ) ) return;
-      serializeWalls( pathname );
+      writeWalls( pathname );
     } else {                          // model export 
       boolean ret = false;
       if ( type == ModelType.KML_ASCII ) { // KML export ASCII
@@ -614,7 +614,7 @@ public class TglParser
     }
   }
 
-  private void serializeWalls( String filename )
+  private void writeWalls( String filename )
   {
     // if ( Cave3D.mWallConvexHull ) {
       FileWriter fw = null;
@@ -624,10 +624,10 @@ public class TglParser
           PrintWriter out = new PrintWriter( fw );
           out.format(Locale.US, "E %d %d\n", convexhullcomputer.getWallsSize(), convexhullcomputer.getBordersSize() );
           for ( CWConvexHull wall : convexhullcomputer.getWalls() ) {
-            wall.serialize( out );
+            wall.writeHull( out );
           }
           for ( CWBorder border : convexhullcomputer.getBorders() ) {
-            border.serialize( out );
+            border.writeBorder( out );
           }
         } else if ( powercrustcomputer != null && powercrustcomputer.hasTriangles() ) {
           // TODO

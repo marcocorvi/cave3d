@@ -13,6 +13,8 @@ package com.topodroid.Cave3D;
 
 import java.io.PrintWriter;
 // import java.io.PrintStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 import java.util.Locale;
 
@@ -60,8 +62,26 @@ public class CWLinePoint extends Vector3D
   //   Log.v("TopoGL", "LP " + mTri.mCnt + "/" + mSide.mCnt + "/" + t.mCnt );
   // }
 
-  public void serialize( PrintWriter out )
+  public void writeLinePoint( PrintWriter out )
   {
      out.format(Locale.US, "L %d %d %.3f %.3f %.3f %.3f\n", mTri.mCnt, mSide.mCnt, mAlpha, x, y, z );
   }
+
+  void serialize( DataOutputStream dos ) throws IOException
+  {
+    dos.write('L');
+    dos.writeInt( mTri.mCnt );
+    dos.writeInt( mSide.mCnt );
+    dos.writeDouble( mAlpha );
+    dos.writeDouble( x );
+    dos.writeDouble( y );
+    dos.writeDouble( z );
+  }
+
+  /* FIXME
+  static CWLinePoint deserialize( DataInputStream dis ) thrpws IOException
+  {
+    TODO
+  }
+  */
 }

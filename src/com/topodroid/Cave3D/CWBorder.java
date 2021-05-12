@@ -18,6 +18,8 @@ import java.util.Locale;
 
 import java.io.PrintWriter;
 // import java.io.PrintStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 // import android.util.Log;
 
@@ -245,13 +247,28 @@ public class CWBorder
   //   }
   // }
   
-  void serialize( PrintWriter out )
+  void writeBorder( PrintWriter out )
   {
     out.format(Locale.US,  "B %d %d %d %d %d %d\n", mCnt, mCV1.mCnt, mCV2.mCnt, mInts.size(), pts2in1.size(), pts1in2.size() );
-    for ( CWIntersection ii : mInts ) ii.serialize( out );
-    for ( CWPoint p2 : pts2in1 )      p2.serialize( out );
-    for ( CWPoint p1 : pts1in2 )      p1.serialize( out );
+    for ( CWIntersection ii : mInts ) ii.writeIntersection( out );
+    for ( CWPoint p2 : pts2in1 )      p2.writePoint( out );
+    for ( CWPoint p1 : pts1in2 )      p1.writePoint( out );
     out.flush();
+  }
+
+  void serialize( DataOutputStream dos ) throws IOException
+  {
+    dos.write('B');
+    dos.writeInt( mCnt );
+    dos.writeInt( mCV1.mCnt );
+    dos.writeInt( mCV2.mCnt );
+    dos.writeInt( mInts.size() );
+    dos.writeInt( pts2in1.size() );
+    dos.writeInt( pts1in2.size() );
+    for ( CWIntersection ii : mInts ) ii.serialize( dos );
+    for ( CWPoint p2 : pts2in1 )      p2.serialize( dos );
+    for ( CWPoint p1 : pts1in2 )      p1.serialize( dos );
+    dos.write('E');
   }
 
 }

@@ -107,7 +107,7 @@ public class ParserBluetooth extends TglParser
     zmin = -10; zmax = 10;
   }
 
-  // FIXME BLUETOOTH_CCORDS
+  // FIXME BLUETOOTH_COORDS
   private Cave3DStation makeStation( String name, double e, double n, double z, int id, int sid )
   {
     // double x0 = mLastStation.x + e;
@@ -122,7 +122,7 @@ public class ParserBluetooth extends TglParser
     return new Cave3DStation( name, x0, y0, z0, id, sid, 0, "" );
   }
 
-  // FIXME BLUETOOTH_CCORDS
+  // FIXME BLUETOOTH_COORDS
   // static Vector3D bluetoothToVector( Vector3D w ) { return new Vector3D( w.x, w.y, w.z ); }
   public static Vector3D bluetoothToVector( Vector3D w ) { return new Vector3D( w.x, w.z, -w.y ); }
 

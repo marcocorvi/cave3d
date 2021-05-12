@@ -21,6 +21,8 @@ import java.util.Locale;
 import java.io.PrintWriter;
 // import java.io.PrintStream;
 // import java.io.FileNotFoundException;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 import android.util.Log;
 
@@ -683,14 +685,41 @@ public class CWConvexHull
   //   for ( CWTriangle f : mFace ) f.dump( );
   // }
   
-  void serialize( PrintWriter out )
+  void writeHull( PrintWriter out )
   {
     out.format(Locale.US, "C %d %d %d %d\n", mCnt, mVertex.size(), mSide.size(), mFace.size() );
-    for ( CWPoint v :  mVertex ) v.serialize( out );
-    for ( CWSide s : mSide )     s.serialize( out );
-    for ( CWTriangle f : mFace ) f.serialize( out );
+    for ( CWPoint v :  mVertex ) v.writePoint( out );
+    for ( CWSide s : mSide )     s.writeSide( out );
+    for ( CWTriangle f : mFace ) f.writeTriangle( out );
     out.flush();
   }
+
+  void serialize( DataOutputStream dos ) throws IOException
+  {
+    dos.write('C');
+    dos.writeInt( mVertex.size() );
+    dos.writeInt( mSide.size() );
+    dos.writeInt( mFace.size() );
+    for ( CWPoint v :  mVertex ) v.serialize( dos );
+    for ( CWSide s : mSide )     s.serialize( dos );
+    for ( CWTriangle f : mFace ) f.serialize( dos );
+    dos.write('E');
+  }
+
+  /* FIXME
+  void deserialize( DataInputStream dis ) throws IOException
+  {
+    char ch = dis.read();
+    int nv = dis.readInt( );
+    int ns = dis.readInt( );
+    int nt = dis.readInt( );
+    for ( int k=0; k<nv; ++k ) mVertex.add( CWPoint.deserialize( dis ) );
+    for ( int k=0; k<ns; ++k ) mSide.add( CWSide.deserialize( dis, mVertex ) );
+    for ( int k=0; k<nt; ++k ) mFace.add( CWTriangle.deserialize( dis, mVertex, mSide ) );
+    ch = dis.read();
+  }
+  */
+
 
   // thr concavity threshold
   // eps point "coincidence" threshold

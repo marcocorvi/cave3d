@@ -16,6 +16,7 @@ import java.util.Locale;
 
 import java.io.PrintWriter;
 // import java.io.PrintStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 import android.util.Log;
@@ -112,11 +113,36 @@ public class CWPoint extends Vector3D
   //  Log.v( "TopoGL", "Point " + mCnt + " T" + sb.toString() + " " + x + " " + y + " " + z );
   //}
   
-  public void serialize( PrintWriter out )
+  public void writePoint( PrintWriter out )
   {
     int size = ( mTriangle != null )? mTriangle.size() : -1;
     out.format(Locale.US, "V %d %d %.3f %.3f %.3f\n", mCnt, size, x, y, z );
   }
+
+  public void serialize( DataOutputStream dos ) throws IOException
+  {
+    int size = ( mTriangle != null )? mTriangle.size() : -1;
+    dos.write('V');
+    dos.writeInt( mCnt );
+    dos.writeInt( size );
+    dos.writeDouble( x );
+    dos.writeDouble( y );
+    dos.writeDouble( z );
+  }
+
+  /* FIXME
+  static public CWPoint deserialize( DataInputStream dis ) throws IOException
+  {
+    char ch = dis.read();
+    int cnt  = dis.readInt( );
+    int size = dis.readInt( );
+    double x = dis.readDouble( );
+    double y = dis.readDouble( );
+    double z = dis.readDouble( );
+    return new CWPoint( cnt, x, y, z ); // the triangles must still be added to the point
+  }
+  */
+
 
 }
 

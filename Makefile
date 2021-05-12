@@ -47,6 +47,8 @@ build:
 release:
 	ant release
 	mv bin/Cave3D-release.apk Cave3D-$(VERSION).apk
+	ls -l Cave3D-$(VERSION).apk
+	md5sum Cave3D-$(VERSION).apk
 
 install:
 	adb install -r bin/Cave3D-debug.apk

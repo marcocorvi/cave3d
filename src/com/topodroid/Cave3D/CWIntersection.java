@@ -16,6 +16,8 @@ package com.topodroid.Cave3D;
 
 import java.io.PrintWriter;
 // import java.io.PrintStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 import java.util.Locale;
 
@@ -158,12 +160,36 @@ public class CWIntersection
                    + " next " + ( (mNext != null)? mNext.mCnt : -1 ) );
   }
   
-  void serialize( PrintWriter out )
+  void writeIntersection( PrintWriter out )
   {
     out.format(Locale.US, "I %d %d %d %d %.3f %.3f %.3f %.3f %.3f %.3f\n",
                 mCnt, mType, mTriA.mCnt, mTriB.mCnt, mV.x, mV.y, mV.z, mN.x, mN.y, mN.z );
-    mV1.serialize( out );
-    mV2.serialize( out );
+    mV1.writeLinePoint( out );
+    mV2.writeLinePoint( out );
   }
+
+  void serialize( DataOutputStream dos ) throws IOException
+  {
+    dos.write('I');
+    dos.writeInt( mCnt );
+    dos.writeInt( mType );
+    dos.writeInt( mTriA.mCnt );
+    dos.writeInt( mTriB.mCnt );
+    dos.writeDouble( mV.x );
+    dos.writeDouble( mV.y );
+    dos.writeDouble( mV.z );
+    dos.writeDouble( mN.x );
+    dos.writeDouble( mN.y );
+    dos.writeDouble( mN.z );
+    mV1.serialize( dos );
+    mV2.serialize( dos );
+  }
+
+  /* FIXME
+  static CWIntersection deserialize( DataInputStream dis ) throws IOException
+  {
+    TODO
+  }
+  */
 
 }
