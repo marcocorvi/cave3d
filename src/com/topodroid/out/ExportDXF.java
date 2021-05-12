@@ -977,14 +977,14 @@ public class ExportDXF
     // printInt( pwx, 280, 0 );
     printInt( pwx, 281, 1 );
     printString( pwx, 3, "ACAD_GROUP" );
-    handle = inc(handle); printHex( pwx, 350, handle );
+    int saved2 = handle = inc(handle); printHex( pwx, 350, handle );
 
     printString( pwx, 0, "DICTIONARY" );
-    handle = inc(handle); printAcDb( pwx, handle, AcDbDictionary );
+    printHex( pwx, 330, saved );
+    printAcDb( pwx, saved2, AcDbDictionary );
     // printInt( pwx, 280, 0 );
     printInt( pwx, 281, 1 );
-    printHex( pwx, 330, saved );
-
+   
     out.write( swx.getBuffer().toString() );
     out.flush();
 
