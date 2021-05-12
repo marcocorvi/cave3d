@@ -494,10 +494,12 @@ public class ExportDXF
             handle = inc(handle); writeAcDb( out, handle, AcDbSymbolTR, "AcDbViewportTableRecord" );
             writeString( out, 2, "*Active" ); // name
             writeInt( out, 70, 0 );  // flags:
-            writeXY( out, (int)xmin, (int)ymin, (int)zmin ); // lower-left cormer
-            writeXY( out, (int)xmax, (int)ymax, (int)zmax ); // upper-right corner
-            writeXY( out, (int)(xmin+xmax)/2, (int)(ymin+ymax)/2, (int)(zmin+zmax)/2 ); // center point
-            writeXY( out, 286, 148, 2 );
+            //writeXY( out, (int)xmin, (int)ymin, (int)zmin ); // lower-left cormer //not Z point
+            //writeXY( out, (int)xmax, (int)ymax, (int)zmax ); // upper-right corner //not Z point
+            //writeXY( out, (int)(xmin+xmax)/2, (int)(ymin+ymax)/2, (int)(zmin+zmax)/2 ); // center point //not Z point
+            writeXY( out, 0, 0, 0 );
+            writeXY( out, 1, 1, 1 ); // AutoCAD always uses 0,0 1,1 (HB)
+            writeXY( out, (int)(xmin+xmax)/2, (int)(ymin+ymax)/2, 2 );
             writeXY( out, 0, 0, 3 );     // snap base-point
             writeXY( out, 1, 1, 4 );   // snap-spacing
             writeXY( out, 1, 1, 5 );   // grid-spacing
@@ -787,6 +789,20 @@ public class ExportDXF
 
           handle = inc(handle);
           writeBeginTable( out, "BLOCK_RECORD", handle, 0 );
+	     writeString( out, 0, "BLOCK_RECORD" );  // must be AutoCAD (HB)
+             handle = writeAcDb( out, handle, AcDbSymbolTR, "AcDbBlockTableRecord" );
+             writeString( out, 2, "*Model_Space" );
+             writeInt( out, 70, 0 );
+             writeInt( out, 280, 1 );
+             writeInt( out, 281, 0 );
+             writeInt( out, 330, 1 );
+	     writeString( out, 0, "BLOCK_RECORD" );
+             handle = writeAcDb( out, handle, AcDbSymbolTR, "AcDbBlockTableRecord" );
+             writeString( out, 2, "*Paper_Space" );
+             writeInt( out, 70, 0 );
+             writeInt( out, 280, 1 );
+             writeInt( out, 281, 0 );
+             writeInt( out, 330, 1 );	
           writeEndTable( out );
         }
       }
@@ -794,6 +810,32 @@ public class ExportDXF
       out.flush();
       
       writeSection( out, "BLOCKS" );
+        writeString( out, 0, "BLOCK" );  // must be AutoCAD (HB)
+        handle = writeAcDb( out, handle, AcDbEntity, "AcDbBlockBegin" );
+        writeString( out, 8, "0" );
+        writeString( out, 2, "*Model_Space" );
+        writeInt( out, 70, 0 );       // flag 0=none, 1=anonymous, 2=non-conts attr, 4=xref, 8=xref overlay,
+        writeInt( out, 10, 0 ); 
+        writeInt( out, 20, 0 ); 
+        writeInt( out, 30, 0 ); 
+        writeString( out, 3, "*Model_Space" );
+        writeString( out, 1, "" );
+        writeString( out, 0, "ENDBLK" );
+        handle = writeAcDb( out, handle, AcDbEntity, "AcDbBlockEnd");
+        writeString( out, 8, "0");
+        writeString( out, 0, "BLOCK" );
+        handle = writeAcDb( out, handle, AcDbEntity, "AcDbBlockBegin" );
+        writeString( out, 8, "0" );
+        writeString( out, 2, "*Paper_Space" );
+        writeInt( out, 70, 0 );       // flag 0=none, 1=anonymous, 2=non-conts attr, 4=xref, 8=xref overlay,
+        writeInt( out, 10, 0 ); 
+        writeInt( out, 20, 0 ); 
+        writeInt( out, 30, 0 ); 
+        writeString( out, 3, "*Paper_Space" );
+        writeString( out, 1, "" );
+        writeString( out, 0, "ENDBLK" );
+        handle = writeAcDb( out, handle, AcDbEntity, "AcDbBlockEnd");
+        writeString( out, 8, "0");	    
       writeEndSection( out );
       out.flush();
 
@@ -806,17 +848,19 @@ public class ExportDXF
         StringWriter sw9 = new StringWriter();
         PrintWriter pw9  = new PrintWriter(sw9);
 	double sc2 = sc1 / 2;
-        handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin, xmin+sc1,  ymin,      zmin );
-        handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin, xmin,      ymin+sc1,  zmin );
-        handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin, xmin,      ymin,      zmin+sc1 );
-        handle = printLine( pw9, handle, "REF", xmin+sc2, ymin,     zmin, xmin+sc2,  ymin+0.5f, zmin ); // 10 m ticks
-        handle = printLine( pw9, handle, "REF", xmin,     ymin+sc2, zmin, xmin+0.5f, ymin+sc2,  zmin );
-        handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin+sc2, xmin+0.5f, ymin,  zmin+sc2 );
-        handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin+sc2, xmin,  ymin+0.5f, zmin+sc2 );
-        handle = printLine( pw9, handle, "REF", xmin+sc1, ymin,     zmin, xmin+sc1,  ymin+0.5f, zmin ); // 20 m ticks
-        handle = printLine( pw9, handle, "REF", xmin,     ymin+sc1, zmin, xmin+0.5f, ymin+sc1,  zmin );
-        handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin+sc1, xmin+0.5f, ymin,  zmin+sc1 );
-        handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin+sc1, xmin,      ymin+0.5f,  zmin+sc1 );
+	if ( false ) {      //0.0 is not good and should be made optional (HB)
+          handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin, xmin+sc1,  ymin,      zmin );
+          handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin, xmin,      ymin+sc1,  zmin );
+          handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin, xmin,      ymin,      zmin+sc1 );
+          handle = printLine( pw9, handle, "REF", xmin+sc2, ymin,     zmin, xmin+sc2,  ymin+0.5f, zmin ); // 10 m ticks
+          handle = printLine( pw9, handle, "REF", xmin,     ymin+sc2, zmin, xmin+0.5f, ymin+sc2,  zmin );
+          handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin+sc2, xmin+0.5f, ymin,  zmin+sc2 );
+          handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin+sc2, xmin,  ymin+0.5f, zmin+sc2 );
+          handle = printLine( pw9, handle, "REF", xmin+sc1, ymin,     zmin, xmin+sc1,  ymin+0.5f, zmin ); // 20 m ticks
+          handle = printLine( pw9, handle, "REF", xmin,     ymin+sc1, zmin, xmin+0.5f, ymin+sc1,  zmin );
+          handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin+sc1, xmin+0.5f, ymin,  zmin+sc1 );
+          handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin+sc1, xmin,      ymin+0.5f,  zmin+sc1 );
+	
         // out.write( sw9.getBuffer().toString() );
 	
         // printString( pw9, 0, "LINE" );
@@ -843,12 +887,12 @@ public class ExportDXF
 	// offset axes legends by 1
         // StringWriter sw7 = new StringWriter();
         // PrintWriter pw7  = new PrintWriter(sw7);
-        handle = printText( pw9, handle, scale_len, xmin+sc1, ymin+1,   zmin+1,   0, AXIS_SCALE, "REF", style_dejavu );
-        handle = printText( pw9, handle, scale_len, xmin+1,   ymin+sc1, zmin+1,   0, AXIS_SCALE, "REF", style_dejavu );
-        handle = printText( pw9, handle, scale_len, xmin+1,   ymin+1,   zmin+sc1, 0, AXIS_SCALE, "REF", style_dejavu );
-        out.write( sw9.getBuffer().toString() );
-        out.flush();
-
+          handle = printText( pw9, handle, scale_len, xmin+sc1, ymin+1,   zmin+1,   0, AXIS_SCALE, "REF", style_dejavu );
+          handle = printText( pw9, handle, scale_len, xmin+1,   ymin+sc1, zmin+1,   0, AXIS_SCALE, "REF", style_dejavu );
+          handle = printText( pw9, handle, scale_len, xmin+1,   ymin+1,   zmin+sc1, 0, AXIS_SCALE, "REF", style_dejavu );
+          out.write( sw9.getBuffer().toString() );
+          out.flush();
+	}
         // FACETS
         if ( b_walls ) {
           StringWriter sw10 = new StringWriter();
@@ -908,7 +952,7 @@ public class ExportDXF
       }
       writeEndSection( out );
       // if ( version13 ) {
-      //   handle = writeSectionObjects( out, handle );
+      handle = writeSectionObjects( out, handle );  // must be AutoCAD (HB)
       // }
       writeString( out, 0, "EOF" );
       out.flush();
