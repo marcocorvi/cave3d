@@ -371,9 +371,9 @@ public class ExportDXF
 
   private int printSegment( PrintWriter pw, int handle, String layer, double x1, double y1, double z1, double x2, double y2, double z2 )
   {
-    printString( pw, 0, "LINE" );
-    handle = inc(handle); printAcDb( pw, handle, AcDbEntity, AcDbLine );
-    printString( pw, 8, layer );
+    //printString( pw, 0, "LINE" );
+    //handle = inc(handle); printAcDb( pw, handle, AcDbEntity, AcDbLine );
+    //printString( pw, 8, layer ); duplicate (HB)
     // printInt( pw, 39, 1 );         // line thickness
     handle = printLine( pw, handle, layer, x1, y1, z1, x2, y2, z2 );
     return handle;
@@ -390,7 +390,7 @@ public class ExportDXF
     printXYZ( pw, (xoff+facet.v3.x)*scale, (yoff+facet.v3.y)*scale, (zoff+facet.v3.z)*scale, 2 );
     printXYZ( pw, (xoff+facet.v3.x)*scale, (yoff+facet.v3.y)*scale, (zoff+facet.v3.z)*scale, 3 );
     printString( pw, 70, "0" );
-    printString( pw, 100, AcDbFace);
+    //printString( pw, 100, AcDbFace); AutoCAD no (HB)
 
     // handle = printSegment( pw, handle, layer, facet.v1.x, facet.v1.y, facet.v1.z, facet.v2.x, facet.v2.y, facet.v2.z );
     // handle = printSegment( pw, handle, layer, facet.v2.x, facet.v2.y, facet.v2.z, facet.v3.x, facet.v3.y, facet.v3.z );
