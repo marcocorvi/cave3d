@@ -498,155 +498,140 @@ public class TglParser
   }
 
   // ---------------------------------------- EXPORT
-  void exportModel( int type, String pathname, boolean b_splays, boolean b_walls, boolean b_surface, boolean overwrite )
+  // This is executed in ExportTask
+  public boolean exportModel( int type, String pathname, boolean b_splays, boolean b_walls, boolean b_surface, boolean overwrite )
   { 
+    boolean ret = false;
     if ( type == ModelType.SERIAL ) { // serialization
-      if ( ! pathname.toLowerCase().endsWith(".txt") ) {
-        pathname = pathname + ".txt";
-      } 
-      if ( ! checkFile(pathname, overwrite ) ) return;
-      writeWalls( pathname );
-    } else {                          // model export 
-      boolean ret = false;
-      if ( type == ModelType.KML_ASCII ) { // KML export ASCII
-        if ( ! pathname.toLowerCase().endsWith(".kml") ) {
-          pathname = pathname + ".kml";
-        } 
-        if ( ! checkFile(pathname, overwrite ) ) return;
-        ExportKML kml = new ExportKML();
-        if ( b_walls ) {
-          if ( convexhullcomputer != null ) {
-            for( CWConvexHull cw : convexhullcomputer.getWalls() ) {
-              synchronized( cw ) {
-                for ( CWTriangle f : cw.mFace ) kml.add( f );
-              }
-            }
-          } else if ( powercrustcomputer != null && powercrustcomputer.hasTriangles() ) {
-            kml.mTriangles = powercrustcomputer.getTriangles();
-          }
-        }
-        ret = kml.exportASCII( pathname, this, b_splays, b_walls, b_surface );
-      } else if ( type == ModelType.CGAL_ASCII ) { // CGAL export: only stations and splay-points
-        if ( ! pathname.toLowerCase().endsWith(".cgal") ) {
-          pathname = pathname + ".cgal";
-        }
-        if ( ! checkFile(pathname, overwrite ) ) return;
-        ExportCGAL cgal = new ExportCGAL();
-        ret = cgal.exportASCII( pathname, this, b_splays, b_walls, b_surface );
-      } else if ( type == ModelType.LAS_BINARY ) { // LAS v. 1.2
-        if ( ! pathname.toLowerCase().endsWith(".las") ) {
-	  pathname = pathname + ".las";
-        }
-        if ( ! checkFile(pathname, overwrite ) ) return;
-        ret = ExportLAS.exportBinary( pathname, this, b_splays, b_walls, b_surface );
-      } else if ( type == ModelType.DXF_ASCII ) { // DXF
-        if ( ! pathname.toLowerCase().endsWith(".dxf") ) {
-	  pathname = pathname + ".dxf";
-        }
-        if ( ! checkFile(pathname, overwrite ) ) return;
-        ExportDXF dxf = new ExportDXF();
-        if ( b_walls ) {
-          if ( convexhullcomputer != null ) {
-            for ( CWConvexHull cw : convexhullcomputer.getWalls() ) {
-              synchronized( cw ) {
-                for ( CWTriangle f : cw.mFace ) dxf.add( f );
-              }
-            }
-          } else if ( powercrustcomputer == null || ! powercrustcomputer.hasTriangles() ) {
-            if ( mApp != null ) mApp.uiToast(R.string.powercrust_dxf_not_supported, pathname, true );
-            return;
-          }
-        }
-        ret = dxf.exportAscii( pathname, this, true, b_splays, b_walls, true ); // true = version13
-      } else if ( type == ModelType.SHP_ASCII ) { // SHP
-        if ( ! pathname.toLowerCase().endsWith(".shz") ) {
-	  pathname = pathname + ".shz";
-        }
-        if ( ! checkFile(pathname, overwrite ) ) return;
-        ExportSHP shp = new ExportSHP();
-        if ( b_walls ) {
-          if ( convexhullcomputer != null ) {
-            for ( CWConvexHull cw : convexhullcomputer.getWalls() ) {
-              synchronized( cw ) {
-                for ( CWTriangle f : cw.mFace ) shp.add( f );
-              }
-            }
-          } 
-          if ( powercrustcomputer != null && powercrustcomputer.hasTriangles() ) {
-            shp.mTriangles = powercrustcomputer.getTriangles();
-            shp.mVertex    = powercrustcomputer.getVertices();
-          }
-        }
-        ret = shp.exportASCII( pathname, this, true, b_splays, b_walls );
-
-      } else {                                     // STL export ASCII or binary
-        if ( ! pathname.toLowerCase().endsWith(".stl") ) {
-          pathname = pathname + ".stl";
-        } 
-        if ( ! checkFile(pathname, overwrite ) ) return;
-        ExportSTL stl = new ExportSTL();
-        if ( b_walls ) {
-          if ( convexhullcomputer != null ) {
-            for ( CWConvexHull cw : convexhullcomputer.getWalls() ) {
-              synchronized( cw ) {
-                for ( CWTriangle f : cw.mFace ) stl.add( f );
-              }
-            }
-          } else if ( powercrustcomputer != null && powercrustcomputer.hasTriangles() ) {
-            stl.mTriangles = powercrustcomputer.getTriangles();
-            stl.mVertex    = powercrustcomputer.getVertices();
-          }
-        }
-
-        if ( type == ModelType.STL_BINARY ) {
-          ret = stl.exportBinary( pathname, b_splays, b_walls, b_surface );
-        } else { // type == ModelType.STL_ASCII
-          ret = stl.exportASCII( pathname, b_splays, b_walls, b_surface );
-        }
+      if ( ! pathname.toLowerCase().endsWith(".txt") ) pathname = pathname + ".txt";
+      if ( checkFile(pathname, overwrite ) ) {
+        ret = writeWalls( pathname );
       }
-      if ( mApp != null ) { // CRASH here - this should not be necessary
-        if ( ret ) {
-          mApp.uiToast(R.string.ok_export, pathname, false);
-        } else {
-          mApp.uiToast(R.string.error_export_failed, pathname, true );
+    } else {                          // model export 
+      if ( type == ModelType.KML_ASCII ) { // KML export ASCII
+        if ( ! pathname.toLowerCase().endsWith(".kml") ) pathname = pathname + ".kml";
+        if ( checkFile(pathname, overwrite ) ) {
+          ExportKML kml = new ExportKML();
+          if ( b_walls ) {
+            if ( convexhullcomputer != null ) {
+              for( CWConvexHull cw : convexhullcomputer.getWalls() ) {
+                synchronized( cw ) {
+                  for ( CWTriangle f : cw.mFace ) kml.add( f );
+                }
+              }
+            } else if ( powercrustcomputer != null && powercrustcomputer.hasTriangles() ) {
+              kml.mTriangles = powercrustcomputer.getTriangles();
+            }
+          }
+          ret = kml.exportASCII( pathname, this, b_splays, b_walls, b_surface );
+        }
+      } else if ( type == ModelType.CGAL_ASCII ) { // CGAL export: only stations and splay-points
+        if ( ! pathname.toLowerCase().endsWith(".cgal") ) pathname = pathname + ".cgal";
+        if ( checkFile(pathname, overwrite ) ) {
+          ret = (new ExportCGAL()).exportASCII( pathname, this, b_splays, b_walls, b_surface );
+        }
+      } else if ( type == ModelType.LAS_BINARY ) { // LAS v. 1.2
+        if ( ! pathname.toLowerCase().endsWith(".las") ) pathname = pathname + ".las";
+        if ( checkFile(pathname, overwrite ) ) {
+          ret = ExportLAS.exportBinary( pathname, this, b_splays, b_walls, b_surface );
+        }
+      } else if ( type == ModelType.DXF_ASCII ) { // DXF
+        if ( ! pathname.toLowerCase().endsWith(".dxf") ) pathname = pathname + ".dxf";
+        if ( checkFile(pathname, overwrite ) ) {
+          ExportDXF dxf = new ExportDXF();
+          if ( b_walls ) {
+            if ( convexhullcomputer != null ) {
+              for ( CWConvexHull cw : convexhullcomputer.getWalls() ) {
+                synchronized( cw ) {
+                  for ( CWTriangle f : cw.mFace ) dxf.add( f );
+                }
+              }
+            } else if ( powercrustcomputer == null || ! powercrustcomputer.hasTriangles() ) {
+              if ( mApp != null ) mApp.uiToast(R.string.powercrust_dxf_not_supported, pathname, true );
+              return false;
+            }
+          }
+          ret = dxf.exportAscii( pathname, this, true, b_splays, b_walls, true ); // true = version13
+        }
+      } else if ( type == ModelType.SHP_ASCII ) { // SHP
+        if ( ! pathname.toLowerCase().endsWith(".shz") ) pathname = pathname + ".shz";
+        if ( checkFile(pathname, overwrite ) ) {
+          ExportSHP shp = new ExportSHP();
+          if ( b_walls ) {
+            if ( convexhullcomputer != null ) {
+              for ( CWConvexHull cw : convexhullcomputer.getWalls() ) {
+                synchronized( cw ) {
+                  for ( CWTriangle f : cw.mFace ) shp.add( f );
+                }
+              }
+            } 
+            if ( powercrustcomputer != null && powercrustcomputer.hasTriangles() ) {
+              shp.mTriangles = powercrustcomputer.getTriangles();
+              shp.mVertex    = powercrustcomputer.getVertices();
+            }
+          }
+          ret = shp.exportASCII( pathname, this, true, b_splays, b_walls );
+        }
+      } else {                                     // STL export ASCII or binary
+        if ( ! pathname.toLowerCase().endsWith(".stl") ) pathname = pathname + ".stl";
+        if ( checkFile(pathname, overwrite ) ) {
+          ExportSTL stl = new ExportSTL();
+          if ( b_walls ) {
+            if ( convexhullcomputer != null ) {
+              for ( CWConvexHull cw : convexhullcomputer.getWalls() ) {
+                synchronized( cw ) {
+                  for ( CWTriangle f : cw.mFace ) stl.add( f );
+                }
+              }
+            } else if ( powercrustcomputer != null && powercrustcomputer.hasTriangles() ) {
+              stl.mTriangles = powercrustcomputer.getTriangles();
+              stl.mVertex    = powercrustcomputer.getVertices();
+            }
+          }
+          if ( type == ModelType.STL_BINARY ) {
+            ret = stl.exportBinary( pathname, b_splays, b_walls, b_surface );
+          } else { // type == ModelType.STL_ASCII
+            ret = stl.exportASCII( pathname, b_splays, b_walls, b_surface );
+          }
         }
       }
     }
+    return ret;
   }
 
-  private void writeWalls( String filename )
+  private boolean writeWalls( String filename )
   {
     // if ( Cave3D.mWallConvexHull ) {
-      FileWriter fw = null;
-      try {
-        if ( convexhullcomputer != null ) {
-          fw = new FileWriter( filename );
-          PrintWriter out = new PrintWriter( fw );
-          out.format(Locale.US, "E %d %d\n", convexhullcomputer.getWallsSize(), convexhullcomputer.getBordersSize() );
-          for ( CWConvexHull wall : convexhullcomputer.getWalls() ) {
-            wall.writeHull( out );
-          }
-          for ( CWBorder border : convexhullcomputer.getBorders() ) {
-            border.writeBorder( out );
-          }
-        } else if ( powercrustcomputer != null && powercrustcomputer.hasTriangles() ) {
-          // TODO
+    boolean ret = false;
+    FileWriter fw = null;
+    try {
+      if ( convexhullcomputer != null ) {
+        fw = new FileWriter( filename );
+        PrintWriter out = new PrintWriter( fw );
+        out.format(Locale.US, "E %d %d\n", convexhullcomputer.getWallsSize(), convexhullcomputer.getBordersSize() );
+        for ( CWConvexHull wall : convexhullcomputer.getWalls() ) {
+          wall.writeHull( out );
         }
-      } catch ( FileNotFoundException e ) { 
-        if ( mApp != null ) mApp.uiToast( R.string.error_file_not_found, filename, true );
-      } catch ( IOException e ) {
-        if ( mApp != null ) mApp.uiToast( R.string.error_io_exception, filename, true );
-      } finally {
-        if ( fw != null ) {
-          try {
-            fw.flush();
-            fw.close();
-          } catch (IOException e ) { }
+        for ( CWBorder border : convexhullcomputer.getBorders() ) {
+          border.writeBorder( out );
         }
+        ret = true;
+      } else if ( powercrustcomputer != null && powercrustcomputer.hasTriangles() ) {
+        // TODO
       }
-    // } else  {
-    //   if ( mApp != null ) mApp.uiToast( "ConvexHull walls are disabled" );
-    // }
+    } catch ( FileNotFoundException e ) { 
+      if ( mApp != null ) mApp.uiToast( R.string.error_file_not_found, filename, true );
+    } catch ( IOException e ) {
+      if ( mApp != null ) mApp.uiToast( R.string.error_io_exception, filename, true );
+    } finally {
+      if ( fw != null ) {
+        try {
+          fw.flush();
+          fw.close();
+        } catch (IOException e ) { }
+      }
+    }
+    return ret;
   }
 
   boolean checkFile( String pathname, boolean overwrite )

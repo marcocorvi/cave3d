@@ -1629,29 +1629,29 @@ public class TopoGL extends Activity
   // ---------------------------------------------------------------
   // TOAST
 
-  void toast( String r, boolean loong )
+  public void toast( String r, boolean loong )
   {
     if ( loong ) { Toast.makeText( this, r, Toast.LENGTH_LONG).show(); } else { Toast.makeText( this, r, Toast.LENGTH_SHORT).show(); }
   }
 
-  void toast( int r, boolean loong )
+  public void toast( int r, boolean loong )
   {
     if ( loong ) { Toast.makeText( this, r, Toast.LENGTH_LONG).show(); } else { Toast.makeText( this, r, Toast.LENGTH_SHORT).show(); }
   }
 
-  void toast( int r ) { toast( r, false ); }
-  void toast( String r ) { toast( r, false ); }
+  public void toast( int r ) { toast( r, false ); }
+  public void toast( String r ) { toast( r, false ); }
 
-  void toast( int r, String str, boolean loong )
+  public void toast( int r, String str, boolean loong )
   {
     String msg = String.format( getResources().getString( r ), str );
     // Log.v("TopoGL", "toast " + msg );
     if ( loong ) { Toast.makeText( this, msg, Toast.LENGTH_LONG).show(); } else { Toast.makeText( this, msg, Toast.LENGTH_SHORT).show(); }
   }
 
-  void toast( int r, String str ) { toast( r, str, false ); }
+  public void toast( int r, String str ) { toast( r, str, false ); }
 
-  void toast( int r, int n1, int n2 )
+  public void toast( int r, int n1, int n2 )
   {
     String msg = String.format( getResources().getString( r ), n1, n2 );
     Toast.makeText( this, msg, Toast.LENGTH_SHORT).show();
@@ -1932,28 +1932,31 @@ public class TopoGL extends Activity
   }
 
   // ---------------------------------------- EXPORT
-  void exportModel( int type, final String pathname, boolean b_splays, boolean b_walls, boolean b_surface, boolean overwrite )
+  // this is run inside ExportTask
+  public boolean exportModel( int type, final String pathname, boolean b_splays, boolean b_walls, boolean b_surface, boolean overwrite )
   { 
     if ( type == ModelType.GLTF ) {
       String filename = pathname.toLowerCase().endsWith( ".gltf" )? pathname : pathname + ".gltf";
       if ( (new File( filename )).exists() && ! overwrite ) {
-        Toast.makeText( this, String.format( getResources().getString( R.string.warning_not_overwrite ), pathname), Toast.LENGTH_LONG ).show();
-        return;
+        // Toast.makeText( this, String.format( getResources().getString( R.string.warning_not_overwrite ), pathname), Toast.LENGTH_LONG ).show();
+        return false;
       }
-      (new AsyncTask<Void, Void, Boolean>() {
-        @Override public Boolean doInBackground(Void ... v ) {
-          return mRenderer.exportGltf( pathname );
-        }
-        @Override public void onPostExecute( Boolean b )
-        {
-          if ( b ) {
-            toast( R.string.export_gltf_ok, false );
-          } else {
-            toast( R.string.export_gltf_fail, false );
-          }
-        }
-      } ).execute();
+      return mRenderer.exportGltf( pathname );
+      // (new AsyncTask<Void, Void, Boolean>() {
+      //   @Override public Boolean doInBackground(Void ... v ) {
+      //     return mRenderer.exportGltf( pathname );
+      //   }
+      //   @Override public void onPostExecute( Boolean b )
+      //   {
+      //     if ( b ) {
+      //       toast( R.string.export_gltf_ok, false );
+      //     } else {
+      //       toast( R.string.export_gltf_fail, false );
+      //     }
+      //   }
+      // } ).execute();
     }
+    return false;
   }
 
   // BLUETOOTH -----------------------------------------------------------------------

@@ -1032,7 +1032,11 @@ public class GlModel
       glNames  = names;
     }
     // glSplays.setDebug( true );
-    addBluetoothStation( ((ParserBluetooth)parser).getLastStation() );
+    if ( parser instanceof ParserBluetooth ) {
+      addBluetoothStation( ((ParserBluetooth)parser).getLastStation() );
+    } else {
+      addBluetoothStation( new Cave3DStation( "0", 0, 0, 0 ) );
+    }
   }
   // ENS INCREMENTAL
 

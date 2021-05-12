@@ -13,6 +13,8 @@ package com.topodroid.Cave3D;
 
 import android.util.Log;
 
+import com.topodroid.out.ExportTask;
+
 import java.io.File;
 import java.io.FileFilter;
 
@@ -224,28 +226,30 @@ public class DialogExport extends Dialog
       boolean surface = mSurface.isChecked();
       boolean station = mStation.isChecked();
       boolean overwrite = mOverwrite.isChecked();
+      int type = ModelType.NONE;
 
       if ( mStlBinary.isChecked() ) {
-        mParser.exportModel( ModelType.STL_BINARY, pathname, splays, walls, surface, overwrite );
+        type = ModelType.STL_BINARY;
       } else if ( mStlAscii.isChecked() ) {
-        mParser.exportModel( ModelType.STL_ASCII, pathname, splays, walls, surface, overwrite );
+        type = ModelType.STL_ASCII;
       } else if ( mKmlAscii.isChecked() ) {
-        mParser.exportModel( ModelType.KML_ASCII, pathname, splays, walls, station, overwrite );
+        type = ModelType.KML_ASCII;
       } else if ( mCgalAscii.isChecked() ) {
-        mParser.exportModel( ModelType.CGAL_ASCII, pathname, splays, walls, station, overwrite );
+        type = ModelType.CGAL_ASCII;
       } else if ( mLasBinary.isChecked() ) {
-        mParser.exportModel( ModelType.LAS_BINARY, pathname, splays, walls, station, overwrite );
+        type = ModelType.LAS_BINARY;
       } else if ( mDxfAscii.isChecked() ) {
-        // Log.v( "TopoGL", "export DXF" );
-        mParser.exportModel( ModelType.DXF_ASCII, pathname, splays, walls, station, overwrite );
+        type = ModelType.DXF_ASCII;
       } else if ( mShpAscii.isChecked() ) {
-        // Log.v( "TopoGL", "export DXF" );
-        mParser.exportModel( ModelType.SHP_ASCII, pathname, splays, walls, station, overwrite );
+        type = ModelType.SHP_ASCII;
       } else if ( mGltf.isChecked() ) {
-        mApp.exportModel( ModelType.GLTF, pathname, splays, walls, station, overwrite );
+        type = ModelType.GLTF;
       } else {
-        mParser.exportModel( ModelType.SERIAL, pathname, splays, walls, surface, overwrite );
+        type = ModelType.SERIAL;
       }
+
+      (new ExportTask( mApp, mParser, type, pathname, splays, station, surface, walls, overwrite )).execute();
+
     } else if ( v.getId() == R.id.dirname ) {
       int pos = mDirname.lastIndexOf('/');
       if ( pos > 1 ) {
@@ -328,6 +332,7 @@ public class DialogExport extends Dialog
         mDxfAscii.setChecked( false );
         mGltf.setChecked( false );
       }
+      return;
     } else if ( v.getId() == R.id.gltf ) {
       if ( mGltf.isChecked() ) {
         mStlBinary.setChecked( false );
@@ -338,6 +343,7 @@ public class DialogExport extends Dialog
         mDxfAscii.setChecked( false );
         mShpAscii.setChecked( false );
       }
+      return;
     }
     dismiss();
   }
