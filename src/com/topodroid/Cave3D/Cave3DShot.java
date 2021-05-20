@@ -29,7 +29,7 @@ public class Cave3DShot
   // static final long FLAG_NO_PROFILE = 16;
   // static final long FLAG_BACKSHOT   = 32;
 
-  double len, ber, cln;      // radians
+  public double len, ber, cln;      // radians
   boolean used = false;
   long mFlag;
   long mMillis;
@@ -151,13 +151,13 @@ public class Cave3DShot
    * ( cc1 * cb1, cc1 * sb1, sc1 ) * ( cc2 * cb2, cc2 * sb2, sc2 )
    *   = cc1 * cc2 * cos(b1-b2) + sc1 * sc2
    */
-  double dotProduct( Cave3DShot sh )
+  public double dotProduct( Cave3DShot sh )
   {
     return Math.cos( ber - sh.ber ) * Math.cos( cln ) * Math.cos( sh.cln ) + Math.sin( cln ) * Math.sin( sh.cln );
   }
 
   // dot product with a vector (E, N, Z)
-  double dotProduct( Vector3D v )
+  public double dotProduct( Vector3D v )
   {
     return (Math.cos(ber)*v.y + Math.sin(ber)*v.x) * Math.cos( cln ) + Math.sin( cln ) * v.z;
   }

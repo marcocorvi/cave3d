@@ -9,7 +9,9 @@
  *  See the file COPYING.
  * --------------------------------------------------------
  */
-package com.topodroid.Cave3D;
+package com.topodroid.walls.cw;
+
+import com.topodroid.Cave3D.Vector3D;
 
 import java.util.List;
 import java.util.Locale;

@@ -1,4 +1,4 @@
-/** @file Cave3DSegmentList.java
+/** @file PCSegmentList.java
  *
  * @author marco corvi
  * @date may 2017
@@ -9,28 +9,28 @@
  *  See the file COPYING.
  * --------------------------------------------------------
  */
-package com.topodroid.Cave3D;
+package com.topodroid.walls.pcrust;
 
-class Cave3DSegmentList
+class PCSegmentList
 {
-  Cave3DSegment head;
+  PCSegment head;
   int size;
 
-  Cave3DSegmentList( )
+  PCSegmentList( )
   {
     head = null;
     size = 0;
   }
 
-  Cave3DSegmentList( Cave3DSegment s )
+  PCSegmentList( PCSegment s )
   {
     head = s;
     size = 1;
   }
 /*
-  void mergeIn( Cave3DSegmentList ll ) 
+  void mergeIn( PCSegmentList ll ) 
   {
-    Cave3DSegment ss = ll.head;
+    PCSegment ss = ll.head;
     while ( ss.next != null ) ss = ss.next;
     ss.next = head;
     head    = ll.head;
@@ -39,7 +39,7 @@ class Cave3DSegmentList
     ll.size = 0;
   }
 
-  void add( Cave3DSegment sgm )
+  void add( PCSegment sgm )
   {
     sgm.next = head;
     head = sgm;
@@ -48,7 +48,7 @@ class Cave3DSegmentList
 */
  
   // insert a segment keeping the list ordered by increasing s
-  void insert( Cave3DSegment sgm ) 
+  void insert( PCSegment sgm ) 
   {
     if ( head == null ) {
       sgm.next = null;
@@ -57,7 +57,7 @@ class Cave3DSegmentList
       sgm.next = head;
       head = sgm;
     } else {
-      Cave3DSegment s2 = head;
+      PCSegment s2 = head;
       while ( s2.next != null && s2.next.s() < sgm.s() ) s2 = s2.next;
       sgm.next = s2.next;
       s2.next  = sgm;
@@ -68,7 +68,7 @@ class Cave3DSegmentList
   double centerZ()
   {
     double ret = 0;
-    for ( Cave3DSegment s = head; s != null; s = s.next ) {
+    for ( PCSegment s = head; s != null; s = s.next ) {
       ret += s.v1.z;
       ret += s.v2.z;
     }
@@ -78,7 +78,7 @@ class Cave3DSegmentList
   double minZ()
   {
     double ret = 0;
-    for ( Cave3DSegment s = head; s != null; s = s.next ) {
+    for ( PCSegment s = head; s != null; s = s.next ) {
       if ( s.v1.z < ret ) ret = s.v1.z;
       if ( s.v2.z < ret ) ret = s.v2.z;
     }
@@ -88,7 +88,7 @@ class Cave3DSegmentList
   double maxZ()
   {
     double ret = 0;
-    for ( Cave3DSegment s = head; s != null; s = s.next ) {
+    for ( PCSegment s = head; s != null; s = s.next ) {
       if ( s.v1.z > ret ) ret = s.v1.z;
       if ( s.v2.z > ret ) ret = s.v2.z;
     }

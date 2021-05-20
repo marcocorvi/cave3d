@@ -1,4 +1,4 @@
-/** @file Cave3DIntersection.java
+/** @file PCIntersection.java
  *
  * @author marco corvi
  * @date may 2017
@@ -9,21 +9,22 @@
  *  See the file COPYING.
  * --------------------------------------------------------
  */
-package com.topodroid.Cave3D;
+package com.topodroid.walls.pcrust;
 
+import com.topodroid.Cave3D.Vector3D;
 
 // 3D intersection point on the segment
-class Cave3DIntersection extends Vector3D
+class PCIntersection extends Vector3D
 {
   double s; // line abscissa on the shot P(s) = p1 + s ( p2-p1)
  
-  Cave3DIntersection( Vector3D pt, double s0 )
+  PCIntersection( Vector3D pt, double s0 )
   {
     super( pt );
     s = s0;
   }
 
-  Cave3DIntersection( double x0, double y0, double z0, double s0 )
+  PCIntersection( double x0, double y0, double z0, double s0 )
   {
     super( x0, y0, z0 );
     s = s0;

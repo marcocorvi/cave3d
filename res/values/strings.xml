@@ -170,6 +170,7 @@
     <string name="walls_convexhull">Convex Hull</string>
     <string name="walls_powercrust">Powercrust</string>
     <string name="walls_hull">Hull</string>
+    <string name="walls_bubble">Bubble</string>
     <string name="walls_tube">Tube</string>
     <string name="walls_delaunay">Delaunay</string>
 
@@ -218,6 +219,8 @@
     <string name="fail_hull">Failed simple-hull walls</string>
     <string name="done_tube">Done simple-tube walls</string>
     <string name="fail_tube">Failed simple-tube walls</string>
+    <string name="done_bubble">Done bubble walls</string>
+    <string name="fail_bubble">Failed bubble walls</string>
 
     <string name="no_database">No database\n</string>
     <string name="no_survey">No survey %1$s\n</string>

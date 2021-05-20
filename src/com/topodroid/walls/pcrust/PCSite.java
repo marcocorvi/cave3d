@@ -1,31 +1,33 @@
-/** @file Cave3DSite.java
+/** @file PCSite.java
  *
  *e @author marco corvi
  * @date may 2017 
  *
- * @brief Cave3D 3D wall site
+ * @brief Cave3D powercrust 3D wall site
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
  * --------------------------------------------------------
  */
-package com.topodroid.Cave3D;
+package com.topodroid.walls.pcrust;
+
+import com.topodroid.Cave3D.Vector3D;
 
 import android.util.Log;
 
-class Cave3DSite extends Vector3D
+class PCSite extends Vector3D
 {
   Angle angle; // head of list of disjoint angles at the site
-  Cave3DPolygon poly;
+  PCPolygon poly;
 
   class Angle // angle (between two sites) at a site
   {
-    Cave3DSite v1; // angle side vertices
-    Cave3DSite v2;
+    PCSite v1; // angle side vertices
+    PCSite v2;
     Angle next; // links in the list of site's angles
     Angle prev;
 
-    Angle( Cave3DSite w1, Cave3DSite w2 ) // create an angle w1-w2 (not inserted in the list of the site's angles)
+    Angle( PCSite w1, PCSite w2 ) // create an angle w1-w2 (not inserted in the list of the site's angles)
     {
       v1 = w1;
       v2 = w2;
@@ -33,14 +35,14 @@ class Cave3DSite extends Vector3D
     }
   }
 
-  Cave3DSite( double x, double y, double z ) // create a site with empty list
+  PCSite( double x, double y, double z ) // create a site with empty list
   {
     super( x, y, z );
     angle = null;
     poly  = null;
   }
 
-  // double distance2D( Cave3DSite s ) 
+  // double distance2D( PCSite s ) 
   // {
   //   return Math.sqrt( (x - s.x)*(x - s.x) + (y - s.y)*(y - s.y) );
   // }
@@ -57,7 +59,7 @@ class Cave3DSite extends Vector3D
   //    change the angle vertex V2 to W2
   //    next if there is another angle with vertex V1 equals to W2
   //      move the angle vertex V2 to the other angle V2
-  void insertAngle( Cave3DSite w1, Cave3DSite w2 )
+  void insertAngle( PCSite w1, PCSite w2 )
   {
     boolean done = false;
     for ( Angle a = angle; a != null; a = a.next ) {
@@ -98,7 +100,7 @@ class Cave3DSite extends Vector3D
     }
   }
 
-  // a Cave3DSite is NOT open if
+  // a PCSite is NOT open if
   //   - either the list of angles is empty
   //   - or head.v1 == tail.v2
   boolean isOpen( ) 

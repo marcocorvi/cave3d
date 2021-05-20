@@ -15,6 +15,9 @@ import android.util.Log;
 
 import java.io.StringWriter;
 import java.io.PrintWriter;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -22,39 +25,6 @@ import java.util.Arrays;
 
 public class Cave3DXSection
 {
-  private class XSplay extends Vector3D
-                       implements Comparable
-  {
-    double angle;
-
-    XSplay( Vector3D p, double a )
-    {
-      super( p );
-      angle = a;
-    }
-
-    @Override public boolean equals( Object other )
-    { 
-      if ( other == null ) return false;
-      if ( other instanceof XSplay ) return this.angle == ((XSplay)other).angle;
-      return false;
-    }
-
-    // if other is not instanceof XSplay return ClassCastException
-    @Override public int compareTo( Object other ) 
-    { 
-      if ( other == null ) throw new NullPointerException();
-      if ( other instanceof XSplay )
-        return (this.angle < ((XSplay)other).angle)? -1 : (this.angle == ((XSplay)other).angle)? 0 : 1;
-      throw new ClassCastException();
-    }
-
-    // void dump()
-    // {
-    //   Log.v("TopoGL", String.format("   %6.1f  %8.2f %8.2f %8.2f", angle, x, y, z ) );
-    // }
-  }
-
   private XSplay[] splays; // splay shots of the x-section
   Cave3DStation station;   // xsection at a station - otherwise it is null
   Vector3D center;         // center of the X_Section (coincides with the station if the xsection has a station
@@ -81,6 +51,15 @@ public class Cave3DXSection
 
   // return the complement to 2*PI of the angle of the splays in reversed order
   private double reverseAngle( int k ) { return Math.PI*2 - splays[ splays.length-1-k ].angle; }
+
+  private Cave3DXSection( Cave3DStation st, Vector3D c, Vector3D n, Vector3D r, int nxs )
+  {
+    station = st;
+    center  = c;
+    normal  = n;
+    ref     = r;
+    splays  = new XSplay[ nxs ];
+  }
 
   // @param c     center station
   // @param r     angle reference direction
@@ -247,6 +226,39 @@ public class Cave3DXSection
       splays[0].angle -= 2 * Math.PI;
     }
   }  
+
+  void serialize( DataOutputStream dos ) throws IOException
+  {
+    dos.write('x');
+    dos.writeInt( station.mId );
+    dos.writeDouble( center.x );
+    dos.writeDouble( center.y );
+    dos.writeDouble( center.z );
+    dos.writeDouble( normal.x );
+    dos.writeDouble( normal.y );
+    dos.writeDouble( normal.z );
+    dos.writeDouble( ref.x );
+    dos.writeDouble( ref.y );
+    dos.writeDouble( ref.z );
+    dos.writeInt( splays.length );
+    for ( XSplay splay : splays ) splay.serialize(dos );
+  }
+
+  static Cave3DXSection deserialize( DataInputStream dis, int version, List<Cave3DStation> stations ) throws IOException
+  {
+    int ch = dis.read(); // 'x'
+    int id = dis.readInt();
+    Cave3DStation st0 = null;
+    for ( Cave3DStation st : stations ) if ( st.mId == id ) { st0 = st; break; }
+    Vector3D c = new Vector3D( dis.readDouble(), dis.readDouble(), dis.readDouble() );
+    Vector3D n = new Vector3D( dis.readDouble(), dis.readDouble(), dis.readDouble() );
+    Vector3D r = new Vector3D( dis.readDouble(), dis.readDouble(), dis.readDouble() );
+    int nxs = dis.readInt();
+    Cave3DXSection ret = new Cave3DXSection( st0, c, n, r, nxs );
+    for ( int k=0; k<nxs; ++k ) ret.splays[k] = XSplay.deserialize( dis, version );
+    return ret;
+  }
+
 
   /*
   public static void main( String[] args )

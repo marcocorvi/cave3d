@@ -9,21 +9,26 @@
  *  See the file COPYING.
  * --------------------------------------------------------
  */
-package com.topodroid.Cave3D;
+package com.topodroid.walls.cw;
+
+import com.topodroid.Cave3D.TglParser;
+import com.topodroid.Cave3D.GlModel;
+import com.topodroid.Cave3D.Cave3DShot;
+import com.topodroid.Cave3D.Cave3DStation;
 
 import android.util.Log;
 
 import java.util.List;
 import java.util.ArrayList;
 
-class ConvexHullComputer
+public class ConvexHullComputer
 {
   TglParser mParser;
   List<Cave3DShot> mShots;
   ArrayList<CWConvexHull> mWalls;
   ArrayList<CWBorder> mBorders;
 
-  ConvexHullComputer( TglParser parser, List<Cave3DShot> shots )
+  public ConvexHullComputer( TglParser parser, List<Cave3DShot> shots )
   {
     mParser  = parser;
     mShots   = shots;
@@ -32,12 +37,12 @@ class ConvexHullComputer
   }
 
   // boolean hasWalls() { return mWalls != null; }
-  ArrayList<CWConvexHull> getWalls()   { return mWalls; }
-  ArrayList<CWBorder>     getBorders() { return mBorders; }
-  int getWallsSize()   { return mWalls.size(); }
-  int getBordersSize() { return mBorders.size(); }
+  public ArrayList<CWConvexHull> getWalls()   { return mWalls; }
+  public ArrayList<CWBorder>     getBorders() { return mBorders; }
+  public int getWallsSize()   { return mWalls.size(); }
+  public int getBordersSize() { return mBorders.size(); }
 
-  boolean computeConvexHull( )
+  public boolean computeConvexHull( )
   {
     for ( Cave3DShot sh : mShots ) {
       Cave3DStation sf = sh.from_station;
@@ -89,7 +94,7 @@ class ConvexHullComputer
   }
 
 
-  double getVolume()
+  public double getVolume()
   {
     double vol = 0;
     for ( CWConvexHull cw : mWalls ) {

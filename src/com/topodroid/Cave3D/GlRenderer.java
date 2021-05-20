@@ -656,6 +656,7 @@ public class GlRenderer implements Renderer
 
   void notifyWall( int type, boolean b )
   { 
+    // Log.v("Cave3D", "renderer notify wall " + type + " " + b );
     if ( mModel != null ) {
       if ( type == TglParser.WALL_CW ) {
         mModel.prepareWalls( mParser.convexhullcomputer, b );
@@ -665,6 +666,8 @@ public class GlRenderer implements Renderer
         mModel.prepareWalls( mParser.hullcomputer, b );
       } else if ( type == TglParser.WALL_TUBE ) {
         mModel.prepareWalls( mParser.tubecomputer, b );
+      } else if ( type == TglParser.WALL_BUBBLE ) {
+        mModel.prepareWalls( mParser.bubblecomputer, b );
       } else {
         mModel.clearWalls( );
       }

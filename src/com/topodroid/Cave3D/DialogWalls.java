@@ -33,17 +33,20 @@ class DialogWalls extends Dialog
   private TopoGL  mApp;
   private TglParser mParser;
 
+  private CheckBox mCBbubble;
+  // private CheckBox mCBbubbleNo;
+
   private CheckBox mCBtube;
-  private CheckBox mCBtubeNo;
+  // private CheckBox mCBtubeNo;
 
   private CheckBox mCBhull;
-  private CheckBox mCBhullNo;
+  // private CheckBox mCBhullNo;
 
   private CheckBox mCBconvexhull;
-  private CheckBox mCBconvexhullNo;
+  // private CheckBox mCBconvexhullNo;
 
   private CheckBox mCBpowercrust;
-  private CheckBox mCBpowercrustNo;
+  // private CheckBox mCBpowercrustNo;
 
   private CheckBox mCBplanProj;
   private CheckBox mCBprofileProj;
@@ -75,30 +78,50 @@ class DialogWalls extends Dialog
     buttonCancel.setOnClickListener( this );
     // buttonSketch.setOnClickListener( this );
 
+    mCBbubble   = (CheckBox) findViewById( R.id.bubble );
+    // mCBbubbleNo = (CheckBox) findViewById( R.id.bubble_no );
+
     mCBtube   = (CheckBox) findViewById( R.id.tube );
-    mCBtubeNo = (CheckBox) findViewById( R.id.tube_no );
+    // mCBtubeNo = (CheckBox) findViewById( R.id.tube_no );
 
     mCBhull   = (CheckBox) findViewById( R.id.hull );
-    mCBhullNo = (CheckBox) findViewById( R.id.hull_no );
-
-    // mCBhull.setVisibility( View.GONE );
-    // mCBhullNo.setVisibility( View.GONE );
+    // mCBhullNo = (CheckBox) findViewById( R.id.hull_no );
 
     mCBconvexhull   = (CheckBox) findViewById( R.id.convexhull );
-    mCBconvexhullNo = (CheckBox) findViewById( R.id.convexhull_no );
+    // mCBconvexhullNo = (CheckBox) findViewById( R.id.convexhull_no );
 
     mCBpowercrust   = (CheckBox) findViewById( R.id.powercrust );
-    mCBpowercrustNo = (CheckBox) findViewById( R.id.powercrust_no );
+    // mCBpowercrustNo = (CheckBox) findViewById( R.id.powercrust_no );
 
-    if ( TglParser.mSplayUse == TglParser.SPLAY_USE_XSECTION ) {
+    if ( TglParser.WALL_BUBBLE < TglParser.WALL_MAX ) {
+      mCBbubble.setOnClickListener( this );
+    } else {
+      mCBbubble.setVisibility( View.GONE );
+      // mCBbubbleNo.setVisibility( View.GONE );
+    }
+
+    if ( TglParser.WALL_TUBE < TglParser.WALL_MAX && TglParser.mSplayUse == TglParser.SPLAY_USE_XSECTION ) {
       mCBtube.setOnClickListener( this );
     } else {
       mCBtube.setVisibility( View.GONE );
-      mCBtubeNo.setVisibility( View.GONE );
+      // mCBtubeNo.setVisibility( View.GONE );
     }
-    mCBhull.setOnClickListener( this );
+
+    if ( TglParser.WALL_HULL < TglParser.WALL_MAX ) {
+      mCBhull.setOnClickListener( this );
+    } else {
+      mCBhull.setVisibility( View.GONE );
+      // mCBhullNo.setVisibility( View.GONE );
+    }
+
+    if ( TglParser.WALL_POWERCRUST < TglParser.WALL_MAX ) {
+      mCBpowercrust.setOnClickListener( this );
+    } else {
+      mCBpowercrust.setVisibility( View.GONE );
+      // mCBpowercrustNo.setVisibility( View.GONE );
+    }
+
     mCBconvexhull.setOnClickListener( this );
-    mCBpowercrust.setOnClickListener( this );
 
     mCBplanProj     = (CheckBox) findViewById( R.id.cb_plan_proj );
     mCBprofileProj  = (CheckBox) findViewById( R.id.cb_profile_proj );
@@ -120,25 +143,36 @@ class DialogWalls extends Dialog
     } else if ( v.getId() == R.id.cb_profile_proj ) {
       mCBplanProj.setChecked( false );
       return;
+    } else if ( v.getId() == R.id.bubble ) {
+      // mCBbubble.setChecked( false );
+      mCBtube.setChecked( false );
+      mCBhull.setChecked( false );
+      mCBconvexhull.setChecked( false );
+      mCBpowercrust.setChecked( false );
+      return;
     } else if ( v.getId() == R.id.tube ) {
+      mCBbubble.setChecked( false );
       // mCBtube.setChecked( false );
       mCBhull.setChecked( false );
       mCBconvexhull.setChecked( false );
       mCBpowercrust.setChecked( false );
       return;
     } else if ( v.getId() == R.id.hull ) {
+      mCBbubble.setChecked( false );
       mCBtube.setChecked( false );
       // mCBhull.setChecked( false );
       mCBconvexhull.setChecked( false );
       mCBpowercrust.setChecked( false );
       return;
     } else if ( v.getId() == R.id.convexhull ) {
+      mCBbubble.setChecked( false );
       mCBtube.setChecked( false );
       mCBhull.setChecked( false );
       // mCBconvexhull.setChecked( false );
       mCBpowercrust.setChecked( false );
       return;
     } else if ( v.getId() == R.id.powercrust ) {
+      mCBbubble.setChecked( false );
       mCBtube.setChecked( false );
       mCBhull.setChecked( false );
       mCBconvexhull.setChecked( false );
@@ -148,15 +182,20 @@ class DialogWalls extends Dialog
       int alpha = mETalpha.getProgress();
       if ( 0 < alpha && alpha < 256 ) GlWalls.setAlpha( alpha/255.0f );
 
-      if ( mCBtube.isChecked() ) {
-        mParser.makeTube( mCBtubeNo.isChecked() );
-      } else if ( mCBhull.isChecked() ) {
-        mParser.makeHull( mCBhullNo.isChecked() );
-      } else if ( mCBconvexhull.isChecked() ) {
-        if ( mParser != null ) mParser.makeConvexHull( mCBconvexhullNo.isChecked() );
-      } else if ( mCBpowercrust.isChecked() ) {
-        if ( mParser != null ) mParser.makePowercrust( mCBpowercrustNo.isChecked() );
+      if ( mParser != null ) {
+        if ( mCBbubble.isChecked() ) {
+          mParser.makeBubble( );
+        } else if ( mCBtube.isChecked() ) {
+          mParser.makeTube( );
+        } else if ( mCBhull.isChecked() ) {
+          mParser.makeHull( );
+        } else if ( mCBconvexhull.isChecked() ) {
+          mParser.makeConvexHull( );
+        } else if ( mCBpowercrust.isChecked() ) {
+          mParser.makePowercrust( );
+        }
       }
+
       if ( mCBplanProj.isChecked() ) {
         GlModel.projMode = GlModel.PROJ_PLAN;
       } else if ( mCBprofileProj.isChecked() ) {

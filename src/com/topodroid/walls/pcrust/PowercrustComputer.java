@@ -9,47 +9,55 @@
  *  See the file COPYING.
  * --------------------------------------------------------
  */
-package com.topodroid.Cave3D;
+package com.topodroid.walls.pcrust;
+
+import com.topodroid.Cave3D.TglParser;
+import com.topodroid.Cave3D.GlModel;
+import com.topodroid.Cave3D.Triangle3D;
+import com.topodroid.Cave3D.Cave3DStation;
+import com.topodroid.Cave3D.Cave3DShot;
+import com.topodroid.Cave3D.Vector3D;
+import com.topodroid.Cave3D.Point2D;
 
 import android.util.Log;
 
 import java.util.List;
 import java.util.ArrayList;
 
-class PowercrustComputer
+public class PowercrustComputer
 {
   TglParser mParser;
   List<Cave3DStation> mStations;
   List<Cave3DShot>    mShots;
-  ArrayList<Cave3DPolygon> mPlanview    = null;
-  ArrayList<Cave3DSegment> mProfilearcs = null;
+  ArrayList<PCPolygon> mPlanview    = null;
+  ArrayList<PCSegment> mProfilearcs = null;
   ArrayList<Triangle3D> mTriangles;
-  Cave3DSite[] mVertices;
+  PCSite[] mVertices;
 
-  private Cave3DPowercrust powercrust = null;
+  private Powercrust powercrust = null;
 
-  PowercrustComputer( TglParser parser, List<Cave3DStation> stations, List<Cave3DShot> shots )
+  public PowercrustComputer( TglParser parser, List<Cave3DStation> stations, List<Cave3DShot> shots )
   {
     mParser   = parser;
     mStations = stations;
     mShots    = shots;
   }
 
-  boolean hasTriangles() { return mTriangles != null; }
-  ArrayList<Triangle3D> getTriangles() { return mTriangles; }
-  Cave3DSite[] getVertices() { return mVertices; }
+  public boolean hasTriangles() { return mTriangles != null; }
+  public ArrayList<Triangle3D> getTriangles() { return mTriangles; }
+  public PCSite[] getVertices() { return mVertices; }
  
-  boolean hasPlanview() { return mPlanview != null; }
-  boolean hasProfilearcs() { return mProfilearcs != null; }
-  ArrayList<Cave3DPolygon> getPlanview() { return mPlanview; }
-  ArrayList<Cave3DSegment> getProfilearcs() { return mProfilearcs; } 
+  public boolean hasPlanview() { return mPlanview != null; }
+  public boolean hasProfilearcs() { return mProfilearcs != null; }
+  public ArrayList<PCPolygon> getPlanview() { return mPlanview; }
+  public ArrayList<PCSegment> getProfilearcs() { return mProfilearcs; } 
 
-  boolean computePowercrust( )
+  public boolean computePowercrust( )
   {
     double delta = GlModel.mPowercrustDelta;
     try {
       // mCave3D.toast( "computing the powercrust" );
-      powercrust = new Cave3DPowercrust( );
+      powercrust = new Powercrust( );
       powercrust.resetSites( 3 );
       double x, y, z, v;
       int ntot = mStations.size();
@@ -168,10 +176,10 @@ class PowercrustComputer
         int nn = t.size;
         if ( nn > 2 ) { 
           nup ++;
-          Cave3DSite s1 = (Cave3DSite)t.vertex[nn-2];
-          Cave3DSite s0 = (Cave3DSite)t.vertex[nn-1];
+          PCSite s1 = (PCSite)t.vertex[nn-2];
+          PCSite s0 = (PCSite)t.vertex[nn-1];
           for ( int k=0; k<nn; ++k ) {
-            Cave3DSite s2 = (Cave3DSite)t.vertex[k];
+            PCSite s2 = (PCSite)t.vertex[k];
             s0.insertAngle( s1, s2 );
             s1 = s0;
             s0 = s2;
@@ -186,19 +194,19 @@ class PowercrustComputer
   }
 
   // polygons are built chaining the sites thru their angle' V1 vertex
-  private ArrayList<Cave3DPolygon> makePolygons( Cave3DSite[] vertices )
+  private ArrayList<PCPolygon> makePolygons( PCSite[] vertices )
   {
-    ArrayList<Cave3DPolygon> polygons = new ArrayList< Cave3DPolygon >();
+    ArrayList<PCPolygon> polygons = new ArrayList< PCPolygon >();
     // Log.v( "TopoGL", "up triangles " + nup );
     int nsite = 0;
     for ( int k = 0; k<vertices.length; ++k ) {
-      Cave3DSite s0 = vertices[k];
+      PCSite s0 = vertices[k];
       if ( s0.poly != null ) continue;
       if ( s0.isOpen() ) {
-        Cave3DPolygon polygon = new Cave3DPolygon();
+        PCPolygon polygon = new PCPolygon();
         polygon.addPoint( s0 );  // add S0 to the polygon
         s0.poly = polygon;       // and set the poligon to S0
-        for ( Cave3DSite s1 = s0.angle.v1; s1 != s0; s1=s1.angle.v1 ) {
+        for ( PCSite s1 = s0.angle.v1; s1 != s0; s1=s1.angle.v1 ) {
           if ( s1 == null || ! s1.isOpen() ) break; // 20200512 added test ! isOpen()
           if ( polygon.addPoint( s1 ) ) break; // break if S1 is already in the polygon 
           s1.poly = polygon;                   // otherwise S1 is added to the polygon and the polygon set to S1
@@ -306,23 +314,23 @@ class PowercrustComputer
     for ( int k=0; k<nvp; ++k ) mVertices[k].angle = null;
 
     int nup = 0;
-    mProfilearcs = new ArrayList< Cave3DSegment >();
+    mProfilearcs = new ArrayList< PCSegment >();
     // intersection triangles is ok for vertical caves
     for ( int k = 0; k < nsh; ++k ) {
       Cave3DShot sh = mShots.get(k);
       Vector3D p1 = sh.from_station; // .toVector();
       Vector3D p2 = sh.to_station; // .toVector();
-      ArrayList< Cave3DSegment > tmp = new ArrayList<>();
+      ArrayList< PCSegment > tmp = new ArrayList<>();
       for ( Triangle3D t : mTriangles ) {
         int nn = t.size;
         if ( nn <= 2 ) continue;
-        Cave3DIntersection q1 = null;
-        Cave3DIntersection q2 = null;
-        Cave3DSite s1 = (Cave3DSite)t.vertex[nn-1];
+        PCIntersection q1 = null;
+        PCIntersection q2 = null;
+        PCSite s1 = (PCSite)t.vertex[nn-1];
         double z1=1;
         for ( int kk=0; kk<nn; ++kk ) {
-          Cave3DSite s2 = (Cave3DSite)t.vertex[kk];
-          Cave3DIntersection qq = intersect2D( p1, p2, s1, s2 );
+          PCSite s2 = (PCSite)t.vertex[kk];
+          PCIntersection qq = intersect2D( p1, p2, s1, s2 );
           if ( qq != null ) {
             if ( q1 == null ) {
               q1 = qq;
@@ -335,17 +343,17 @@ class PowercrustComputer
           }
         }
         if ( q2 != null ) {
-          Cave3DSegment sgm = getSegment( p1, p2, q1, q2 );
+          PCSegment sgm = getSegment( p1, p2, q1, q2 );
           if ( sgm != null ) tmp.add( sgm );
         }
       }
       // split in up and down
-      Cave3DSegmentList lup = new Cave3DSegmentList();
-      Cave3DSegmentList ldw = new Cave3DSegmentList();
+      PCSegmentList lup = new PCSegmentList();
+      PCSegmentList ldw = new PCSegmentList();
       Vector3D dp = p2.difference( p1 );
       Vector3D pp = new Vector3D( dp.y, -dp.x, 0 );
       Vector3D pz = pp.crossProduct( dp ); 
-      for ( Cave3DSegment s1 : tmp ) {
+      for ( PCSegment s1 : tmp ) {
         Vector3D ds = s1.v1.difference( p1 );
         if ( pz.dotProduct( ds ) > 0 ) {
           lup.insert( s1 );
@@ -356,22 +364,22 @@ class PowercrustComputer
       
       // Log.v("TopoGL", "segments " + tmp.size() + " up " + lup.size + " down " + ldw.size );
       if ( lup.size > 0 ) {
-        Cave3DSegment s1 = lup.head;
+        PCSegment s1 = lup.head;
         mProfilearcs.add( s1 );
-        for ( Cave3DSegment s2 = s1.next; s2 != null; s2 = s2.next ) {
+        for ( PCSegment s2 = s1.next; s2 != null; s2 = s2.next ) {
           if ( s1.v2.s < s2.v1.s ) {
-            mProfilearcs.add( new Cave3DSegment( s1.v2, s2.v1 ) );
+            mProfilearcs.add( new PCSegment( s1.v2, s2.v1 ) );
           }  
           mProfilearcs.add( s2 );
           s1 = s2;
         }
       }
       if ( ldw.size > 0 ) {
-        Cave3DSegment s1 = ldw.head;
+        PCSegment s1 = ldw.head;
         mProfilearcs.add( s1 );
-        for ( Cave3DSegment s2 = s1.next; s2 != null; s2 = s2.next ) {
+        for ( PCSegment s2 = s1.next; s2 != null; s2 = s2.next ) {
           if ( s1.v2.s < s2.v1.s ) {
-            mProfilearcs.add( new Cave3DSegment( s1.v2, s2.v1 ) );
+            mProfilearcs.add( new PCSegment( s1.v2, s2.v1 ) );
           }  
           mProfilearcs.add( s2 );
           s1 = s2;
@@ -381,7 +389,7 @@ class PowercrustComputer
     // now make polygons from segments ???
   }
 
-  double getVolume()
+  public double getVolume()
   {
     if ( mTriangles == null || mVertices == null ) return 0;
     Vector3D cm = new Vector3D();
@@ -405,7 +413,7 @@ class PowercrustComputer
   //
   // private double intersectZ = 0;
 
-  private Cave3DIntersection intersect2D( Vector3D p1, Vector3D p2, Vector3D q1, Vector3D q2 )
+  private PCIntersection intersect2D( Vector3D p1, Vector3D p2, Vector3D q1, Vector3D q2 )
   {
     double det = (p2.x-p1.x)*(q1.y-q2.y) - (q1.x-q2.x)*(p2.y-p1.y);
     if ( det == 0f ) return null;
@@ -414,7 +422,7 @@ class PowercrustComputer
     double t = (-(p2.y-p1.y) * (q1.x - p1.x) + (p2.x-p1.x) * (q1.y - p1.y) )/ det;
     if ( t >= 0 && t < 1 ) {
       // intersectZ = s;
-      return new Cave3DIntersection( Vector3D.sum( q1.scaledBy(1-t), q2.scaledBy(t) ), s );
+      return new PCIntersection( Vector3D.sum( q1.scaledBy(1-t), q2.scaledBy(t) ), s );
     }
     return null;
   }
@@ -423,7 +431,7 @@ class PowercrustComputer
   // s = s2 + t ( s1 - s2 )
   // t(s=0) = ( 0 - s2 ) / ( s1 - s2 )
   // t(s=1) = ( 1 - s2 ) / ( s1 - s2 )
-  private Cave3DSegment getSegment( Vector3D p1, Vector3D p2, Cave3DIntersection q1, Cave3DIntersection q2 )
+  private PCSegment getSegment( Vector3D p1, Vector3D p2, PCIntersection q1, PCIntersection q2 )
   {
     if ( q1.s == q2.s ) return null;
     double t1 = ( 0 - q2.s ) / ( q1.s - q2.s );
@@ -433,33 +441,33 @@ class PowercrustComputer
       if ( q2.s <= 0 ) return null;
       double z1 = q2.z + t1 * ( q1.z - q2.z );
       if ( q2.s <= 1 ) { // p1--q2
-        return new Cave3DSegment( new Cave3DIntersection( p1.x, p1.y, z1, 0 ), q2 );
+        return new PCSegment( new PCIntersection( p1.x, p1.y, z1, 0 ), q2 );
       }
       // q2.s > 1
       double z2 = q2.z + t2 * ( q1.z - q2.z );
-      return new Cave3DSegment( new Cave3DIntersection( p1.x, p1.y, z1, 0 ), new Cave3DIntersection( p2.x, p2.y, z2, 1 ) );
+      return new PCSegment( new PCIntersection( p1.x, p1.y, z1, 0 ), new PCIntersection( p2.x, p2.y, z2, 1 ) );
     }  
     if ( q1.s >= 1 ) {
       if ( q2.s >= 1 ) return null;
       double z2 = q2.z + t2 * ( q1.z - q2.z );
       if ( q2.s >= 0 ) { // q2-p2
-        return new Cave3DSegment( q2, new Cave3DIntersection( p2.x, p2.y, z2, 1 ) );
+        return new PCSegment( q2, new PCIntersection( p2.x, p2.y, z2, 1 ) );
       }
       // q2.s < 0
       double z1 = q2.z + t1 * ( q1.z - q2.z );
-      return new Cave3DSegment( new Cave3DIntersection( p1.x, p1.y, z1, 0 ), new Cave3DIntersection( p2.x, p2.y, z2, 1 ) );
+      return new PCSegment( new PCIntersection( p1.x, p1.y, z1, 0 ), new PCIntersection( p2.x, p2.y, z2, 1 ) );
     }  
     // 0 < q1.s < 1
     if ( q2.s < 0 ) { // p1-q1
       double z1 = q2.z + t1 * ( q1.z - q2.z );
-      return new Cave3DSegment( new Cave3DIntersection( p1.x, p1.y, z1, 0 ), q1 );
+      return new PCSegment( new PCIntersection( p1.x, p1.y, z1, 0 ), q1 );
     }
     if ( q2.s > 1 ) { // q1-p2
       double z2 = q2.z + t2 * ( q1.z - q2.z );
-      return new Cave3DSegment( q1, new Cave3DIntersection( p2.x, p2.y, z2, 1 ) );
+      return new PCSegment( q1, new PCIntersection( p2.x, p2.y, z2, 1 ) );
     }
     // 0 <= q2.s <= 1
-    return new Cave3DSegment( q1, q2 );
+    return new PCSegment( q1, q2 );
   }
 
 }

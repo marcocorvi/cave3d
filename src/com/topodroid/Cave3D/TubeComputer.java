@@ -15,7 +15,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
-class TubeComputer
+class TubeComputer implements WallComputer
 {
   private TglParser mParser;
   private ArrayList< Cave3DShot > shots;
@@ -27,7 +27,7 @@ class TubeComputer
     shots = s;
   }
 
-  ArrayList< Triangle3D > getTriangles() { return triangles; }
+  public ArrayList< Triangle3D > getTriangles() { return triangles; }
 
   final int[] colors = { 0xffff0000, 0xffffff00, 0xff00ff00, 0xff00ffff, 0xff0000ff, 0xffff00ff };
 

@@ -9,7 +9,13 @@
  *  See the file COPYING.
  * --------------------------------------------------------
  */
-package com.topodroid.Cave3D;
+package com.topodroid.walls.cw;
+
+import com.topodroid.Cave3D.Vector3D;
+import com.topodroid.Cave3D.TopoGL;
+import com.topodroid.Cave3D.GlModel;
+import com.topodroid.Cave3D.Cave3DShot;
+import com.topodroid.Cave3D.Cave3DStation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +35,8 @@ import android.util.Log;
 public class CWConvexHull 
 {
   private static int cnt = 0;
-  static void resetCounter() { cnt = 0; }
-  static void resetCounters() 
+  static public void resetCounter() { cnt = 0; }
+  static public void resetCounters() 
   {
     CWBorder.resetCounter();
     CWIntersection.resetCounter();
@@ -45,8 +51,8 @@ public class CWConvexHull
   Cave3DStation mTo;
   private ArrayList< CWPoint > mVertex;
   private ArrayList< CWSide > mSide;
-  ArrayList< CWTriangle > mFace;
-  ArrayList< CWTriangle > mSplits;
+  public ArrayList< CWTriangle > mFace;
+  public ArrayList< CWTriangle > mSplits;
   double mVolume;
   boolean hasVolume;
   
@@ -685,7 +691,7 @@ public class CWConvexHull
   //   for ( CWTriangle f : mFace ) f.dump( );
   // }
   
-  void writeHull( PrintWriter out )
+  public void writeHull( PrintWriter out )
   {
     out.format(Locale.US, "C %d %d %d %d\n", mCnt, mVertex.size(), mSide.size(), mFace.size() );
     for ( CWPoint v :  mVertex ) v.writePoint( out );
@@ -694,7 +700,7 @@ public class CWConvexHull
     out.flush();
   }
 
-  void serialize( DataOutputStream dos ) throws IOException
+  public void serialize( DataOutputStream dos ) throws IOException
   {
     dos.write('C');
     dos.writeInt( mVertex.size() );
@@ -707,7 +713,7 @@ public class CWConvexHull
   }
 
   /* FIXME
-  void deserialize( DataInputStream dis ) throws IOException
+  public void deserialize( DataInputStream dis ) throws IOException
   {
     char ch = dis.read();
     int nv = dis.readInt( );

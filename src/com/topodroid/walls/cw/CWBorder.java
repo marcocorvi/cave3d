@@ -9,7 +9,9 @@
  *  See the file COPYING.
  * --------------------------------------------------------
  */
-package com.topodroid.Cave3D;
+package com.topodroid.walls.cw;
+
+import com.topodroid.Cave3D.Vector3D;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -247,7 +249,7 @@ public class CWBorder
   //   }
   // }
   
-  void writeBorder( PrintWriter out )
+  public void writeBorder( PrintWriter out )
   {
     out.format(Locale.US,  "B %d %d %d %d %d %d\n", mCnt, mCV1.mCnt, mCV2.mCnt, mInts.size(), pts2in1.size(), pts1in2.size() );
     for ( CWIntersection ii : mInts ) ii.writeIntersection( out );
@@ -256,7 +258,7 @@ public class CWBorder
     out.flush();
   }
 
-  void serialize( DataOutputStream dos ) throws IOException
+  public void serialize( DataOutputStream dos ) throws IOException
   {
     dos.write('B');
     dos.writeInt( mCnt );

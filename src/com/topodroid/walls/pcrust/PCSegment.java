@@ -1,4 +1,4 @@
-/** @file Cave3DSegment.java
+/** @file PCSegment.java
  *
  * @author marco corvi
  * @date may 2017
@@ -9,24 +9,27 @@
  *  See the file COPYING.
  * --------------------------------------------------------
  */
-package com.topodroid.Cave3D;
+package com.topodroid.walls.pcrust;
 
-import java.io.StringWriter;
-import java.io.PrintWriter;
+import com.topodroid.Cave3D.Vector3D;
 
-class Cave3DSegment
+// import java.io.StringWriter;
+// import java.io.PrintWriter;
+
+public class PCSegment
 {
-  Cave3DIntersection v1, v2;
-  Cave3DSegment next;
+  PCIntersection v1, v2;
+  PCSegment next;
   double s;
 
-  Cave3DSegment( Cave3DIntersection q1, Cave3DIntersection q2 )
+  PCSegment( PCIntersection q1, PCIntersection q2 )
   {
     v1 = q1;
     v2 = q2;
     s = ( q1.s + q2.s )/2;
     next = null;
   }
+
 /*
   int hasEndPoint( Vector3D v, double eps )
   {
@@ -35,12 +38,15 @@ class Cave3DSegment
     return 0;
   }
 
-  boolean touches( Cave3DSegment s, double eps ) 
+  boolean touches( PCSegment s, double eps ) 
   {
     return hasEndPoint( s.v1, eps ) != 0 || hasEndPoint( s.v2, eps  ) != 0;
   }
 */
 
   double s() { return s; }
+
+  public Vector3D getV1() { return v1; }
+  public Vector3D getV2() { return v2; }
 
 }

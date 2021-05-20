@@ -9,7 +9,12 @@
  *  Copyright This sowftare is distributed under GPL-3.0 or later
  *  See the file COPYING.
  */
-package com.topodroid.Cave3D;
+package com.topodroid.walls.hull;
+
+import com.topodroid.Cave3D.Cave3DShot;
+import com.topodroid.Cave3D.Cave3DStation;
+import com.topodroid.Cave3D.Vector3D;
+import com.topodroid.Cave3D.TopoGL;
 
 import android.util.Log;
 

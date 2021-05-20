@@ -34,6 +34,13 @@
         android:layout_gravity="right"
         android:layout_marginLeft="20dp"
         >
+        <CheckBox android:id="@+id/bubble"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="10dp"
+          android:text="@string/walls_bubble"
+        />
         <CheckBox android:id="@+id/tube"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -63,7 +70,7 @@
           android:text="@string/walls_powercrust"
         />
       </LinearLayout>
-      <LinearLayout
+      <!-- LinearLayout
         android:layout_width="fill_parent" 
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -71,6 +78,13 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         >
+        <CheckBox android:id="@+id/bubble_no"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="10dp"
+          android:text="@string/clear"
+        />
         <CheckBox android:id="@+id/tube_no"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -99,7 +113,7 @@
           android:layout_marginRight="10dp"
           android:text="@string/clear"
         />
-      </LinearLayout>
+      </LinearLayout -->
     </LinearLayout>
 
     <LinearLayout

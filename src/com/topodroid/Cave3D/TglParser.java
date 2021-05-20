@@ -18,6 +18,13 @@ import com.topodroid.out.ExportDXF;
 import com.topodroid.out.ExportSHP;
 import com.topodroid.out.ExportSTL;
 import com.topodroid.in.LoxBitmap;
+import com.topodroid.walls.bubble.BubbleComputer;
+import com.topodroid.walls.hull.HullComputer;
+import com.topodroid.walls.cw.CWTriangle;
+import com.topodroid.walls.cw.CWBorder;
+import com.topodroid.walls.cw.CWConvexHull;
+import com.topodroid.walls.cw.ConvexHullComputer;
+import com.topodroid.walls.pcrust.PowercrustComputer;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,8 +62,9 @@ public class TglParser
   public static final int WALL_POWERCRUST = 2;
   public static final int WALL_HULL       = 3;
   public static final int WALL_TUBE       = 4;
-  public static final int WALL_DELAUNAY   = 5;
-  public static final int WALL_MAX        = 5;
+  public static final int WALL_BUBBLE     = 5;
+  public static final int WALL_DELAUNAY   = 6; // not included
+  public static final int WALL_MAX        = 6;
 
   public static final int SPLAY_USE_SKIP     = 0;
   public static final int SPLAY_USE_NORMAL   = 1;
@@ -77,6 +85,7 @@ public class TglParser
   ConvexHullComputer convexhullcomputer = null;
   HullComputer hullcomputer = null;
   TubeComputer tubecomputer = null;
+  BubbleComputer bubblecomputer = null;
 
   // private ArrayList< CWConvexHull > walls   = null;
   // private ArrayList< CWBorder >     borders = null;
@@ -327,7 +336,7 @@ public class TglParser
   /** get the legs at "station"
    * @param reverse   if true reverse leg if at to-station
    */
-  ArrayList< Cave3DShot > getLegsAt( Cave3DStation station, boolean reverse )
+  public ArrayList< Cave3DShot > getLegsAt( Cave3DStation station, boolean reverse )
   {
     ArrayList< Cave3DShot > ret = new ArrayList< Cave3DShot >();
     for ( Cave3DShot shot : shots ) {
@@ -352,7 +361,7 @@ public class TglParser
    *      station - other
    *      xxx - station
    */
-  ArrayList< Cave3DShot > getLegsAt( Cave3DStation station, Cave3DStation other )
+  public ArrayList< Cave3DShot > getLegsAt( Cave3DStation station, Cave3DStation other )
   {
     // Log.v( TAG, "get legs at " + station.name + " other " + other.name );
     ArrayList< Cave3DShot > ret = new ArrayList< Cave3DShot >();
@@ -384,7 +393,7 @@ public class TglParser
 
   /** get the legs at "station" except the leg that connects to "other"
    */
-  ArrayList< Cave3DShot > getLegsAtExcept( Cave3DStation station, Cave3DStation other )
+  public ArrayList< Cave3DShot > getLegsAtExcept( Cave3DStation station, Cave3DStation other )
   {
     // Log.v( TAG, "get legs at " + station.name + " other " + other.name );
     ArrayList< Cave3DShot > ret = new ArrayList< Cave3DShot >();
@@ -405,7 +414,7 @@ public class TglParser
     return ret;
   }
 
-  ArrayList< Cave3DShot > getSplayAt( Cave3DStation station, boolean also_legs )
+  public ArrayList< Cave3DShot > getSplayAt( Cave3DStation station, boolean also_legs )
   {
     ArrayList< Cave3DShot > ret = new ArrayList< Cave3DShot >();
     for ( Cave3DShot splay : splays ) {
@@ -663,79 +672,98 @@ public class TglParser
   }
 
   // ------------------------ 3D MODEL: CONVEX HULL
-  public void makeConvexHull( boolean clear )
+  public void makeConvexHull( )
   {
-    // walls   = null;
-    // borders = null;
-    if ( ! clear ) {
-      if ( shots == null ) return;
-      if ( WALL_CW < WALL_MAX /* && Cave3D.mWallConvexHull */ ) {
-        convexhullcomputer = new ConvexHullComputer( this, shots );
-        if ( convexhullcomputer != null ) {
-          (new AsyncTask<Void, Void, Boolean>() {
-            public Boolean doInBackground( Void ... v ) {
-              return convexhullcomputer.computeConvexHull( );
-            }
-            public void onPostExecute( Boolean b )
-            {
-              if ( ! b ) convexhullcomputer = null;
-              if ( mApp != null ) mApp.notifyWall( WALL_CW, b );
-            }
-          }).execute();
-        } else {
-          // if ( mApp != null ) mApp.uiToast( "failed to create convex hull object" );
-        }
+    if ( shots == null ) return;
+    if ( WALL_CW < WALL_MAX /* && Cave3D.mWallConvexHull */ ) {
+      convexhullcomputer = new ConvexHullComputer( this, shots );
+      if ( convexhullcomputer != null ) {
+        (new AsyncTask<Void, Void, Boolean>() {
+          public Boolean doInBackground( Void ... v ) {
+            return convexhullcomputer.computeConvexHull( );
+          }
+          public void onPostExecute( Boolean b )
+          {
+            if ( ! b ) convexhullcomputer = null;
+            if ( mApp != null ) mApp.notifyWall( WALL_CW, b );
+          }
+        }).execute();
+      } else {
+        // if ( mApp != null ) mApp.uiToast( "failed to create convex hull object" );
       }
-      // if ( mApp != null ) mApp.uiToast( "computing convex hull walls" );
     }
-    // if ( mApp != null ) mApp.setButtonWall(); // private
+    // if ( mApp != null ) mApp.uiToast( "computing convex hull walls" );
   }
 
   // FIXME skip -------------------------- WALL_TUBE triangles
-  public void makeTube( boolean clear )
+  public void makeTube( )
   {
-    if ( ! clear ) {
-      if ( shots == null ) return;
-      if ( WALL_TUBE < WALL_MAX ) {
-        tubecomputer = new TubeComputer( this, shots );
-        if ( tubecomputer != null ) {
-          (new AsyncTask< Void, Void, Boolean >() {
-            public Boolean doInBackground( Void ... v ) {
-              return tubecomputer.computeTube();
-            }
-            public void onPostExecute( Boolean b ) {
-              if ( ! b ) tubecomputer = null;
-              if ( mApp != null ) mApp.notifyWall( WALL_TUBE, b );
-            }
-          }).execute();
-        } else {
-          // if ( mApp != null ) mApp.uiToast( "failed to create hull object" );
-        }
+    if ( shots == null ) return;
+    if ( WALL_TUBE < WALL_MAX ) {
+      tubecomputer = new TubeComputer( this, shots );
+      if ( tubecomputer != null ) {
+        (new AsyncTask< Void, Void, Boolean >() {
+          public Boolean doInBackground( Void ... v ) {
+            return tubecomputer.computeTube();
+          }
+          public void onPostExecute( Boolean b ) {
+            if ( ! b ) tubecomputer = null;
+            if ( mApp != null ) mApp.notifyWall( WALL_TUBE, b );
+          }
+        }).execute();
+      } else {
+        // if ( mApp != null ) mApp.uiToast( "failed to create hull object" );
       }
     }
   }
-  
+
+
+  // FIXME skip -------------------------- WALL_BUBBLE triangles
+  public void makeBubble( )
+  {
+    if ( shots == null ) {
+      Log.v("Cave3D", "make bubble - no shots");
+      return;
+    }
+    // Log.v("Cave3D", "make bubble");
+    if ( WALL_BUBBLE < WALL_MAX ) {
+      bubblecomputer = new BubbleComputer( this );
+      if ( bubblecomputer != null ) {
+        // Log.v("Cave3D", "compute bubble");
+        (new AsyncTask< Void, Void, Boolean >() {
+          public Boolean doInBackground( Void ... v ) {
+            return bubblecomputer.computeBubble();
+          }
+          public void onPostExecute( Boolean b ) {
+            // Log.v("Cave3D", "compute bubble: " + b );
+            if ( ! b ) bubblecomputer = null;
+            if ( mApp != null ) mApp.notifyWall( WALL_BUBBLE, b );
+          }
+        }).execute();
+      } else {
+        // if ( mApp != null ) mApp.uiToast( "failed to create hull object" );
+      }
+    }
+  }
 
   // FIXME skip -------------------------- WALL_HULL triangles
-  public void makeHull( boolean clear )
+  public void makeHull( )
   {
-    if ( ! clear ) {
-      if ( shots == null ) return;
-      if ( WALL_HULL < WALL_MAX ) {
-        hullcomputer = new HullComputer( this, shots );
-        if ( hullcomputer != null ) {
-          (new AsyncTask< Void, Void, Boolean >() {
-            public Boolean doInBackground( Void ... v ) {
-              return hullcomputer.computeHull();
-            }
-            public void onPostExecute( Boolean b ) {
-              if ( ! b ) hullcomputer = null;
-              if ( mApp != null ) mApp.notifyWall( WALL_HULL, b );
-            }
-          }).execute();
-        } else {
-          // if ( mApp != null ) mApp.uiToast( "failed to create hull object" );
-        }
+    if ( shots == null ) return;
+    if ( WALL_HULL < WALL_MAX ) {
+      hullcomputer = new HullComputer( this, shots );
+      if ( hullcomputer != null ) {
+        (new AsyncTask< Void, Void, Boolean >() {
+          public Boolean doInBackground( Void ... v ) {
+            return hullcomputer.computeHull();
+          }
+          public void onPostExecute( Boolean b ) {
+            if ( ! b ) hullcomputer = null;
+            if ( mApp != null ) mApp.notifyWall( WALL_HULL, b );
+          }
+        }).execute();
+      } else {
+        // if ( mApp != null ) mApp.uiToast( "failed to create hull object" );
       }
     }
   }
@@ -768,28 +796,23 @@ public class TglParser
 
 
   // ------------------------ 3D MODEL: POWERCRUST
-  public void makePowercrust( boolean clear )
+  public void makePowercrust( )
   {
-    if ( clear ) {
-      powercrustcomputer = null;
-    } else {
-      if ( shots == null ) return;
-      if ( WALL_POWERCRUST < WALL_MAX /* && Cave3D.mWallPowercrust */ ) {
-        powercrustcomputer = new PowercrustComputer( this, stations, shots );
-        (new AsyncTask<Void, Void, Boolean>() {
-            public Boolean doInBackground( Void ... v ) {
-              return powercrustcomputer.computePowercrust( );
-            }
+    if ( shots == null ) return;
+    if ( WALL_POWERCRUST < WALL_MAX /* && Cave3D.mWallPowercrust */ ) {
+      powercrustcomputer = new PowercrustComputer( this, stations, shots );
+      (new AsyncTask<Void, Void, Boolean>() {
+          public Boolean doInBackground( Void ... v ) {
+            return powercrustcomputer.computePowercrust( );
+          }
 
-            public void onPostExecute( Boolean b )
-            {
-              if ( ! b ) powercrustcomputer = null;
-              if ( mApp != null ) mApp.notifyWall( WALL_POWERCRUST, b );
-            }
-        }).execute();
-      }
+          public void onPostExecute( Boolean b )
+          {
+            if ( ! b ) powercrustcomputer = null;
+            if ( mApp != null ) mApp.notifyWall( WALL_POWERCRUST, b );
+          }
+      }).execute();
     }
-    // if ( mApp != null ) mApp.setButtonWall(); // private
   }
 
   /* unused
@@ -861,9 +884,9 @@ public class TglParser
     dos.write('F'); // FIX
     dos.writeInt( fixes.size() );
     for ( Cave3DFix fix : fixes ) fix.serialize( dos );
-    // dos.write('X');
-    // dos.writeInt( xsections.size() );
-    // for ( Cave3DXSection xsection : xsections ) xsection.serialize( dos );
+    dos.write('X');
+    dos.writeInt( xsections.size() );
+    for ( Cave3DXSection xsection : xsections ) xsection.serialize( dos );
     dos.write('E');
   }
 
@@ -927,9 +950,9 @@ public class TglParser
           }
           break;
         case 'X':
-          // nr = dis.readInt( );
-          // xsections.clear();
-          // for ( int k=0; k<nr; ++k ) xsections.add( Cave3DXSection.deserialize( dis, version );
+          nr = dis.readInt( );
+          xsections.clear();
+          for ( int k=0; k<nr; ++k ) xsections.add( Cave3DXSection.deserialize( dis, version, stations ) );
           break;
         default:
           done = true;

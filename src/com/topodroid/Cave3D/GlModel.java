@@ -13,6 +13,12 @@ package com.topodroid.Cave3D;
 
 import com.topodroid.in.ParserBluetooth;
 import com.topodroid.in.ParserSketch;
+import com.topodroid.walls.cw.CWConvexHull;
+import com.topodroid.walls.cw.CWTriangle;
+import com.topodroid.walls.cw.ConvexHullComputer;
+import com.topodroid.walls.pcrust.PowercrustComputer;
+import com.topodroid.walls.pcrust.PCSegment;
+import com.topodroid.walls.pcrust.PCPolygon;
 
 import android.util.Log;
 
@@ -184,16 +190,17 @@ public class GlModel
   static int frameMode = FRAME_GRID;      // howto_show_grid/frame
   static int projMode  = PROJ_NONE;       // howto_show_proj
 
-  static boolean mStationPoints = false;
-  static boolean mAllSplay  = true;
+  static public boolean mStationPoints = false;
+  static public boolean mAllSplay  = true;
   static boolean mGridAbove = false;
   static int     mGridExtent = 10;
-  static boolean mSplitTriangles = true;
-  static boolean mSplitRandomize = true;
-  static boolean mSplitStretch   = false;
-  static double mSplitRandomizeDelta = 0.1f; // meters
-  static double mSplitStretchDelta   = 0.1f;
-  static double mPowercrustDelta     = 0.1f; // meters
+
+  static public boolean mSplitTriangles = true;
+  static public boolean mSplitRandomize = true;
+  static public boolean mSplitStretch   = false;
+  static public double mSplitRandomizeDelta = 0.1f; // meters
+  static public double mSplitStretchDelta   = 0.1f;
+  static public double mPowercrustDelta     = 0.1f; // meters
 
   static void toggleSplays()   { splayMode = (splayMode+1) % DRAW_MAX; }
   // static void togglePlanview() { planviewMode = ( planviewMode + 1 ) % 4; }
@@ -529,7 +536,7 @@ public class GlModel
     preparePlanAndProfile( computer );
   }
 
-  void prepareWalls( HullComputer computer, boolean make )
+  void prepareWalls( WallComputer computer, boolean make )
   {
     if ( ! make ) {
       clearWalls();
@@ -537,27 +544,9 @@ public class GlModel
     }
     if ( computer == null ) return;
     GlWalls walls = new GlWalls( mContext, GlWalls.WALL_FACE );
+    
     for ( Triangle3D tr : computer.getTriangles() ) {
-      // Vector3D v1 = new Vector3D( tr.vertex[0].x - mXmed, tr.vertex[0].z - mYmed, -tr.vertex[0].y - mZmed );
-      // Vector3D v2 = new Vector3D( tr.vertex[1].x - mXmed, tr.vertex[1].z - mYmed, -tr.vertex[1].y - mZmed );
-      // Vector3D v3 = new Vector3D( tr.vertex[2].x - mXmed, tr.vertex[2].z - mYmed, -tr.vertex[2].y - mZmed );
-      // walls.addTriangle( v1, v2, v3 );
-      walls.addTriangle( tr, mXmed, mYmed, mZmed );
-    }
-    walls.initData();
-    synchronized( this ) { glWalls = walls; }
-    // Log.v("TopoGL", "Model Hull triangles " + walls.triangleCount );
-  }
-
-  void prepareWalls( TubeComputer computer, boolean make )
-  {
-    if ( ! make ) {
-      clearWalls();
-      return;
-    }
-    if ( computer == null ) return;
-    GlWalls walls = new GlWalls( mContext, GlWalls.WALL_FACE );
-    for ( Triangle3D tr : computer.getTriangles() ) {
+      // tr.dump();
       // Vector3D v1 = new Vector3D( tr.vertex[0].x - mXmed, tr.vertex[0].z - mYmed, -tr.vertex[0].y - mZmed );
       // Vector3D v2 = new Vector3D( tr.vertex[1].x - mXmed, tr.vertex[1].z - mYmed, -tr.vertex[1].y - mZmed );
       // Vector3D v3 = new Vector3D( tr.vertex[2].x - mXmed, tr.vertex[2].z - mYmed, -tr.vertex[2].y - mZmed );
@@ -574,7 +563,7 @@ public class GlModel
     if ( computer.hasPlanview() ) {
 	  // FIXME INCREMENTAL : , 0 );
       GlLines plan = new GlLines( mContext, TglColor.ColorPlan, 0 );
-      for ( Cave3DPolygon poly : computer.getPlanview() ) {
+      for ( PCPolygon poly : computer.getPlanview() ) {
         int nn = poly.size();
         if ( nn > 2 ) {
           // leave polygon border open, otherwise there can be long lines that are artifacts
@@ -594,8 +583,8 @@ public class GlModel
     if ( computer.hasProfilearcs() ) {
 	  // FIXME INCREMENTAL : , 0 );
       GlLines profile = new GlLines( mContext, TglColor.ColorPlan, 0 );
-      for ( Cave3DSegment sgm : computer.getProfilearcs() ) {
-        profile.addLine( sgm.v1, sgm.v2, 4, -1, false, mXmed, mYmed, mZmed );
+      for ( PCSegment sgm : computer.getProfilearcs() ) {
+        profile.addLine( sgm.getV1(), sgm.getV2(), 4, -1, false, mXmed, mYmed, mZmed );
       }
       profile.initData();
       synchronized( this ) { glProfile = profile; }

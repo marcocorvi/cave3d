@@ -9,29 +9,36 @@
  *  See the file COPYING.
  * --------------------------------------------------------
  */
-package com.topodroid.Cave3D;
+package com.topodroid.walls.hull;
+
+import com.topodroid.Cave3D.Cave3DShot;
+import com.topodroid.Cave3D.Cave3DStation;
+import com.topodroid.Cave3D.Vector3D;
+import com.topodroid.Cave3D.Triangle3D;
+import com.topodroid.Cave3D.TglParser;
+import com.topodroid.Cave3D.WallComputer;
 
 import android.util.Log;
 
 import java.util.ArrayList;
 
-class HullComputer
+public class HullComputer implements WallComputer
 {
   private TglParser mParser;
   private ArrayList< Cave3DShot > shots;
   private ArrayList< Triangle3D > triangles = null;
 
-  HullComputer( TglParser parser, ArrayList< Cave3DShot > s )
+  public HullComputer( TglParser parser, ArrayList< Cave3DShot > s )
   {
     mParser = parser;
     shots = s;
   }
 
-  ArrayList< Triangle3D > getTriangles() { return triangles; }
+  public ArrayList< Triangle3D > getTriangles() { return triangles; }
 
   final int[] colors = { 0xffff0000, 0xffffff00, 0xff00ff00, 0xff00ffff, 0xff0000ff, 0xffff00ff };
 
-  boolean computeHull()
+  public boolean computeHull()
   {
     ArrayList< Cave3DHull > hulls = new ArrayList<>();
     int kcol = 0;

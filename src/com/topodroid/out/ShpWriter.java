@@ -15,8 +15,8 @@ import com.topodroid.Cave3D.Vector3D;
 import com.topodroid.Cave3D.Triangle3D;
 import com.topodroid.Cave3D.Cave3DStation;
 import com.topodroid.Cave3D.Cave3DShot;
-import com.topodroid.Cave3D.CWFacet;
-import com.topodroid.Cave3D.CWPoint;
+import com.topodroid.walls.cw.CWFacet;
+import com.topodroid.walls.cw.CWPoint;
 
 import android.util.Log;
    

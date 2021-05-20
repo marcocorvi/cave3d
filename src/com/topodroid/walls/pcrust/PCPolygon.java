@@ -1,4 +1,4 @@
-/** @file Cave3DPolygon.java
+/** @file PCPolygon.java
  *
  * @author marco corvi
  * @date may 2017
@@ -9,7 +9,9 @@
  *  See the file COPYING.
  * --------------------------------------------------------
  */
-package com.topodroid.Cave3D;
+package com.topodroid.walls.pcrust;
+
+import com.topodroid.Cave3D.Vector3D;
 
 // import android.util.Log;
 
@@ -18,23 +20,23 @@ import java.io.PrintWriter;
 
 import java.util.ArrayList;
 
-class Cave3DPolygon
+public class PCPolygon
 {
-  ArrayList< Cave3DSite > points;
+  ArrayList< PCSite > points;
 
-  Cave3DPolygon( )
+  PCPolygon( )
   {
-    points = new ArrayList< Cave3DSite >();
+    points = new ArrayList< PCSite >();
   }
 
-  int size() { return points.size(); }
+  public int size() { return points.size(); }
 
-  Cave3DSite get( int k ) { return points.get(k); }
+  public Vector3D get( int k ) { return points.get(k); }
 
   // return true if the site is already in the polygon
-  boolean addPoint( Cave3DSite s )
+  boolean addPoint( PCSite s )
   {
-    for ( Cave3DSite pt : points ) if ( pt == s ) return true;
+    for ( PCSite pt : points ) if ( pt == s ) return true;
     points.add( s );
     // points.add( new Point2D( s.x, s.y ) );
     return false;

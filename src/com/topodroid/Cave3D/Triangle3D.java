@@ -17,6 +17,8 @@ import java.io.PrintWriter;
 
 import java.util.Locale;
 
+import android.util.Log;
+
 public class Triangle3D
 {
   public int size;
@@ -64,12 +66,20 @@ public class Triangle3D
     return ret;
   }
 
-  void setVertex( int k, Vector3D v )
+  public void dump()
+  {
+    Log.v("Cave3D", String.format( "%6.1f %6.1f %6.1f  %6.1f %6.1f %6.1f  %6.1f %6.1f %6.1f",
+      vertex[0].x, vertex[0].y, vertex[0].z, 
+      vertex[1].x, vertex[1].y, vertex[1].z, 
+      vertex[2].x, vertex[2].y, vertex[2].z ) );
+  }
+
+  public void setVertex( int k, Vector3D v )
   {
     vertex[k] = v;
   }
 
-  void computeNormal()
+  public void computeNormal()
   {
     Vector3D w1 = vertex[1].difference( vertex[0] );
     Vector3D w2 = vertex[2].difference( vertex[0] );

@@ -1,4 +1,4 @@
-/* @file Cave3DPowercrust.java
+/* @file Powercrust.java
  *
  * @author marco corvi
  * @date may 2017
@@ -9,7 +9,9 @@
  *  See the file COPYING.
  * --------------------------------------------------------
  */
-package com.topodroid.Cave3D;
+package com.topodroid.walls.pcrust;
+
+import com.topodroid.Cave3D.Triangle3D;
 
 import android.util.Log;
 
@@ -19,7 +21,7 @@ import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
 
-class Cave3DPowercrust
+class Powercrust
 {
   int np;
   int nf; 
@@ -50,7 +52,7 @@ class Cave3DPowercrust
 
   int color; // DEBUG
 
-  Cave3DPowercrust()
+  Powercrust()
   {
     // Log.v( "TopoGL-POWERCRUST", "powercrust cstr");
     initLog();
@@ -60,17 +62,17 @@ class Cave3DPowercrust
     color = 0xffcccccc; // DEBUG
   }
 
-  Cave3DSite[] insertTrianglesIn( ArrayList< Triangle3D > triangles )
+  PCSite[] insertTrianglesIn( ArrayList< Triangle3D > triangles )
   {
     double x, y, z;
     np = nrPoles();
     // Log.v( "TopoGL-POWERCRUST", "Nr. poles " + np + " Creating vertices ...");
-    Cave3DSite poles[] = new Cave3DSite[ np ];
+    PCSite poles[] = new PCSite[ np ];
     for ( int k=0; k<np; ++k ) {
       x = poleX();
       y = poleY();
       z = poleZ();
-      poles[k] = new Cave3DSite( x, y, z );
+      poles[k] = new PCSite( x, y, z );
       if ( nextPole() == 0 ) break;
     }
 

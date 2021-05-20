@@ -3,7 +3,7 @@
  * @author marco corvi
  * @date apr 2021
  *
- * @brief tube walls between two xsections
+ * @brief tube walls between two XSections
  *
  * --------------------------------------------------------
  *  Copyright This sowftare is distributed under GPL-3.0 or later

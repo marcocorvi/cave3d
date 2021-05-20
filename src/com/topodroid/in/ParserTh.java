@@ -922,9 +922,10 @@ public class ParserTh extends TglParser
             station_splays.add( sh.toPoint3D() );
           }
         }
-        if ( TglParser.mSplayUse == TglParser.SPLAY_USE_XSECTION && station_splays.size() > 3 ) {
-          xsections.add( new Cave3DXSection( s, s, vert, station_splays ) );
-        }
+        // FIXME XSECTIONS
+        // if ( TglParser.mSplayUse == TglParser.SPLAY_USE_XSECTION && station_splays.size() > 3 ) {
+        //   xsections.add( new Cave3DXSection( s, s, vert, station_splays ) );
+        // }
       }
     }
 

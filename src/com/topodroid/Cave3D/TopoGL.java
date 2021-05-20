@@ -25,6 +25,7 @@ import com.topodroid.in.ParserLox;
 import com.topodroid.in.ParserBluetooth;
 import com.topodroid.in.ParserSketch;
 import com.topodroid.in.ParserException;
+import com.topodroid.walls.cw.CWConvexHull;
 
 import android.util.Log;
 
@@ -462,6 +463,10 @@ public class TopoGL extends Activity
   // ---------------------------------------------------------------
   // MENU
 
+  final static int MENU_BT   =  2; // bluetooth
+  // final static int MENU_WALL =  9; // bluetooth
+  final static int MENU_C3D  = 10; // sketch
+
   Button     mMenuImage = null;
   ListView   mMenu = null;
   MyMenuAdapter mMenuAdapter = null;
@@ -494,8 +499,8 @@ public class TopoGL extends Activity
     if ( mMenu != null ) {
       mMenuAdapter = new MyMenuAdapter( this, this, mMenu, R.layout.menu, new ArrayList< MyMenuItem >() );
       for ( int k=0; k<menus.length; ++k ) {
-        if ( k ==  2 && ! ( hasBluetoothName() && mWithBluetooth ) ) continue; // FIXME BLUETOOTH  MENU
-        if ( k == 9 && ! mHasC3d ) continue;
+        if ( k == MENU_BT  && ! ( hasBluetoothName() && mWithBluetooth ) ) continue; // FIXME BLUETOOTH  MENU
+        if ( k == MENU_C3D && ! mHasC3d ) continue;
             
         mMenuAdapter.add( res.getString( menus[k] ) );
       }
@@ -1397,8 +1402,8 @@ public class TopoGL extends Activity
   static boolean mMeasureToast   = false;
   static boolean mWithBluetooth  = false; // FIXME BLUETOOTH  SETTING
   
-  static boolean mSplayProj      = false;
-  static float   mSplayThr       = 0.5f;
+  static public boolean mSplayProj      = false;
+  static public float   mSplayThr       = 0.5f;
 
   static final String CAVE3D_BASE_PATH        = "CAVE3D_BASE_PATH";
   static final String CAVE3D_TEXT_SIZE        = "CAVE3D_TEXT_SIZE";
@@ -1786,6 +1791,7 @@ public class TopoGL extends Activity
   // run on onPostExecute
   void notifyWall( int type, boolean result )
   {
+    // Log.v("Cave3D", "app notify wall " + type );
     if (type == TglParser.WALL_CW ) {
       notify( result, R.string.done_convexhull, R.string.fail_convexhull, true );
     } else if ( type == TglParser.WALL_POWERCRUST ) {
@@ -1794,6 +1800,8 @@ public class TopoGL extends Activity
       notify ( result, R.string.done_hull, R.string.fail_hull, true );
     } else if ( type == TglParser.WALL_TUBE ) {
       notify ( result, R.string.done_tube, R.string.fail_tube, true );
+    } else if ( type == TglParser.WALL_BUBBLE ) {
+      notify ( result, R.string.done_bubble, R.string.fail_bubble, true );
     }
     if ( mRenderer != null ) mRenderer.notifyWall( type, result );
   }

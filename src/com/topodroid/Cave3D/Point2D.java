@@ -12,22 +12,22 @@
  */
 package com.topodroid.Cave3D;
 
-import java.io.StringWriter;
-import java.io.PrintWriter;
+// import java.io.StringWriter;
+// import java.io.PrintWriter;
 
-class Point2D
+public class Point2D
 {
-  double x, y;
+  public double x, y;
 
-  Point2D( double xx, double yy )
+  public Point2D( double xx, double yy )
   {
     x = xx;
     y = yy;
   }
 
-  Point2D midpoint2D( Point2D p ) { return new Point2D( (x+p.x)/2, (y+p.y)/2 ); }
+  public Point2D midpoint2D( Point2D p ) { return new Point2D( (x+p.x)/2, (y+p.y)/2 ); }
 
-  double distance2D( Point2D p ) 
+  public double distance2D( Point2D p ) 
   { 
     double dx = x - p.x;
     double dy = y - p.y;

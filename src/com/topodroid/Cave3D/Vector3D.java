@@ -176,6 +176,11 @@ public class Vector3D
     z -= v.z;
   }
 
+  // public Vector3D minus( Vector3D v ) // this.minus.v
+  // {
+  //   return new Vector3D( x - v.x, y - v.y, z - v.z ); 
+  // }
+
   public Vector3D difference( Vector3D v ) // this.minus.v
   {
     return new Vector3D( x - v.x, y - v.y, z - v.z ); 
