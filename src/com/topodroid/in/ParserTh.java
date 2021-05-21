@@ -103,14 +103,14 @@ public class ParserTh extends TglParser
     return Cave3DStation.FLAG_NONE;
   }
 
-  public ParserTh( TopoGL cave3d, String surveyname, String base ) throws ParserException
+  public ParserTh( TopoGL app, String surveyname, String base ) throws ParserException
   {
-    super( cave3d, surveyname );
+    super( app, surveyname );
     mMarks = new ArrayList< String >();
 
     String path = base + "distox14.sqlite";
-    // Log.v( "TopoGL-TH", "Th parser DB " + path + " survey " + surveyname );
-    mData = new DataHelper( cave3d, path, TDVersion.DATABASE_VERSION );
+    Log.v( "Cave3D-TH", "Th parser DB " + path + " survey " + surveyname );
+    mData = new DataHelper( app, path, TDVersion.DATABASE_VERSION );
 
     StringWriter sw = new StringWriter();
     PrintWriter  pw = new PrintWriter( sw );
@@ -124,7 +124,7 @@ public class ParserTh extends TglParser
       setSplaySurveys();
       setStationDepths();
       processMarks();
-      // Log.v( "TopoGL-TH", "read survey " + surveyname );
+      Log.v( "Cave3D-TH", "read survey " + surveyname );
     }
   }
 
@@ -132,12 +132,12 @@ public class ParserTh extends TglParser
   {
     super( app, filename );
 
-    // Log.v( "TopoGL-TH", "Th parser file: " + filename );
+    Log.v( "Cave3D-TH", "Th parser, file: " + filename );
     mMarks = new ArrayList< String >();
     int pos = filename.indexOf("thconfig");
     if ( pos >= 0 ) {
       String path = filename.substring(0, pos) + "distox14.sqlite";
-      // Log.v( "TopoGL-TH", "DB " + path );
+      Log.v( "Cave3D-TH", "DB " + path );
       mData = new DataHelper( app, path, TDVersion.DATABASE_VERSION );
     } else {
       mData = null;
@@ -189,7 +189,7 @@ public class ParserTh extends TglParser
       return ERR_NO_DB; 
     }
 
-    // Log.v("TopoGL-PARSER", "survey " + surveyname );
+    // Log.v("Cave3D-PARSER", "survey " + surveyname );
 
     // Toast.makeText( mApp, "Reading " + surveyname, Toast.LENGTH_SHORT ).show();
 
@@ -246,7 +246,7 @@ public class ParserTh extends TglParser
     }
 
     List<SurveyFixed> fixeds = mData.getSurveyFixeds( sid );
-    // Log.v("TopoGL-TH", "survey fixed points " + fixeds.size() + " shots " + shots.size() + " splays " + splays.size() );
+    // Log.v("Cave3D-TH", "survey fixed points " + fixeds.size() + " shots " + shots.size() + " splays " + splays.size() );
 
     if ( fixeds != null && fixeds.size() > 0 ) {
       Cave3DCS cs0 = new Cave3DCS( );
@@ -269,19 +269,19 @@ public class ParserTh extends TglParser
         x0 = fx.mLongitude * e_radius;
         y0 = fx.mLatitude  * s_radius;
         z0 = fx.mAltitude;
-        // Log.v( "TopoGL-TH", "Fix Long-Lat " + x0 + " " + y0 + " " + z0 + " cs1 <" + ((fx.mCsName!=null)?fx.mCsName:"null") + ">" );
+        // Log.v( "Cave3D-TH", "Fix Long-Lat " + x0 + " " + y0 + " " + z0 + " cs1 <" + ((fx.mCsName!=null)?fx.mCsName:"null") + ">" );
         if ( mOrigin == null ) {
-          // Log.v( "TopoGL-TH", "Fix origin " + name + " " + x0 + " " + y0 + " " + z0 );
+          // Log.v( "Cave3D-TH", "Fix origin " + name + " " + x0 + " " + y0 + " " + z0 );
           if ( fx.hasCS() ) {
             cs1 = new Cave3DCS( fx.mCsName );
             x1 = fx.mCsLongitude;
             y1 = fx.mCsLatitude;
             z1 = fx.mCsAltitude;
-            // Log.v( "TopoGL-TH", "FIX " + name + " CS1 " + fx.mCsName + " " + x1 + " " + y1 + " " + z1 );
+            // Log.v( "Cave3D-TH", "FIX " + name + " CS1 " + fx.mCsName + " " + x1 + " " + y1 + " " + z1 );
             mOrigin = new Cave3DFix( name, x1, y1, z1, cs1, fx.mLongitude, fx.mLatitude, fx.mAltitude );
 	        fixes.add( mOrigin );
           } else {
-            // Log.v( "TopoGL-TH", "CS0 " + x0 + " " + y0 + " " + z0 );
+            // Log.v( "Cave3D-TH", "CS0 " + x0 + " " + y0 + " " + z0 );
             mOrigin = new Cave3DFix( name, x0, y0, z0, cs0, fx.mLongitude, fx.mLatitude, fx.mAltitude );
 	       fixes.add( mOrigin );
           }
@@ -301,7 +301,7 @@ public class ParserTh extends TglParser
       }
     }
 
-    // Log.v("TopoGL-TH", "fixes " + fixes.size() );
+    // Log.v("Cave3D-TH", "fixes " + fixes.size() );
     return SUCCESS;
   }
   
@@ -327,8 +327,8 @@ public class ParserTh extends TglParser
     String surveyname = "--";
     String path = basepath;
     int linenr = 0;
-    // Log.v( "Cave3D-TH", "basepath <" + basepath + ">");
-    // Log.v( "Cave3D-TH", "filename <" + filename + ">");
+    Log.v( "Cave3D-TH", "basepath <" + basepath + ">");
+    Log.v( "Cave3D-TH", "filename <" + filename + ">");
     Cave3DCS cs = null;
     int in_data = 0; // 0 none, 1 normal, 2 dimension
 
@@ -609,20 +609,20 @@ public class ParserTh extends TglParser
                     }
                   }
                 } catch ( NumberFormatException e ) {
-                  Log.e( "TopoGL-TH", "surface grid metadata " + e.getMessage() );
+                  Log.e( "Cave3D-TH", "surface grid metadata " + e.getMessage() );
                 }
                 // and read grid data
                 if ( mSurface != null ) {
                   mSurface.readGridData( units_grid, grid_flip, br, filename );
                 }
               } else if ( cmd.equals("grid-flip") ) {
-                // Log.v("TopoGL-TH", "parse the flip-value" );
+                // Log.v("Cave3D-TH", "parse the flip-value" );
                 idx = nextIndex( vals, idx );
                 if ( idx < vals.length ) {
                   grid_flip = parseFlip( vals[idx] );
                 }
               } else if ( cmd.equals("grid-units") ) {
-                // Log.v("TopoGL-TH", "parse the grid-units" );
+                // Log.v("Cave3D-TH", "parse the grid-units" );
                 try {
                   idx = nextIndex( vals, idx );
                   if ( idx < vals.length ) {
@@ -634,7 +634,7 @@ public class ParserTh extends TglParser
                     }
                   }
                 } catch ( NumberFormatException e ) {
-                  Log.e( "TopoGL-TH", "surface grid units " + e.getMessage() );
+                  Log.e( "Cave3D-TH", "surface grid units " + e.getMessage() );
                 }
               }
             } else if ( cmd.equals("declination") ) {
@@ -735,7 +735,7 @@ public class ParserTh extends TglParser
       Log.e( "Cave3D-TH", "I/O error " + e.getMessage() );
       throw new ParserException( filename, linenr );
     }
-    // Log.v( "TopoGL-TH", "Done readFile " + filename );
+    // Log.v( "Cave3D-TH", "Done readFile " + filename );
 
     if ( shots.size() <= 0 ) {
       pw.printf( String.format( mApp.getResources().getString( R.string.empty_survey ), surveyname ) );

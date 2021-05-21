@@ -114,21 +114,24 @@ class DialogWalls extends Dialog
       // mCBhullNo.setVisibility( View.GONE );
     }
 
+    mCBplanProj     = (CheckBox) findViewById( R.id.cb_plan_proj );
+    mCBprofileProj  = (CheckBox) findViewById( R.id.cb_profile_proj );
+
     if ( TglParser.WALL_POWERCRUST < TglParser.WALL_MAX ) {
       mCBpowercrust.setOnClickListener( this );
+      mCBplanProj.setOnClickListener( this );
+      mCBprofileProj.setOnClickListener( this );
+      mCBplanProj.setChecked( GlModel.projMode == GlModel.PROJ_PLAN );
+      mCBprofileProj.setChecked( GlModel.projMode == GlModel.PROJ_PROFILE );
     } else {
       mCBpowercrust.setVisibility( View.GONE );
       // mCBpowercrustNo.setVisibility( View.GONE );
+      mCBplanProj.setVisibility( View.GONE );
+      mCBprofileProj.setVisibility( View.GONE );
     }
 
     mCBconvexhull.setOnClickListener( this );
 
-    mCBplanProj     = (CheckBox) findViewById( R.id.cb_plan_proj );
-    mCBprofileProj  = (CheckBox) findViewById( R.id.cb_profile_proj );
-    mCBplanProj.setOnClickListener( this );
-    mCBprofileProj.setOnClickListener( this );
-    mCBplanProj.setChecked( GlModel.projMode == GlModel.PROJ_PLAN );
-    mCBprofileProj.setChecked( GlModel.projMode == GlModel.PROJ_PROFILE );
 
     setTitle( R.string.walls_title );
   }

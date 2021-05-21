@@ -149,7 +149,7 @@ public class GlNames extends GlShape
     // mIncrement = increment;
     if ( increment > 0 ) {
       mIncremental = true;
-      Log.v("Cave3D", "NAMES uses DataBuffer " + increment );
+      // Log.v("Cave3D", "NAMES uses DataBuffer " + increment );
       mDataBuffer = DataBuffer.createFloatBuffer( 3 * NN * increment );
       dataBuffer  = mDataBuffer.asFloat();
     }
@@ -244,7 +244,7 @@ public class GlNames extends GlShape
   void initData( )
   {
     nameCount = mNames.size();
-    Log.v("Cave3D", "NAMES init data " + nameCount );
+    // Log.v("Cave3D", "NAMES init data " + nameCount );
     if ( mNames.size() == 0 ) return;
 	// FIXME INCREMENTAL : was initBuffer( Names )
     if ( mDataBuffer == null ) {
@@ -439,7 +439,7 @@ public class GlNames extends GlShape
   // FIXME INCREMENTAL private void initBuffer( ArrayList< GlName > names )
   private void initBuffer( )
   {
-    Log.v("Cave3D", "NAMES init buffer " + nameCount );
+    // Log.v("Cave3D", "NAMES init buffer " + nameCount );
     // ---------- BASE POINT
     float[] data6 = new float[ nameCount * 3 * NN ]; // 3 float, XYZ, per vertex
     for ( int i=0; i<nameCount; ++ i) {
@@ -453,7 +453,7 @@ public class GlNames extends GlShape
     }
     dataBuffer = DataBuffer.getFloatBuffer( data6.length );
     if ( dataBuffer != null ) {
-      Log.v("Cave3D", "NAMES put in data buffer " + data6.length );
+      // Log.v("Cave3D", "NAMES put in data buffer " + data6.length );
       dataBuffer.put( data6 );
     }
     initTextureBuffer();
@@ -463,7 +463,7 @@ public class GlNames extends GlShape
   // dave Vector3D already in GL orientation (Y upward)
   private void initTextureBuffer( )
   {
-    Log.v("Cave3D", "names texture buffer - count " + nameCount );
+    // Log.v("Cave3D", "names texture buffer - count " + nameCount );
     // ---------- BASE POINT
     mData = new float[ nameCount * 4 ];
     for ( int i=0; i<nameCount; ++ i) {
@@ -564,7 +564,7 @@ public class GlNames extends GlShape
     if ( bitmap0 == null ) {
       nameBuffer  = null;
     } else {
-      Log.v("Cave3D", "names create name buffer " + pos.length );
+      // Log.v("Cave3D", "names create name buffer " + pos.length );
       nameBuffer = DataBuffer.getFloatBuffer( nameCount * 4 * NN );
       if ( nameBuffer != null ) {
         nameBuffer.put( pos, 0, nameCount * 4 * NN );
