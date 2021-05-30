@@ -117,13 +117,13 @@ class DialogOpenFile extends Dialog
       mArrayAdapter.clear();
       mArrayAdapter.add( "..", true );
       if ( dirs != null ) {
-        Arrays.sort( dirs );
+        Arrays.sort( dirs, String.CASE_INSENSITIVE_ORDER );
         for ( String item : dirs ) {
           mArrayAdapter.add( item, true );
         }
       }
       if ( files != null && files.length > 0 ) {
-        Arrays.sort( files );
+        Arrays.sort( files, String.CASE_INSENSITIVE_ORDER );
         for ( String item : files ) {
           mArrayAdapter.add( item, false );
         }

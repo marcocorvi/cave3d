@@ -181,16 +181,12 @@ public class DialogExport extends Dialog
       }
     }
   
-    Comparator<String> cmp = new Comparator<String>() {
-          @Override
-          public int compare( String s1, String s2 ) { return s1.compareToIgnoreCase( s2 ); }
-    };
     if ( dirs.size() > 0 ) { // sort files by name (alphabetical order)
-      Collections.sort( dirs, cmp );
+      dirs.sort( String.CASE_INSENSITIVE_ORDER );
       for ( int k=0; k<dirs.size(); ++k ) mArrayAdapter.add( dirs.get(k) + " /" );
     }
     if ( names.size() > 0 ) { // sort files by name (alphabetical order)
-      Collections.sort( names, cmp );
+      names.sort( String.CASE_INSENSITIVE_ORDER );
       for ( int k=0; k<names.size(); ++k ) mArrayAdapter.add( names.get(k) );
     }
 

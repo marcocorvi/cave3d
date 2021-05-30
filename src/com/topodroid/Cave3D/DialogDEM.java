@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import android.content.Context;
 import android.app.Dialog;
@@ -97,16 +98,18 @@ class DialogDEM extends Dialog
     if ( basedir == null ) return;
     File dir = new File( basedir );
     if ( dir.exists() ) {
-      String[] dirs  = dir.list( new MyDirnameFilter() );
-      String[] files = dir.list( new MyFilenameFilter() );
       mArrayAdapter.clear();
       mArrayAdapter.add( "..", true );
+      String[] dirs  = dir.list( new MyDirnameFilter() );
       if ( dirs != null ) {
+        Arrays.sort( dirs, String.CASE_INSENSITIVE_ORDER );
         for ( String item : dirs ) {
           mArrayAdapter.add( item, true );
         }
       }
+      String[] files = dir.list( new MyFilenameFilter() );
       if ( files != null ) {
+        Arrays.sort( files, String.CASE_INSENSITIVE_ORDER );
         for ( String item : files ) {
           mArrayAdapter.add( item, false );
         }
