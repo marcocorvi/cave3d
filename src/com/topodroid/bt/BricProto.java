@@ -140,7 +140,9 @@ public class BricProto extends TopoGLProto
   {
     if ( mPrimToDo ) {
       Log.v("Cave3D", "BRIC proto send data to the app thru comm " + mDistance + " " + mBearing + " " + mClino );
-      sendDataToApp();
+      if ( mDistance > 0.01 ) { // skip 0-length data
+        sendDataToApp();
+      }
       mPrimToDo = false;
     } else {
       Log.e("Cave3D", "BRIC proto: process - PrimToDo false: ... skip");

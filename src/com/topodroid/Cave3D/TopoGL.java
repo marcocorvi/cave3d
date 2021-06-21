@@ -120,7 +120,7 @@ public class TopoGL extends Activity
     return (mBluetoothHandler == null)? null : mBluetoothHandler.obtainMessage( type );
   }
 
-  public void sendMessage( Message msg ) 
+  public void sendMessage( final Message msg ) 
   {
     final TopoGL app = this;
     runOnUiThread( new Runnable() {
@@ -1095,7 +1095,7 @@ public class TopoGL extends Activity
     doSketches = false;
     // setTitle( filename );
     int idx = filename.lastIndexOf( '/' );
-    String path = ( idx >= 0 )? filename.substring( idx+1 ) : filename;
+    final String path = ( idx >= 0 )? filename.substring( idx+1 ) : filename;
     Toast.makeText( this, String.format( getResources().getString( R.string.reading_file ), path ), Toast.LENGTH_SHORT ).show();
     if ( asynch ) {
       (new AsyncTask<Void, Void, Boolean>() {
@@ -1693,7 +1693,7 @@ public class TopoGL extends Activity
   public void uiToast( final int r, final String str, final boolean loong ) 
   {
     final Context ctx = this;
-    String msg = String.format( getResources().getString( r ), str );
+    final String msg = String.format( getResources().getString( r ), str );
     runOnUiThread( new Runnable() {
         public void run() {
           if ( loong ) {
@@ -1708,7 +1708,7 @@ public class TopoGL extends Activity
   public void uiToast( final String r, final String str, final boolean loong ) 
   {
     final Context ctx = this;
-    String msg = String.format( r, str );
+    final String msg = String.format( r, str );
     runOnUiThread( new Runnable() {
         public void run() {
           if ( loong ) {
