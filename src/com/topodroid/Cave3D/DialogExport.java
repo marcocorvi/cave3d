@@ -13,7 +13,8 @@ package com.topodroid.Cave3D;
 
 import android.util.Log;
 
-import com.topodroid.out.ExportTask;
+// import com.topodroid.out.ExportTask;
+import com.topodroid.out.ExportData;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -40,7 +41,7 @@ import android.widget.CheckBox;
 
 public class DialogExport extends Dialog 
                           implements View.OnClickListener
-                          , AdapterView.OnItemClickListener
+                          // , AdapterView.OnItemClickListener
 {
   private Button mBtnOk;
 
@@ -48,7 +49,7 @@ public class DialogExport extends Dialog
   private TopoGL  mApp;
   private TglParser mParser;
 
-  private EditText mETfilename;
+  // private EditText mETfilename;
   private Button   mButtonOK;
   private CheckBox mStlBinary;
   private CheckBox mStlAscii;
@@ -66,11 +67,11 @@ public class DialogExport extends Dialog
   private CheckBox mOverwrite;
 
   // private RadioButton mDebug;
-  private String   mDirname;
-  private TextView mTVdir;
+  // private String   mDirname;
+  // private TextView mTVdir;
 
-  private ListView mList;
-  private ArrayAdapter<String> mArrayAdapter;
+  // private ListView mList;
+  // private ArrayAdapter<String> mArrayAdapter;
 
   public DialogExport( Context context, TopoGL app, TglParser parser )
   {
@@ -78,7 +79,7 @@ public class DialogExport extends Dialog
     mContext  = context;
     mApp      = app;
     mParser   = parser;
-    mDirname  = Cave3DFile.mAppBasePath;
+    // mDirname  = Cave3DFile.mAppBasePath;
   }
 
   @Override
@@ -88,19 +89,19 @@ public class DialogExport extends Dialog
     setContentView(R.layout.cave3d_export_dialog);
     getWindow().setLayout( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
 
-    mTVdir      = (TextView) findViewById( R.id.dirname );
-    mETfilename = (EditText) findViewById( R.id.filename );
-    String name = mParser.getName();
-    if ( name != null ) mETfilename.setText( name );
+    // mTVdir      = (TextView) findViewById( R.id.dirname );
+    // mETfilename = (EditText) findViewById( R.id.filename );
+    // String name = mParser.getName();
+    // if ( name != null ) mETfilename.setText( name );
 
-    mList       = (ListView) findViewById( R.id.list );
-    mList.setOnItemClickListener( this );
-    mList.setDividerHeight( 2 );
-    mArrayAdapter = new ArrayAdapter<String>( mContext, R.layout.message );
-    mList.setAdapter( mArrayAdapter );
+    // mList       = (ListView) findViewById( R.id.list );
+    // mList.setOnItemClickListener( this );
+    // mList.setDividerHeight( 2 );
+    // mArrayAdapter = new ArrayAdapter<String>( mContext, R.layout.message );
+    // mList.setAdapter( mArrayAdapter );
 
     mButtonOK = (Button) findViewById( R.id.button_ok );
-    mTVdir.setOnClickListener( this );
+    // mTVdir.setOnClickListener( this );
     mButtonOK.setOnClickListener( this );
 
     mStlBinary = (CheckBox) findViewById( R.id.stl_binary );
@@ -135,95 +136,92 @@ public class DialogExport extends Dialog
     // mWalls.setVisibility( View.GONE );
     // mSurface.setVisibility( View.GONE );
 
-    updateList( mDirname );
+    // updateList( mDirname );
     setTitle( R.string.EXPORT );
   }
 
-  private void updateList( String dirname )
-  {
-    int len = dirname.length();
-    while ( len > 1 && dirname.charAt(len-1) == '/' ) {
-      dirname = dirname.substring( 0, len-1 );
-      -- len;
-    }
-    // Log.v( "TopoGL", "DIR <" + dirname + ">" );
+  // private void updateList( String dirname )
+  // {
+  //   int len = dirname.length();
+  //   while ( len > 1 && dirname.charAt(len-1) == '/' ) {
+  //     dirname = dirname.substring( 0, len-1 );
+  //     -- len;
+  //   }
+  //   // Log.v( "TopoGL", "DIR <" + dirname + ">" );
+  //   mDirname = dirname;
+  //   len = dirname.length();
+  //   if ( len > 30 ) {
+  //     dirname = "..." + dirname.substring( len-30 );
+  //   }
+  //   mTVdir.setText( dirname );
+  //   mArrayAdapter.clear();
+  //   File dir = new File( mDirname );
+  //   File[] files = dir.listFiles( new FileFilter() { 
+  //     public boolean accept( File pathname ) {
+  //       if ( pathname.getName().startsWith(".") ) return false;
+  //       return true;
+  //     } } );
+  //   if ( files == null || files.length == 0 ) {
+  //     if ( mApp != null ) mApp.uiToast( R.string.no_files, false );
+  //     return;
+  //   }
+  //   ArrayList<String> dirs  = new ArrayList<String>();
+  //   ArrayList<String> names = new ArrayList<String>();
+  //   for ( File f : files ) {
+  //     if ( f.isDirectory() ) {
+  //       // if ( f.getName().equals( "." ) continue;
+  //       dirs.add( new String( f.getName() ) );
+  //     }
+  //   }
+  //   for ( File f : files ) {
+  //     if ( ! f.isDirectory() ) {
+  //       names.add( new String( f.getName() ) );
+  //     }
+  //   }
+  // 
+  //   if ( dirs.size() > 0 ) { // sort files by name (alphabetical order)
+  //     dirs.sort( String.CASE_INSENSITIVE_ORDER );
+  //     for ( int k=0; k<dirs.size(); ++k ) mArrayAdapter.add( dirs.get(k) + " /" );
+  //   }
+  //   if ( names.size() > 0 ) { // sort files by name (alphabetical order)
+  //     names.sort( String.CASE_INSENSITIVE_ORDER );
+  //     for ( int k=0; k<names.size(); ++k ) mArrayAdapter.add( names.get(k) );
+  //   }
+  //   mList.setAdapter( mArrayAdapter );
+  //   mList.invalidate();
+  // }
 
-    mDirname = dirname;
-    len = dirname.length();
-    if ( len > 30 ) {
-      dirname = "..." + dirname.substring( len-30 );
-    }
-    mTVdir.setText( dirname );
-
-    mArrayAdapter.clear();
-    File dir = new File( mDirname );
-    File[] files = dir.listFiles( new FileFilter() { 
-      public boolean accept( File pathname ) {
-        if ( pathname.getName().startsWith(".") ) return false;
-        return true;
-      } } );
-
-    if ( files == null || files.length == 0 ) {
-      if ( mApp != null ) mApp.uiToast( R.string.no_files, false );
-      return;
-    }
-    ArrayList<String> dirs  = new ArrayList<String>();
-    ArrayList<String> names = new ArrayList<String>();
-    for ( File f : files ) {
-      if ( f.isDirectory() ) {
-        // if ( f.getName().equals( "." ) continue;
-        dirs.add( new String( f.getName() ) );
-      }
-    }
-    for ( File f : files ) {
-      if ( ! f.isDirectory() ) {
-        names.add( new String( f.getName() ) );
-      }
-    }
-  
-    if ( dirs.size() > 0 ) { // sort files by name (alphabetical order)
-      dirs.sort( String.CASE_INSENSITIVE_ORDER );
-      for ( int k=0; k<dirs.size(); ++k ) mArrayAdapter.add( dirs.get(k) + " /" );
-    }
-    if ( names.size() > 0 ) { // sort files by name (alphabetical order)
-      names.sort( String.CASE_INSENSITIVE_ORDER );
-      for ( int k=0; k<names.size(); ++k ) mArrayAdapter.add( names.get(k) );
-    }
-
-    mList.setAdapter( mArrayAdapter );
-    mList.invalidate();
-  }
-
-  @Override
-  public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-  {
-    String item = ((TextView) view).getText().toString().trim();
-    String[] vals = item.split(" ");
-    if ( vals.length == 1 ) {
-      mETfilename.setText( vals[0] );
-    } else {
-      updateList( mDirname + "/" + vals[0] );
-    }
-  }
+  // @Override
+  // public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+  // {
+  //   String item = ((TextView) view).getText().toString().trim();
+  //   String[] vals = item.split(" ");
+  //   if ( vals.length == 1 ) {
+  //     mETfilename.setText( vals[0] );
+  //   } else {
+  //     updateList( mDirname + "/" + vals[0] );
+  //   }
+  // }
 
   @Override
   public void onClick(View v)
   {
     // Log.v( "TopoGL", "onClick()" );
     if ( v.getId() == R.id.button_ok ) {
-      String filename = mETfilename.getText().toString();
-      if ( filename == null || filename.length() == 0 ) {
-        mETfilename.setError( "no filename" );
-        return;
-      }
-      String pathname = mDirname + "/" + filename;
-      boolean splays  = mSplay.isChecked();
-      boolean walls   = mWalls.isChecked();
-      boolean surface = mSurface.isChecked();
-      boolean station = mStation.isChecked();
-      boolean overwrite = mOverwrite.isChecked();
-      int type = ModelType.NONE;
+      // String filename = mETfilename.getText().toString();
+      // if ( filename == null || filename.length() == 0 ) {
+      //   mETfilename.setError( "no filename" );
+      //   return;
+      // }
+      // String pathname = mDirname + "/" + filename;
+      ExportData export = new ExportData();
+      export.mSplays  = mSplay.isChecked();
+      export.mWalls   = mWalls.isChecked();
+      export.mSurface = mSurface.isChecked();
+      export.mStation = mStation.isChecked();
+      export.mOverwrite = mOverwrite.isChecked();
 
+      int type = ModelType.NONE;
       if ( mStlBinary.isChecked() ) {
         type = ModelType.STL_BINARY;
       } else if ( mStlAscii.isChecked() ) {
@@ -243,15 +241,17 @@ public class DialogExport extends Dialog
       } else {
         type = ModelType.SERIAL;
       }
+      export.mType = type;
 
-      (new ExportTask( mApp, mParser, type, pathname, splays, station, surface, walls, overwrite )).execute();
+      mApp.selectExportFile( export );
+      // (new ExportTask( mApp, mParser, type, pathname, splays, station, surface, walls, overwrite )).execute();
 
-    } else if ( v.getId() == R.id.dirname ) {
-      int pos = mDirname.lastIndexOf('/');
-      if ( pos > 1 ) {
-        updateList( mDirname.substring(0, pos ) );
-      }
-      return;
+    // } else if ( v.getId() == R.id.dirname ) {
+    //   int pos = mDirname.lastIndexOf('/');
+    //   if ( pos > 1 ) {
+    //     updateList( mDirname.substring(0, pos ) );
+    //   }
+    //   return;
     } else if ( v.getId() == R.id.stl_binary ) {
       if ( mStlBinary.isChecked() ) {
         mStlAscii.setChecked( false );

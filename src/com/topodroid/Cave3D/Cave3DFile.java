@@ -28,32 +28,42 @@ class Cave3DFile
   final static boolean NOT_ANDROID_10 = ( Build.VERSION.SDK_INT <= Build.VERSION_CODES.P );
   final static boolean NOT_ANDROID_11 = ( Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q );
 
-  static String EXTERNAL_STORAGE_PATH =  // app base path
-    NOT_ANDROID_10 ? Environment.getExternalStorageDirectory().getAbsolutePath()
-                   : Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
-                   // : "/sdcard";
-                   // : null; 
+  // static String EXTERNAL_STORAGE_PATH =  // app base path
+  //   NOT_ANDROID_10 ? Environment.getExternalStorageDirectory().getAbsolutePath()
+  //                  : Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+  //                  // : "/sdcard";
+  //                  // : null; 
 
-  static String HOME_PATH = EXTERNAL_STORAGE_PATH;
-                          // "/sdcard/Android/data/com.topodroid.Cave3D/files";
-  static String mAppBasePath = HOME_PATH;
-  static String SYMBOL_PATH = EXTERNAL_STORAGE_PATH + "/TopoDroid/symbol/point";
-  static String C3D_PATH    = EXTERNAL_STORAGE_PATH + "/TopoDroid/c3d";
-  static String BLUETOOTH_PATH = EXTERNAL_STORAGE_PATH + "/Cave3D";
+  static String HOME_PATH = 
+    Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/data/com.topodroid.Cave3D/files";
 
-  static void setAppBasePath( String base_path )
-  {
-    mAppBasePath = (base_path != null)? base_path : HOME_PATH;
-  }
+  static String TOPODROID_PATH =
+    Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/data/com.topodroid.DistoX/files";
+  static String SYMBOL_PATH = TOPODROID_PATH + "/point";
+  static String C3D_PATH    = TOPODROID_PATH + "/c3d";
+
+  // static String mAppBasePath   = HOME_PATH;
+  static String BLUETOOTH_PATH = HOME_PATH + "/surveys";
+
+  // static void setAppBasePath( String base_path )
+  // {
+  //   mAppBasePath = (base_path != null)? base_path : HOME_PATH;
+  // }
 
   // reset app base path
   static void checkAppBasePath( TopoGL app )
   {
-    if ( EXTERNAL_STORAGE_PATH == null ) {
-      EXTERNAL_STORAGE_PATH = app.getExternalFilesDir( null ).getPath();
-    }
-    mAppBasePath = EXTERNAL_STORAGE_PATH;
-    // Log.v("TopoGL", "use base path " + mAppBasePath );
+    String external_files_dir = app.getExternalFilesDir( null ).getPath();
+    // Log.v("Cave3D", "check app base path. External files dir " + external_files_dir );
+    // File dir = new File( TOPODROID_PATH );
+    // File[] files = dir.listFiles();
+    // for ( File file : files ) Log.v("Cave3D", file.getPath() );
+
+    // if ( EXTERNAL_STORAGE_PATH == null ) {
+    //   EXTERNAL_STORAGE_PATH = external_files_dir;
+    // }
+    // mAppBasePath = EXTERNAL_STORAGE_PATH;
+    // // Log.v("TopoGL", "use base path " + mAppBasePath );
 
     File bt_dir = new File( BLUETOOTH_PATH );
     if ( ! bt_dir.exists() ) bt_dir.mkdirs();

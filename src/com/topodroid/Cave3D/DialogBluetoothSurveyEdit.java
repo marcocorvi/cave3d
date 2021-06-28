@@ -24,6 +24,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.EditText;
+import android.widget.CheckBox;
 
 class DialogBluetoothSurveyEdit extends Dialog 
                                 implements View.OnClickListener
@@ -34,6 +35,7 @@ class DialogBluetoothSurveyEdit extends Dialog
   private BluetoothSurvey mBtSurvey;
   private DialogBluetoothSurveyList mBtSurveyList;
   private EditText mEtNickname;
+  private CheckBox mOverwrite;
 
   public DialogBluetoothSurveyEdit( TopoGL app, DialogBluetoothSurveyList survey_list, BluetoothSurvey bt_survey )
   {
@@ -58,6 +60,8 @@ class DialogBluetoothSurveyEdit extends Dialog
     ((Button) findViewById( R.id.btn_cancel )).setOnClickListener( this );
     ((Button) findViewById( R.id.btn_save )).setOnClickListener( this );
 
+    mOverwrite = (CheckBox) findViewById( R.id.overwrite );
+
     setTitle( R.string.bt_survey_edit );
   }
 
@@ -66,7 +70,7 @@ class DialogBluetoothSurveyEdit extends Dialog
   {
     if ( view.getId() == R.id.btn_save ) {
       if ( mEtNickname.getText() != null ) {
-        BluetoothSurveyManager.renameSurvey( mBtSurvey, mEtNickname.getText().toString() );
+        BluetoothSurveyManager.renameSurvey( mBtSurvey, mEtNickname.getText().toString(), mOverwrite.isChecked() );
         mBtSurveyList.updateFileList( );
       }
     }

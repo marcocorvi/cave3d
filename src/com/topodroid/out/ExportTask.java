@@ -22,6 +22,8 @@ import android.util.Log;
 import android.os.AsyncTask;
 import android.content.Context;
 
+import android.net.Uri;
+
 public class ExportTask extends AsyncTask< Void, Void, Boolean >
 {
   private TopoGL mApp;
@@ -35,17 +37,30 @@ public class ExportTask extends AsyncTask< Void, Void, Boolean >
   private boolean mOverwrite;
 
 
-  public ExportTask( TopoGL app, TglParser parser, int type, String pathname, boolean splays, boolean station, boolean surface, boolean walls, boolean overwrite )
+  // public ExportTask( TopoGL app, TglParser parser, int type, String pathname, boolean splays, boolean station, boolean surface, boolean walls, boolean overwrite )
+  // {
+  //   mApp    = app;
+  //   mParser = parser;
+  //   mType = type;
+  //   mPathname = pathname;
+  //   mSplays   = splays;
+  //   mStation  = station;
+  //   mSurface  = surface;
+  //   mWalls    = walls;
+  //   mOverwrite = overwrite;
+  // }
+
+  public ExportTask( TopoGL app, TglParser parser, Uri uri, ExportData export )
   {
     mApp    = app;
     mParser = parser;
-    mType = type;
-    mPathname = pathname;
-    mSplays   = splays;
-    mStation  = station;
-    mSurface  = surface;
-    mWalls    = walls;
-    mOverwrite = overwrite;
+    mPathname = uri.getPath();
+    mType     = export.mType;
+    mSplays   = export.mSplays;
+    mStation  = export.mStation;
+    mSurface  = export.mSurface;
+    mWalls    = export.mWalls;
+    mOverwrite = export.mOverwrite;
   }
 
   @Override

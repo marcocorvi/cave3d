@@ -115,9 +115,11 @@ class DialogSurface extends Dialog
   public void onClick(View view)
   {
     if ( view.getId() == R.id.dem_load ) {
-      (new DialogDEM( mContext, mApp )).show();
+      // (new DialogDEM( mContext, mApp )).show();
+      mApp.selectDEMFile();
     } else if ( view.getId() == R.id.texture_load ) {
-      (new DialogTexture( mContext, mApp )).show();
+      // (new DialogTexture( mContext, mApp )).show();
+      mApp.selectTextureFile();
     } else if ( view.getId() == R.id.button_ok ) {
       GlModel.surfaceLegsMode = mCBproj.isChecked();
       GlModel.surfaceTexture  = mCBtexture.isChecked();

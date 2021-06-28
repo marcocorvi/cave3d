@@ -45,6 +45,7 @@ class DialogOpenFile extends Dialog
   private ArrayList< MyFileItem > mItems;
   private MyFileAdapter mArrayAdapter;
   private ListView mList;
+  private String mBasePath;
 
   class MyFilenameFilter implements FilenameFilter
   {
@@ -76,6 +77,7 @@ class DialogOpenFile extends Dialog
     super( ctx );
     mContext = ctx;
     mApp     = app;
+    mBasePath = Cave3DFile.HOME_PATH;
   }
 
   @Override
@@ -95,7 +97,7 @@ class DialogOpenFile extends Dialog
  
     mItems = new ArrayList< MyFileItem >();
     mArrayAdapter = new MyFileAdapter( mContext, this, mList, R.layout.message, mItems );
-    if ( ! updateList( Cave3DFile.mAppBasePath ) ) {
+    if ( ! updateList( mBasePath ) ) {
       dismiss();
     } else {
       mList.setAdapter( mArrayAdapter );
@@ -147,29 +149,29 @@ class DialogOpenFile extends Dialog
       name = name.substring( 2 );
     }
     if ( name.equals("..") ) {
-      File dir = new File( Cave3DFile.mAppBasePath );
+      File dir = new File( mBasePath );
       String parent_dir = dir.getParent();
       if ( parent_dir != null ) {
         if ( updateList( parent_dir ) ) {
-          Cave3DFile.mAppBasePath = parent_dir;
+          mBasePath = parent_dir;
         }
       } else {
         if ( mApp != null ) mApp.uiToast( R.string.warning_no_parent, true );
       }
       return;
     }
-    File file = new File( Cave3DFile.mAppBasePath, name );
+    File file = new File( mBasePath, name );
     if ( file.isDirectory() ) {
-      String dir = Cave3DFile.mAppBasePath + "/" + name;
+      String dir = mBasePath + "/" + name;
       if ( updateList( dir ) ) {
-        Cave3DFile.mAppBasePath = dir;
+        mBasePath = dir;
       }
       return;
     }
     // Intent intent = new Intent();
     // intent.putExtra( "com.topodroid.Cave3D.filename", name );
     // setResult( Activity.RESULT_OK, intent );
-    mApp.doOpenFile( Cave3DFile.mAppBasePath + "/" + name, true ); // open asynchronous
+    mApp.doOpenFile( mBasePath + "/" + name, true ); // open asynchronous
     dismiss();
   }
     

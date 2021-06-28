@@ -34,6 +34,7 @@ import android.util.Log;
 import java.io.File;
 import java.io.IOException;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.StringWriter;
 import java.io.PrintWriter;
@@ -103,7 +104,8 @@ public class ParserTh extends TglParser
     return Cave3DStation.FLAG_NONE;
   }
 
-  public ParserTh( TopoGL app, String surveyname, String base ) throws ParserException
+  // FIXME isr not used
+  public ParserTh( TopoGL app, InputStreamReader isr, String surveyname, String base ) throws ParserException
   {
     super( app, surveyname );
     mMarks = new ArrayList< String >();
@@ -128,7 +130,8 @@ public class ParserTh extends TglParser
     }
   }
 
-  public ParserTh( TopoGL app, String filename ) throws ParserException
+  // FIXME isr not used
+  public ParserTh( TopoGL app, InputStreamReader isr, String filename ) throws ParserException
   {
     super( app, filename );
 

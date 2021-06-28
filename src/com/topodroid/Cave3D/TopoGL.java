@@ -19,12 +19,17 @@ import com.topodroid.bt.DistoXComm;
 
 import com.topodroid.in.ParserTh;
 import com.topodroid.in.ParserTro;
+import com.topodroid.in.ParserTrox;
 import com.topodroid.in.ParserDat;
 import com.topodroid.in.Parser3d;
 import com.topodroid.in.ParserLox;
 import com.topodroid.in.ParserBluetooth;
 import com.topodroid.in.ParserSketch;
 import com.topodroid.in.ParserException;
+
+import com.topodroid.out.ExportData;
+import com.topodroid.out.ExportTask;
+
 import com.topodroid.walls.cw.CWConvexHull;
 
 import android.util.Log;
@@ -32,6 +37,8 @@ import android.util.Log;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -271,7 +278,7 @@ public class TopoGL extends Activity
         if ( name != null ) { // used by TdManager
           // Log.v( "TopoGL-EXTRA", "TopoDroid filename " + name );
           file_dialog = false;
-          doOpenFile( name, true ); // asynch
+          doOpenFile( null, name, true ); // asynch
         } else {
           name = extras.getString( "INPUT_SURVEY" );
           String base = extras.getString( "SURVEY_BASE" );
@@ -523,11 +530,11 @@ public class TopoGL extends Activity
     // toast(item.toString() );
     int p = 0;
     if ( p++ == pos ) { // OPEN
-      (new DialogOpenFile( this, this )).show();
-      // openFile();
+      // (new DialogOpenFile( this, this )).show();
+      selectImportFile();
     } else if ( p++ == pos ) { // EXPORT
       if ( mParser != null ) {
-        (new DialogExport( this, this, mParser )).show();
+        (new DialogExport( this, this, mParser )).show(); // this calls selectExportFile( export );
       } else {
         Toast.makeText( this, R.string.no_model, Toast.LENGTH_SHORT ).show();
       }
@@ -1052,21 +1059,6 @@ public class TopoGL extends Activity
 
   // -------------------------------------------------------------------
 
-  // public void onActivityResult( int request, int result, Intent data ) 
-  // {
-  //   switch ( request ) {
-  //     case REQUEST_OPEN_FILE:
-  //       if ( result == Activity.RESULT_OK ) {
-  //         String filename = data.getExtras().getString( "com.topodroid.Cave3D.filename" );
-  //         if ( filename != null && filename.length() > 0 ) {
-  //           // Log.v( "TopoGL", "path " + Cave3DFile.mAppBasePath + " file " + filename );
-  //           doOpenFile( Cave3DFile.mAppBasePath + "/" + filename );
-  //         }
-  //       }
-  //       break;
-  //   }
-  // }
-
   void showTitle( double clino, double phi )
   {
     if ( mFilename != null ) {
@@ -1081,7 +1073,7 @@ public class TopoGL extends Activity
     // Cave3DFile.checkAppBasePath( this );
     // Cave3DFile.mAppBasePath = base;
     mFilename = survey;
-    boolean ret = initRendering( survey, base );
+    boolean ret = initRendering( null, survey, base );
     // Log.v( "TopoGL", "do open survey: " + base + "/" + survey + " " + (ret? "true" : "false" ) );
     return true;
   }
@@ -1089,7 +1081,7 @@ public class TopoGL extends Activity
   // always called asynch
   // asynch call returns always false
   // synch call return true if successful
-  boolean doOpenFile( final String filename, boolean asynch )
+  private boolean doOpenFile( final Uri uri, final String filename, boolean asynch )
   {
     mFilename = null;
     doSketches = false;
@@ -1097,29 +1089,35 @@ public class TopoGL extends Activity
     int idx = filename.lastIndexOf( '/' );
     final String path = ( idx >= 0 )? filename.substring( idx+1 ) : filename;
     Toast.makeText( this, String.format( getResources().getString( R.string.reading_file ), path ), Toast.LENGTH_SHORT ).show();
-    if ( asynch ) {
-      (new AsyncTask<Void, Void, Boolean>() {
-        @Override public Boolean doInBackground(Void ... v ) {
-          return initRendering( filename );
-        }
-        @Override public void onPostExecute( Boolean b )
-        {
-          if ( b ) {
-            mFilename = path;
-            CWConvexHull.resetCounters();
-            if ( mRenderer != null ) mRenderer.setParser( mParser, true );
+
+    try {
+      final InputStreamReader isr = (uri != null)? new InputStreamReader( this.getContentResolver().openInputStream( uri ) ) : null;
+      if ( asynch ) {
+        (new AsyncTask<Void, Void, Boolean>() {
+          @Override public Boolean doInBackground(Void ... v ) {
+            return initRendering( isr, filename );
           }
+          @Override public void onPostExecute( Boolean b )
+          {
+            if ( b ) {
+              mFilename = path;
+              CWConvexHull.resetCounters();
+              if ( mRenderer != null ) mRenderer.setParser( mParser, true );
+            }
+          }
+        } ).execute();
+        return false;
+      } else { // synchronous
+        if ( initRendering( isr, filename ) ) {
+          mFilename = path;
+          CWConvexHull.resetCounters();
+          if ( mRenderer != null ) mRenderer.setParser( mParser, true );
         }
-      } ).execute();
-      return false;
-    } else { // synchronous
-      if ( initRendering( filename ) ) {
-        mFilename = path;
-        CWConvexHull.resetCounters();
-        if ( mRenderer != null ) mRenderer.setParser( mParser, true );
       }
+      return ( mFilename != null );
+    } catch ( FileNotFoundException e ) {
     }
-    return ( mFilename != null );
+    return false;
   }
 
   // private void openFile()
@@ -1190,9 +1188,12 @@ public class TopoGL extends Activity
   }
 
   // ------------------------------ DEM
-  void openDEM( String pathname, String filename ) 
+  // void openDEM( String pathname, String filename ) 
+  void openDEM( Uri uri )
   {
-    // Log.v("Cave3D-DEM", pathname );
+    String pathname = uri.getPath();
+    String filename = uri.getLastPathSegment();
+    Log.v("Cave3D-DEM", "Path " + pathname + " File " + filename );
     ParserDEM dem = null;
     if ( pathname.toLowerCase().endsWith( ".grid" ) ) {
       dem = new DEMgridParser( pathname, mDEMmaxsize );
@@ -1234,12 +1235,16 @@ public class TopoGL extends Activity
   }
 
   // load a texture file (either GeoTIFF or OSM)
-  void openTexture( String pathname, String filename )
+  // void openTexture( String pathname, String filename )
+  void openTexture( Uri uri )
   {
     if ( mRenderer == null ) return;
     final RectF  bounds = mRenderer.getSurfaceBounds();
     if ( bounds == null ) return;
 
+    String pathname = uri.getPath();
+    String filename = uri.getLastPathSegment();
+    Log.v("Cave3D-Texture", "Path " + pathname + " File " + filename );
 
     // Log.v("TopoGL", "texture " + pathname + " bbox " + bounds.left + " " + bounds.bottom + "  " + bounds.right + " " + bounds.top );
 
@@ -1405,7 +1410,7 @@ public class TopoGL extends Activity
   static public boolean mSplayProj      = false;
   static public float   mSplayThr       = 0.5f;
 
-  static final String CAVE3D_BASE_PATH        = "CAVE3D_BASE_PATH";
+  // static final String CAVE3D_BASE_PATH        = "CAVE3D_BASE_PATH";
   static final String CAVE3D_TEXT_SIZE        = "CAVE3D_TEXT_SIZE";
   static final String CAVE3D_BUTTON_SIZE      = "CAVE3D_BUTTON_SIZE";
   static final String CAVE3D_SELECTION_RADIUS = "CAVE3D_SELECTION_RADIUS";
@@ -1438,9 +1443,10 @@ public class TopoGL extends Activity
   public void onSharedPreferenceChanged( SharedPreferences sp, String k ) 
   {
     // Cave3DFile.checkAppBasePath( this );
-    if ( k.equals( CAVE3D_BASE_PATH ) ) { 
-      Cave3DFile.setAppBasePath( sp.getString( k, Cave3DFile.HOME_PATH ) );
-    } else if ( k.equals( CAVE3D_TEXT_SIZE ) ) {
+    // if ( k.equals( CAVE3D_BASE_PATH ) ) { 
+    //   Cave3DFile.setAppBasePath( sp.getString( k, Cave3DFile.HOME_PATH ) );
+    // } else
+    if ( k.equals( CAVE3D_TEXT_SIZE ) ) {
       try {
         int size = Integer.parseInt( sp.getString( k, "10" ) );
         GlNames.setTextSize( size );
@@ -1553,7 +1559,7 @@ public class TopoGL extends Activity
   {
     float r;
     Cave3DFile.checkAppBasePath( this );
-    Cave3DFile.setAppBasePath( sp.getString( CAVE3D_BASE_PATH, Cave3DFile.HOME_PATH ) );
+    // Cave3DFile.setAppBasePath( sp.getString( CAVE3D_BASE_PATH, Cave3DFile.HOME_PATH ) );
     try {
       int size = Integer.parseInt( sp.getString( CAVE3D_TEXT_SIZE, "10" ) );
       GlNames.setTextSize( size );
@@ -1723,12 +1729,14 @@ public class TopoGL extends Activity
 
   // ------------------------------------------------------------------
 
-  private boolean initRendering( String survey, String base ) 
+  // FIXME isr == null
+  private boolean initRendering( InputStreamReader isr, String survey, String base ) 
   {
     // Log.v("TopoGL", "init rendering " + survey + " base " + base );
     doSketches = false;
     try {
-      mParser = new ParserTh( this, survey, base ); // survey data directly from TopoDroid database
+      // FIXME null InputStreamReader
+      mParser = new ParserTh( this, isr, survey, base ); // survey data directly from TopoDroid database
       CWConvexHull.resetCounters();
       if ( mRenderer != null ) {
         mRenderer.clearModel();
@@ -1744,7 +1752,7 @@ public class TopoGL extends Activity
     return (mParser != null);
   }
 
-  private boolean initRendering( String filename )
+  private boolean initRendering( InputStreamReader isr, String filename )
   {
     // Log.v("TopoGL", "init rendering file " + filename );
     doSketches = false;
@@ -1752,19 +1760,22 @@ public class TopoGL extends Activity
       mParser = null;
       if ( mRenderer != null ) mRenderer.clearModel();
       // resetAllPaths();
-      if ( filename.toLowerCase().endsWith( ".tdconfig" ) ) {
-        mParser = new ParserTh( this, filename ); // tdconfig files are saved with therion syntax
+      if ( filename.toLowerCase().endsWith( ".tdconfig" ) ) { // isr not used
+        mParser = new ParserTh( this, isr, filename ); // tdconfig files are saved with therion syntax
         doSketches = true;
-      } else if ( filename.toLowerCase().endsWith( ".th" ) || filename.toLowerCase().endsWith( ".thconfig" ) ) {
-        mParser = new ParserTh( this, filename );
-      } else if ( filename.toLowerCase().endsWith( ".lox" ) ) {
-        mParser = new ParserLox( this, filename );
+      } else if ( filename.toLowerCase().endsWith( ".th" ) || filename.toLowerCase().endsWith( ".thconfig" ) ) { // isr not used
+        mParser = new ParserTh( this, isr, filename ); 
       } else if ( filename.toLowerCase().endsWith( ".mak" ) || filename.toLowerCase().endsWith( ".dat" ) ) {
-        mParser = new ParserDat( this, filename );
+        mParser = new ParserDat( this, isr, filename );
       } else if ( filename.toLowerCase().endsWith( ".tro" ) ) {
-        mParser = new ParserTro( this, filename );
+        mParser = new ParserTro( this, isr, filename );
+      } else if ( filename.toLowerCase().endsWith( ".trox" ) ) {
+        mParser = new ParserTrox( this, isr, filename );
+
+      } else if ( filename.toLowerCase().endsWith( ".lox" ) ) {
+        mParser = new ParserLox( this, /* isr, */ filename );
       } else if ( filename.toLowerCase().endsWith( ".3d" ) ) {
-        mParser = new Parser3d( this, filename );
+        mParser = new Parser3d( this, /* isr, */ filename );
       } else {
         return false;
       }
@@ -2414,5 +2425,75 @@ public class TopoGL extends Activity
     onShotData();
   }
 
+  // --------------------------------------------------------------------------------------------
+  final static private int REQUEST_DEM_FILE     = 101;
+  final static private int REQUEST_TEXTURE_FILE = 102;
+  final static private int REQUEST_IMPORT_FILE  = 103;
+  final static private int REQUEST_EXPORT_FILE  = 104;
+
+  private ExportData mExport = null;
+
+  void selectDEMFile( )     { selectFile( REQUEST_DEM_FILE ); }
+  void selectTextureFile( ) { selectFile( REQUEST_TEXTURE_FILE ); }
+  void selectImportFile( )  { selectFile( REQUEST_IMPORT_FILE ); }
+  void selectExportFile( ExportData export )
+  {
+    mExport = export;
+    selectFile( REQUEST_EXPORT_FILE );
+  }
+
+  void selectFile( int request )
+  {
+    Intent intent = new Intent( Intent.ACTION_OPEN_DOCUMENT );
+    intent.setType("*/*");
+    intent.addCategory(Intent.CATEGORY_OPENABLE);
+    startActivityForResult( Intent.createChooser(intent, getResources().getString( R.string.select_dem_file ) ), request );
+  }
+
+  public void onActivityResult( int request, int result, Intent intent ) 
+  {
+    if ( result != Activity.RESULT_OK ) return;
+    Uri uri = intent.getData();
+    switch ( request ) {
+      case REQUEST_DEM_FILE:
+        if ( uri != null ) openDEM( uri );
+        break;
+      case REQUEST_TEXTURE_FILE:
+        if ( uri != null ) openTexture( uri );
+        break;
+      case REQUEST_IMPORT_FILE:
+        // if ( uri != null ) importSurvey( uri );
+        break;
+      case REQUEST_EXPORT_FILE:
+        if ( uri != null && mExport != null ) {
+          exportSurvey( uri );
+        }
+        mExport = null;
+        break;
+    }
+  }
+
+  private void exportSurvey( Uri uri ) 
+  {
+    (new ExportTask( this, mParser, uri, mExport )).execute();
+  }
+
+  private void importSurvey( Uri uri )
+  {
+    String pathname = uri.getPath();
+    if ( pathname.toLowerCase().endsWith( ".th" ) 
+      || pathname.toLowerCase().endsWith( "thconfig" )
+      || pathname.toLowerCase().endsWith( "tdconfig" )
+      || pathname.toLowerCase().endsWith( ".lox" )
+      || pathname.toLowerCase().endsWith( ".mak" )
+      || pathname.toLowerCase().endsWith( ".dat" )
+      || pathname.toLowerCase().endsWith( ".tro" )
+      || pathname.toLowerCase().endsWith( ".trox" )
+      || pathname.toLowerCase().endsWith( ".3d" ) ) {
+      doOpenFile( uri, pathname, true );
+    } else {
+      uiToast( R.string.unsupported_format, true );
+    }
+  }
 
 }

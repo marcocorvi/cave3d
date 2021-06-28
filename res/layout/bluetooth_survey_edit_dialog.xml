@@ -21,6 +21,14 @@
     android:hint="nickname"
   />
 
+  <CheckBox android:id="@+id/overwrite"
+    android:layout_width="fill_parent" 
+    android:layout_height="wrap_content" 
+    android:layout_marginTop="10dp"
+    android:gravity="left"
+    android:text="@string/overwrite"
+  />
+
   <LinearLayout
     android:layout_width="fill_parent" 
     android:layout_height="wrap_content"

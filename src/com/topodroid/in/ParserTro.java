@@ -22,6 +22,7 @@ import com.topodroid.Cave3D.Cave3DStation;
 import java.io.File;
 import java.io.IOException;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.StringWriter;
 import java.io.PrintWriter;
@@ -49,11 +50,11 @@ public class ParserTro extends TglParser
   int dirb = 1;  // bearing direction
   int dirc = 1;  // clino direction
 
-  public ParserTro( TopoGL app, String filename ) throws ParserException
+  public ParserTro( TopoGL app, InputStreamReader isr, String filename ) throws ParserException
   {
     super( app, filename );
 
-    readFile( filename );
+    readFile( isr, filename );
     processShots();
     setShotSurveys();
     setSplaySurveys();
@@ -104,7 +105,7 @@ public class ParserTro extends TglParser
 
   /** read input TRO file
    */
-  private boolean readFile( String filename ) throws ParserException
+  private boolean readFile( InputStreamReader isr, String filename ) throws ParserException
   {
     if ( ! checkPath( filename ) ) return false;
 
@@ -135,8 +136,7 @@ public class ParserTro extends TglParser
       // survey.replace(".tro", "");
       // Log.v( "TopoGL-TRO", "reading file " + filename + " dir " + dirname );
 
-      FileReader fr = new FileReader( filename );
-      BufferedReader br = new BufferedReader( fr );
+      BufferedReader br = getBufferedReader( isr, filename );
 
       int cnt_shot = 0;
       int cnt_splay = 0;

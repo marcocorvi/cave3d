@@ -198,6 +198,7 @@
     <string name="export_gltf_ok">Exported glTF file</string>
     <string name="export_gltf_fail">Failed glTf export</string>
 
+    <string name="overwrite">Overwrite</string>
     <string name="warning_not_overwrite">Warning: not overwriting existing file %1$s</string>
     <!-- UNUSED string name="warning_not_txt">Warning: not txt file %1$s</string -->
     <!-- UNUSED string name="warning_not_kml">Warning: not kml file %1$s</string -->

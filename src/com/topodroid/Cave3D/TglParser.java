@@ -29,6 +29,7 @@ import com.topodroid.walls.pcrust.PowercrustComputer;
 import java.io.File;
 import java.io.IOException;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.StringWriter;
@@ -960,5 +961,25 @@ public class TglParser
       }
     }
   }   
+
+  static protected BufferedReader getBufferedReader( InputStreamReader isr, String filename )
+  {
+    try {
+      if ( isr == null ) {
+        isr = new InputStreamReader( new FileInputStream( filename ) );
+      }
+      return new BufferedReader( isr );
+    } catch ( FileNotFoundException e ) {
+    }
+    return null;
+  }
+
+  static protected String extractName( String filename )
+  {
+    int pos = filename.lastIndexOf( '/' );
+    if ( pos < 0 ) { pos = 0; } else { ++pos; }
+    int ext = filename.lastIndexOf( '.' ); if ( ext < 0 ) ext = filename.length();
+    return filename.substring( pos, ext );
+  }
 
 }

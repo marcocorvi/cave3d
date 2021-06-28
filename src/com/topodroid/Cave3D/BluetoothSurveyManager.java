@@ -53,7 +53,7 @@ class BluetoothSurveyManager
     return bt_survey;
   }
 
-  static void renameSurvey( BluetoothSurvey bt_survey, String new_filename )
+  static void renameSurvey( BluetoothSurvey bt_survey, String new_filename, boolean overwrite )
   {
     if ( new_filename == null || new_filename.length() == 0 ) return;
     String old_filename = bt_survey.getFilename();
@@ -62,7 +62,7 @@ class BluetoothSurveyManager
       return;
     }
     File new_file = new File( Cave3DFile.getBluetoothFilename( new_filename ) );
-    if ( new_file.exists() ) {
+    if ( new_file.exists() && ! overwrite ) {
       Log.e("Cave3D", "BT survey manager rename survey: file exists " + new_filename );
       return;
     }

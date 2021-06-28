@@ -22,6 +22,7 @@ import com.topodroid.Cave3D.Cave3DFix;
 import java.io.File;
 import java.io.IOException;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.StringWriter;
 import java.io.PrintWriter;
@@ -39,14 +40,14 @@ public class ParserDat extends TglParser
   static final int DATA_NORMAL    = 1;
   static final int DATA_DIMENSION = 2;
 
-  public ParserDat( TopoGL app, String filename ) throws ParserException
+  public ParserDat( TopoGL app, InputStreamReader isr, String filename ) throws ParserException
   {
     super( app, filename );
 
     if ( filename.toLowerCase().endsWith(".mak") ) {
-      readFile( filename );
+      readFile( isr, filename );
     } else {
-      readFile( filename, null, 0.0f, 0.0f, 0.0f );
+      readFile( isr, filename, null, 0.0f, 0.0f, 0.0f );
     }
     // processShots();
     setShotSurveys();
@@ -56,7 +57,7 @@ public class ParserDat extends TglParser
 
   /** read input MAK file
    */
-  private boolean readFile( String filename )
+  private boolean readFile( InputStreamReader isr, String filename )
                   throws ParserException
   {
     if ( ! checkPath( filename ) ) return false;
@@ -69,8 +70,7 @@ public class ParserDat extends TglParser
       if ( i > 0 ) dirname = filename.substring(0, i+1);
       // Log.v( "TopoGL", "MAK file " + filename + " dir " + dirname );
 
-      FileReader fr = new FileReader( filename );
-      BufferedReader br = new BufferedReader( fr );
+      BufferedReader br = getBufferedReader( isr, filename );
       ++linenr;
       String line = br.readLine();
       // Log.v( "TopoGL", "MAK " + linenr + ":" + line );
@@ -99,7 +99,7 @@ public class ParserDat extends TglParser
 	      double y = Double.parseDouble( vals[idx] );
               idx = nextIndex( vals, idx );
 	      double z = Double.parseDouble( vals[idx] );
-	      readFile( dirname + file, station, x, y, z );
+	      readFile( null, dirname + file, station, x, y, z ); // FIXME
 	    } catch ( NumberFormatException e ) {
 	      Log.e(  "TopoGL", "Error MAK file " + filename + ":" + linenr );
 	    }
@@ -120,7 +120,7 @@ public class ParserDat extends TglParser
 
   /** read input DAT file
    */
-  private boolean readFile( String filename, String station, double x, double y, double z )
+  private boolean readFile( InputStreamReader isr, String filename, String station, double x, double y, double z )
                   throws ParserException
   {
     if ( ! checkPath( filename ) ) return false;
@@ -159,8 +159,7 @@ public class ParserDat extends TglParser
       survey.replace(".dat", "");
       // Log.v(  "TopoGL", "DAT file " + filename + " dir " + dirname );
 
-      FileReader fr = new FileReader( filename );
-      BufferedReader br = new BufferedReader( fr );
+      BufferedReader br = getBufferedReader( isr, filename );
       ++linenr;
       String line = br.readLine();
       // Log.v( "TopoGL", "DAT " + linenr + ":" + line );
