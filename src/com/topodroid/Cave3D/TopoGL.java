@@ -38,6 +38,8 @@ import java.io.StringWriter;
 import java.io.PrintWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.DataInputStream;
 import java.io.InputStreamReader;
 
 import java.util.ArrayList;
@@ -218,7 +220,10 @@ public class TopoGL extends Activity
     super.onCreate(savedInstanceState);
     // Log.v( "TopoGL", "on create: Not Android 10 " + NOT_ANDROID_10 + " 11 " + NOT_ANDROID_11 );
 
-    checkPermissions();
+    if ( ! checkPermissions() ) {
+      finish();
+      return;
+    }
 
     setContentView( R.layout.main );
     mLayout = (LinearLayout) findViewById( R.id.view_layout );
@@ -720,8 +725,9 @@ public class TopoGL extends Activity
     // mButton1[ 0 ].setOnLongClickListener( this );
     mButton1[ 1 ].setOnLongClickListener( this ); // projection params
     mButton1[ 2 ].setOnLongClickListener( this ); // stations
-    mButton1[ 3 ].setOnLongClickListener( this ); // splays
+    mButton1[ 3 ].setOnLongClickListener( this ); // splays: new manual leg
     mButton1[ 6 ].setOnLongClickListener( this ); // surveys
+    mButton1[ 7 ].setOnLongClickListener( this ); // frame: leg-visibility
 
     mBMlight = mButton1[BTN_MOVE].mBitmap;
     mBMturn = MyButton.getButtonBackground( this, size, R.drawable.iz_turn );
@@ -808,14 +814,23 @@ public class TopoGL extends Activity
       setButtonStation();
       closeCurrentStation();
     } else if ( b == mButton1[ BTN_SPLAYS ] ) {
-      new DialogLegs( this ).show();
+      if ( BLUETOOTH && mWithBluetooth ) {
+        new DialogManualLeg( this, this ).show();
+      } else {
+        onClick( v );
+      }
     } else if ( b == mButton1[ BTN_COLOR ] ) {
       if ( mParser == null || mParser.getSurveyNumber() < 2 ) return false;
       new DialogSurveys( this, this, mParser.getSurveys() ).show();
-	  
+    } else if ( b == mButton1[ BTN_FRAME ] ) {
+      new DialogLegs( this ).show();
     } else if ( BLUETOOTH && b == mButton1[ BTN_BLE ] ) {
       Log.v("Cave3D", "BT button long click ");
-      doBluetoothLongClick();
+      if ( mWithBluetooth ) {
+        doBluetoothLongClick();
+      } else {
+        onClick( v );
+      }
     }
     return true;
   }
@@ -1091,11 +1106,11 @@ public class TopoGL extends Activity
     Toast.makeText( this, String.format( getResources().getString( R.string.reading_file ), path ), Toast.LENGTH_SHORT ).show();
 
     try {
-      final InputStreamReader isr = (uri != null)? new InputStreamReader( this.getContentResolver().openInputStream( uri ) ) : null;
+      final InputStream is = (uri != null)? this.getContentResolver().openInputStream( uri ) : null;
       if ( asynch ) {
         (new AsyncTask<Void, Void, Boolean>() {
           @Override public Boolean doInBackground(Void ... v ) {
-            return initRendering( isr, filename );
+            return initRendering( is, filename );
           }
           @Override public void onPostExecute( Boolean b )
           {
@@ -1108,7 +1123,7 @@ public class TopoGL extends Activity
         } ).execute();
         return false;
       } else { // synchronous
-        if ( initRendering( isr, filename ) ) {
+        if ( initRendering( is, filename ) ) {
           mFilename = path;
           CWConvexHull.resetCounters();
           if ( mRenderer != null ) mRenderer.setParser( mParser, true );
@@ -1320,7 +1335,7 @@ public class TopoGL extends Activity
   // ---------------------------------------- PERMISSIONS
   // TglPerms perms_dialog = null;
 
-  private void checkPermissions()
+  private boolean checkPermissions()
   {
     mPrefs = PreferenceManager.getDefaultSharedPreferences( this );
     loadPreferences( mPrefs );
@@ -1332,14 +1347,12 @@ public class TopoGL extends Activity
     } catch ( NameNotFoundException e ) {
       e.printStackTrace(); // FIXME
     }
-    FeatureChecker.createPermissions( this, this );
-
+    if ( ! FeatureChecker.createPermissions( this ) ) return false;
     mCheckPerms = FeatureChecker.checkPermissions( this );
     if ( mCheckPerms != 0 ) {
-      // perms_dialog = new TglPerms( this, mCheckPerms );
-      // perms_dialog.show();
       TglPerms.toast( this, mCheckPerms );
     }
+    return true;
   }
 
   @Override
@@ -1730,12 +1743,13 @@ public class TopoGL extends Activity
   // ------------------------------------------------------------------
 
   // FIXME isr == null
-  private boolean initRendering( InputStreamReader isr, String survey, String base ) 
+  private boolean initRendering( InputStream is, String survey, String base ) 
   {
     // Log.v("TopoGL", "init rendering " + survey + " base " + base );
     doSketches = false;
     try {
-      // FIXME null InputStreamReader
+      InputStreamReader isr = ( is == null )? null : new InputStreamReader( is );
+      // FIXME null InputStream
       mParser = new ParserTh( this, isr, survey, base ); // survey data directly from TopoDroid database
       CWConvexHull.resetCounters();
       if ( mRenderer != null ) {
@@ -1752,30 +1766,46 @@ public class TopoGL extends Activity
     return (mParser != null);
   }
 
-  private boolean initRendering( InputStreamReader isr, String filename )
+  private boolean initRendering( InputStream is, String filename )
   {
     // Log.v("TopoGL", "init rendering file " + filename );
     doSketches = false;
+    String ext = Cave3DFile.getExtension( filename );
     try {
       mParser = null;
       if ( mRenderer != null ) mRenderer.clearModel();
+      String name = Cave3DFile.getMainname( filename );
       // resetAllPaths();
-      if ( filename.toLowerCase().endsWith( ".tdconfig" ) ) { // isr not used
-        mParser = new ParserTh( this, isr, filename ); // tdconfig files are saved with therion syntax
+      if ( ext.equals( "tdconfig" ) ) { // isr not used
+        InputStreamReader isr = ( is == null )? null : new InputStreamReader( is );
+        mParser = new ParserTh( this, isr, filename, ParserTh.TDCONFIG ); // tdconfig files are saved with therion syntax
         doSketches = true;
-      } else if ( filename.toLowerCase().endsWith( ".th" ) || filename.toLowerCase().endsWith( ".thconfig" ) ) { // isr not used
-        mParser = new ParserTh( this, isr, filename ); 
-      } else if ( filename.toLowerCase().endsWith( ".mak" ) || filename.toLowerCase().endsWith( ".dat" ) ) {
-        mParser = new ParserDat( this, isr, filename );
-      } else if ( filename.toLowerCase().endsWith( ".tro" ) ) {
-        mParser = new ParserTro( this, isr, filename );
-      } else if ( filename.toLowerCase().endsWith( ".trox" ) ) {
-        mParser = new ParserTrox( this, isr, filename );
+      } else if ( ext.equals( "thconfig" ) ) { // isr not used
+        InputStreamReader isr = ( is == null )? null : new InputStreamReader( is );
+        mParser = new ParserTh( this, isr, filename, ParserTh.THCONFIG ); 
+      } else if ( ext.equals( "th" ) ) { // isr not used
+        InputStreamReader isr = ( is == null )? null : new InputStreamReader( is );
+        mParser = new ParserTh( this, isr, filename, ParserTh.TH ); 
 
-      } else if ( filename.toLowerCase().endsWith( ".lox" ) ) {
-        mParser = new ParserLox( this, /* isr, */ filename );
-      } else if ( filename.toLowerCase().endsWith( ".3d" ) ) {
-        mParser = new Parser3d( this, /* isr, */ filename );
+      } else if ( ext.equals( "mak" ) ) {
+        InputStreamReader isr = ( is == null )? null : new InputStreamReader( is );
+        mParser = new ParserDat( this, isr, name, filename );
+      } else if ( ext.equals( "dat" ) ) {
+        InputStreamReader isr = ( is == null )? null : new InputStreamReader( is );
+        mParser = new ParserDat( this, isr, name );
+      } else if ( ext.equals( "tro" ) ) {
+        InputStreamReader isr = ( is == null )? null : new InputStreamReader( is );
+        mParser = new ParserTro( this, isr, name );
+      } else if ( ext.equals( "trox" ) ) {
+        InputStreamReader isr = ( is == null )? null : new InputStreamReader( is );
+        mParser = new ParserTrox( this, isr, name );
+
+      } else if ( ext.equals( "lox" ) ) {
+        DataInputStream dis = new DataInputStream( is );
+        mParser = new ParserLox( this, dis, name );
+      } else if ( ext.equals( "3d" ) ) {
+        DataInputStream dis = new DataInputStream( is );
+        mParser = new Parser3d( this, dis, name );
       } else {
         return false;
       }
@@ -1952,18 +1982,13 @@ public class TopoGL extends Activity
 
   // ---------------------------------------- EXPORT
   // this is run inside ExportTask
-  public boolean exportModel( int type, final String pathname, boolean b_splays, boolean b_walls, boolean b_surface, boolean overwrite )
+  public boolean exportModel( int type, final Uri uri, boolean b_splays, boolean b_walls, boolean b_surface )
   { 
     if ( type == ModelType.GLTF ) {
-      String filename = pathname.toLowerCase().endsWith( ".gltf" )? pathname : pathname + ".gltf";
-      if ( (new File( filename )).exists() && ! overwrite ) {
-        // Toast.makeText( this, String.format( getResources().getString( R.string.warning_not_overwrite ), pathname), Toast.LENGTH_LONG ).show();
-        return false;
-      }
-      return mRenderer.exportGltf( pathname );
+      return mRenderer.exportGltf( uri );
       // (new AsyncTask<Void, Void, Boolean>() {
       //   @Override public Boolean doInBackground(Void ... v ) {
-      //     return mRenderer.exportGltf( pathname );
+      //     return mRenderer.exportGltf( uri );
       //   }
       //   @Override public void onPostExecute( Boolean b )
       //   {
@@ -2148,9 +2173,9 @@ public class TopoGL extends Activity
     mBtRemoteDevice = null;
     if ( ! BLUETOOTH ) return false;
     if ( name == null || name.length() == 0 ) return false;
-    // WARNING BT name must have "Real" prefix
-    if ( ! ( name.startsWith("++") ) ) return false;
-    name = name.substring( 2 );
+    // WARNING BT name must have a prefix "++"
+    // if ( ! ( name.startsWith("++") ) ) return false;
+    // name = name.substring( 2 );
     Log.v("Cave3D", "check BT name <" + name + ">" );
 
     BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
@@ -2197,6 +2222,15 @@ public class TopoGL extends Activity
   {
     mBluetoothComm.disconnectDevice();
   }
+
+  // Bluetooth states                            (connected)                       ======> SCAN
+  //              (start)      (open)                       \        ------> LASER ------> SHOT
+  //                     \    /      \                        READY  <-------------(data)-----
+  // DOWN<==(shutdown)=== OFF          \    <===(disconnect)===={    <========================
+  //                       <===(stop)=== ON -----(connect)---> WAIT 
+  //                                        <--(disconnect)---     \
+  //                                                                (wait)
+  //             
 
   private void doBluetoothClick()
   {
@@ -2392,6 +2426,25 @@ public class TopoGL extends Activity
   private boolean   mOnShot  = false;
   private final static double EPS = 0.1;
 
+  // add a leg attaching it to the selected station (or to the last station)
+  public void handleManualLeg( double dist, double bear, double clino, boolean surface, boolean duplicate, boolean commented )
+  {
+    double h = dist * Math.cos( clino * Cave3DShot.DEG2RAD );
+    double z = dist * Math.sin( clino * Cave3DShot.DEG2RAD );
+    double n = h * Math.cos( bear * Cave3DShot.DEG2RAD );
+    double e = h * Math.sin( bear * Cave3DShot.DEG2RAD );
+    // DataLog data_log = new DataLog( e, n, z );
+    if ( mBtSurvey != null && mBtSurvey.hasParser() ) {
+      Cave3DShot leg = mBtSurvey.addLeg( dist, bear, clino, e, n, z );
+      if ( leg != null ) {
+        leg.setFlags( surface, duplicate, commented );
+        mRenderer.addBluetoothStation( mBtSurvey.getLastStation() );
+        mRenderer.addBluetoothLeg( leg );
+      }
+      mOnShot = false;
+    }
+  }
+
   public void handleRegularData( double dist, double bear, double clino )
   {
     double h = dist * Math.cos( clino * Cave3DShot.DEG2RAD );
@@ -2433,21 +2486,21 @@ public class TopoGL extends Activity
 
   private ExportData mExport = null;
 
-  void selectDEMFile( )     { selectFile( REQUEST_DEM_FILE ); }
-  void selectTextureFile( ) { selectFile( REQUEST_TEXTURE_FILE ); }
-  void selectImportFile( )  { selectFile( REQUEST_IMPORT_FILE ); }
+  void selectDEMFile( )     { selectFile( REQUEST_DEM_FILE,     Intent.ACTION_OPEN_DOCUMENT, R.string.select_dem_file ); }
+  void selectTextureFile( ) { selectFile( REQUEST_TEXTURE_FILE, Intent.ACTION_OPEN_DOCUMENT, R.string.select_texture_file ); }
+  void selectImportFile( )  { selectFile( REQUEST_IMPORT_FILE,  Intent.ACTION_OPEN_DOCUMENT, R.string.select_survey_file ); }
   void selectExportFile( ExportData export )
   {
     mExport = export;
-    selectFile( REQUEST_EXPORT_FILE );
+    selectFile( REQUEST_EXPORT_FILE, Intent.ACTION_CREATE_DOCUMENT, R.string.select_export_file );
   }
 
-  void selectFile( int request )
+  void selectFile( int request, String action, int res )
   {
-    Intent intent = new Intent( Intent.ACTION_OPEN_DOCUMENT );
+    Intent intent = new Intent( action );
     intent.setType("*/*");
-    intent.addCategory(Intent.CATEGORY_OPENABLE);
-    startActivityForResult( Intent.createChooser(intent, getResources().getString( R.string.select_dem_file ) ), request );
+    intent.addCategory( Intent.CATEGORY_OPENABLE );
+    startActivityForResult( Intent.createChooser(intent, getResources().getString( res ) ), request );
   }
 
   public void onActivityResult( int request, int result, Intent intent ) 
@@ -2462,7 +2515,7 @@ public class TopoGL extends Activity
         if ( uri != null ) openTexture( uri );
         break;
       case REQUEST_IMPORT_FILE:
-        // if ( uri != null ) importSurvey( uri );
+        if ( uri != null ) importSurvey( uri );
         break;
       case REQUEST_EXPORT_FILE:
         if ( uri != null && mExport != null ) {
@@ -2481,6 +2534,7 @@ public class TopoGL extends Activity
   private void importSurvey( Uri uri )
   {
     String pathname = uri.getPath();
+    Log.v("Cave3D", "Import survey " + pathname );
     if ( pathname.toLowerCase().endsWith( ".th" ) 
       || pathname.toLowerCase().endsWith( "thconfig" )
       || pathname.toLowerCase().endsWith( "tdconfig" )

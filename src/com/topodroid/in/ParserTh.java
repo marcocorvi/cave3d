@@ -33,7 +33,8 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.FileReader;
+// import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.StringWriter;
@@ -61,6 +62,10 @@ public class ParserTh extends TglParser
   public static final int DATA_NONE      = 0;
   public static final int DATA_NORMAL    = 1;
   public static final int DATA_DIMENSION = 2;
+
+  public static final int TH       = 1;
+  public static final int THCONFIG = 2;
+  public static final int TDCONFIG = 3;
 
   public ArrayList< String > mMarks;
 
@@ -117,8 +122,9 @@ public class ParserTh extends TglParser
     StringWriter sw = new StringWriter();
     PrintWriter  pw = new PrintWriter( sw );
     pw.printf( String.format( mApp.getResources().getString( R.string.read_survey ), surveyname ) );
+
     int res = readSurvey( surveyname, "", false, 0, pw );
-    if ( mApp != null ) mApp.uiToast( sw.toString(), false );
+    if ( mApp != null && sw != null ) mApp.uiToast( sw.toString(), false );
 
     if ( res == SUCCESS ) {
       processShots();
@@ -131,11 +137,11 @@ public class ParserTh extends TglParser
   }
 
   // FIXME isr not used
-  public ParserTh( TopoGL app, InputStreamReader isr, String filename ) throws ParserException
+  public ParserTh( TopoGL app, InputStreamReader isr, String filename, int type ) throws ParserException
   {
     super( app, filename );
 
-    Log.v( "Cave3D-TH", "Th parser, file: " + filename );
+    Log.v( "Cave3D-TH", "Th parser, file: " + filename + " type " + type );
     mMarks = new ArrayList< String >();
     int pos = filename.indexOf("thconfig");
     if ( pos >= 0 ) {
@@ -149,7 +155,7 @@ public class ParserTh extends TglParser
     StringWriter sw = new StringWriter();
     PrintWriter  pw = new PrintWriter( sw );
     pw.printf("Read file " + filename + "\n");
-    int res = readFile( filename, "", false, 0.0f, 1.0, 1.0, 1.0, pw );
+    int res = readFile( isr, filename, "", false, 0.0f, 1.0, 1.0, 1.0, pw );
     // Toast.makeText( mApp, sw.toString(), Toast.LENGTH_LONG ).show();
 
     if ( res == SUCCESS ) {
@@ -172,6 +178,8 @@ public class ParserTh extends TglParser
       // for ( Cave3DFix f : fixes ) {
       //   Log.v( "Cave3D-TH", "FIX " + f.name + " " + f.e + " " + f.n );
       // }
+    } else {
+      if ( mApp != null && sw != null ) mApp.uiToast( sw.toString(), false );
     }
   }
 
@@ -188,7 +196,7 @@ public class ParserTh extends TglParser
   private int readSurvey( String surveyname, String basepath, boolean usd, double sd, PrintWriter pw ) throws ParserException
   {
     if ( mData == null ) {
-      pw.printf( mApp.getResources().getString( R.string.no_database ) );
+      if ( pw != null ) pw.printf( mApp.getResources().getString( R.string.no_database ) );
       return ERR_NO_DB; 
     }
 
@@ -198,14 +206,14 @@ public class ParserTh extends TglParser
 
     SurveyInfo info = mData.getSurveyInfo( surveyname );
     if ( info == null ) {
-      pw.printf( String.format( mApp.getResources().getString( R.string.no_survey ), surveyname ) );
+      if ( pw != null ) pw.printf( String.format( mApp.getResources().getString( R.string.no_survey ), surveyname ) );
       return ERR_NO_SURVEY;
     }
     long sid = info.id;
 
     List< DBlock > blks = mData.getSurveyShots( sid, 0 );
     if ( blks.size() == 0 ) {
-      pw.printf( String.format( mApp.getResources().getString( R.string.empty_survey ), surveyname ) );
+      if ( pw != null ) pw.printf( String.format( mApp.getResources().getString( R.string.empty_survey ), surveyname ) );
       return ERR_NO_SHOTS;
     }
 
@@ -315,15 +323,15 @@ public class ParserTh extends TglParser
    * @param ub units of bearing (as multiple of 1 degree)
    * @param uc units of clino
    */
-  private int readFile( String filename, String basepath,
+  private int readFile( InputStreamReader isr, String filename, String basepath,
                         boolean usd, double sd,
                         double ul, double ub, double uc, PrintWriter pw )
                   throws ParserException
   {
-    if ( ! checkPath( filename ) ) {
-      pw.printf( String.format( mApp.getResources().getString( R.string.no_file ), filename ) );
-      return ERR_NO_FILE;
-    }
+    // if ( ! checkPath( filename ) ) {
+    //   if ( pw != null ) pw.printf( String.format( mApp.getResources().getString( R.string.no_file ), filename ) );
+    //   return ERR_NO_FILE;
+    // }
 
     // Toast.makeText( mApp, "Reading " + filename, Toast.LENGTH_SHORT ).show();
 
@@ -354,13 +362,13 @@ public class ParserTh extends TglParser
     long millis = 0;
 
     try {
-      String dirname = "./";
+      String dirname = "./";  // dirname has the trailing '/'
       int i = filename.lastIndexOf('/');
       if ( i > 0 ) dirname = filename.substring(0, i+1);
       // Log.v( "Cave3D-TH", "reading file " + filename + " dir " + dirname );
 
-      FileReader fr = new FileReader( filename );
-      BufferedReader br = new BufferedReader( fr );
+      // FileReader fr = new FileReader( filename );
+      BufferedReader br = new BufferedReader( isr );
       ++linenr;
       String line = br.readLine();
       // Log.v("Cave3D-TH", linenr + ":" + line );
@@ -656,8 +664,9 @@ public class ParserTh extends TglParser
                 filename = vals[idx];
                 // Log.v( "Cave3D-TH", "FILE " + filename );
                 if ( filename.toLowerCase().endsWith( ".th" ) ) {
-                  int res = readFile( dirname + '/' + filename, 
-                                   path,
+                  String filepath = dirname + filename; // dirname + '/' + filename
+                  InputStreamReader isr0 = new InputStreamReader( new FileInputStream( filepath ) );
+                  int res = readFile( isr0, filepath, path,
                                    use_survey_declination, survey_declination,
                                    units_len, units_ber, units_cln, pw );
                   if ( res != SUCCESS ) {
@@ -741,7 +750,7 @@ public class ParserTh extends TglParser
     // Log.v( "Cave3D-TH", "Done readFile " + filename );
 
     if ( shots.size() <= 0 ) {
-      pw.printf( String.format( mApp.getResources().getString( R.string.empty_survey ), surveyname ) );
+      if ( pw != null ) pw.printf( String.format( mApp.getResources().getString( R.string.empty_survey ), surveyname ) );
       return ERR_NO_SHOTS;
     }
     return SUCCESS;

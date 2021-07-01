@@ -64,7 +64,7 @@ public class DialogExport extends Dialog
   private CheckBox mWalls;
   private CheckBox mSurface;
   private CheckBox mStation;
-  private CheckBox mOverwrite;
+  // private CheckBox mOverwrite;
 
   // private RadioButton mDebug;
   // private String   mDirname;
@@ -130,7 +130,7 @@ public class DialogExport extends Dialog
     mWalls   = (CheckBox) findViewById( R.id.walls );
     mSurface = (CheckBox) findViewById( R.id.surface );
     mStation = (CheckBox) findViewById( R.id.station );
-    mOverwrite = (CheckBox) findViewById( R.id.overwrite );
+    // mOverwrite = (CheckBox) findViewById( R.id.overwrite );
 
     // mSplay.setVisibility( View.GONE );
     // mWalls.setVisibility( View.GONE );
@@ -219,7 +219,7 @@ public class DialogExport extends Dialog
       export.mWalls   = mWalls.isChecked();
       export.mSurface = mSurface.isChecked();
       export.mStation = mStation.isChecked();
-      export.mOverwrite = mOverwrite.isChecked();
+      // export.mOverwrite = mOverwrite.isChecked();
 
       int type = ModelType.NONE;
       if ( mStlBinary.isChecked() ) {

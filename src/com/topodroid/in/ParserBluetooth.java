@@ -48,8 +48,8 @@ public class ParserBluetooth extends TglParser
 
   public ParserBluetooth( TopoGL app, String filename, String name ) throws ParserException
   {
-    super( app, filename, name );
-    Log.v("Cave3D", "BT Parser cstr - filename: " + filename );
+    super( app, name );
+    Log.v("Cave3D", "BT Parser cstr - name: " + name + " file: " + filename );
   }
 
   public void initialize()
@@ -141,6 +141,12 @@ public class ParserBluetooth extends TglParser
     return shot;
   }
 
+  // @param e   East displacement
+  // @param n   North displacement
+  // @param z   vertical displacement
+  //
+  // if a station is selected the leg is attached to the selected station
+  // otherwise it is attached to the last station
   public Cave3DShot addLeg( double d, double b, double c, double e, double n, double z )
   {
     ++ mLastStationNr;

@@ -21,6 +21,7 @@ import com.topodroid.Cave3D.DEMsurface;
 import android.util.Log;
 
 import java.io.File;
+import java.io.DataInputStream;
 import java.io.IOException;
 
 import java.util.ArrayList;
@@ -29,10 +30,12 @@ public class ParserLox extends TglParser
 {
   private static double RAD2DEG = (180/Math.PI);
 
-  public ParserLox( TopoGL app, String filename ) throws ParserException
+  // @param dis    input stream
+  // @param name   name for error report
+  public ParserLox( TopoGL app, DataInputStream dis, String name ) throws ParserException
   {
-    super( app, filename );
-    readfile( filename );
+    super( app, name );
+    readfile( dis );
   }
 
   private static LoxSurvey getLoxSurvey( int id, ArrayList< LoxSurvey > lox_surveys ) 
@@ -57,10 +60,12 @@ public class ParserLox extends TglParser
     return lox_survey.name; 
   }
 
-  private void readfile( String filename ) throws ParserException
+  // @param dis    input stream
+  // @param name   name for error report
+  private void readfile( DataInputStream dis ) throws ParserException
   {
-    LoxFile lox = new LoxFile( filename );
-    // Log.v("TopoGL-LOX", "file " + filename );
+    LoxFile lox = new LoxFile( dis, getName() );
+    // Log.v("TopoGL-LOX", "file " + name );
 
     ArrayList< LoxSurvey > lox_surveys = lox.GetSurveys();
     for ( LoxSurvey survey : lox_surveys ) {

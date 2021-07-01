@@ -112,7 +112,13 @@
     <string name="title_surface_alpha">Surface transparency</string>
     <string name="title_sketches">Sketches</string>
     <string name="title_legs">Legs visibility</string>
+    <string name="title_manual_leg">New leg</string>
     <string name="title_bluetooth">Bluetooth</string>
+
+    <string name="length">length</string>
+    <string name="azimuth">azimuth</string>
+    <string name="clino">clino</string>
+
     <string name="btn_laser">Laser</string>
     <string name="btn_scan">Scan</string>
     <string name="btn_shot">Shot</string>
@@ -150,10 +156,11 @@
     <string name="STATIONS_DISTANCE">STATIONS DISTANCE</string>
     <string name="DISTANCE">DISTANCE</string>
     <string name="CENTER">CENTER</string>
-    <string name="select_file">Cave3D - Select a file:</string>
-    <string name="select_dem_file">Select a DEM file:</string>
-    <string name="select_texture_file">Select a texture file:</string>
-    <string name="select_sketch_file">Select a sketch file:</string>
+    <string name="select_survey_file">Select a survey file</string>
+    <string name="select_export_file">Select export file</string>
+    <string name="select_dem_file">Select a DEM file</string>
+    <string name="select_texture_file">Select a texture file</string>
+    <string name="select_sketch_file">Select a sketch file</string>
     <string name="Wall">Walls</string>
     <string name="Surface">Surface</string>
 
@@ -194,6 +201,8 @@
     <string name="error_io_exception">Error: IO exception %1$s</string>
     <string name="error_parser_error">Error: parsing %1$s</string>
     <string name="error_export_failed">Error: export %1$s failed</string>
+    <string name="unsupported_format">Unsupported file format</string>
+
 
     <string name="export_gltf_ok">Exported glTF file</string>
     <string name="export_gltf_fail">Failed glTf export</string>

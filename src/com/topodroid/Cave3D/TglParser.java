@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.BufferedInputStream;
@@ -51,6 +52,8 @@ import java.util.Locale;
 import android.widget.Toast;
 
 import android.os.AsyncTask;
+
+import android.net.Uri;
 
 import android.util.Log;
 
@@ -95,7 +98,6 @@ public class TglParser
   protected LoxBitmap  mBitmap = null;
   public double mCaveLength;
   protected String mName;     // survey base name
-  protected String mFilename; // file name
 
   // Cave3DStation mCenterStation = null;
   protected Cave3DStation mStartStation = null;
@@ -132,8 +134,7 @@ public class TglParser
   }
   // -------------------------------------
 
-  String getName() { return mName; }
-  String getFilename() { return mFilename; }
+  public String getName() { return mName; }
 
   // void centerAtStation( Cave3DStation st ) { mCenterStation = st; }
    
@@ -177,20 +178,21 @@ public class TglParser
     return null;
   }
 
-  protected boolean checkPath( String path )
-  {
-    if ( path == null ) return false;
-    File file = new File( path );
-    if ( ! file.exists() ) {
-      if ( mApp != null ) mApp.uiToast( R.string.error_file_not_found, path, true );
-      return false;
-    }
-    if ( ! file.canRead() ) {
-      if ( mApp != null ) mApp.uiToast( R.string.error_file_not_readable, path, true );
-      return false;
-    }
-    return true;
-  }
+  // UNUSED
+  // protected boolean checkPath( String path )
+  // {
+  //   if ( path == null ) return false;
+  //   File file = new File( path );
+  //   if ( ! file.exists() ) {
+  //     if ( mApp != null ) mApp.uiToast( R.string.error_file_not_found, path, true );
+  //     return false;
+  //   }
+  //   if ( ! file.canRead() ) {
+  //     if ( mApp != null ) mApp.uiToast( R.string.error_file_not_readable, path, true );
+  //     return false;
+  //   }
+  //   return true;
+  // }
 
   private void initStationsPathlength()
   {
@@ -448,37 +450,29 @@ public class TglParser
     if ( stations.size() > 0 ) do_render = true;
   }
 
-  // get the name from the filename
+  // @param filename either a filename or a name 
+  //        in the first case the name is the part after the last '/' and before the '.'
   public TglParser( TopoGL app, String filename )
   {
     // Log.v( TAG, "parsing " + filename );
     int pos = filename.lastIndexOf('/');
     if ( pos > 0 ) {
       mName = filename.substring(pos+1);
+      pos = mName.lastIndexOf('.');
+      if ( pos > 0 ) mName = mName.substring(0,pos);
     } else {
       mName = filename;
     }
-    pos = mName.lastIndexOf('.');
-    if ( pos > 0 ) {
-      mName = mName.substring(0,pos);
-    }
-    init( app, filename, mName );
+    init( app, mName );
   }
 
-  public TglParser( TopoGL app, String filename, String name )
-  {
-    init( app, filename, name );
-  }
-
-  private void init( TopoGL app, String filename, String name )
+  private void init( TopoGL app, String name )
   {
     mApp      = app;
     do_render = false;
     mOrigin   = null;
     mName     = name;
-    mFilename = filename;
     mSurface  = null;
-    // Toast.makeText( app, "Reading " + filename, Toast.LENGTH_SHORT ).show();
 
     fixes     = new ArrayList< Cave3DFix >();
     shots     = new ArrayList< Cave3DShot >();
@@ -509,18 +503,18 @@ public class TglParser
 
   // ---------------------------------------- EXPORT
   // This is executed in ExportTask
-  public boolean exportModel( int type, String pathname, boolean b_splays, boolean b_walls, boolean b_surface, boolean overwrite )
+  public boolean exportModel( int type, Uri uri, boolean b_splays, boolean b_walls, boolean b_surface ) // , boolean overwrite )
   { 
     boolean ret = false;
-    if ( type == ModelType.SERIAL ) { // serialization
-      if ( ! pathname.toLowerCase().endsWith(".txt") ) pathname = pathname + ".txt";
-      if ( checkFile(pathname, overwrite ) ) {
+    String pathname = uri.getPath();
+    OutputStreamWriter osw = null;
+    DataOutputStream dos = null;
+
+    try {
+      if ( type == ModelType.SERIAL ) { // serialization
         ret = writeWalls( pathname );
-      }
-    } else {                          // model export 
-      if ( type == ModelType.KML_ASCII ) { // KML export ASCII
-        if ( ! pathname.toLowerCase().endsWith(".kml") ) pathname = pathname + ".kml";
-        if ( checkFile(pathname, overwrite ) ) {
+      } else {                          // model export 
+        if ( type == ModelType.KML_ASCII ) { // KML export ASCII
           ExportKML kml = new ExportKML();
           if ( b_walls ) {
             if ( convexhullcomputer != null ) {
@@ -533,21 +527,15 @@ public class TglParser
               kml.mTriangles = powercrustcomputer.getTriangles();
             }
           }
-          ret = kml.exportASCII( pathname, this, b_splays, b_walls, b_surface );
-        }
-      } else if ( type == ModelType.CGAL_ASCII ) { // CGAL export: only stations and splay-points
-        if ( ! pathname.toLowerCase().endsWith(".cgal") ) pathname = pathname + ".cgal";
-        if ( checkFile(pathname, overwrite ) ) {
-          ret = (new ExportCGAL()).exportASCII( pathname, this, b_splays, b_walls, b_surface );
-        }
-      } else if ( type == ModelType.LAS_BINARY ) { // LAS v. 1.2
-        if ( ! pathname.toLowerCase().endsWith(".las") ) pathname = pathname + ".las";
-        if ( checkFile(pathname, overwrite ) ) {
-          ret = ExportLAS.exportBinary( pathname, this, b_splays, b_walls, b_surface );
-        }
-      } else if ( type == ModelType.DXF_ASCII ) { // DXF
-        if ( ! pathname.toLowerCase().endsWith(".dxf") ) pathname = pathname + ".dxf";
-        if ( checkFile(pathname, overwrite ) ) {
+          osw = new OutputStreamWriter( mApp.getContentResolver().openOutputStream( uri ) );
+          ret = kml.exportASCII( osw, this, b_splays, b_walls, b_surface );
+        } else if ( type == ModelType.CGAL_ASCII ) { // CGAL export: only stations and splay-points
+          osw = new OutputStreamWriter( mApp.getContentResolver().openOutputStream( uri ) );
+          ret = (new ExportCGAL()).exportASCII( osw, this, b_splays, b_walls, b_surface );
+        } else if ( type == ModelType.LAS_BINARY ) { // LAS v. 1.2
+          dos = new DataOutputStream( mApp.getContentResolver().openOutputStream( uri ) );
+          ret = ExportLAS.exportBinary( dos, this, b_splays, b_walls, b_surface );
+        } else if ( type == ModelType.DXF_ASCII ) { // DXF
           ExportDXF dxf = new ExportDXF();
           if ( b_walls ) {
             if ( convexhullcomputer != null ) {
@@ -561,11 +549,9 @@ public class TglParser
               return false;
             }
           }
-          ret = dxf.exportAscii( pathname, this, true, b_splays, b_walls, true ); // true = version13
-        }
-      } else if ( type == ModelType.SHP_ASCII ) { // SHP
-        if ( ! pathname.toLowerCase().endsWith(".shz") ) pathname = pathname + ".shz";
-        if ( checkFile(pathname, overwrite ) ) {
+          osw = new OutputStreamWriter( mApp.getContentResolver().openOutputStream( uri ) );
+          ret = dxf.exportASCII( osw, this, true, b_splays, b_walls, true ); // true = version13
+        } else if ( type == ModelType.SHP_ASCII ) { // SHP
           ExportSHP shp = new ExportSHP();
           if ( b_walls ) {
             if ( convexhullcomputer != null ) {
@@ -581,10 +567,7 @@ public class TglParser
             }
           }
           ret = shp.exportASCII( pathname, this, true, b_splays, b_walls );
-        }
-      } else {                                     // STL export ASCII or binary
-        if ( ! pathname.toLowerCase().endsWith(".stl") ) pathname = pathname + ".stl";
-        if ( checkFile(pathname, overwrite ) ) {
+        } else {                                     // STL export ASCII or binary
           ExportSTL stl = new ExportSTL();
           if ( b_walls ) {
             if ( convexhullcomputer != null ) {
@@ -599,12 +582,16 @@ public class TglParser
             }
           }
           if ( type == ModelType.STL_BINARY ) {
-            ret = stl.exportBinary( pathname, b_splays, b_walls, b_surface );
+            dos = new DataOutputStream( mApp.getContentResolver().openOutputStream( uri ) );
+            ret = stl.exportBinary( dos, b_splays, b_walls, b_surface );
           } else { // type == ModelType.STL_ASCII
-            ret = stl.exportASCII( pathname, b_splays, b_walls, b_surface );
+            osw = new OutputStreamWriter( mApp.getContentResolver().openOutputStream( uri ) );
+            ret = stl.exportASCII( osw, b_splays, b_walls, b_surface );
           }
         }
       }
+    } catch ( FileNotFoundException e ) {
+      return false;
     }
     return ret;
   }
@@ -865,6 +852,29 @@ public class TglParser
     return true;
   }
   */
+
+  // add a fix. The following fix fields are assumed initialized:
+  //   name, longitude, latitude, altitude 
+  public void addFix( Cave3DFix fix ) { fixes.add( fix ); }
+
+  // add a shot. The following shot fields are assumed initialized:
+  //     surveyId, from, to, len, ber, cln, flags, millis
+  // The shot stations are set by this method
+  public void addShot( Cave3DShot shot ) 
+  { 
+    Cave3DStation fstation = getStation( shot.from );
+    shot.setFromStation( fstation );
+    if ( shot.to == null || shot.to.length() == 0 ) {
+      splays.add( shot );
+      shot.to = "";
+      shot.setToStation( null );
+    } else {
+      shots.add( shot );
+      Cave3DStation tstation = getStation( shot.to );
+      shot.setToStation( tstation );
+    }
+  }
+
 
   // must be written in this order because deserialization creates the connections
   public void serialize( DataOutputStream dos ) throws IOException

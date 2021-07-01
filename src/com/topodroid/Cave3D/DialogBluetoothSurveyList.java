@@ -88,16 +88,13 @@ class DialogBluetoothSurveyList extends Dialog
 
   void updateFileList( )
   {
-    String basedir = Cave3DFile.getBluetoothDirname();
+    File dir = Cave3DFile.getBluetoothDir();
     ArrayList<String> mItems = new ArrayList<>();
-    File dir = new File( basedir );
-    if ( dir.isDirectory() ) {
-      File[] files = dir.listFiles( new FileFilter() {
-        @Override public boolean accept( File file ) { return file.isFile(); }
-      } );
-      Log.v("Cave3D", "BT survey files " + files.length );
-      for ( int k=0; k<files.length; ++k ) mItems.add( files[k].getName() );
-    }
+    File[] files = dir.listFiles( new FileFilter() {
+      @Override public boolean accept( File file ) { return file.isFile(); }
+    } );
+    Log.v("Cave3D", "BT survey files " + files.length );
+    for ( int k=0; k<files.length; ++k ) mItems.add( files[k].getName() );
     ArrayAdapter< String > array_adapter = new ArrayAdapter<>( mContext, R.layout.message, mItems );
     mList.setAdapter( array_adapter );
   }

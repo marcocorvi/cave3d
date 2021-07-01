@@ -32,6 +32,8 @@ import android.widget.Toast;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
 
+import android.net.Uri;
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -733,10 +735,11 @@ public class GlRenderer implements Renderer
     if ( mModel != null ) mModel.hideOrShow( surveys );
   }
 
-  boolean exportGltf( String pathname )
+  boolean exportGltf( Uri uri )
   {
     if ( mModel == null ) return false;
     ExportGltf gltf = new ExportGltf( mModel );
+    String pathname = uri.getPath();
     return gltf.write( pathname );
   }
 

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 // import java.io.PrintStream;
 import java.io.FileOutputStream;
@@ -83,15 +83,15 @@ public class ExportDXF
       facet.v2.minMax( mMin, mMax );
       facet.v3.minMax( mMin, mMax );
     }
-    // Log.v( "TopoGL-DXF", "facets: " + mFacets.size() );
+    // Log.v( "Cave3D-DXF", "facets: " + mFacets.size() );
     if ( mVertex != null ) {
       int len = mVertex.length;
       for ( int k=0; k<len; ++k ) {
         mVertex[k].minMax( mMin, mMax );
       }
     }
-    // Log.v( "TopoGL-DXF", "min " + mMin.x + " " + mMin.y + " " + mMin.z );
-    // Log.v( "TopoGL-DXF", "max " + mMax.x + " " + mMax.y + " " + mMax.z );
+    // Log.v( "Cave3D-DXF", "min " + mMin.x + " " + mMin.y + " " + mMin.z );
+    // Log.v( "Cave3D-DXF", "max " + mMax.x + " " + mMax.y + " " + mMax.z );
     xoff = - mMin.x;
     yoff = - mMin.y;
     zoff = - mMin.z;
@@ -399,7 +399,7 @@ public class ExportDXF
     return handle;
   }
 
-  public boolean exportAscii( String filename, TglParser data, boolean b_legs, boolean b_splays, boolean b_walls, boolean version13 )
+  public boolean exportASCII( OutputStreamWriter osw, TglParser data, boolean b_legs, boolean b_splays, boolean b_walls, boolean version13 )
   {
     if ( data == null ) return false;
     List< Cave3DStation> stations = data.getStations();
@@ -410,7 +410,6 @@ public class ExportDXF
 
     String name = "Cave3D";
     boolean ret = true;
-    FileWriter fw = null;
     mVersion13 = version13; // (TDSetting.mAcadVersion >= 13);
     
     int handle = 0;
@@ -424,11 +423,9 @@ public class ExportDXF
 
     int p_style = 0;
 
-    // Log.v( "TopoGL-DXF", "DXF X " + xmin + " " + xmax + " Y " + ymin + " " + ymax );
+    // Log.v( "Cave3D-DXF", "DXF X " + xmin + " " + xmax + " Y " + ymin + " " + ymax );
     try {
-
-      fw = new FileWriter( filename );
-      BufferedWriter out = new BufferedWriter( fw );
+      BufferedWriter out = new BufferedWriter( osw );
 
       // HEADERS
       writeComment( out, "DXF created by Cave3D v. " );
@@ -544,7 +541,7 @@ public class ExportDXF
         }
 
         if ( version13 ) {
-	  int nr_styles = 2;
+          int nr_styles = 2;
           handle = inc(handle); writeBeginTable( out, "STYLE", handle, nr_styles );  // 2 styles
           {
             writeString( out, 0, "STYLE" );
@@ -561,7 +558,7 @@ public class ExportDXF
 
             writeString( out, 0, "STYLE" );
             handle = inc(handle); writeAcDb( out, handle, AcDbSymbolTR, "AcDbTextStyleTableRecord" );
-	    p_style = handle;
+            p_style = handle;
             writeString( out, 2, style_dejavu );  // name
             writeInt( out, 70, 0 );               // flag
             writeString( out, 40, zero );
@@ -579,27 +576,27 @@ public class ExportDXF
         }
 
         if ( version13 ) { handle = inc(handle); } else { handle = 5; }
-	int ltypeowner = handle;
-	int ltypenr    = version13 ? 5 : 1; // linetype number
+        int ltypeowner = handle;
+        int ltypenr    = version13 ? 5 : 1; // linetype number
         writeBeginTable( out, "LTYPE", handle, ltypenr ); 
-	writeInt( out, 330, 0 ); // table has no owner
+        writeInt( out, 330, 0 ); // table has no owner
         {
           // int flag = 64;
           if ( version13 ) {
             writeString( out, 0, "LTYPE" );
             handle = inc(handle); writeAcDb( out, handle, AcDbSymbolTR, "AcDbLinetypeTableRecord" );
             writeString( out, 2, lt_byBlock );
-	    writeInt( out, 330, ltypeowner );
+            writeInt( out, 330, ltypeowner );
             writeInt( out, 70, 0 );
             writeString( out, 3, "Std by block" );
             writeInt( out, 72, 65 );
             writeInt( out, 73, 0 );
             writeString( out, 40, zero );
 
-	    writeString( out, 0, "LTYPE" );
+            writeString( out, 0, "LTYPE" );
             handle = inc(handle); writeAcDb( out, handle, AcDbSymbolTR, "AcDbLinetypeTableRecord" );
             writeString( out, 2, lt_byLayer );
-	    writeInt( out, 330, ltypeowner );
+            writeInt( out, 330, ltypeowner );
             writeInt( out, 70, 0 );
             writeString( out, 3, "Std by layer" );
             writeInt( out, 72, 65 );
@@ -609,17 +606,17 @@ public class ExportDXF
             writeString( out, 0, "LTYPE" );
             handle = inc(handle); writeAcDb( out, handle, AcDbSymbolTR, "AcDbLinetypeTableRecord" );
             writeString( out, 2, lt_continuous );
-	    writeInt( out, 330, ltypeowner );
+            writeInt( out, 330, ltypeowner );
             writeInt( out, 70, 0 );
             writeString( out, 3, "Solid line ------" );
             writeInt( out, 72, 65 );
             writeInt( out, 73, 0 );
             writeString( out, 40, zero );
 
-	    writeString( out, 0, "LTYPE" );
+            writeString( out, 0, "LTYPE" );
             handle = inc(handle); writeAcDb( out, handle, AcDbSymbolTR, "AcDbLinetypeTableRecord" );
             writeString( out, 2, lt_center );
-	    writeInt( out, 330, ltypeowner );
+            writeInt( out, 330, ltypeowner );
             writeInt( out, 70, 0 );
             writeString( out, 3, "Center ____ _ ____ _ ____ _ ____" ); // description
             writeInt( out, 72, 65 );
@@ -630,10 +627,10 @@ public class ExportDXF
             writeString( out, 49, "0.25" );  writeInt( out, 74, 0 );
             writeString( out, 49, "-0.25" ); writeInt( out, 74, 0 );
 
-	    writeString( out, 0, "LTYPE" );
+            writeString( out, 0, "LTYPE" );
             handle = inc(handle); writeAcDb( out, handle, AcDbSymbolTR, "AcDbLinetypeTableRecord" );
             writeString( out, 2, lt_ticks );
-	    writeInt( out, 330, ltypeowner );
+            writeInt( out, 330, ltypeowner );
             writeInt( out, 70, 0 );
             writeString( out, 3, "Ticks ____|____|____|____" ); // description
             writeInt( out, 72, 65 );
@@ -641,19 +638,19 @@ public class ExportDXF
             writeString( out, 40, one ); // pattern length
             writeString( out, 49, half );  writeInt( out, 74, 0 ); // segment
             writeString( out, 49, "-0.2" ); writeInt( out, 74, 2 ); // embedded text
-	      writeInt( out, 75, 0 );   // SHAPE number must be 0
-	      writeInt( out, 340, p_style );  // STYLE pointer FIXME
-	      writeString( out, 46, "0.1" );  // scale
-	      writeString( out, 50, zero );   // rotation
-	      writeString( out, 44, "-0.1" ); // X offset
-	      writeString( out, 45, "-0.1" ); // Y offset
-	      writeString( out, 9, "|" ); // text
+              writeInt( out, 75, 0 );   // SHAPE number must be 0
+              writeInt( out, 340, p_style );  // STYLE pointer FIXME
+              writeString( out, 46, "0.1" );  // scale
+              writeString( out, 50, zero );   // rotation
+              writeString( out, 44, "-0.1" ); // X offset
+              writeString( out, 45, "-0.1" ); // Y offset
+              writeString( out, 9, "|" ); // text
             writeString( out, 49, "-0.25" ); writeInt( out, 74, 0 ); // gap
 
-	    // writeString( out, 0, "LTYPE" );
+            // writeString( out, 0, "LTYPE" );
             // handle = inc(handle); writeAcDb( out, handle, AcDbSymbolTR, "AcDbLinetypeTableRecord" );
             // writeString( out, 2, lt_tick );
-	    // writeInt( out, 330, ltypeowner );
+            // writeInt( out, 330, ltypeowner );
             // writeInt( out, 70, 0 );
             // writeString( out, 3, "Ticks ____|____|____|____" ); // description
             // writeInt( out, 72, 65 );
@@ -661,12 +658,12 @@ public class ExportDXF
             // writeString( out, 40, "1.45" ); // pattern length
             // writeString( out, 49, "0.25" ); writeInt( out, 74, 0 ); // segment
             // writeString( out, 49, "-0.1" ); writeInt( out, 74, 4 ); // embedded shape
-	    //   writeInt( out, 75, 1 );   // SHAPE number
-	    //   writeInt( out, 340, 1 );  // STYLE pointer
-	    //   writeString( out, 46, "0.1" );  // scale
-	    //   writeString( out, 50, zero );   // rotation
-	    //   writeString( out, 44, "-0.1" ); // X offset
-	    //   writeString( out, 45, zero );   // Y offset
+            //   writeInt( out, 75, 1 );   // SHAPE number
+            //   writeInt( out, 340, 1 );  // STYLE pointer
+            //   writeString( out, 46, "0.1" );  // scale
+            //   writeString( out, 50, zero );   // rotation
+            //   writeString( out, 44, "-0.1" ); // X offset
+            //   writeString( out, 45, zero );   // Y offset
             // writeString( out, 49, "-0.1" ); writeInt( out, 74, 0 );
             // writeString( out, 49, "1.0" );  writeInt( out, 74, 0 );
 
@@ -733,7 +730,7 @@ public class ExportDXF
           {
             writeString( out, 0, "DIMSTYLE" );
             handle = inc(handle);
-	    writeHex( out, 105, handle ); 
+            writeHex( out, 105, handle ); 
             writeAcDb( out, -1, AcDbSymbolTR, "AcDbDimStyleTableRecord" );
             writeString( out, 2, standard );
             writeString( out, 3, empty );
@@ -789,14 +786,14 @@ public class ExportDXF
 
           handle = inc(handle);
           writeBeginTable( out, "BLOCK_RECORD", handle, 0 );
-	     writeString( out, 0, "BLOCK_RECORD" );  // must be AutoCAD (HB)
+             writeString( out, 0, "BLOCK_RECORD" );  // must be AutoCAD (HB)
              handle = inc(handle); writeAcDb( out, handle, AcDbSymbolTR, "AcDbBlockTableRecord" );
              writeString( out, 2, "*Model_Space" );
              writeInt( out, 70, 0 );
              writeInt( out, 280, 1 );
              writeInt( out, 281, 0 );
              writeInt( out, 330, 1 );
-	     writeString( out, 0, "BLOCK_RECORD" );
+             writeString( out, 0, "BLOCK_RECORD" );
              handle = inc(handle); writeAcDb( out, handle, AcDbSymbolTR, "AcDbBlockTableRecord" );
              writeString( out, 2, "*Paper_Space" );
              writeInt( out, 70, 0 );
@@ -841,14 +838,14 @@ public class ExportDXF
 
       writeSection( out, "ENTITIES" );
       {
-	String scale_len = "20";
+        String scale_len = "20";
         double sc1 = 20; // DrawingUtil.SCALE_FIX / 2 = 10;
 
         // REFERENCE
         StringWriter sw9 = new StringWriter();
         PrintWriter pw9  = new PrintWriter(sw9);
-	double sc2 = sc1 / 2;
-	if ( false ) {      //0.0 is not good and should be made optional (HB)
+        double sc2 = sc1 / 2;
+        if ( false ) {      //0.0 is not good and should be made optional (HB)
           handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin, xmin+sc1,  ymin,      zmin );
           handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin, xmin,      ymin+sc1,  zmin );
           handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin, xmin,      ymin,      zmin+sc1 );
@@ -860,9 +857,9 @@ public class ExportDXF
           handle = printLine( pw9, handle, "REF", xmin,     ymin+sc1, zmin, xmin+0.5f, ymin+sc1,  zmin );
           handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin+sc1, xmin+0.5f, ymin,  zmin+sc1 );
           handle = printLine( pw9, handle, "REF", xmin,     ymin,     zmin+sc1, xmin,      ymin+0.5f,  zmin+sc1 );
-	
+        
         // out.write( sw9.getBuffer().toString() );
-	
+        
         // printString( pw9, 0, "LINE" );
         // handle = inc(handle);
         // printAcDb( pw9, handle, AcDbEntity, AcDbLine );
@@ -884,7 +881,7 @@ public class ExportDXF
         // out.write( sw8.getBuffer().toString() );
         // out.flush();
         
-	// offset axes legends by 1
+        // offset axes legends by 1
         // StringWriter sw7 = new StringWriter();
         // PrintWriter pw7  = new PrintWriter(sw7);
           handle = printText( pw9, handle, scale_len, xmin+sc1, ymin+1,   zmin+1,   0, AXIS_SCALE, "REF", style_dejavu );
@@ -892,7 +889,7 @@ public class ExportDXF
           handle = printText( pw9, handle, scale_len, xmin+1,   ymin+1,   zmin+sc1, 0, AXIS_SCALE, "REF", style_dejavu );
           out.write( sw9.getBuffer().toString() );
           out.flush();
-	}
+        }
         // FACETS
         if ( b_walls ) {
           StringWriter sw10 = new StringWriter();
@@ -956,9 +953,8 @@ public class ExportDXF
       // }
       writeString( out, 0, "EOF" );
       out.flush();
+      osw.close();
     } catch ( IOException e ) {
-      // FIXME
-      Log.w( "TopoGL-DXF", "I/O error " + e.toString() );
       return false;
     }
     return true;

@@ -67,6 +67,9 @@ class BluetoothSurvey
 
   boolean hasParser() { return mParser != null; }
 
+  // @param e   East displacement
+  // @param n   North displacement
+  // @param z   Vertical displacement (pos. upwards)
   Cave3DShot addLeg( double d, double b, double c, double e, double n, double z )
   { return (mParser == null)? null : mParser.addLeg( d, b, c, e, n, z ); }
 

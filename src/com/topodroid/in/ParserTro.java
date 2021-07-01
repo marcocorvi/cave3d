@@ -50,11 +50,11 @@ public class ParserTro extends TglParser
   int dirb = 1;  // bearing direction
   int dirc = 1;  // clino direction
 
-  public ParserTro( TopoGL app, InputStreamReader isr, String filename ) throws ParserException
+  public ParserTro( TopoGL app, InputStreamReader isr, String name ) throws ParserException
   {
-    super( app, filename );
+    super( app, name );
 
-    readFile( isr, filename );
+    readFile( isr );
     processShots();
     setShotSurveys();
     setSplaySurveys();
@@ -105,14 +105,11 @@ public class ParserTro extends TglParser
 
   /** read input TRO file
    */
-  private boolean readFile( InputStreamReader isr, String filename ) throws ParserException
+  private boolean readFile( InputStreamReader isr ) throws ParserException
   {
-    if ( ! checkPath( filename ) ) return false;
-
     int linenr = 0;
     String entrance = null;
     String coords   = null;
-    // Log.v( "TopoGL-TRO", "DAT file <" + filename + "> station " + station );
     // Cave3DCS cs = null;
     // int in_data = 0; // 0 none, 1 normal, 2 dimension
 
@@ -125,18 +122,7 @@ public class ParserTro extends TglParser
 
     String line = null;
     try {
-      // String dirname = "./";
-      // int i = filename.lastIndexOf('/');
-      // if ( i > 0 ) {
-      //   dirname = filename.substring(0, i+1);
-      //   survey  = "@" + filename.substring(i+1);
-      // } else {
-      //   survey = "@" + filename;
-      // }
-      // survey.replace(".tro", "");
-      // Log.v( "TopoGL-TRO", "reading file " + filename + " dir " + dirname );
-
-      BufferedReader br = getBufferedReader( isr, filename );
+      BufferedReader br = new BufferedReader( isr );
 
       int cnt_shot = 0;
       int cnt_splay = 0;
@@ -285,7 +271,7 @@ public class ParserTro extends TglParser
       }
     } catch ( IOException e ) {
       Log.e( "TopoGL-TRO", "I/O error " + e.getMessage() );
-      throw new ParserException( filename, linenr );
+      throw new ParserException( getName(), linenr );
     }
     // Log.v( "TopoGL-TRO", "shots " + shots.size() + " splays " + splays.size() );
     return ( shots.size() > 0 );

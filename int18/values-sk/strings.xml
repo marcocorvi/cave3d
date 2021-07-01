@@ -114,7 +114,7 @@
     <string name="STATIONS_DISTANCE">VZDIALENOSŤ MERAČSKÝCH BODOV</string>
     <string name="DISTANCE">VZDIALENOSŤ</string>
     <string name="CENTER">CENTROVANIE</string>
-    <string name="select_file">Cave3D - Vybrať súbor:</string>
+    <string name="select_survey_file">Cave3D - Vybrať súbor:</string>
     <string name="select_dem_file">Vyber DEM súbor:</string>
     <string name="select_texture_file">Vyber súbor:</string>
     <string name="Wall">Steny</string>
@@ -202,7 +202,7 @@
     <string name="pref_grid_above_title">Mriežka navrchu</string>
     <string name="pref_grid_above_summary">Zaškrtnuté = mriežka hore</string>
     <string name="pref_grid_extent_title">Mriežka - rozsah</string>
-    <string name="pref_grid_extend_summary">Rozsah mriežky okolo Mapovania</string>
+    <string name="pref_grid_extent_summary">Rozsah mriežky okolo Mapovania</string>
     <string name="pref_neg_clino_title">Pohľady spod horizontu</string>
     <string name="pref_neg_clino_summary">Dovoliť pohľady aj spod horizontu</string>
     <string name="pref_dem_buffer_title">DEM buffer</string>

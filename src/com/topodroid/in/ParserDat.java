@@ -18,9 +18,12 @@ import com.topodroid.Cave3D.Cave3DSurvey;
 import com.topodroid.Cave3D.Cave3DStation;
 import com.topodroid.Cave3D.Cave3DShot;
 import com.topodroid.Cave3D.Cave3DFix;
+import com.topodroid.Cave3D.Cave3DFile;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
@@ -40,15 +43,35 @@ public class ParserDat extends TglParser
   static final int DATA_NORMAL    = 1;
   static final int DATA_DIMENSION = 2;
 
-  public ParserDat( TopoGL app, InputStreamReader isr, String filename ) throws ParserException
-  {
-    super( app, filename );
+  // static final public int DAT = 1; // type DAT
+  // static final public int MAK = 2;
 
-    if ( filename.toLowerCase().endsWith(".mak") ) {
-      readFile( isr, filename );
-    } else {
-      readFile( isr, filename, null, 0.0f, 0.0f, 0.0f );
-    }
+  // MAK file
+  // @param app
+  // @param isr       input stream reader
+  // @param name      survey name
+  // @param pathname  MAK-file pathname
+  public ParserDat( TopoGL app, InputStreamReader isr, String name, String pathname ) throws ParserException
+  {
+    super( app, name );
+    Log.v("Cave3D", "Parser MAK " + pathname );
+    readFileMak( isr, pathname );
+    // processShots();
+    setShotSurveys();
+    setSplaySurveys();
+    setStationDepths();
+  }
+
+  // DAT file
+  // @param app
+  // @param isr   input stream reader
+  // @param name  survey name
+  public ParserDat( TopoGL app, InputStreamReader isr, String name ) throws ParserException
+  {
+    super( app, name );
+
+    Log.v("Cave3D", "Parser DAT " + name );
+    readFileDat( isr, name, null, 0.0f, 0.0f, 0.0f );
     // processShots();
     setShotSurveys();
     setSplaySurveys();
@@ -57,28 +80,26 @@ public class ParserDat extends TglParser
 
   /** read input MAK file
    */
-  private boolean readFile( InputStreamReader isr, String filename )
+  private boolean readFileMak( InputStreamReader isr, String pathname )
                   throws ParserException
   {
-    if ( ! checkPath( filename ) ) return false;
+    String dirname = "./";
+    int i = pathname.lastIndexOf('/');
+    if ( i > 0 ) dirname = pathname.substring(0, i+1);
+    Log.v( "Cave3D", "MAK file " + pathname + " dir " + dirname );
 
     int linenr = 0;
-
     try {
-      String dirname = "./";
-      int i = filename.lastIndexOf('/');
-      if ( i > 0 ) dirname = filename.substring(0, i+1);
-      // Log.v( "TopoGL", "MAK file " + filename + " dir " + dirname );
-
-      BufferedReader br = getBufferedReader( isr, filename );
+      BufferedReader br = new BufferedReader( isr );
       ++linenr;
       String line = br.readLine();
-      // Log.v( "TopoGL", "MAK " + linenr + ":" + line );
+      // Log.v( "Cave3D", "MAK " + linenr + ":" + line );
       while ( line != null ) {
         // line = line.trim();
         if ( line.startsWith( "#" ) ) {
           i = line.lastIndexOf( ',' );
-	  String file = line.substring(1,i);
+          String file = line.substring(1,i);
+          String filename0 = dirname + file;
 
           ++linenr; line = br.readLine();
           line = line.trim();
@@ -89,7 +110,7 @@ public class ParserDat extends TglParser
 	  int j = line.indexOf( ']' );
           if ( j <= i+3 ) continue; // bad syntax
 	  String data = line.substring( i+3, j );
-          // Log.v( "TopoGL", "++ " + linenr + ": " + station + " - " + data );
+          // Log.v( "Cave3D", "++ " + linenr + ": " + station + " - " + data );
           String[] vals = data.split( "," );
           if ( vals.length >= 3 ) {
             try {
@@ -99,37 +120,39 @@ public class ParserDat extends TglParser
 	      double y = Double.parseDouble( vals[idx] );
               idx = nextIndex( vals, idx );
 	      double z = Double.parseDouble( vals[idx] );
-	      readFile( null, dirname + file, station, x, y, z ); // FIXME
+              String survey = Cave3DFile.getMainname( file );
+              InputStreamReader isr0 = new InputStreamReader( new FileInputStream( filename0 ) );
+	      readFileDat( isr0, survey, station, x, y, z ); // FIXME
+	    } catch ( FileNotFoundException e ) {
+	      Log.e(  "Cave3D", "Error DAT file " + filename0 + " not found");
 	    } catch ( NumberFormatException e ) {
-	      Log.e(  "TopoGL", "Error MAK file " + filename + ":" + linenr );
+	      Log.e(  "Cave3D", "Error MAK file " + pathname + ":" + linenr );
 	    }
 	  }
 	}
       
         ++linenr; line = br.readLine();
-        // Log.v( "TopoGL", "MAK " + linenr + ":" + line );
+        // Log.v( "Cave3D", "MAK " + linenr + ":" + line );
       }
     } catch ( IOException e ) {
-      Log.e(  "TopoGL", "MAK I/O error " + e.getMessage() );
-      throw new ParserException( filename, linenr );
+      Log.e(  "Cave3D", "MAK I/O error " + e.getMessage() );
+      throw new ParserException( getName(), linenr );
     }
-    // Log.v( "TopoGL", "done read MAK file " + filename );
+    // Log.v( "Cave3D", "done read MAK file " + pathname );
 
     return ( shots.size() > 0 );
   }
 
   /** read input DAT file
    */
-  private boolean readFile( InputStreamReader isr, String filename, String station, double x, double y, double z )
+  private boolean readFileDat( InputStreamReader isr, String survey, String station, double x, double y, double z )
                   throws ParserException
   {
-    if ( ! checkPath( filename ) ) return false;
-
     ArrayList< Cave3DShot > temp_shots  = new ArrayList<>();
     ArrayList< Cave3DShot > temp_splays = new ArrayList<>();
 
     int linenr = 0;
-    Log.v(  "TopoGL", "DAT file <" + filename + "> station " + station );
+    // Log.v("Cave3D", "DAT file <" + filename + "> station " + station );
     Cave3DCS cs = null;
     // int in_data = 0; // 0 none, 1 normal, 2 dimension
 
@@ -145,24 +168,13 @@ public class ParserDat extends TglParser
 
     double length, bearing, clino, left, up, down, right, back_bearing, back_clino;
 
-    String survey = null;
-
     try {
-      String dirname = "./";
-      int i = filename.lastIndexOf('/');
-      if ( i > 0 ) {
-        dirname = filename.substring(0, i+1);
-	survey  = "@" + filename.substring(i+1);
-      } else {
-        survey = "@" + filename;
-      }
-      survey.replace(".dat", "");
-      // Log.v(  "TopoGL", "DAT file " + filename + " dir " + dirname );
+      Log.v(  "Cave3D", "DAT survey " + survey );
 
-      BufferedReader br = getBufferedReader( isr, filename );
+      BufferedReader br = new BufferedReader( isr );
       ++linenr;
       String line = br.readLine();
-      // Log.v( "TopoGL", "DAT " + linenr + ":" + line );
+      // Log.v( "Cave3D", "DAT " + linenr + ":" + line );
       int cnt_shot = 0;
       while ( line != null ) {
         line = line.trim();
@@ -175,19 +187,19 @@ public class ParserDat extends TglParser
           idx = nextIndex( vals, idx );
 	  try {
             declination = Double.parseDouble( vals[idx] );
-	    // Log.v(  "TopoGL", "DAT declination " + declination );
+	    // Log.v(  "Cave3D", "DAT declination " + declination );
 	  } catch ( NumberFormatException e ) { }
 	} else if ( line.contains("FROM") && line.contains("TO" ) ) {
           ++linenr; line = br.readLine();
-          // Log.v( "TopoGL", "DAT " + linenr + ":" + line );
+          // Log.v( "Cave3D", "DAT " + linenr + ":" + line );
 	  for ( ; line != null; ) {
 	    if ( line.length() == 0 ) {
               ++linenr; line = br.readLine();
-              // Log.v( "TopoGL", "DAT " + linenr + ":" + line );
+              // Log.v( "Cave3D", "DAT " + linenr + ":" + line );
               continue;
 	    }
 	    if ( line.charAt(0) == 0x0c ) {
-              // Log.v(  "TopoGL", "DAT formfeed");
+              // Log.v(  "Cave3D", "DAT formfeed");
               break; // formfeed
 	    }
             String[] vals = splitLine( line );
@@ -292,21 +304,21 @@ public class ParserDat extends TglParser
 	      } catch ( NumberFormatException e ) { }
 	    }
             ++linenr; line = br.readLine();
-            // Log.v( "TopoGL", "DAT " + linenr + ":" + line );
+            // Log.v( "Cave3D", "DAT " + linenr + ":" + line );
 	  }
 	}
         ++linenr; line = br.readLine();
-        // Log.v( "TopoGL", "DAT " + linenr + ":" + line );
+        // Log.v( "Cave3D", "DAT " + linenr + ":" + line );
       }
       if ( station != null ) {
-        // Log.v(  "TopoGL", "DAT add fix station " +  station + survey );
+        // Log.v(  "Cave3D", "DAT add fix station " +  station + survey );
 	fixes.add( new Cave3DFix( station+survey, x, y, z, cs ) );
       }
     } catch ( IOException e ) {
-      Log.e(  "TopoGL-DAT", "DAT I/O error " + e.getMessage() );
-      throw new ParserException( filename, linenr );
+      Log.e(  "Cave3D-DAT", "DAT I/O error " + e.getMessage() );
+      throw new ParserException( getName() + survey, linenr );
     }
-    // Log.v( "TopoGL", "DAT shots " + temp_shots.size() );
+    // Log.v( "Cave3D", "DAT shots " + temp_shots.size() );
     processShots( temp_shots, temp_splays );
     return ( temp_shots.size() > 0 );
   }
@@ -372,38 +384,38 @@ public class ParserDat extends TglParser
   {
     if ( tshots.size() == 0 ) return;
     if ( fixes.size() == 0 ) {
-      // Log.v(  "TopoGL-DAT", "shots " + tshots.size() + " fixes " + fixes.size() );
+      // Log.v(  "Cave3D-DAT", "shots " + tshots.size() + " fixes " + fixes.size() );
       Cave3DShot sh = tshots.get( 0 );
       fixes.add( new Cave3DFix( sh.from, 0.0f, 0.0f, 0.0f, null ) );
     }
  
     int mLoopCnt = 0;
     Cave3DFix f0 = fixes.get( 0 );
-    // Log.v(  "TopoGL-DAT", "Process Shots. Fix " + f0.name + " " + f0.x + " " + f0.y + " " + f0.z );
+    // Log.v(  "Cave3D-DAT", "Process Shots. Fix " + f0.name + " " + f0.x + " " + f0.y + " " + f0.z );
 
     mCaveLength = 0.0f;
 
     for ( Cave3DFix fix : fixes ) {
       boolean found = false;
-      // Log.v(  "TopoGL-DAT", "checking fix " + fix.name );
+      // Log.v(  "Cave3D-DAT", "checking fix " + fix.name );
       for ( Cave3DStation s1 : stations ) {
         if ( fix.hasName( s1.name ) ) { found = true; break; }
       }
       if ( found ) { // skip fixed stations that are already included in the model
-        // Log.v(  "TopoGL-DAT", "found fix " + fix.name );
+        // Log.v(  "Cave3D-DAT", "found fix " + fix.name );
         continue;
       }
-      // Log.v( "TopoGL-DAT", "start station " + fix.name + " N " + fix.y + " E " + fix.x + " Z " + fix.z );
+      // Log.v( "Cave3D-DAT", "start station " + fix.name + " N " + fix.y + " E " + fix.x + " Z " + fix.z );
       stations.add( new Cave3DStation( fix.getName(), fix.x, fix.y, fix.z ) );
       // sh.from_station = s0;
     
       boolean repeat = true;
       while ( repeat ) {
-        // Log.v( "TopoGL-DAT", "scanning the tshots");
+        // Log.v( "Cave3D-DAT", "scanning the tshots");
         repeat = false;
         for ( Cave3DShot sh : tshots ) {
           if ( sh.isUsed() ) continue;
-          // Log.v( "TopoGL-DAT", "check shot " + sh.from + " " + sh.to );
+          // Log.v( "Cave3D-DAT", "check shot " + sh.from + " " + sh.to );
           // Cave3DStation sf = sh.from_station;
           // Cave3DStation st = sh.to_station;
           Cave3DStation sf = null;
@@ -412,17 +424,17 @@ public class ParserDat extends TglParser
             if ( sh.from.equals(s.name) ) {
               sf = s;
               if (  sh.from_station == null ) sh.from_station = s;
-              else if ( sh.from_station != s ) Log.e(  "TopoGL-DAT", "shot " + sh.from + " " + sh.to + " from-station mismatch ");
+              else if ( sh.from_station != s ) Log.e(  "Cave3D-DAT", "shot " + sh.from + " " + sh.to + " from-station mismatch ");
             } 
             if ( sh.to.equals(s.name) )   {
               st = s;
               if (  sh.to_station == null ) sh.to_station = s;
-              else if ( sh.to_station != s ) Log.e(  "TopoGL-DAT", "shot " + sh.from + " " + sh.to + " to-station mismatch ");
+              else if ( sh.to_station != s ) Log.e(  "Cave3D-DAT", "shot " + sh.from + " " + sh.to + " to-station mismatch ");
             }
             if ( sf != null && st != null ) break;
           }
           if ( sf != null && st != null ) {
-            // Log.v(  "TopoGL-DAT", "unused shot " + sh.from + " " + sh.to + " : " + sf.name + " " + st.name );
+            // Log.v(  "Cave3D-DAT", "unused shot " + sh.from + " " + sh.to + " : " + sf.name + " " + st.name );
             sh.setUsed( ); // LOOP
             mCaveLength += sh.length();
             // make a fake station
@@ -432,25 +444,25 @@ public class ParserDat extends TglParser
             ++ mLoopCnt;
             sh.to_station = s;
           } else if ( sf != null && st == null ) {
-            // Log.v(  "TopoGL-DAT", "unused shot " + sh.from + " " + sh.to + " : " + sf.name + " null" );
+            // Log.v(  "Cave3D-DAT", "unused shot " + sh.from + " " + sh.to + " : " + sf.name + " null" );
             Cave3DStation s = sh.getStationFromStation( sf );
             stations.add( s );
             sh.to_station = s;
-            // Log.v( "TopoGL-DAT", "add station " + sh.to_station.name + " N " + sh.to_station.n + " E " + sh.to_station.e + " Z " + sh.to_station.z );
+            // Log.v( "Cave3D-DAT", "add station " + sh.to_station.name + " N " + sh.to_station.n + " E " + sh.to_station.e + " Z " + sh.to_station.z );
             sh.setUsed( );
             mCaveLength += sh.length();
             repeat = true;
           } else if ( sf == null && st != null ) {
-            // Log.v(  "TopoGL-DAT", "unused shot " + sh.from + " " + sh.to + " : null " + st.name );
+            // Log.v(  "Cave3D-DAT", "unused shot " + sh.from + " " + sh.to + " : null " + st.name );
             Cave3DStation s = sh.getStationFromStation( st );
             stations.add( s );
             sh.from_station = s;
-            // Log.v( "TopoGL-DAT", "add station " + sh.from_station.name + " N " + sh.from_station.n + " E " + sh.from_station.e + " Z " + sh.from_station.z );
+            // Log.v( "Cave3D-DAT", "add station " + sh.from_station.name + " N " + sh.from_station.n + " E " + sh.from_station.e + " Z " + sh.from_station.z );
             sh.setUsed( );
             mCaveLength += sh.length();
             repeat = true;
           } else {
-            // Log.v(  "TopoGL-DAT", "unused shot " + sh.from + " " + sh.to + " : null null" );
+            // Log.v(  "Cave3D-DAT", "unused shot " + sh.from + " " + sh.to + " : null null" );
           }
         }
       }
@@ -461,7 +473,7 @@ public class ParserDat extends TglParser
       for ( Cave3DShot sh : tsplays ) {
         if ( sh.isUsed() ) continue;
         if (  sh.from_station != null ) continue;
-        // Log.v( "TopoGL-DAT", "check shot " + sh.from + " " + sh.to );
+        // Log.v( "Cave3D-DAT", "check shot " + sh.from + " " + sh.to );
         for ( Cave3DStation s : stations ) {
           if ( sh.from.equals(s.name) ) {
             sh.from_station = s;

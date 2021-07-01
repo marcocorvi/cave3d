@@ -82,17 +82,18 @@ public class DataHelper extends DataSetObservable
   {
     // String database_name = TDPath.getDatabase();
     Log.v("TopoGL", "database " + database_name + " version " + db_version );
-    DistoXOpenHelper openHelper = new DistoXOpenHelper( context, database_name, db_version );
-    if ( openHelper == null ) {
-      Log.e("TopoGL-DB", "null helper");
-      return;
-    }
+    // DistoXOpenHelper openHelper = new DistoXOpenHelper( context, database_name, db_version );
+    // if ( openHelper == null ) {
+    //   Log.e("TopoGL-DB", "null helper");
+    //   return;
+    // }
 
     try {
         // myDB = openHelper.getWritableDatabase();
-        myDB = openHelper.getReadableDatabase();
+        // myDB = openHelper.getReadableDatabase();
+        myDB = SQLiteDatabase.openDatabase( database_name, null, SQLiteDatabase.OPEN_READONLY );
         if ( myDB == null ) {
-          Log.e("TopoGL-DB", "failed get writable database" );
+          Log.e("TopoGL-DB", "failed get readable database" );
           return;
         }
 
@@ -222,27 +223,27 @@ public class DataHelper extends DataSetObservable
 
   // ----------------------------------------------------------------------
 
-  @SuppressWarnings("SyntaxError")
-  private static class DistoXOpenHelper extends SQLiteOpenHelper
-  {
-     // private static final String create_table = "CREATE TABLE IF NOT EXISTS ";
+  // @SuppressWarnings("SyntaxError")
+  // private static class DistoXOpenHelper extends SQLiteOpenHelper
+  // {
+  //    // private static final String create_table = "CREATE TABLE IF NOT EXISTS ";
 
-     DistoXOpenHelper(Context context, String database_name, int db_version ) 
-     {
-        super(context, database_name, null, db_version ); 
-        // Log.v( TAG, "NAME " + database_name );
-     }
+  //    DistoXOpenHelper(Context context, String database_name, int db_version ) 
+  //    {
+  //       super(context, database_name, null, db_version ); 
+  //       // Log.v( TAG, "NAME " + database_name );
+  //    }
 
-     @Override
-     public void onCreate(SQLiteDatabase db) 
-     {
-     }
+  //    @Override
+  //    public void onCreate(SQLiteDatabase db) 
+  //    {
+  //    }
 
-     @Override
-     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
-     {  
-     }
-  }
+  //    @Override
+  //    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
+  //    {  
+  //    }
+  // }
 
 }
 

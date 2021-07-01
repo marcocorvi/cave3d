@@ -21,7 +21,7 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.FileInputStream;
+import java.io.DataInputStream;
 import java.io.BufferedInputStream;
 
 
@@ -44,15 +44,15 @@ public class Parser3d extends TglParser
 
   double x0, y0, z0; // saved point
 
-  public Parser3d( TopoGL app, String filename ) throws ParserException
+  public Parser3d( TopoGL app, DataInputStream dis, String name ) throws ParserException
   {
-    super( app, filename );
+    super( app, name );
     mLabel = new StringBuffer();
     int32 = new byte[4];
     int16 = new byte[2];
     x0 = y0 = z0 = 0;
-    readfile( filename );
-    // Log.v("TopoGL-3d", "read " + filename + " shots " + shots.size() + " " + splays.size() );
+    readfile( dis );
+    // Log.v("Cave3D-3d", "read " + filename + " shots " + shots.size() + " " + splays.size() );
     setShotsNames();
   }
 
@@ -71,7 +71,7 @@ public class Parser3d extends TglParser
 
   private void moveTo( double x, double y, double z )
   {
-    // Log.v("TopoGL-3d", "move <" + mLabel.toString() + "> " + x + " " + y + " " + z );
+    // Log.v("Cave3D-3d", "move <" + mLabel.toString() + "> " + x + " " + y + " " + z );
     x0 = x;
     y0 = y;
     z0 = z;
@@ -129,7 +129,7 @@ public class Parser3d extends TglParser
         }
       }
     } else {
-      // Log.v("TopoGL-3d", "leg <" + mLabel.toString() + "> " + x + " " + y + " " + z + " flag " + flag );
+      // Log.v("Cave3D-3d", "leg <" + mLabel.toString() + "> " + x + " " + y + " " + z + " flag " + flag );
       long fl = ( flag & 0x03); // LINE_SURFACE | LINE_DUPLICATE
       to = getStationAt( x, y, z );
       if ( to == null ) {
@@ -162,7 +162,7 @@ public class Parser3d extends TglParser
       String fullname = station_name + "@" + survey_name;
       Cave3DStation station = getStationAt( x, y, z );
       if ( station == null ) {
-        // Log.v("TopoGL-3d", "station <" + mLabel.toString() + "> " + x + " " + y + " " + z + " flag " + flag );
+        // Log.v("Cave3D-3d", "station <" + mLabel.toString() + "> " + x + " " + y + " " + z + " flag " + flag );
         station = new Cave3DStation( fullname, x, y, z, survey );
         stations.add( station );
         survey.addStation( station );
@@ -177,169 +177,167 @@ public class Parser3d extends TglParser
   private double cm2m16( int cm ) { return ((cm & 0xffff) == 0xffff)? -1 : cm * 0.01; }
   private double cm2m32( int cm ) { return ((cm & 0xffffffff) == 0xffffffff)? -1 : cm * 0.01; }
 
-  private String readline( FileInputStream fis ) throws IOException
+  private String readline( DataInputStream dis ) throws IOException
   {
     StringBuffer sb = new StringBuffer();
     for ( ; ; ) {
-      int ch = fis.read();
+      int ch = dis.read();
       if ( ch == 0x0a ) break;
       sb.append( (char)ch );
     }
     return sb.toString().trim();
   }
 
-  private void readfile( String filename ) throws ParserException
+  private void readfile( DataInputStream dis ) throws ParserException
   {
-    FileInputStream fis = null;
     try {
-      fis = new FileInputStream( filename );
-      // BufferedInputStream bis = new BufferedInputStream( fis );
+      // BufferedInputStream bis = new BufferedInputStream( dis );
 
-      String line = readline( fis );
+      String line = readline( dis );
       line.trim();
-      // Log.v("TopoGL-3d", line ); // Survey 3D Image File
-      line = readline( fis );
-      // Log.v("TopoGL-3d <ver.>", line ); // v8
+      // Log.v("Cave3D-3d", line ); // Survey 3D Image File
+      line = readline( dis );
+      // Log.v("Cave3D-3d <ver.>", line ); // v8
       if ( ! line.equals( "v8" ) ) {
-        fis.close(); 
-        throw new ParserException( filename, 2 );
+        dis.close(); 
+        throw new ParserException( getName(), 2 );
       }
-      // line = readline( fis );
-      // Log.v("TopoGL-3d <title>", line ); // <title>
-      // line = readline( fis );
-      // Log.v("TopoGL-3d <proj4>", line ); // <proj4>
+      // line = readline( dis );
+      // Log.v("Cave3D-3d <title>", line ); // <title>
+      // line = readline( dis );
+      // Log.v("Cave3D-3d <proj4>", line ); // <proj4>
       for ( ; ; ) {
-        line = readline( fis );
-        // Log.v("TopoGL-3d", "@ " + line ); // <proj4>
+        line = readline( dis );
+        // Log.v("Cave3D-3d", "@ " + line ); // <proj4>
         if ( line == null ) break;
         if ( line.startsWith("@") ) break;
       } 
 
       String millis_str = line.substring(1);
       long millis = Long.parseLong( millis_str );
-      // Log.v("TopoGL-3d", "millis " + millis );
+      // Log.v("Cave3D-3d", "millis " + millis );
 
-      int flag = fis.read();  // read one byte file-wide flag
-      // Log.v("TopoGL-3d", "flag " + flag );
+      int flag = dis.read();  // read one byte file-wide flag
+      // Log.v("Cave3D-3d", "flag " + flag );
 
       for ( ; ; ) {
-        int code = fis.read();
-        // Log.v("TopoGL-3d", "code " + code );
+        int code = dis.read();
+        // Log.v("Cave3D-3d", "code " + code );
 
         // if ( code == 0 ) break; // apparently code-0 appears before the end of data
         if ( code == -1 ) break;
         int ccode = code & 0xf0;
         if ( ccode == 0x00 ) { // survey mode
-          handleSurvey( fis, code );
+          handleSurvey( dis, code );
         } else if ( ccode == 0x10 ) { // date
-          handleDate( fis, code );
+          handleDate( dis, code );
         } else if ( ccode == 0x30 ) { // xsect
-          handleXSect( fis, code );
+          handleXSect( dis, code );
         // } else if ( ccode == 0x20 ) { // label omitted: falls in the next case
         } else if ( ccode <= 0x70 ) { // line
-          handleLine( fis, code );
+          handleLine( dis, code );
         } else if ( ccode >= 0x80 ) { // label
-          handleLabel( fis, code );
+          handleLabel( dis, code );
         }
       }
-      if ( fis != null ) fis.close(); 
+      if ( dis != null ) dis.close(); 
     } catch ( IOException e ) { 
-      Log.e("TopoGL-3d", "error " + e.getMessage() );
+      Log.e("Cave3D-3d", "error " + e.getMessage() );
     }
   }
 
-  private void handleSurvey( FileInputStream fis, int code ) throws IOException
+  private void handleSurvey( DataInputStream dis, int code ) throws IOException
   {
     switch ( code & 0xf ) {
       case 0x01: // diving
-        // Log.v("TopoGL-3d", "diving format");
+        // Log.v("Cave3D-3d", "diving format");
         break;
       case 0x02: // cartesian
-        // Log.v("TopoGL-3d", "cartesian format");
+        // Log.v("Cave3D-3d", "cartesian format");
         break;
       case 0x03: // cylpolar
-        // Log.v("TopoGL-3d", "cylpolar format");
+        // Log.v("Cave3D-3d", "cylpolar format");
         break;
       case 0x04: // nosurvey
-        // Log.v("TopoGL-3d", "nosurvey format");
+        // Log.v("Cave3D-3d", "nosurvey format");
         break;
       case 0x0f: // moveTo
-        double x = cm2m32( Endian.readInt( fis, int32 ) );
-        double y = cm2m32( Endian.readInt( fis, int32 ) );
-        double z = cm2m32( Endian.readInt( fis, int32 ) );
+        double x = cm2m32( Endian.readInt( dis, int32 ) );
+        double y = cm2m32( Endian.readInt( dis, int32 ) );
+        double z = cm2m32( Endian.readInt( dis, int32 ) );
         moveTo( x, y, z );
-        // Log.v("TopoGL-3d", "moveto " + x + " " + y + " " + z );
+        // Log.v("Cave3D-3d", "moveto " + x + " " + y + " " + z );
         break;
     }
   }  
 
-  private void handleDate( FileInputStream fis, int code ) throws IOException
+  private void handleDate( DataInputStream dis, int code ) throws IOException
   {
     switch ( code & 0xf ) {
       case 0x00: // nothing
-        // Log.v("TopoGL-3d", "Date none" );
+        // Log.v("Cave3D-3d", "Date none" );
         break;
       case 0x01: // days
-        mDays1 = Endian.readShort( fis, int16 );
+        mDays1 = Endian.readShort( dis, int16 );
         mDays2 = mDays1;
-        // Log.v("TopoGL-3d", "Date days 1" );
+        // Log.v("Cave3D-3d", "Date days 1" );
         break;
       case 0x02: // days, span
-        mDays1 = Endian.readShort( fis, int16 );
-        int span = Endian.readShort( fis, int16 );
+        mDays1 = Endian.readShort( dis, int16 );
+        int span = Endian.readShort( dis, int16 );
         mDays2 = mDays1 + span;
-        // Log.v("TopoGL-3d", "Date days 2" );
+        // Log.v("Cave3D-3d", "Date days 2" );
         break;
       case 0x03: // days, days
-        mDays1 = Endian.readShort( fis, int16 );
-        mDays2 = Endian.readShort( fis, int16 );
-        // Log.v("TopoGL-3d", "Date days 3" );
+        mDays1 = Endian.readShort( dis, int16 );
+        mDays2 = Endian.readShort( dis, int16 );
+        // Log.v("Cave3D-3d", "Date days 3" );
         break;
       case 0x0f: // error
-        mLegs = Endian.readInt( fis, int32 );
-        mLength = cm2m32( Endian.readInt( fis, int32 ) );
-        mErrorE = cm2m32( Endian.readInt( fis, int32 ) );
-        mErrorH = cm2m32( Endian.readInt( fis, int32 ) );
-        mErrorV = cm2m32( Endian.readInt( fis, int32 ) );
-        // Log.v("TopoGL-3d", "Date Errors Nr legs " + mLegs );
+        mLegs = Endian.readInt( dis, int32 );
+        mLength = cm2m32( Endian.readInt( dis, int32 ) );
+        mErrorE = cm2m32( Endian.readInt( dis, int32 ) );
+        mErrorH = cm2m32( Endian.readInt( dis, int32 ) );
+        mErrorV = cm2m32( Endian.readInt( dis, int32 ) );
+        // Log.v("Cave3D-3d", "Date Errors Nr legs " + mLegs );
         break;
     }
   }  
 
-  private boolean handleXSect( FileInputStream fis, int code ) throws IOException
+  private boolean handleXSect( DataInputStream dis, int code ) throws IOException
   {
     boolean is_last = false;
     int label = 0;
     switch ( code & 0xf ) {
       case 0x01: 
-        // Log.v("TopoGL-3d", "XSect 1" );
+        // Log.v("Cave3D-3d", "XSect 1" );
         is_last = true;
       case 0x00:
-        // label = Endian.readInt( fis, int32 );
-        doHandleLabel( label, fis );
-        mLeft  = cm2m16( Endian.readShort( fis, int16 ) );
-        mRight = cm2m16( Endian.readShort( fis, int16 ) );
-        mUp    = cm2m16( Endian.readShort( fis, int16 ) );
-        mDown  = cm2m16( Endian.readShort( fis, int16 ) );
-        // Log.v("TopoGL-3d", "XSect " + mLeft + " " + mRight + " " + mUp + " " + mDown );
+        // label = Endian.readInt( dis, int32 );
+        doHandleLabel( label, dis );
+        mLeft  = cm2m16( Endian.readShort( dis, int16 ) );
+        mRight = cm2m16( Endian.readShort( dis, int16 ) );
+        mUp    = cm2m16( Endian.readShort( dis, int16 ) );
+        mDown  = cm2m16( Endian.readShort( dis, int16 ) );
+        // Log.v("Cave3D-3d", "XSect " + mLeft + " " + mRight + " " + mUp + " " + mDown );
         break;
       case 0x02: 
         is_last = true;
-        // Log.v("TopoGL-3d", "XSect 2" );
+        // Log.v("Cave3D-3d", "XSect 2" );
       case 0x03:
-        // label = Endian.readInt( fis, int32 );
-        doHandleLabel( label, fis );
-        mLeft  = cm2m32( Endian.readInt( fis, int32 ) );
-        mRight = cm2m32( Endian.readInt( fis, int32 ) );
-        mUp    = cm2m32( Endian.readInt( fis, int32 ) );
-        mDown  = cm2m32( Endian.readInt( fis, int32 ) );
-        // Log.v("TopoGL-3d", "XSect " + mLeft + " " + mRight + " " + mUp + " " + mDown );
+        // label = Endian.readInt( dis, int32 );
+        doHandleLabel( label, dis );
+        mLeft  = cm2m32( Endian.readInt( dis, int32 ) );
+        mRight = cm2m32( Endian.readInt( dis, int32 ) );
+        mUp    = cm2m32( Endian.readInt( dis, int32 ) );
+        mDown  = cm2m32( Endian.readInt( dis, int32 ) );
+        // Log.v("Cave3D-3d", "XSect " + mLeft + " " + mRight + " " + mUp + " " + mDown );
         break;
     }
     return is_last;
   }  
 
-  private void handleLine( FileInputStream fis, int code ) throws IOException
+  private void handleLine( DataInputStream dis, int code ) throws IOException
   {
     int flag = code & 0x0f;
     // 0x01  surface
@@ -347,17 +345,17 @@ public class Parser3d extends TglParser
     // 0x04  splay
     int label = 0;
     if ( ( code & 0x20 ) != 0x20 ) { // label not omitted
-      // int label = Endian.readInt( fis, int32 );
-      doHandleLabel( label, fis );
+      // int label = Endian.readInt( dis, int32 );
+      doHandleLabel( label, dis );
     }
-    double x = cm2m32( Endian.readInt( fis, int32 ) );
-    double y = cm2m32( Endian.readInt( fis, int32 ) );
-    double z = cm2m32( Endian.readInt( fis, int32 ) );
+    double x = cm2m32( Endian.readInt( dis, int32 ) );
+    double y = cm2m32( Endian.readInt( dis, int32 ) );
+    double z = cm2m32( Endian.readInt( dis, int32 ) );
     lineTo( x, y, z, flag );
-    // Log.v("TopoGL-3d", "Line to " + x + " " + y + " " + z );
+    // Log.v("Cave3D-3d", "Line to " + x + " " + y + " " + z );
   }  
 
-  private void handleLabel( FileInputStream fis, int code ) throws IOException
+  private void handleLabel( DataInputStream dis, int code ) throws IOException
   {
     int flag = code & 0x7f;
     // 0x01  on leg above ground
@@ -368,19 +366,19 @@ public class Parser3d extends TglParser
     // 0x20  anonymous
     // 0x40  on wall
     int label = 0;
-    // label = Endian.readInt( fis, int32 );
-    doHandleLabel( label, fis );
-    double x = cm2m32( Endian.readInt( fis, int32 ) );
-    double y = cm2m32( Endian.readInt( fis, int32 ) );
-    double z = cm2m32( Endian.readInt( fis, int32 ) );
+    // label = Endian.readInt( dis, int32 );
+    doHandleLabel( label, dis );
+    double x = cm2m32( Endian.readInt( dis, int32 ) );
+    double y = cm2m32( Endian.readInt( dis, int32 ) );
+    double z = cm2m32( Endian.readInt( dis, int32 ) );
     labelAt( x, y, z, flag );
-    // Log.v("TopoGL-3d", "Label at " + x + " " + y + " " + z );
+    // Log.v("Cave3D-3d", "Label at " + x + " " + y + " " + z );
   }  
 
-  private void doHandleLabel( int label, FileInputStream fis ) throws IOException
+  private void doHandleLabel( int label, DataInputStream dis ) throws IOException
   {
     if ( label == 0xffff ) return; // label omitted
-    int B = fis.read();
+    int B = dis.read();
     int D = 0;
     int A = 0;
     int B1 = -1;
@@ -389,17 +387,17 @@ public class Parser3d extends TglParser
       D = B >> 4;
       A = B & 0x0f;
     } else {
-      B1 = fis.read();
+      B1 = dis.read();
       if ( B1 != 0xff ) {
         D = B1;
       } else {
-        D = Endian.readInt( fis, int32 );
+        D = Endian.readInt( dis, int32 );
       }
-      B2 = fis.read();
+      B2 = dis.read();
       if ( B2 != 0xff ) {
         A = B2;
       } else {
-        A = Endian.readInt( fis, int32 );
+        A = Endian.readInt( dis, int32 );
       }
     }  
     if ( D > 0 ) {
@@ -412,12 +410,12 @@ public class Parser3d extends TglParser
     }
     if ( A > 0 ) {
       byte[] data = new byte[A];
-      int read = fis.read( data );
+      int read = dis.read( data );
       String str = new String( data );
       // assert( read == A );
       mLabel.append( str.toCharArray() );
     }
-    // Log.v("TopoGL-3d", "LABEL " + B + ": " + D + " " + A + " .. " + B1 + " " + B2 + " <" + mLabel.toString() + ">" );
+    // Log.v("Cave3D-3d", "LABEL " + B + ": " + D + " " + A + " .. " + B1 + " " + B2 + " <" + mLabel.toString() + ">" );
   }
       
 }

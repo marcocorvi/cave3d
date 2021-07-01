@@ -101,56 +101,56 @@ public class ExportSHP
 
   private boolean exportStations( String filepath, List<File> files, List< Cave3DStation> stations )
   {
-    // Log.v( "TopoGL-SHP", "Export stations " + stations.size() );
+    // Log.v( "Cave3D-SHP", "Export stations " + stations.size() );
     boolean ret = false;
     try {
       ShpPointz shp = new ShpPointz( filepath + "/station",  files );
       // shp.setYYMMDD( info.date );
       ret = shp.writeStations( stations );
     } catch ( IOException e ) {
-      Log.w( "TopoGL-SHP", "Failed station export: " + e.getMessage() );
+      Log.w( "Cave3D-SHP", "Failed station export: " + e.getMessage() );
     }
     return ret;
   }
     
   private boolean exportShots( String filepath, List<File> files, List< Cave3DShot> shots, String name )
   {
-    // Log.v( "TopoGL-SHP", "Export " + name + " " + shots.size() );
+    // Log.v( "Cave3D-SHP", "Export " + name + " " + shots.size() );
     boolean ret = false;
     try {
       ShpPolylinez shp = new ShpPolylinez( filepath + "/" + name, files );
       // shp.setYYMMDD( info.date );
       ret = shp.writeShots( shots, name );
     } catch ( IOException e ) {
-      Log.w( "TopoGL-SHP", "Failed " + name + " export: " + e.getMessage() );
+      Log.w( "Cave3D-SHP", "Failed " + name + " export: " + e.getMessage() );
     }
     return ret;
   }
 
   private boolean exportFacets( String filepath, List<File> files, List< CWFacet > facets )
   {
-    // Log.v( "TopoGL-SHP", "Export facets " + facets.size() );
+    // Log.v( "Cave3D-SHP", "Export facets " + facets.size() );
     boolean ret = false;
     try {
       ShpPolygonz shp = new ShpPolygonz( filepath + "/facet", files );
       // shp.setYYMMDD( info.date );
       ret = shp.writeFacets( facets );
     } catch ( IOException e ) {
-      Log.w( "TopoGL-SHP", "Failed facet export: " + e.getMessage() );
+      Log.w( "Cave3D-SHP", "Failed facet export: " + e.getMessage() );
     }
     return ret;
   }
 
   private boolean exportTriangles( String filepath, List<File> files, List< Triangle3D > triangles )
   {
-    // Log.v( "TopoGL-SHP", "Export triangles " + triangles.size() );
+    // Log.v( "Cave3D-SHP", "Export triangles " + triangles.size() );
     boolean ret = false;
     try {
       ShpPolygonz shp = new ShpPolygonz( filepath + "/triangle", files );
       // shp.setYYMMDD( info.date );
       ret = shp.writeTriangles( mTriangles );
     } catch ( IOException e ) {
-      Log.w( "TopoGL-SHP", "Failed triangle export: " + e.getMessage() );
+      Log.w( "Cave3D-SHP", "Failed triangle export: " + e.getMessage() );
     }
     return ret;
   }
@@ -162,11 +162,11 @@ public class ExportSHP
       if ( files != null ) {
         for (File file : files ) {
           if (file.isFile()) {
-            if ( ! file.delete() ) Log.w( "TopoGL-SHP", "File delete failed " + file.getName() ); 
+            if ( ! file.delete() ) Log.w( "Cave3D-SHP", "File delete failed " + file.getName() ); 
           }
         }
       }
-      if ( ! dir.delete() ) Log.w( "TopoGL-SHP", "Dir delete failed " + dir.getName() );
+      if ( ! dir.delete() ) Log.w( "Cave3D-SHP", "Dir delete failed " + dir.getName() );
     }
   }
 

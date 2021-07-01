@@ -23,8 +23,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.SeekBar;
-import android.widget.RadioButton;
 
 class DialogLegs extends Dialog 
                   implements View.OnClickListener

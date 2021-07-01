@@ -29,7 +29,7 @@
       >
       <LinearLayout
         android:layout_width="0dp"
-        android:layout_weight="50"
+        android:layout_weight="70"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginLeft="10dp"
@@ -118,19 +118,18 @@
           android:layout_marginRight="10dp"
           android:text="debug"
         / -->
-      <CheckBox android:id="@+id/overwrite"
+      <!-- CheckBox android:id="@+id/overwrite"
         android:layout_width="0dp" 
         android:layout_height="wrap_content"
         android:layout_weight="50"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:text="overwrite"
-        />
+        / -->
       <Button android:id="@+id/button_ok"
         style="@style/button_default"
-        android:layout_width="0dp" 
+        android:layout_width="match_parent" 
         android:layout_height="wrap_content"
-        android:layout_weight="50"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:text="@string/btn_ok"

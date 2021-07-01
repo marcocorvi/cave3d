@@ -27,12 +27,12 @@ import java.util.Locale;
 import java.util.List;
 import java.util.ArrayList;
 
-import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 // import java.io.PrintStream;
-import java.io.FileOutputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileNotFoundException;
+// import java.io.FileOutputStream;
+// import java.io.BufferedOutputStream;
+// import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class ExportKML
@@ -58,10 +58,10 @@ public class ExportKML
 
   private boolean getGeolocalizedData( TglParser data, double decl, double asl_factor )
   {
-    // Log.v( "TopoGL-KML", "get geoloc. data. Decl " + decl );
+    // Log.v( "Cave3D-KML", "get geoloc. data. Decl " + decl );
     List< Cave3DFix > fixes = data.getFixes();
     if ( fixes.size() == 0 ) {
-      // Log.v( "TopoGL-KML", "no geolocalization");
+      // Log.v( "Cave3D-KML", "no geolocalization");
       return false;
     }
 
@@ -80,7 +80,7 @@ public class ExportKML
       if ( origin != null ) break;
     }
     if ( origin == null ) {
-      // Log.v( "TopoGL-KML", "no geolocalized origin");
+      // Log.v( "Cave3D-KML", "no geolocalized origin");
       return false;
     }
 
@@ -90,7 +90,7 @@ public class ExportKML
     lng = origin.longitude;
     double alt = origin.altitude;
     asl = origin.z; // KML uses Geoid altitude (unless altitudeMode is set)
-    // Log.v( "TopoGL-KML", "origin " + lat + " N " + lng + " E " + asl );
+    // Log.v( "Cave3D-KML", "origin " + lat + " N " + lng + " E " + asl );
 
     s_radius = 1.0 / Geodetic.meridianRadiusExact( lat, alt );
     e_radius = 1.0 / Geodetic.parallelRadiusExact( lat, alt );
@@ -98,15 +98,15 @@ public class ExportKML
     return true;
   }
 
-  public boolean exportASCII( String filename, TglParser data, boolean do_splays, boolean do_walls, boolean do_station )
+  public boolean exportASCII( OutputStreamWriter osw, TglParser data, boolean do_splays, boolean do_walls, boolean do_station )
   {
     String name = "TopoGL";
     boolean ret = true;
     if ( data == null ) return false;
 
-    // Log.v( "TopoGL-KML", "export as KML " + filename );
+    // Log.v( "Cave3D-KML", "export as KML " + filename );
     if ( ! getGeolocalizedData( data, 0.0f, 1.0f ) ) { // FIXME declination 0.0f
-      Log.w( "TopoGL-KML", "no geolocalized station");
+      Log.w( "Cave3D-KML", "no geolocalized station");
       return false;
     }
 
@@ -116,8 +116,7 @@ public class ExportKML
 
     // now write the KML
     try {
-      FileWriter fw = new FileWriter( filename );
-      PrintWriter pw = new PrintWriter( fw );
+      PrintWriter pw = new PrintWriter( osw );
 
       pw.format(Locale.US, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
       pw.format(Locale.US, "<kml xmlnx=\"http://www.opengis.net/kml/2.2\">\n");
@@ -312,11 +311,11 @@ public class ExportKML
 
       pw.format(Locale.US, "</Document>\n");
       pw.format(Locale.US, "</kml>\n");
-      fw.flush();
-      fw.close();
+      osw.flush();
+      osw.close();
       return true;
     } catch ( IOException e ) {
-      Log.w( "TopoGL-KML", "I/O error " + e.getMessage() );
+      Log.w( "Cave3D-KML", "I/O error " + e.getMessage() );
       return false;
     }
   }

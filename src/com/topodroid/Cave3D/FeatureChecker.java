@@ -26,8 +26,8 @@ class FeatureChecker
   /** permissions string codes
    */ 
   static final private String perms[] = {
-      android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-      // android.Manifest.permission.READ_EXTERNAL_STORAGE,
+      // android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+      android.Manifest.permission.READ_EXTERNAL_STORAGE,
       // android.Manifest.permission.INTERNET,
       android.Manifest.permission.ACCESS_FINE_LOCATION, // WITH-GPS
   };
@@ -39,33 +39,24 @@ class FeatureChecker
    */
   static final int REQUEST_PERMISSIONS = 1;
 
-  private static boolean MustRestart = false; // whether need to restart app
   static boolean GrantedPermission[] = { false, false, false, false, false, false };
 
-  static void createPermissions( Context context, Activity activity )
+  static boolean createPermissions( Context context )
   {
-    // Log.v( "TopoGL-PERM", "create permissions" );
-    MustRestart = false;
+    Log.v( "Cave3D-PERM", "create permissions" );
     // FIXME-23
-    if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.M ) return;
+    if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.M ) return true;
     // FIXME-16 // nothing
 
+    boolean granted = true;
     for ( int k=0; k<NR_PERMS; ++k ) { // check whether the app has the six permissions
       // FIXME-23
       GrantedPermission[k] = ( context.checkSelfPermission( perms[k] ) == PackageManager.PERMISSION_GRANTED );
       // FIXME-16 GrantedPermission[k] = true;
-      // Log.v("TopoGL-PERM", "FC perm " + k + " granted " + GrantedPermission[k] );
-      if ( ! GrantedPermission[k] && k < NR_PERMS_D ) MustRestart = true;
+      Log.v("Cave3D-PERM", "FC perm " + k + " granted " + GrantedPermission[k] );
+      if ( ! GrantedPermission[k] && k < NR_PERMS_D ) granted = false;
     }
-
-    if ( MustRestart ) { // if a permission has not been granted request it
-      // Log.v("TopoGL-PERM", "FC must restart now");
-      /* FIXME-23 */
-      activity.requestPermissions( perms, REQUEST_PERMISSIONS );
-      android.os.Process.killProcess( android.os.Process.myPid() );
-      System.exit( 1 );
-      /* */
-    }
+    return granted;
   }
 
   /** check whether the running app has the needed permissions
@@ -75,13 +66,13 @@ class FeatureChecker
    */
   static int checkPermissions( Context context )
   {
-    // Log.v( "TopoGL-PERM", "check permissions" );
+    Log.v( "Cave3D-PERM", "check permissions" );
     int k;
     for ( k=0; k<NR_PERMS_D; ++k ) {
       int res = context.checkCallingOrSelfPermission( perms[k] );
       if ( res != PackageManager.PERMISSION_GRANTED ) {
         // TDToast.make( mActivity, "TopoGL must have " + perms[k] );
-        // Log.v( "TopoGL-PERM", "check permission: not granted - return -1" );
+        Log.v( "Cave3D-PERM", "check permission: " + perms[k] + " not granted - return -1" );
 	return -1;
       }
     }
@@ -95,7 +86,7 @@ class FeatureChecker
       }
       flag *= 2;
     }
-    // Log.v( "TopoGL-PERM", "check permission: return " + ret );
+    Log.v( "Cave3D-PERM", "check permission: return " + ret );
     return ret;
   }
 
@@ -117,13 +108,13 @@ class FeatureChecker
 
   // static boolean checkMultitouch( Context context )
   // {
-  //   // Log.v( TopoGL-PERM, "check multitouch" );
+  //   // Log.v( Cave3D-PERM, "check multitouch" );
   //   return context.getPackageManager().hasSystemFeature( PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH );
   // }
 
   // static boolean checkInternet( Context context )
   // {
-  //   // Log.v( TopoGL-PERM, "check internet" );
+  //   // Log.v( Cave3D-PERM, "check internet" );
   //   return ( context.checkCallingOrSelfPermission( android.Manifest.permission.INTERNET ) == PackageManager.PERMISSION_GRANTED );
   // }
 }

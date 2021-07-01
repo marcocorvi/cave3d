@@ -22,10 +22,10 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 // import java.io.PrintStream;
-import java.io.FileOutputStream;
+import java.io.DataOutputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -90,50 +90,41 @@ public class ExportSTL
     s = 1;
   }
   
-  public boolean exportASCII( String filename, boolean splays, boolean walls, boolean surface )
+  public boolean exportASCII( OutputStreamWriter osw, boolean splays, boolean walls, boolean surface )
   {
     makePositiveCoords();
     String name = "Cave3D";
     boolean ret = true;
-    FileWriter fw = null;
-    try {
-      fw = new FileWriter( filename );
-      PrintWriter pw = new PrintWriter( fw );
-      pw.format(Locale.US, "solid %s\n", name );
-      for ( CWFacet facet : mFacets ) {
-        pw.format(Locale.US, "  facet normal %.3f %.3f %.3f\n", facet.un.x, facet.un.y, facet.un.z );
+    PrintWriter pw = new PrintWriter( osw );
+    pw.format(Locale.US, "solid %s\n", name );
+    for ( CWFacet facet : mFacets ) {
+      pw.format(Locale.US, "  facet normal %.3f %.3f %.3f\n", facet.un.x, facet.un.y, facet.un.z );
+      pw.format(Locale.US, "    outer loop\n");
+      pw.format(Locale.US, "      vertex %.3f %.3f %.3f\n", (x+facet.v1.x)*s, (y+facet.v1.y)*s, (z+facet.v1.z)*s );
+      pw.format(Locale.US, "      vertex %.3f %.3f %.3f\n", (x+facet.v2.x)*s, (y+facet.v2.y)*s, (z+facet.v2.z)*s );
+      pw.format(Locale.US, "      vertex %.3f %.3f %.3f\n", (x+facet.v3.x)*s, (y+facet.v3.y)*s, (z+facet.v3.z)*s );
+      pw.format(Locale.US, "    endloop\n");
+      pw.format(Locale.US, "  endfacet\n");
+    }
+    if ( mTriangles != null ) {
+      for ( Triangle3D t : mTriangles ) {
+        int size = t.size;
+        Vector3D n = t.normal;
+        pw.format(Locale.US, "  facet normal %.3f %.3f %.3f\n", n.x, n.y, n.z );
         pw.format(Locale.US, "    outer loop\n");
-        pw.format(Locale.US, "      vertex %.3f %.3f %.3f\n", (x+facet.v1.x)*s, (y+facet.v1.y)*s, (z+facet.v1.z)*s );
-        pw.format(Locale.US, "      vertex %.3f %.3f %.3f\n", (x+facet.v2.x)*s, (y+facet.v2.y)*s, (z+facet.v2.z)*s );
-        pw.format(Locale.US, "      vertex %.3f %.3f %.3f\n", (x+facet.v3.x)*s, (y+facet.v3.y)*s, (z+facet.v3.z)*s );
+        for ( int k=0; k<size; ++k ) {
+          Vector3D v = t.vertex[k];
+          pw.format(Locale.US, "      vertex %.3f %.3f %.3f\n", (x+v.x)*s, (y+v.y)*s, (z+v.z)*s );
+        }
         pw.format(Locale.US, "    endloop\n");
         pw.format(Locale.US, "  endfacet\n");
       }
-      if ( mTriangles != null ) {
-        for ( Triangle3D t : mTriangles ) {
-          int size = t.size;
-          Vector3D n = t.normal;
-          pw.format(Locale.US, "  facet normal %.3f %.3f %.3f\n", n.x, n.y, n.z );
-          pw.format(Locale.US, "    outer loop\n");
-          for ( int k=0; k<size; ++k ) {
-            Vector3D v = t.vertex[k];
-            pw.format(Locale.US, "      vertex %.3f %.3f %.3f\n", (x+v.x)*s, (y+v.y)*s, (z+v.z)*s );
-          }
-          pw.format(Locale.US, "    endloop\n");
-          pw.format(Locale.US, "  endfacet\n");
-        }
-      }
-      pw.format(Locale.US, "endsolid %s\n", name );
-    } catch ( FileNotFoundException e ) { 
-      Log.e( "TopoGL-STL", "error " + e.getMessage() );
-      ret = false;
-    } catch( IOException e ) {
-      Log.e( "TopoGL-STL", "I/O error " + e.getMessage() );
-      ret = false;
-    } finally {
-      try {
-        if ( fw != null ) fw.close();
-      } catch ( IOException e ) {}
+    }
+    pw.format(Locale.US, "endsolid %s\n", name );
+    try {
+      osw.close();
+    } catch ( IOException e ) { // ???
+      return false;
     }
     return ret;
   }
@@ -166,12 +157,11 @@ public class ExportSTL
   //   return (float)( val[0] | ( ((int)val[1]) << 8 ) | ( ((int)(val[2])) << 16 ) | ( ((int)(val[3])) << 24 ) );
   // }
 
-  public boolean exportBinary( String filename, boolean splays, boolean walls, boolean surface ) 
+  public boolean exportBinary( DataOutputStream dos, boolean splays, boolean walls, boolean surface ) 
   {
     makePositiveCoords();
     String name = "Cave3D";
     boolean ret = true;
-    FileOutputStream fw = null;
     byte[] header = new byte[80];
     byte[] b4 = new byte[4];
     byte[] b2  = new byte[2];
@@ -179,12 +169,11 @@ public class ExportSTL
     b2[0] = (byte)0;
     b2[1] = (byte)0;
     try {
-      fw = new FileOutputStream( filename );
-      BufferedOutputStream bw = new BufferedOutputStream( fw ); 
+      BufferedOutputStream bw = new BufferedOutputStream( dos ); 
       bw.write( header, 0, 80 );
       int sz = mFacets.size();
       if ( mTriangles != null ) sz += mTriangles.size();
-      intToByte( sz, b4 ); fw.write( b4 );
+      intToByte( sz, b4 ); bw.write( b4 );
       for ( CWFacet facet : mFacets ) {
         floatToByte(   facet.un.x, b4 ); bw.write( b4, 0, 4 );
         floatToByte(   facet.un.y, b4 ); bw.write( b4, 0, 4 );
@@ -225,15 +214,12 @@ public class ExportSTL
           }
         }
       }
-    } catch ( FileNotFoundException e ) { 
-      Log.e( "TopoGL-STL", "error " + e.getMessage() );
-      ret = false;
     } catch( IOException e ) {
-      Log.e( "TopoGL-STL", "I/O error " + e.getMessage() );
+      Log.e( "Cave3D-STL", "I/O error " + e.getMessage() );
       ret = false;
     } finally {
       try {
-        if ( fw != null ) fw.close();
+        dos.close();
       } catch ( IOException e ) {}
     }
     return ret;

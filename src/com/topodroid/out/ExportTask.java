@@ -29,12 +29,13 @@ public class ExportTask extends AsyncTask< Void, Void, Boolean >
   private TopoGL mApp;
   private TglParser mParser;
   private int mType;
+  private Uri mUri;
   private String mPathname;
   private boolean mSplays;
   private boolean mStation;
   private boolean mSurface;
   private boolean mWalls;
-  private boolean mOverwrite;
+  // private boolean mOverwrite;
 
 
   // public ExportTask( TopoGL app, TglParser parser, int type, String pathname, boolean splays, boolean station, boolean surface, boolean walls, boolean overwrite )
@@ -55,12 +56,13 @@ public class ExportTask extends AsyncTask< Void, Void, Boolean >
     mApp    = app;
     mParser = parser;
     mPathname = uri.getPath();
+    mUri      = uri;
     mType     = export.mType;
     mSplays   = export.mSplays;
     mStation  = export.mStation;
     mSurface  = export.mSurface;
     mWalls    = export.mWalls;
-    mOverwrite = export.mOverwrite;
+    // mOverwrite = export.mOverwrite;
   }
 
   @Override
@@ -68,24 +70,25 @@ public class ExportTask extends AsyncTask< Void, Void, Boolean >
   {
     try {
       switch ( mType ) {
-        case ModelType.STL_BINARY:
-          return mParser.exportModel( mType, mPathname, mSplays, mWalls, mSurface, mOverwrite );
-        case ModelType.STL_ASCII:
-          return mParser.exportModel( mType, mPathname, mSplays, mWalls, mSurface, mOverwrite );
-        case ModelType.KML_ASCII:
-          return mParser.exportModel( mType, mPathname, mSplays, mWalls, mStation, mOverwrite );
-        case ModelType.CGAL_ASCII:
-          return mParser.exportModel( mType, mPathname, mSplays, mWalls, mStation, mOverwrite );
-        case ModelType.LAS_BINARY:
-          return mParser.exportModel( mType, mPathname, mSplays, mWalls, mStation, mOverwrite );
-        case ModelType.DXF_ASCII:
-          return mParser.exportModel( mType, mPathname, mSplays, mWalls, mStation, mOverwrite );
-        case ModelType.SHP_ASCII:
-          return mParser.exportModel( mType, mPathname, mSplays, mWalls, mStation, mOverwrite );
         case ModelType.GLTF:
-          return mApp.exportModel( mType, mPathname, mSplays, mWalls, mStation, mOverwrite );
+          return mApp.exportModel( mType, mUri, mSplays, mWalls, mStation );
+
+        case ModelType.STL_BINARY:
+          return mParser.exportModel( mType, mUri, mSplays, mWalls, mSurface );
+        case ModelType.STL_ASCII:
+          return mParser.exportModel( mType, mUri, mSplays, mWalls, mSurface );
+        case ModelType.KML_ASCII:
+          return mParser.exportModel( mType, mUri, mSplays, mWalls, mStation );
+        case ModelType.CGAL_ASCII:
+          return mParser.exportModel( mType, mUri, mSplays, mWalls, mStation );
+        case ModelType.LAS_BINARY:
+          return mParser.exportModel( mType, mUri, mSplays, mWalls, mStation );
+        case ModelType.DXF_ASCII:
+          return mParser.exportModel( mType, mUri, mSplays, mWalls, mStation );
+        case ModelType.SHP_ASCII:
+          return mParser.exportModel( mType, mUri, mSplays, mWalls, mStation );
         case ModelType.SERIAL:
-          return mParser.exportModel( mType, mPathname, mSplays, mWalls, mSurface, mOverwrite );
+          return mParser.exportModel( mType, mUri, mSplays, mWalls, mSurface );
         default:
           break;
       }

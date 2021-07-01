@@ -22,7 +22,7 @@ import java.util.Locale;
 import java.util.List;
 import java.util.ArrayList;
 
-import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 // import java.io.PrintStream;
 import java.io.FileOutputStream;
@@ -40,10 +40,10 @@ public class ExportCGAL
 
   // ExportCGAL() { }
 
-  public boolean exportASCII( String filename, TglParser data, boolean do_splays, boolean do_walls, boolean do_station )
+  public boolean exportASCII( OutputStreamWriter osw, TglParser data, boolean do_splays, boolean do_walls, boolean do_station )
   {
     // String name = "Cave3D";
-    // Log.v( "TopoGL-CGAL, "export as CGAL " + filename );
+    // Log.v( "Cave3D-CGAL, "export as CGAL " + filename );
     if ( data == null ) return false;
 
     List< Cave3DStation> stations = data.getStations();
@@ -52,8 +52,7 @@ public class ExportCGAL
 
     // now write the KML
     try {
-      FileWriter fw = new FileWriter( filename );
-      PrintWriter pw = new PrintWriter( fw );
+      PrintWriter pw = new PrintWriter( osw );
 
       int nst = stations.size();
       int nsp = splays.size();
@@ -81,11 +80,11 @@ public class ExportCGAL
           }
         }  
       }
-      fw.flush();
-      fw.close();
+      osw.flush();
+      osw.close();
       return true;
     } catch ( IOException e ) {
-      // Log.e( "TopoGL-CGAL, "Failed export: " + e.getMessage() );
+      // Log.e( "Cave3D-CGAL, "Failed export: " + e.getMessage() );
       return false;
     }
   }

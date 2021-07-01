@@ -12,7 +12,7 @@
 package com.topodroid.in;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.DataInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -67,7 +67,9 @@ class LoxFile
 
   private int linenr = 0; // chunk number
 
-  LoxFile( String filename ) throws ParserException
+  // @param dis        input stream
+  // @param filename   name (for error report)
+  LoxFile( DataInputStream dis, String filename ) throws ParserException
   {
     mSurface = null;
     mBitmap  = null;
@@ -77,13 +79,8 @@ class LoxFile
     mShots    = new ArrayList< LoxShot >();
     mScraps   = new ArrayList< LoxScrap >();
     
-    File file = new File( filename );
     linenr = 0;
-    if ( file.exists() ) {
-      readChunks( filename );
-    } else {
-      throw new ParserException( filename, linenr );
-    }
+    readChunks( dis, filename );
   }
 
   int NrSurveys()  { return mSurveyChunk.size(); }
@@ -106,18 +103,16 @@ class LoxFile
   static private final int SIZE_SCRAP   = ( ( 8 * Endian.SIZE32 + 0 * Endian.SIZEDBL ) );
   static private final int SIZE_SURFACE = ( ( 5 * Endian.SIZE32 + 6 * Endian.SIZEDBL ) );
 
-  private void readChunks( String filename ) throws ParserException
+  private void readChunks( DataInputStream dis, String filename ) throws ParserException
   {
     // Log.v(  "TopoGL-LOX", "read chunks " + filename );
     int type;
     byte int32[] = new byte[ Endian.SIZE32 ];
-    FileInputStream fis = null;
     try {
-      fis = new FileInputStream( filename );
       boolean done = false;
       while ( ! done ) {
 	++linenr;
-        int len = Endian.readInt32( fis, int32 );
+        int len = Endian.readInt32( dis, int32 );
         if ( len == -1 ) { // end of file
           done = true;
           continue;
@@ -129,19 +124,19 @@ class LoxFile
           continue;
         }
         Chunk_t c = new Chunk_t( type );
-        c.rec_size  = Endian.readInt( fis, int32 );
-        c.rec_cnt   = Endian.readInt( fis, int32 );
-        c.data_size = Endian.readInt( fis, int32 );
+        c.rec_size  = Endian.readInt( dis, int32 );
+        c.rec_cnt   = Endian.readInt( dis, int32 );
+        c.data_size = Endian.readInt( dis, int32 );
         // Log.v(  "TopoGL-LOX", "Type " + c.type + " RecSize " + c.rec_size + " RecCnt " + c.rec_cnt + " DataSize " + c.data_size );
         if ( c.rec_size > 0 ) {
           c.records = new byte[ c.rec_size ];
-          fis.read( c.records, 0, c.rec_size );
+          dis.read( c.records, 0, c.rec_size );
           // Log.v(  "TopoGL-LOX", c.records[0] + " " + c.records[1] + " " + c.records[2] + " " + c.records[3] + " " + 
           //            c.records[4] + " " + c.records[5] + " " + c.records[6] + " " + c.records[7] );
         }
         if ( c.data_size > 0 ) {
           c.data = new byte[ c.data_size ];
-          fis.read( c.data, 0, c.data_size );
+          dis.read( c.data, 0, c.data_size );
         }
         // Log.v( "TopoGL-LOX", "Read: bytes " + (4 * Endian.SIZE32 + c.rec_size + c.data_size) );
         switch ( type ) {
@@ -166,15 +161,12 @@ class LoxFile
           default:
         }
       }
-    } catch( FileNotFoundException e ) {
-      Log.e(  "TopoGL-LOX", "File not found " + e.getMessage() );
-      throw new ParserException( filename, linenr );
     } catch( IOException e ) {
       Log.e(  "TopoGL-LOX", "I/O error " + e.getMessage() );
       throw new ParserException( filename, linenr );
     } finally {
       try {
-        if ( fis != null ) fis.close();
+        if ( dis != null ) dis.close();
       } catch( IOException e ) { }
     }
   }

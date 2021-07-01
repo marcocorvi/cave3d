@@ -11,7 +11,7 @@
  */
 package com.topodroid.in;
 
-import java.io.FileInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 
 class Endian
@@ -113,18 +113,18 @@ class Endian
 
   // @param fis    file input stream
   // @param int32  array of SIZE32 bytes (preallocated)
-  static int readInt32( FileInputStream fis, byte[] int32 ) throws IOException
+  static int readInt32( DataInputStream fis, byte[] int32 ) throws IOException
   {
     return fis.read( int32, 0, SIZE32 );
   }
 
-  static int readInt( FileInputStream fis, byte[] int32 ) throws IOException
+  static int readInt( DataInputStream fis, byte[] int32 ) throws IOException
   {
     fis.read( int32, 0, SIZE32 );
     return toIntLEndian( int32 );
   }
 
-  static int readShort( FileInputStream fis, byte[] int16 ) throws IOException
+  static int readShort( DataInputStream fis, byte[] int16 ) throws IOException
   {
     fis.read( int16, 0, SIZE16 );
     return toShortLEndian( int16 );

@@ -49,6 +49,16 @@ public class Cave3DShot
   public boolean isUsed()      { return used; }
   public void setUsed() { used = true; }
 
+  // used by manual legs
+  public void setFlags( boolean s, boolean d, boolean c )
+  {
+    mFlag = FLAG_SURVEY
+          | ( s ? FLAG_SURFACE : 0 )
+          | ( d ? FLAG_DUPLICATE : 0 )
+          | ( c ? FLAG_COMMENTED : 0 );
+  }
+    
+
   public double length( ) { return len; }
   // public double bearing() { return ber; }
   // public double clino()   { return cln; }

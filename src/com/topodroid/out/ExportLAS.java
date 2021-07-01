@@ -24,7 +24,6 @@ import java.util.Calendar;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 // import java.io.PrintStream;
-import java.io.FileOutputStream;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -43,13 +42,13 @@ public class ExportLAS
   final static int FMT6_SIZE =  30; // bytes
   final static int VLR_SIZE  =  54;  // VLR header size
   
-  public static boolean exportBinary( String filename, TglParser data, boolean do_splays, boolean do_walls, boolean do_station )
+  public static boolean exportBinary( DataOutputStream dos, TglParser data, boolean do_splays, boolean do_walls, boolean do_station )
   { 
     if ( data == null ) return false;
 
     double[] v = data.getSplaysEndpoints();
     int nr_pts = data.getSplayNumber();
-    // Log.v( "TopoGL-LAS", "Number of points " + nr_pts );
+    // Log.v( "Cave3D-LAS", "Number of points " + nr_pts );
     int fmt = FMT1_SIZE;
     int nr_vlr = 0;
 
@@ -76,8 +75,6 @@ public class ExportLAS
     double inta = (90)/maxx;
     double intz = (1<<15)/maxz;
     try {
-      FileOutputStream fos = new FileOutputStream( filename );
-      DataOutputStream dos = new DataOutputStream( fos );
       byte[] header = makeHeader( nr_pts, nr_vlr, fmt, minx, maxx, miny, maxy, minz, maxz );
       dos.write( header );
       dos.write( (byte)0xdd );
@@ -97,11 +94,8 @@ public class ExportLAS
         byte[] point = getPointFormat1( x, v[k3+1]-miny, z, (short)(z*intz), (byte)(x*inta) );
         dos.write( point );
       }
-      fos.flush();
-      fos.close();
-    } catch ( FileNotFoundException e1 ) {
-      // TODO
-      return false;
+      dos.flush();
+      dos.close();
     } catch ( IOException e2 ) {
       // TODO
       return false;
@@ -250,7 +244,7 @@ public class ExportLAS
     putShort( ret, (short)0 );
     putShort( ret, (short)0 );
     putLong(  ret, (long)0 );  // (24)
-    // Log.v( "TopoGL-LAS", "position major/minor " + ret.position() );
+    // Log.v( "Cave3D-LAS", "position major/minor " + ret.position() );
     ret.put( (byte)1 );  // major 1
     ret.put( (byte)2 );  // minor 2 (26)
     for ( k=0; k<5; ++k ) ret.put( (byte)sys.charAt(k) ); 
@@ -268,14 +262,14 @@ public class ExportLAS
 
     putInt(   ret, (int)nr_pts );       // nr pt records by return 
     for ( k=1; k < 5; ++k ) ret.putInt( (int)0 );        // 5 ints (135)
-    // Log.v( "TopoGL-LAS", "position scale " + ret.position() );
+    // Log.v( "Cave3D-LAS", "position scale " + ret.position() );
     putDouble( ret, (double)SCALE );   // X scale
     putDouble( ret, (double)SCALE );   // Y scale
     putDouble( ret, (double)SCALE );   // Z scale
     putDouble( ret, (double)0 );      // X offset
     putDouble( ret, (double)0 );      // Y offset
     putDouble( ret, (double)0 );      // Z offset (183)
-    // Log.v( "TopoGL-LAS", "position max/min " + ret.position() );
+    // Log.v( "Cave3D-LAS", "position max/min " + ret.position() );
     putDouble( ret, (double)maxx );
     putDouble( ret, (double)minx );
     putDouble( ret, (double)maxy );
@@ -287,7 +281,7 @@ public class ExportLAS
     // putLong( ret, (long)elen );     // start of EVRL (247) {v. 1.4}
     // putInt( ret, (int)0 );          // nr EVRL (251)
     // putLong( ret, (long)nr_pts );   // nr pt records (259)
-    // // Log.v( "TopoGL-LAS", "position " + ret.position() );
+    // // Log.v( "Cave3D-LAS", "position " + ret.position() );
     // // ret.put( rets2 );        // (379)
     // for ( k=0; k<15; ++k ) putLong( ret, (long)0 );
 
