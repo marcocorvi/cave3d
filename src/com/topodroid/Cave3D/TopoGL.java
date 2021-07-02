@@ -112,6 +112,7 @@ public class TopoGL extends Activity
                     , OnSharedPreferenceChangeListener
                     , GPS.GPSListener // WITH-GPS 
 {
+  // runtime flags
   final static boolean BLUETOOTH = true;
   final static boolean BLUETOOTH_REMOTE = false;
 
@@ -488,14 +489,14 @@ public class TopoGL extends Activity
     R.string.menu_open,       // 0
     R.string.menu_export,
     R.string.menu_ble, // FIXME BLUETOOTH  MENU
-    R.string.menu_info,
+    R.string.menu_info,       // 3
     R.string.menu_ico,
     R.string.menu_rose,
     R.string.menu_reset,
-    R.string.menu_viewpoint,  // 6
+    R.string.menu_viewpoint,  // 7
     R.string.menu_alpha,
-    R.string.menu_wall,       // 8
-    R.string.menu_sketch,     // 9
+    R.string.menu_wall,       // 9
+    R.string.menu_sketch,     // 10
     R.string.menu_options,
     // R.string.menu_fractal, // FRACTAL
     R.string.menu_help
@@ -511,7 +512,7 @@ public class TopoGL extends Activity
     if ( mMenu != null ) {
       mMenuAdapter = new MyMenuAdapter( this, this, mMenu, R.layout.menu, new ArrayList< MyMenuItem >() );
       for ( int k=0; k<menus.length; ++k ) {
-        if ( k == MENU_BT  && ! ( hasBluetoothName() && mWithBluetooth ) ) continue; // FIXME BLUETOOTH  MENU
+        if ( k == MENU_BT  && ! ( mWithBluetooth && hasBluetoothName() ) ) continue; // FIXME BLUETOOTH  MENU
         if ( k == MENU_C3D && ! mHasC3d ) continue;
             
         mMenuAdapter.add( res.getString( menus[k] ) );

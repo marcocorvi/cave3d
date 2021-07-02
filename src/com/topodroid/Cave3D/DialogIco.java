@@ -50,7 +50,8 @@ class DialogIco extends Dialog
   private static int RADIUS = SIDE/2 - 10;
 
   int mNr;
-  private double mTheta, mPhi;
+  private double mTheta; // clino: theta=0 --> +90, theta=PI --> -90
+  private double mPhi;   // azimuth: phi=0 --> North, phi=PI/2 --> East
 
   private ImageView mImage;
   private TextView mText;
@@ -88,13 +89,17 @@ class DialogIco extends Dialog
     double cp = Math.cos(mPhi);
     double sp = Math.sin(mPhi);
 
-    n1x =  cp;    n1y = -sp;    n1z = 0;
-    n2x = -ct*sp; n2y = -ct*cp; n2z = st;
-    n3x = st*sp;  n3y = st*cp;  n3z = ct;
+    // x = East   y = North     z = Up
+    n1x =  cp;    n1y = -sp;    n1z = 0;   // V1: vector in the horizontal plane orthogonal to the view V3=(sp*cg, cp*cg, sg )
+                                           // g = PI/2 - t therefore cg = st, sg = ct 
+                                           // V3 = ( sp*st, cp*st, ct )
+    n2x = -ct*sp; n2y = -ct*cp; n2z = st;  // V2 = V1 ^ V3 = ( cp, -sp, 0 ) ^ ( sp*st, cp*st, ct ) = ( -sp*ct, -(cp*ct), cp*cp*st - (-sp)*sp*st )
+    n3x = st*sp;  n3y = st*cp;  n3z = ct;  // V3  
+                                           // East = (1,0,0) projects to (n1x, n2x)
 
     StringWriter sw = new StringWriter();
     PrintWriter pw = new PrintWriter( sw );
-    pw.format(Locale.US, "Clino %.0f Azimuth %.0f",
+    pw.format(Locale.US, "Viewing at clino %.0f azimuth %.0f",
       90 - mTheta*180/Math.PI, 
       mPhi*180/Math.PI );
     mText.setText( sw.getBuffer().toString() );
@@ -147,7 +152,7 @@ class DialogIco extends Dialog
 
       double v = diagram.mValue[k] / mMax;
       float dx = (float)(  v * RADIUS * x);
-      float dy = (float)(- v * RADIUS * y);
+      float dy = (float)(- v * RADIUS * y); // north is upward, but screen Y is downward
       int col = (int)(0xff * v);
       // Log.v( "TopoGL", " path to " + dx + " " + dy );
       Path path = new Path();
@@ -156,11 +161,29 @@ class DialogIco extends Dialog
       path.lineTo( CX + dx - dy/20, CY + dy + dx/20 );
       path.close();
       Paint paint = new Paint();
-      paint.setARGB( 0x99, col, col, col );
+      paint.setARGB( 0xbb, col, col, col );
       paint.setStyle( Paint.Style.FILL );
       paint.setStrokeWidth( 2 );
       canvas.drawPath( path, paint );
     } 
+    Paint green = new Paint();
+    green.setARGB( 0xff, 0, 0xff, 0 );
+    green.setStyle( Paint.Style.FILL_AND_STROKE );
+    green.setStrokeWidth( 4 );
+    Path east = new Path();
+    east.moveTo( CX, CY );
+    east.lineTo( CX + (float)(n1x*400), CY - (float)(n2x*400) );
+    canvas.drawPath( east, green );
+
+    Paint cyan = new Paint();
+    cyan.setARGB( 0xff, 0, 0xff, 0xff );
+    cyan.setStyle( Paint.Style.FILL_AND_STROKE );
+    cyan.setStrokeWidth( 4 );
+    Path north = new Path();
+    north.moveTo( CX, CY );
+    north.lineTo( CX + (float)(n1y*400), CY - (float)(n2y*400) );
+    canvas.drawPath( north, cyan );
+    
   }
 
   double mSaveX, mSaveY;
