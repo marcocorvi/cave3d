@@ -19,5 +19,6 @@ public class ExportData
   public boolean mStation;
   // public boolean mOverwrite;
   public int mType;
+  public String mMime; // mime type
 
 }

@@ -115,7 +115,7 @@ public class ParserTh extends TglParser
     super( app, surveyname );
     mMarks = new ArrayList< String >();
 
-    String path = base + "distox14.sqlite";
+    String path = base + "/distox14.sqlite";
     Log.v( "Cave3D-TH", "Th parser DB " + path + " survey " + surveyname );
     mData = new DataHelper( app, path, TDVersion.DATABASE_VERSION );
 
@@ -145,7 +145,7 @@ public class ParserTh extends TglParser
     mMarks = new ArrayList< String >();
     int pos = filename.indexOf("thconfig");
     if ( pos >= 0 ) {
-      String path = filename.substring(0, pos) + "distox14.sqlite";
+      String path = filename.substring(0, pos) + "/distox14.sqlite";
       Log.v( "Cave3D-TH", "DB " + path );
       mData = new DataHelper( app, path, TDVersion.DATABASE_VERSION );
     } else {
@@ -692,7 +692,7 @@ public class ParserTh extends TglParser
                   } else {
                     base = dirname;
                   }
-                  String db_path = base + "distox14.sqlite";
+                  String db_path = base + "/distox14.sqlite";
                   // Log.v( "Cave3D-TH", "DB " + db_path );
                   if ( (new File(db_path)).exists() ) {
                     mData = new DataHelper( mApp, db_path, TDVersion.DATABASE_VERSION );

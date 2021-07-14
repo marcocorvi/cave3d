@@ -25,8 +25,8 @@ import android.util.Log;
 public class Cave3DFile
 {
   // android P (9) is API 28
-  final static boolean NOT_ANDROID_10 = ( Build.VERSION.SDK_INT <= Build.VERSION_CODES.P );
-  final static boolean NOT_ANDROID_11 = ( Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q );
+  // final static boolean NOT_ANDROID_10 = ( Build.VERSION.SDK_INT <= Build.VERSION_CODES.P );
+  // final static boolean NOT_ANDROID_11 = ( Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q );
 
   // static String EXTERNAL_STORAGE_PATH =  // app base path
   //   NOT_ANDROID_10 ? Environment.getExternalStorageDirectory().getAbsolutePath()

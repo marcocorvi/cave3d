@@ -289,7 +289,7 @@ public class TopoGL extends Activity
           name = extras.getString( "INPUT_SURVEY" );
           String base = extras.getString( "SURVEY_BASE" );
           if ( name != null ) {
-            // Log.v( "TopoGL-EXTRA", "open input survey " + name + " base " + base );
+            Log.v( "TopoGL-EXTRA", "open input survey " + name + " base " + base );
             if ( doOpenSurvey( name, base ) ) {
               doSketches = true;
               file_dialog = false;
@@ -2487,19 +2487,19 @@ public class TopoGL extends Activity
 
   private ExportData mExport = null;
 
-  void selectDEMFile( )     { selectFile( REQUEST_DEM_FILE,     Intent.ACTION_OPEN_DOCUMENT, R.string.select_dem_file ); }
-  void selectTextureFile( ) { selectFile( REQUEST_TEXTURE_FILE, Intent.ACTION_OPEN_DOCUMENT, R.string.select_texture_file ); }
-  void selectImportFile( )  { selectFile( REQUEST_IMPORT_FILE,  Intent.ACTION_OPEN_DOCUMENT, R.string.select_survey_file ); }
+  void selectDEMFile( )     { selectFile( REQUEST_DEM_FILE,     Intent.ACTION_OPEN_DOCUMENT, null, R.string.select_dem_file ); }
+  void selectTextureFile( ) { selectFile( REQUEST_TEXTURE_FILE, Intent.ACTION_OPEN_DOCUMENT, null, R.string.select_texture_file ); }
+  void selectImportFile( )  { selectFile( REQUEST_IMPORT_FILE,  Intent.ACTION_OPEN_DOCUMENT, null, R.string.select_survey_file ); }
   void selectExportFile( ExportData export )
   {
     mExport = export;
-    selectFile( REQUEST_EXPORT_FILE, Intent.ACTION_CREATE_DOCUMENT, R.string.select_export_file );
+    selectFile( REQUEST_EXPORT_FILE, Intent.ACTION_CREATE_DOCUMENT, mExport.mMime, R.string.select_export_file );
   }
 
-  void selectFile( int request, String action, int res )
+  void selectFile( int request, String action, String mime, int res )
   {
     Intent intent = new Intent( action );
-    intent.setType("*/*");
+    intent.setType( (mime==null)? "*/*" : mime );
     intent.addCategory( Intent.CATEGORY_OPENABLE );
     startActivityForResult( Intent.createChooser(intent, getResources().getString( res ) ), request );
   }

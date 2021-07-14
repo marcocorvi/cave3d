@@ -222,26 +222,34 @@ public class DialogExport extends Dialog
       // export.mOverwrite = mOverwrite.isChecked();
 
       int type = ModelType.NONE;
+      String mime = "text/plain";
       if ( mStlBinary.isChecked() ) {
         type = ModelType.STL_BINARY;
+        mime = "application/octet-stream";
       } else if ( mStlAscii.isChecked() ) {
         type = ModelType.STL_ASCII;
+        mime = "application/octet-stream";
       } else if ( mKmlAscii.isChecked() ) {
         type = ModelType.KML_ASCII;
+        mime = "application/octet-stream";
       } else if ( mCgalAscii.isChecked() ) {
         type = ModelType.CGAL_ASCII;
+        mime = "application/octet-stream";
       } else if ( mLasBinary.isChecked() ) {
-        type = ModelType.LAS_BINARY;
-      } else if ( mDxfAscii.isChecked() ) {
         type = ModelType.DXF_ASCII;
+        mime = "application/octet-stream";
       } else if ( mShpAscii.isChecked() ) {
         type = ModelType.SHP_ASCII;
+        mime = "application/octet-stream";
       } else if ( mGltf.isChecked() ) {
         type = ModelType.GLTF;
+        mime = "application/octet-stream";
       } else {
         type = ModelType.SERIAL;
+        // mime = "text/plain"
       }
       export.mType = type;
+      export.mMime = mime;
 
       mApp.selectExportFile( export );
       // (new ExportTask( mApp, mParser, type, pathname, splays, station, surface, walls, overwrite )).execute();
